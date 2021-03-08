@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:write_your_story/home_screen.dart';
 
@@ -5,29 +6,57 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fontFamilyFallback = ["Kantumruy", "Quicksand"];
+
     return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        textTheme: buildTextTheme(fontFamilyFallback),
-      ),
+      locale: context.locale,
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      debugShowCheckedModeBanner: false,
       home: HomeScreen(),
+      theme: ThemeData(
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        primaryColorDark: Color(0xFF263238),
+        primaryColor: Color(0xFF0E4DA4),
+        backgroundColor: Colors.white,
+        scaffoldBackgroundColor: Color(0xFF263238).withOpacity(0.05),
+        disabledColor: Color(0xFF263238).withOpacity(0.1),
+        dividerColor: Color(0xFF263238).withOpacity(0.2),
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        appBarTheme: AppBarTheme(
+          brightness: Brightness.light,
+        ),
+        textTheme: buildTextTheme(fontFamilyFallback).apply(
+          bodyColor: Color(0xFF263238),
+          displayColor: Color(0xFF263238),
+          decorationColor: Color(0xFF263238),
+        ),
+      ),
     );
   }
 
   TextTheme buildTextTheme(List<String> fontFamilyFallback) {
     return TextTheme(
       headline1: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.w400,
         fontFamilyFallback: fontFamilyFallback,
       ),
       headline2: TextStyle(
+        fontFamilyFallback: fontFamilyFallback,
+      ),
+      headline3: TextStyle(
+        fontFamilyFallback: fontFamilyFallback,
+      ),
+      headline4: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w700,
+        fontFamilyFallback: fontFamilyFallback,
+      ),
+      headline5: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w500,
         fontFamilyFallback: fontFamilyFallback,
       ),
-      headline3: TextStyle(
+      headline6: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w400,
         fontFamilyFallback: fontFamilyFallback,
