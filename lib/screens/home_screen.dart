@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:write_your_story/app_helper/app_helper.dart';
@@ -6,9 +7,10 @@ import 'package:write_your_story/examples/stories_data.dart';
 import 'package:write_your_story/examples/stories_list_data.dart';
 import 'package:write_your_story/models/story_list_model.dart';
 import 'package:write_your_story/models/story_model.dart';
+import 'package:write_your_story/screens/detail_screen.dart';
 import 'package:write_your_story/widgets/vt_ontap_effect.dart';
 import 'package:write_your_story/widgets/vt_tab_view.dart';
-import 'package:write_your_story/widgets/w_tabbar.dart';
+import 'package:write_your_story/widgets/w_sliver_appbar.dart';
 
 class HomeScreen extends HookWidget {
   @override
@@ -21,7 +23,11 @@ class HomeScreen extends HookWidget {
     );
 
     final headerSliverBuilder = (context, _) {
-      return [buildSliverAppBar(context, statusBarHeight)];
+      return [
+        WSliverAppBar(
+          statusBarHeight: statusBarHeight,
+        ),
+      ];
     };
 
     final body = VTTabView(
@@ -52,86 +58,6 @@ class HomeScreen extends HookWidget {
         body: NestedScrollView(
           headerSliverBuilder: headerSliverBuilder,
           body: body,
-        ),
-      ),
-    );
-  }
-
-  SliverAppBar buildSliverAppBar(BuildContext context, double statusBarHeight) {
-    final _listOfMonthTab = WTabBar(
-      height: 40,
-      color: Theme.of(context).backgroundColor,
-      tabs: List.generate(
-        12,
-        (index) {
-          return AppHelper.toNameOfMonth(context).format(
-            DateTime(2020, index + 1),
-          );
-        },
-      ),
-    );
-
-    return SliverAppBar(
-      floating: true,
-      pinned: true,
-      snap: true,
-      forceElevated: true,
-      elevation: 1,
-      backgroundColor: Theme.of(context).backgroundColor,
-      expandedHeight: kToolbarHeight * 2.5,
-      centerTitle: false,
-      flexibleSpace: buildFlexibleSpaceBar(
-        statusBarHeight: statusBarHeight,
-        context: context,
-      ),
-      bottom: _listOfMonthTab,
-    );
-  }
-
-  FlexibleSpaceBar buildFlexibleSpaceBar({
-    double statusBarHeight,
-    BuildContext context,
-  }) {
-    final _theme = Theme.of(context);
-    final _textTheme = _theme.textTheme;
-    final _headerStyle = _textTheme.headline4;
-
-    final _headerTexts = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: statusBarHeight),
-        Text(
-          "សួរស្តី Sothea",
-          style: _headerStyle.copyWith(color: _theme.primaryColor),
-        ),
-        Text(
-          "ចង់សរសេរអីដែរថ្ងៃនេះ?",
-          style: _textTheme.bodyText1,
-        ),
-      ],
-    );
-
-    final _yearText = Text(
-      AppHelper.toYear(context).format(
-        DateTime.now(),
-      ),
-      style: _textTheme.headline2.copyWith(color: _theme.disabledColor),
-    );
-
-    final _padding = const EdgeInsets.symmetric(
-      horizontal: 16.0,
-      vertical: 8.0,
-    );
-
-    return FlexibleSpaceBar(
-      background: Padding(
-        padding: _padding,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _headerTexts,
-            _yearText,
-          ],
         ),
       ),
     );
@@ -177,7 +103,6 @@ class HomeScreen extends HookWidget {
     );
 
     final _sizedBox = const SizedBox(width: 16.0);
-
     return Container(
       margin: const EdgeInsets.only(bottom: 4.0),
       child: Row(
@@ -270,19 +195,31 @@ class HomeScreen extends HookWidget {
       margin: margin,
       child: Stack(
         children: [
-          VTOnTapEffect(
-            effects: _tileEffects,
-            child: Container(
-              padding: padding,
-              color: Theme.of(context).backgroundColor,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _headerText,
-                  _paragraph,
-                ],
-              ),
-            ),
+          OpenContainer(
+            transitionType: ContainerTransitionType.fadeThrough,
+            transitionDuration: Duration(milliseconds: 500),
+            openBuilder: (context, callback) {
+              return StoryDetailScreen(
+                callback: callback,
+              );
+            },
+            closedBuilder: (context, callback) {
+              return VTOnTapEffect(
+                effects: _tileEffects,
+                onTap: callback,
+                child: Container(
+                  padding: padding,
+                  color: Theme.of(context).backgroundColor,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _headerText,
+                      _paragraph,
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
           _favoriteButton,
         ],
