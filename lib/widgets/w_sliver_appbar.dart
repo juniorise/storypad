@@ -60,75 +60,91 @@ class WSliverAppBar extends HookWidget {
     final _textTheme = _theme.textTheme;
     final _headerStyle = _textTheme.headline4;
 
-    final _headerTexts = AnimatedContainer(
-      width: notifier.headlineWidth == 0
-          ? 0
-          : MediaQuery.of(context).size.width -
-              notifier.headlineWidth -
-              16 * 2 -
-              8.0,
-      duration: const Duration(milliseconds: 250),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: statusBarHeight),
-          Stack(
-            children: [
-              if (callback != null)
-                Transform.translate(
-                  offset: const Offset(-16.0, -3.0),
-                  child: VTOnTapEffect(
-                    effects: [
-                      VTOnTapEffectItem(
-                        effectType: VTOnTapEffectType.scaleDown,
-                        active: 0.8,
+    final _inited = notifier.headlineWidth != 0;
+    final _headerTexts = Expanded(
+      child: AnimatedOpacity(
+        opacity: _inited ? 1 : 0,
+        curve: Curves.easeInOutQuad,
+        duration: const Duration(milliseconds: 1000),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: statusBarHeight),
+            Stack(
+              children: [
+                if (callback != null)
+                  Transform.translate(
+                    offset: const Offset(-16.0, -3.0),
+                    child: VTOnTapEffect(
+                      effects: [
+                        VTOnTapEffectItem(
+                          effectType: VTOnTapEffectType.scaleDown,
+                          active: 0.8,
+                        ),
+                        VTOnTapEffectItem(
+                          effectType: VTOnTapEffectType.touchableOpacity,
+                          active: 0.8,
+                        )
+                      ],
+                      child: IconButton(
+                        highlightColor: _theme.disabledColor,
+                        iconSize: 24,
+                        onPressed: callback,
+                        icon: Icon(
+                          Icons.arrow_left,
+                          color: _theme.primaryColor,
+                        ),
                       ),
-                      VTOnTapEffectItem(
-                        effectType: VTOnTapEffectType.touchableOpacity,
-                        active: 0.8,
-                      )
-                    ],
-                    onTap: () {
-                      callback();
-                    },
-                    child: IconButton(
-                      icon: Icon(Icons.arrow_left),
-                      highlightColor: Theme.of(context).disabledColor,
-                      iconSize: 24,
-                      onPressed: () {
-                        callback();
-                      },
+                    ),
+                  ),
+                AnimatedContainer(
+                  curve: Curves.easeInOutQuad,
+                  transform: Matrix4.identity()
+                    ..translate(_inited ? 0.0 : -8.0, 0.0),
+                  duration: const Duration(milliseconds: 500),
+                  child: Container(
+                    padding: EdgeInsets.only(
+                      left: this.callback != null ? 28 : 0,
+                      right: 10,
+                    ),
+                    child: Text(
+                      "ជួបបុរសក្នុងក្តីស្រមៃដកដកថដកកក",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: _headerStyle.copyWith(color: _theme.primaryColor),
                     ),
                   ),
                 ),
-              Container(
-                padding: EdgeInsets.only(left: this.callback != null ? 28 : 0),
-                child: Text(
-                  "ជួបបុរសក្នុងក្តីស្រមៃដកដកថដកកក",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _headerStyle.copyWith(color: _theme.primaryColor),
-                ),
+              ],
+            ),
+            AnimatedOpacity(
+              opacity: _inited ? 1 : 0,
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeInQuad,
+              child: Text(
+                "ចង់សរសេរអីដែរថ្ងៃនេះ?",
+                style: _textTheme.bodyText1,
               ),
-            ],
-          ),
-          Text(
-            "ចង់សរសេរអីដែរថ្ងៃនេះ?",
-            style: _textTheme.bodyText1,
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
 
-    final _yearText = MeasureSize(
-      onChange: (Size size) {
-        notifier.setHeadlineWidth(size.width);
-      },
-      child: Text(
-        AppHelper.toYear(context).format(
-          DateTime.now(),
+    final _yearText = AnimatedOpacity(
+      duration: Duration(milliseconds: 1000),
+      curve: Curves.easeInQuad,
+      opacity: _inited ? 1 : 0,
+      child: MeasureSize(
+        onChange: (Size size) {
+          notifier.setHeadlineWidth(size.width);
+        },
+        child: Text(
+          AppHelper.toYear(context).format(
+            DateTime.now(),
+          ),
+          style: _textTheme.headline2.copyWith(color: _theme.disabledColor),
         ),
-        style: _textTheme.headline2.copyWith(color: _theme.disabledColor),
       ),
     );
 
