@@ -18,7 +18,11 @@ class StoryDetailScreen extends StatelessWidget {
       return [
         WSliverAppBar(
           statusBarHeight: statusBarHeight,
+          backgroundText: "មករា",
           callback: callback,
+          titleText: "ថយក្រោយ",
+          subtitleText: "ចង់សរសេរអីដែរថ្ងៃនេះ?",
+          tabs: List.generate(12, (index) => "$index"),
         ),
       ];
     };

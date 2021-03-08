@@ -23,6 +23,7 @@ class App extends StatelessWidget {
         dividerColor: Color(0xFF263238).withOpacity(0.2),
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
+        platform: TargetPlatform.iOS,
         appBarTheme: AppBarTheme(
           brightness: Brightness.light,
         ),

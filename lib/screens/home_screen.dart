@@ -26,6 +26,17 @@ class HomeScreen extends HookWidget {
       return [
         WSliverAppBar(
           statusBarHeight: statusBarHeight,
+          titleText: "សួរស្តីសុធា",
+          subtitleText: "ចង់សរសេរអីដែរថ្ងៃនេះ?",
+          backgroundText: DateTime.now().year.toString(),
+          tabs: List.generate(
+            12,
+            (index) {
+              return AppHelper.toNameOfMonth(context).format(
+                DateTime(2020, index + 1),
+              );
+            },
+          ),
         ),
       ];
     };
@@ -91,7 +102,12 @@ class HomeScreen extends HookWidget {
     final _rightSide = Expanded(
       child: Column(
         children: [
-          const Divider(thickness: 1, indent: 4.0),
+          const SizedBox(height: 4.0),
+          Divider(
+            thickness: 1,
+            indent: 4.0,
+            color: Theme.of(context).disabledColor,
+          ),
           for (int i = 0; i < model.childrenId.length; i++)
             buildStoryTile(
               context: context,
@@ -198,10 +214,10 @@ class HomeScreen extends HookWidget {
           OpenContainer(
             transitionType: ContainerTransitionType.fadeThrough,
             transitionDuration: Duration(milliseconds: 500),
+            openElevation: 0.0,
+            closedElevation: 0.5,
             openBuilder: (context, callback) {
-              return StoryDetailScreen(
-                callback: callback,
-              );
+              return StoryDetailScreen(callback: callback);
             },
             closedBuilder: (context, callback) {
               return VTOnTapEffect(
