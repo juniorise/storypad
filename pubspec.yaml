@@ -23,6 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_fonts: ^1.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -71,6 +72,17 @@ flutter:
   #       - asset: fonts/TrajanPro.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
+  fonts:
+    - family: Quicksand
+      fonts:
+        - asset: assets/fonts/Quicksand/Quicksand-Light.ttf
+        - asset: assets/fonts/Quicksand/Quicksand-Regular.ttf
+        - asset: assets/fonts/Quicksand/Quicksand-Bold.ttf
+    - family: Kantumruy
+      fonts:
+        - asset: assets/fonts/Kantumruy/Kantumruy-Light.ttf
+        - asset: assets/fonts/Kantumruy/Kantumruy-Regular.ttf
+        - asset: assets/fonts/Kantumruy/Kantumruy-Bold.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
