@@ -66,6 +66,7 @@ class VTOnTapEffect extends HookWidget {
       onTapUp: (_) {
         valueNotifier.value = 1;
         controller.reverse();
+        onTap();
       },
       onTapCancel: () {
         valueNotifier.value = 1;

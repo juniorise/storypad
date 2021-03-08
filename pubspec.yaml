@@ -29,6 +29,8 @@ dependencies:
   scroll_to_index: ^1.0.2
   flutter_statusbarcolor: ^0.2.3
 
+  animations: ^1.1.2
+
   # State management
   flutter_hooks: ^0.14.0
   hooks_riverpod: ^0.12.1
