@@ -36,7 +36,7 @@ class AppHelper {
   static int dayOfWeek(BuildContext context, DateTime dateTime) {
     final result = DateFormat.E("en").format(dateTime);
     for (int i = 0; i < DAY.length; i++) {
-      if (result == DAY[i]) return i;
+      if (result == DAY[i]) return i == 0 ? 7 : i;
     }
     return 1;
   }
