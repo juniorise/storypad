@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class StoryListModel {
-  final String id;
-  final List<String> childrenId;
+  final int id;
+  final List<int> childrenId;
   final bool isLeaf;
   final DateTime createOn;
 

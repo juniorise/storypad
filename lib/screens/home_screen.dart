@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_your_story/app_helper/app_helper.dart';
 import 'package:write_your_story/colors.dart';
 import 'package:write_your_story/examples/stories_data.dart';
@@ -8,6 +9,8 @@ import 'package:write_your_story/examples/stories_list_by_day_data.dart';
 import 'package:write_your_story/examples/stories_list_by_month_data.dart';
 import 'package:write_your_story/models/story_list_model.dart';
 import 'package:write_your_story/models/story_model.dart';
+import 'package:write_your_story/notifier/database_notifier.dart';
+import 'package:write_your_story/notifier/home_screen_notifier.dart';
 import 'package:write_your_story/screens/detail_screen.dart';
 import 'package:write_your_story/widgets/vt_ontap_effect.dart';
 import 'package:write_your_story/widgets/vt_tab_view.dart';
@@ -18,6 +21,7 @@ class HomeScreen extends HookWidget {
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
 
+    final notifier = useProvider(homeScreenProvider);
     return DefaultTabController(
       length: 12,
       child: Scaffold(
@@ -36,7 +40,7 @@ class HomeScreen extends HookWidget {
             children: List.generate(
               12,
               (index) {
-                final String monthID = "${index + 1}";
+                final int monthID = index + 1;
                 return buildStoryInMonth(
                   monthId: monthID,
                   context: context,
@@ -77,10 +81,10 @@ class HomeScreen extends HookWidget {
   }
 
   ListView buildStoryInMonth({
-    @required String monthId,
+    @required int monthId,
     @required BuildContext context,
   }) {
-    final List<String> storiesInMonthIds =
+    final List<int> storiesInMonthIds =
         globalStoryListByMonthID[monthId].childrenId;
 
     return ListView(
@@ -89,7 +93,7 @@ class HomeScreen extends HookWidget {
       children: List.generate(
         storiesInMonthIds.length,
         (_dayIndex) {
-          String dayId = storiesInMonthIds[_dayIndex];
+          int dayId = storiesInMonthIds[_dayIndex];
           return buildStoryInDay(
             context: context,
             dayId: dayId,
@@ -103,16 +107,18 @@ class HomeScreen extends HookWidget {
 
   Widget buildStoryInDay({
     @required BuildContext context,
-    @required String dayId,
-    @required String monthId,
+    @required int monthId,
+    @required int dayId,
     @required int dayIndex,
   }) {
     final StoryListModel _storyListByDay = globalStoryListByDayId[dayId];
+    if (_storyListByDay == null) return SizedBox();
 
     final int dayOfWeek = AppHelper.dayOfWeek(
       context,
       _storyListByDay.createOn,
     );
+
     final Color containerColor = colorsByDay[dayOfWeek];
 
     /// if locale is km => dayName is ចន្ទ​​ អង្គារ​ ...
@@ -167,7 +173,7 @@ class HomeScreen extends HookWidget {
             children: List.generate(
               _storyListByDay.childrenId.length,
               (_storyIndex) {
-                final String _storyId = _storyListByDay.childrenId[_storyIndex];
+                final int _storyId = _storyListByDay.childrenId[_storyIndex];
                 return buildStoryTile(
                   context: context,
                   storyId: _storyId,
@@ -203,72 +209,19 @@ class HomeScreen extends HookWidget {
 
   Widget buildStoryTile({
     @required BuildContext context,
-    @required String storyId,
-    @required String monthId,
-    @required String dayId,
+    @required int monthId,
+    @required int storyId,
+    @required int dayId,
     @required int dayIndex,
     @required int storyIndex,
     EdgeInsets margin = const EdgeInsets.only(bottom: 8.0),
   }) {
-    final StoryModel story = glbalStoryByID[storyId];
-    final int _paragraphLength = story.paragraph.length;
-    int _paragraphMaxLines = 0;
-
-    if (_paragraphLength <= 100) {
-      _paragraphMaxLines = 1;
-    }
-
-    if (_paragraphLength > 100) {
-      _paragraphMaxLines = 2;
-    }
-
-    if (_paragraphLength > 200) {
-      _paragraphMaxLines = 3;
-    }
-
-    final _headerText = Padding(
-      padding: const EdgeInsets.only(right: 30),
-      child: Text(
-        story.title,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(context).textTheme.subtitle1,
-        textAlign: TextAlign.start,
-      ),
-    );
-
-    final _paragraph = Text(
-      story.paragraph,
-      textAlign: TextAlign.start,
-      maxLines: _paragraphMaxLines,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(
-        color: Theme.of(context).textTheme.subtitle2.color.withOpacity(0.6),
-      ),
-    );
-
     final _favoriteButtonEffect = [
       VTOnTapEffectItem(
         effectType: VTOnTapEffectType.scaleDown,
         active: 0.9,
       )
     ];
-
-    final _favoriteButton = Positioned(
-      right: 0,
-      top: 0,
-      child: VTOnTapEffect(
-        effects: _favoriteButtonEffect,
-        child: IconButton(
-          onPressed: () {},
-          iconSize: 20,
-          icon: Icon(
-            story.isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
-            color: Theme.of(context).dividerColor,
-          ),
-        ),
-      ),
-    );
 
     final _tileEffects = [
       VTOnTapEffectItem(
@@ -277,46 +230,115 @@ class HomeScreen extends HookWidget {
       )
     ];
 
-    return VTOnTapEffect(
-      effects: _tileEffects,
-      child: Container(
-        margin: margin,
-        child: Stack(
-          children: [
-            OpenContainer(
-              transitionType: ContainerTransitionType.fadeThrough,
-              transitionDuration: const Duration(milliseconds: 500),
-              openElevation: 0.0,
-              closedElevation: 0.5,
-              openBuilder: (context, callback) {
-                print(
-                  "monthId $monthId ,dayId: $dayId, dayIndex: $dayIndex, storyIndex: $storyIndex ",
-                );
-                return DetailScreen(
-                  callback: callback,
-                  monthId: monthId,
-                  dayIndex: dayIndex,
-                  storyIndex: storyIndex,
-                );
-              },
-              closedBuilder: (context, callback) {
-                return Container(
-                  padding: padding,
-                  color: Theme.of(context).backgroundColor,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _headerText,
-                      _paragraph,
-                    ],
-                  ),
-                );
-              },
+    return Consumer(
+      builder: (context, watch, child) {
+        final databaseNotifer = watch(databaseProvider);
+
+        StoryModel story;
+        int _paragraphMaxLines = 1;
+
+        if (databaseNotifer.storyById != null) {
+          story = databaseNotifer.storyById[storyId];
+          int _paragraphLength = story.paragraph.length;
+          if (_paragraphLength <= 100) {
+            _paragraphMaxLines = 1;
+          }
+
+          if (_paragraphLength > 100) {
+            _paragraphMaxLines = 2;
+          }
+
+          if (_paragraphLength > 200) {
+            _paragraphMaxLines = 3;
+          }
+        }
+
+        final _headerText = Padding(
+          padding: const EdgeInsets.only(right: 30),
+          child: Text(
+            story != null ? story.title ?? "" : "",
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.subtitle1,
+            textAlign: TextAlign.start,
+          ),
+        );
+
+        final _paragraph = Text(
+          story != null ? story.paragraph ?? "" : "",
+          textAlign: TextAlign.start,
+          maxLines: _paragraphMaxLines,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.subtitle2.color.withOpacity(0.6),
+          ),
+        );
+
+        final _favoriteButton = Positioned(
+          right: 0,
+          top: 0,
+          child: VTOnTapEffect(
+            effects: _favoriteButtonEffect,
+            child: IconButton(
+              onPressed: () {},
+              iconSize: 20,
+              icon: Icon(
+                story != null && story.isFavorite
+                    ? Icons.favorite
+                    : Icons.favorite_border_rounded,
+                color: Theme.of(context).dividerColor,
+              ),
             ),
-            _favoriteButton,
-          ],
-        ),
-      ),
+          ),
+        );
+
+        return AnimatedOpacity(
+          duration: const Duration(milliseconds: 500),
+          opacity: databaseNotifer.loading ? 0 : 1,
+          child: VTOnTapEffect(
+            effects: _tileEffects,
+            child: Container(
+              width: double.infinity,
+              margin: margin,
+              child: Stack(
+                children: [
+                  OpenContainer(
+                    transitionType: ContainerTransitionType.fadeThrough,
+                    transitionDuration: const Duration(milliseconds: 500),
+                    openElevation: 0.0,
+                    closedElevation: 0.5,
+                    openBuilder: (context, callback) {
+                      print(
+                        "monthId $monthId ,dayId: $dayId, dayIndex: $dayIndex, storyIndex: $storyIndex ",
+                      );
+                      return DetailScreen(
+                        callback: callback,
+                        monthId: monthId,
+                        dayIndex: dayIndex,
+                        storyIndex: storyIndex,
+                      );
+                    },
+                    closedBuilder: (context, callback) {
+                      return Container(
+                        padding: padding,
+                        color: Theme.of(context).backgroundColor,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _headerText,
+                            _paragraph,
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                  _favoriteButton,
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

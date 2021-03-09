@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import "package:path/path.dart";
+import 'package:write_your_story/models/story_model.dart';
 
 class WDatabase {
   WDatabase._privateConstructor();
@@ -40,13 +41,25 @@ class WDatabase {
     return await openDatabase(dbPath);
   }
 
-  Future<List> storyListByID() async {
-    var dbClient = await database;
-    List<Map<String, dynamic>> maps = await dbClient.query(
+  Future<Map<int, StoryModel>> storyById() async {
+    var client = await database;
+    List<Map<String, dynamic>> maps = await client.query(
       "story",
-      columns: ["id", "title"],
+      columns: [
+        "id",
+        "title",
+        "paragraph",
+        "create_on",
+        "is_favorite",
+      ],
     );
 
-    return maps;
+    final map = Map.fromIterable(maps, key: (e) {
+      return int.parse("${e['id']}");
+    }, value: (e) {
+      return StoryModel.fromJson(e);
+    });
+
+    return map;
   }
 }

@@ -5,7 +5,7 @@ import 'package:write_your_story/examples/stories_list_by_month_data.dart';
 void main() async {
   /// generate insert story
   int i = 1;
-  glbalStoryByID.forEach((key, value) {
+  tmpGlbalStoryByID.forEach((key, value) {
     final createOn = value.createOn.millisecondsSinceEpoch;
     final title = value.title;
     final paragraph = value.paragraph;
