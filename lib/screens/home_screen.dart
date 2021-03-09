@@ -4,7 +4,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:write_your_story/app_helper/app_helper.dart';
 import 'package:write_your_story/colors.dart';
 import 'package:write_your_story/examples/stories_data.dart';
-import 'package:write_your_story/examples/stories_list_data.dart';
+import 'package:write_your_story/examples/stories_list_by_day_data.dart';
+import 'package:write_your_story/examples/stories_list_by_month_data.dart';
 import 'package:write_your_story/models/story_list_model.dart';
 import 'package:write_your_story/models/story_model.dart';
 import 'package:write_your_story/screens/detail_screen.dart';
@@ -15,86 +16,134 @@ import 'package:write_your_story/widgets/w_sliver_appbar.dart';
 class HomeScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
-    double statusBarHeight = MediaQuery.of(context).padding.top;
-
-    const padding = const EdgeInsets.symmetric(
-      horizontal: 16.0,
-      vertical: 8.0,
-    );
-
-    final headerSliverBuilder = (context, _) {
-      return [
-        WSliverAppBar(
-          statusBarHeight: statusBarHeight,
-          titleText: "សួរស្តីសុធា",
-          subtitleText: "ចង់សរសេរអីដែរថ្ងៃនេះ?",
-          backgroundText: DateTime.now().year.toString(),
-          tabs: List.generate(
-            12,
-            (index) {
-              return AppHelper.toNameOfMonth(context).format(
-                DateTime(2020, index + 1),
-              );
-            },
-          ),
-        ),
-      ];
-    };
-
-    final body = VTTabView(
-      children: List.generate(
-        12,
-        (index) {
-          return ListView(
-            key: Key("$index"),
-            physics: ClampingScrollPhysics(),
-            padding: padding,
-            children: storyListByMonthID["${index + 1}"].childrenId.map(
-              (id) {
-                return buildStoryList(
-                  context,
-                  storyListByDayID[id],
-                );
-              },
-            ).toList(),
-          );
-        },
-      ),
-    );
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
 
     return DefaultTabController(
       length: 12,
       child: Scaffold(
         extendBodyBehindAppBar: true,
         body: NestedScrollView(
-          headerSliverBuilder: headerSliverBuilder,
-          body: body,
+          headerSliverBuilder: (context, _) {
+            return [
+              buildHeaderAppBar(
+                statusBarHeight: statusBarHeight,
+                context: context,
+              ),
+            ];
+          },
+          body: VTTabView(
+            physics: const BouncingScrollPhysics(),
+            children: List.generate(
+              12,
+              (index) {
+                final String monthID = "${index + 1}";
+                return buildStoryInMonth(
+                  monthID: monthID,
+                  context: context,
+                );
+              },
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget buildStoryList(BuildContext context, StoryListModel model) {
-    int dayOfWeek = AppHelper.dayOfWeek(context, model.createOn);
+  EdgeInsets get padding {
+    return const EdgeInsets.symmetric(
+      horizontal: 16.0,
+      vertical: 8.0,
+    );
+  }
+
+  WSliverAppBar buildHeaderAppBar({
+    double statusBarHeight,
+    BuildContext context,
+  }) {
+    return WSliverAppBar(
+      statusBarHeight: statusBarHeight,
+      titleText: "សួរស្តីសុធា",
+      subtitleText: "ចង់សរសេរអីដែរថ្ងៃនេះ?",
+      backgroundText: DateTime.now().year.toString(),
+      tabs: List.generate(
+        12,
+        (index) {
+          return AppHelper.toNameOfMonth(context).format(
+            DateTime(2020, index + 1),
+          );
+        },
+      ),
+    );
+  }
+
+  ListView buildStoryInMonth({
+    @required String monthID,
+    @required BuildContext context,
+  }) {
+    final List<String> storiesInMonthIds =
+        globalStoryListByMonthID[monthID].childrenId;
+
+    return ListView(
+      physics: const BouncingScrollPhysics(),
+      padding: padding,
+      children: storiesInMonthIds.map(
+        (dayId) {
+          return buildStoryInDay(
+            context: context,
+            dayId: dayId,
+          );
+        },
+      ).toList(),
+    );
+  }
+
+  Widget buildStoryInDay({
+    @required BuildContext context,
+    @required String dayId,
+  }) {
+    final StoryListModel _storyListByDay = globalStoryListByDayId[dayId];
+
+    final int dayOfWeek = AppHelper.dayOfWeek(
+      context,
+      _storyListByDay.createOn,
+    );
     final Color containerColor = colorsByDay[dayOfWeek];
+
+    /// if locale is km => dayName is ចន្ទ​​ អង្គារ​ ...
+    /// if locale is en => dayName is Mon, Tue ...
+    final String _dayName =
+        AppHelper.toDay(context).format(_storyListByDay.createOn);
 
     final _leftSide = Column(
       children: [
         Text(
-          AppHelper.toDay(context).format(model.createOn),
+          _dayName,
         ),
-        Container(
-          child: Text(
-            AppHelper.toIntDay(context).format(model.createOn),
-            style: TextStyle(
-              color: Colors.white,
+        const SizedBox(height: 4.0),
+        Stack(
+          children: [
+            Container(
+              height: 30,
+              width: 30,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: containerColor,
+              ),
             ),
-          ),
-          padding: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: containerColor,
-          ),
+            Positioned(
+              top: 3,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Text(
+                _storyListByDay.createOn.day.toString(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).backgroundColor,
+                ),
+              ),
+            ),
+          ],
         )
       ],
     );
@@ -108,12 +157,23 @@ class HomeScreen extends HookWidget {
             indent: 4.0,
             color: Theme.of(context).disabledColor,
           ),
-          for (int i = 0; i < model.childrenId.length; i++)
-            buildStoryTile(
-              context: context,
-              story: storyByID[model.childrenId[i]],
-              margin: EdgeInsets.only(top: i == 0 ? 8.0 : 0, bottom: 8.0),
+          Column(
+            children: List.generate(
+              _storyListByDay.childrenId.length,
+              (index) {
+                final String _storyId = _storyListByDay.childrenId[index];
+                return buildStoryTile(
+                  context: context,
+                  storyId: _storyId,
+                  storyIndex: index,
+                  margin: EdgeInsets.only(
+                    top: index == 0 ? 8.0 : 0,
+                    bottom: 8.0,
+                  ),
+                );
+              },
             ),
+          )
         ],
       ),
     );
@@ -134,22 +194,24 @@ class HomeScreen extends HookWidget {
 
   Widget buildStoryTile({
     @required BuildContext context,
-    @required StoryModel story,
+    @required String storyId,
+    @required int storyIndex,
     EdgeInsets margin = const EdgeInsets.only(bottom: 8.0),
   }) {
-    final int paragraphLength = story.paragraph.length;
-    int paragraphMaxLines = 0;
+    final StoryModel story = glbalStoryByID[storyId];
+    final int _paragraphLength = story.paragraph.length;
+    int _paragraphMaxLines = 0;
 
-    if (paragraphLength <= 100) {
-      paragraphMaxLines = 1;
+    if (_paragraphLength <= 100) {
+      _paragraphMaxLines = 1;
     }
 
-    if (paragraphLength > 100) {
-      paragraphMaxLines = 2;
+    if (_paragraphLength > 100) {
+      _paragraphMaxLines = 2;
     }
 
-    if (paragraphLength > 200) {
-      paragraphMaxLines = 3;
+    if (_paragraphLength > 200) {
+      _paragraphMaxLines = 3;
     }
 
     final _headerText = Padding(
@@ -166,7 +228,7 @@ class HomeScreen extends HookWidget {
     final _paragraph = Text(
       story.paragraph,
       textAlign: TextAlign.start,
-      maxLines: paragraphMaxLines,
+      maxLines: _paragraphMaxLines,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
         color: Theme.of(context).textTheme.subtitle2.color.withOpacity(0.6),
@@ -195,11 +257,6 @@ class HomeScreen extends HookWidget {
       ),
     );
 
-    final padding = const EdgeInsets.symmetric(
-      horizontal: 16.0,
-      vertical: 8.0,
-    );
-
     final _tileEffects = [
       VTOnTapEffectItem(
         effectType: VTOnTapEffectType.touchableOpacity,
@@ -207,23 +264,27 @@ class HomeScreen extends HookWidget {
       )
     ];
 
-    return Container(
-      margin: margin,
-      child: Stack(
-        children: [
-          OpenContainer(
-            transitionType: ContainerTransitionType.fadeThrough,
-            transitionDuration: Duration(milliseconds: 500),
-            openElevation: 0.0,
-            closedElevation: 0.5,
-            openBuilder: (context, callback) {
-              return StoryDetailScreen(callback: callback);
-            },
-            closedBuilder: (context, callback) {
-              return VTOnTapEffect(
-                effects: _tileEffects,
-                onTap: callback,
-                child: Container(
+    return VTOnTapEffect(
+      effects: _tileEffects,
+      child: Container(
+        margin: margin,
+        child: Stack(
+          children: [
+            OpenContainer(
+              transitionType: ContainerTransitionType.fadeThrough,
+              transitionDuration: const Duration(milliseconds: 500),
+              openElevation: 0.0,
+              closedElevation: 0.5,
+              openBuilder: (context, callback) {
+                return StoryDetailScreen(
+                  callback: callback,
+                  storyList: [],
+                  index: storyIndex,
+                  storyListByMonth: null,
+                );
+              },
+              closedBuilder: (context, callback) {
+                return Container(
                   padding: padding,
                   color: Theme.of(context).backgroundColor,
                   child: Column(
@@ -233,12 +294,12 @@ class HomeScreen extends HookWidget {
                       _paragraph,
                     ],
                   ),
-                ),
-              );
-            },
-          ),
-          _favoriteButton,
-        ],
+                );
+              },
+            ),
+            _favoriteButton,
+          ],
+        ),
       ),
     );
   }

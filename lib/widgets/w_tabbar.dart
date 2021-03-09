@@ -42,6 +42,7 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
           child: Container(
             height: height,
             child: WCopiedTabBar(
+              physics: const BouncingScrollPhysics(),
               scrollController: scrollController,
               controller: tabController,
               isScrollable: true,

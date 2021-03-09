@@ -1,6 +1,6 @@
 import 'package:write_your_story/models/story_model.dart';
 
-final Map<String, StoryModel> storyByID = {
+final Map<String, StoryModel> glbalStoryByID = {
   "1": StoryModel(
     id: "1",
     title: "7 Colors of dress for every single day of the week",
