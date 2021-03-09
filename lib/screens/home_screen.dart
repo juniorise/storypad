@@ -38,7 +38,7 @@ class HomeScreen extends HookWidget {
               (index) {
                 final String monthID = "${index + 1}";
                 return buildStoryInMonth(
-                  monthID: monthID,
+                  monthId: monthID,
                   context: context,
                 );
               },
@@ -77,29 +77,35 @@ class HomeScreen extends HookWidget {
   }
 
   ListView buildStoryInMonth({
-    @required String monthID,
+    @required String monthId,
     @required BuildContext context,
   }) {
     final List<String> storiesInMonthIds =
-        globalStoryListByMonthID[monthID].childrenId;
+        globalStoryListByMonthID[monthId].childrenId;
 
     return ListView(
       physics: const BouncingScrollPhysics(),
       padding: padding,
-      children: storiesInMonthIds.map(
-        (dayId) {
+      children: List.generate(
+        storiesInMonthIds.length,
+        (_dayIndex) {
+          String dayId = storiesInMonthIds[_dayIndex];
           return buildStoryInDay(
             context: context,
             dayId: dayId,
+            dayIndex: _dayIndex,
+            monthId: monthId,
           );
         },
-      ).toList(),
+      ),
     );
   }
 
   Widget buildStoryInDay({
     @required BuildContext context,
     @required String dayId,
+    @required String monthId,
+    @required int dayIndex,
   }) {
     final StoryListModel _storyListByDay = globalStoryListByDayId[dayId];
 
@@ -160,14 +166,17 @@ class HomeScreen extends HookWidget {
           Column(
             children: List.generate(
               _storyListByDay.childrenId.length,
-              (index) {
-                final String _storyId = _storyListByDay.childrenId[index];
+              (_storyIndex) {
+                final String _storyId = _storyListByDay.childrenId[_storyIndex];
                 return buildStoryTile(
                   context: context,
                   storyId: _storyId,
-                  storyIndex: index,
+                  storyIndex: _storyIndex,
+                  dayIndex: dayIndex,
+                  dayId: dayId,
+                  monthId: monthId,
                   margin: EdgeInsets.only(
-                    top: index == 0 ? 8.0 : 0,
+                    top: _storyIndex == 0 ? 8.0 : 0,
                     bottom: 8.0,
                   ),
                 );
@@ -195,6 +204,9 @@ class HomeScreen extends HookWidget {
   Widget buildStoryTile({
     @required BuildContext context,
     @required String storyId,
+    @required String monthId,
+    @required String dayId,
+    @required int dayIndex,
     @required int storyIndex,
     EdgeInsets margin = const EdgeInsets.only(bottom: 8.0),
   }) {
@@ -249,9 +261,10 @@ class HomeScreen extends HookWidget {
         effects: _favoriteButtonEffect,
         child: IconButton(
           onPressed: () {},
+          iconSize: 20,
           icon: Icon(
             story.isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
-            color: Theme.of(context).errorColor,
+            color: Theme.of(context).dividerColor,
           ),
         ),
       ),
@@ -276,11 +289,14 @@ class HomeScreen extends HookWidget {
               openElevation: 0.0,
               closedElevation: 0.5,
               openBuilder: (context, callback) {
-                return StoryDetailScreen(
+                print(
+                  "monthId $monthId ,dayId: $dayId, dayIndex: $dayIndex, storyIndex: $storyIndex ",
+                );
+                return DetailScreen(
                   callback: callback,
-                  storyList: [],
-                  index: storyIndex,
-                  storyListByMonth: null,
+                  monthId: monthId,
+                  dayIndex: dayIndex,
+                  storyIndex: storyIndex,
                 );
               },
               closedBuilder: (context, callback) {

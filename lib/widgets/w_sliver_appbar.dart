@@ -9,11 +9,12 @@ import 'package:write_your_story/widgets/w_tabbar.dart';
 class WSliverAppBar extends HookWidget {
   const WSliverAppBar({
     Key key,
-    @required this.tabs,
     @required this.titleText,
     @required this.subtitleText,
     @required this.statusBarHeight,
-    @required this.backgroundText,
+    this.tabs,
+    this.backgroundText,
+    this.tabController,
     this.callback,
   }) : super(key: key);
 
@@ -23,10 +24,14 @@ class WSliverAppBar extends HookWidget {
   final String titleText;
   final String subtitleText;
   final String backgroundText;
+  final TabController tabController;
 
   @override
   Widget build(BuildContext context) {
     final notifier = useProvider(appBarProvider);
+    final controller = tabController ?? DefaultTabController.of(context);
+
+    final tabsNotEmpty = tabs != null && tabs.isNotEmpty;
 
     return SliverAppBar(
       floating: true,
@@ -42,11 +47,14 @@ class WSliverAppBar extends HookWidget {
         context: context,
         notifier: notifier,
       ),
-      bottom: WTabBar(
-        height: 40,
-        color: Theme.of(context).backgroundColor,
-        tabs: tabs,
-      ),
+      bottom: this.tabs != null && tabs.isNotEmpty
+          ? WTabBar(
+              controller: controller,
+              height: 40,
+              color: Theme.of(context).backgroundColor,
+              tabs: tabs,
+            )
+          : null,
     );
   }
 
@@ -64,6 +72,9 @@ class WSliverAppBar extends HookWidget {
     if (this.callback != null) {
       offsetX = -16.0;
     }
+
+    final tabsNotEmpty = tabs != null && tabs.isNotEmpty;
+
     final _headerTexts = Expanded(
       child: AnimatedOpacity(
         opacity: _inited ? 1 : 0,
@@ -145,20 +156,23 @@ class WSliverAppBar extends HookWidget {
       ),
     );
 
-    final _yearText = AnimatedOpacity(
-      duration: Duration(milliseconds: 1000),
-      curve: Curves.easeInQuad,
-      opacity: _inited ? 1 : 0,
-      child: MeasureSize(
-        onChange: (Size size) {
-          notifier.setHeadlineWidth(size.width);
-        },
-        child: Text(
-          this.backgroundText,
-          style: _textTheme.headline2.copyWith(color: _theme.disabledColor),
-        ),
-      ),
-    );
+    final _yearText = this.backgroundText != null
+        ? AnimatedOpacity(
+            duration: Duration(milliseconds: 1000),
+            curve: Curves.easeInQuad,
+            opacity: _inited ? 1 : 0,
+            child: MeasureSize(
+              onChange: (Size size) {
+                notifier.setHeadlineWidth(size.width);
+              },
+              child: Text(
+                this.backgroundText,
+                style:
+                    _textTheme.headline2.copyWith(color: _theme.disabledColor),
+              ),
+            ),
+          )
+        : null;
 
     final _padding = const EdgeInsets.symmetric(
       horizontal: 16.0,
@@ -173,7 +187,7 @@ class WSliverAppBar extends HookWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _headerTexts,
-            _yearText,
+            _yearText ?? const SizedBox(),
           ],
         ),
       ),

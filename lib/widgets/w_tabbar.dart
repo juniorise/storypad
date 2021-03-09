@@ -41,6 +41,7 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
           alignment: Alignment.center,
           child: Container(
             height: height,
+            width: double.infinity,
             child: WCopiedTabBar(
               physics: const BouncingScrollPhysics(),
               scrollController: scrollController,
