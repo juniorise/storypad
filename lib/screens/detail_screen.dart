@@ -34,14 +34,15 @@ class DetailScreen extends HookWidget {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final _storyListInMonth = globalStoryListByMonthID[monthId];
 
+    final _tabLength = getValidLength(_storyListInMonth.childrenId);
     final tabController = useTabController(
-      initialLength: _storyListInMonth.childrenId.length,
+      initialLength: _tabLength,
       initialIndex: dayIndex,
     );
 
     final notifier = useProvider(detailScreenNotifier);
-
     final createOn = globalStoryListByMonthID[monthId].createOn;
+
     final headerSliverBuilder = (context, _) {
       return [
         WSliverAppBar(
@@ -54,17 +55,7 @@ class DetailScreen extends HookWidget {
             notifier.setClickedOutside(false);
             callback();
           },
-          tabs: List.generate(
-            _storyListInMonth.childrenId.length,
-            (index) {
-              int _dayId = _storyListInMonth.childrenId[index];
-              DateTime _createOn = globalStoryListByDayId[_dayId].createOn;
-              String _dayInt = _createOn.day.toString();
-
-              String _dayName = AppHelper.toDay(context).format(_createOn);
-              return _dayName + " " + _dayInt;
-            },
-          ),
+          tabs: buildTabs(_storyListInMonth, context),
         ),
       ];
     };
@@ -122,6 +113,32 @@ class DetailScreen extends HookWidget {
     );
   }
 
+  List<String> buildTabs(
+    StoryListModel _storyListInMonth,
+    BuildContext context,
+  ) {
+    List<String> tabs = [];
+    _storyListInMonth.childrenId.forEach(
+      (int _dayId) {
+        if (globalStoryListByDayId.containsKey(_dayId)) {
+          DateTime _createOn = globalStoryListByDayId[_dayId].createOn;
+          String _dayInt = _createOn.day.toString();
+          String _dayName = AppHelper.toDay(context).format(_createOn);
+          tabs.add(_dayName + " " + _dayInt);
+        }
+      },
+    );
+    return tabs;
+  }
+
+  int getValidLength(List<int> childrenId) {
+    int i = 0;
+    childrenId.forEach((int _dayId) {
+      if (globalStoryListByDayId.containsKey(_dayId)) i++;
+    });
+    return i;
+  }
+
   VTTabView buildVtTabView({
     @required TabController controller,
     @required StoryListModel storyListInMonth,
@@ -130,113 +147,142 @@ class DetailScreen extends HookWidget {
   }) {
     return VTTabView(
       controller: controller,
-      children: List.generate(
-        storyListInMonth.childrenId.length,
-        (_dayIndex) {
-          final _dayId = storyListInMonth.childrenId[_dayIndex];
-          final _storyListInDay = globalStoryListByDayId[_dayId];
+      children: buildTabChildren(
+        storyListInMonth,
+        notifier,
+      ),
+    );
+  }
 
-          return ListView(
+  List<Widget> buildTabChildren(
+    StoryListModel storyListInMonth,
+    DetailScreenNotifier notifier,
+  ) {
+    List<Widget> list = [];
+
+    for (int _dayIndex = 0;
+        _dayIndex < storyListInMonth.childrenId.length;
+        _dayIndex++) {
+      final _dayId = storyListInMonth.childrenId[_dayIndex];
+
+      if (globalStoryListByDayId.containsKey(_dayId)) {
+        final _storyListInDay = globalStoryListByDayId[_dayId];
+
+        bool _storyNotEmpty = _storyListInDay != null &&
+            _storyListInDay.childrenId != null &&
+            _storyListInDay.childrenId.isNotEmpty;
+
+        list.add(
+          ListView(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
               vertical: 8.0,
             ),
-            children: List.generate(
-              _storyListInDay.childrenId.length,
-              (_storyIndex) {
-                final int _storyId = _storyListInDay.childrenId[_storyIndex];
+            children: _storyNotEmpty
+                ? List.generate(
+                    _storyListInDay.childrenId.length,
+                    (_storyIndex) {
+                      final int _storyId =
+                          _storyListInDay.childrenId[_storyIndex];
 
-                bool selected = _storyIndex == this.storyIndex &&
-                    this.dayIndex == _dayIndex;
+                      bool selected = _storyIndex == this.storyIndex &&
+                          this.dayIndex == _dayIndex;
 
-                double opacity = 1;
+                      double opacity = 1;
 
-                if (selected) opacity = 1;
-                if (!selected) opacity = 0.5;
-                if (notifier.clickedOutside) opacity = 1;
+                      if (selected) opacity = 1;
+                      if (!selected) opacity = 0.5;
+                      if (notifier.clickedOutside) opacity = 1;
 
-                return Consumer(
-                  builder: (context, watch, child) {
-                    final databaseNotifier = watch(databaseProvider);
+                      return Consumer(
+                        builder: (context, watch, child) {
+                          final databaseNotifier = watch(databaseProvider);
 
-                    final StoryModel _story =
-                        databaseNotifier.storyById[_storyId];
+                          final StoryModel _story =
+                              databaseNotifier.storyById[_storyId];
 
-                    final _headerText = Text(
-                      _story.title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .subtitle1
-                          .copyWith(height: 1.28),
-                      textAlign: TextAlign.start,
-                    );
-
-                    final _paragraph = Text(
-                      _story.paragraph,
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                        color: Theme.of(context)
-                            .textTheme
-                            .subtitle2
-                            .color
-                            .withOpacity(0.6),
-                      ),
-                    );
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8.0),
-                      child: OpenContainer(
-                        transitionType: ContainerTransitionType.fadeThrough,
-                        transitionDuration: const Duration(milliseconds: 500),
-                        openElevation: 0.0,
-                        closedElevation: 0.5,
-                        openBuilder: (context, callback) {
-                          return StoryDetailScreen(
-                            story: _story,
-                            callback: callback,
+                          final _headerText = Text(
+                            _story.title,
+                            style: Theme.of(context)
+                                .textTheme
+                                .subtitle1
+                                .copyWith(height: 1.28),
+                            textAlign: TextAlign.start,
                           );
-                        },
-                        closedBuilder: (context, callback) {
-                          return VTOnTapEffect(
-                            onTap: () {
-                              notifier.setClickedOutside(true);
-                              callback();
-                            },
-                            effects: [
-                              VTOnTapEffectItem(
-                                effectType: VTOnTapEffectType.touchableOpacity,
-                                active: 0.5,
-                              )
-                            ],
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 350),
-                              opacity: opacity,
-                              child: Container(
-                                color: Theme.of(context).backgroundColor,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                  vertical: 8.0,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _headerText,
-                                    const SizedBox(height: 4.0),
-                                    _paragraph,
+
+                          final _paragraph = Text(
+                            _story.paragraph,
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  .color
+                                  .withOpacity(0.6),
+                            ),
+                          );
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8.0),
+                            child: OpenContainer(
+                              transitionType:
+                                  ContainerTransitionType.fadeThrough,
+                              transitionDuration:
+                                  const Duration(milliseconds: 500),
+                              openElevation: 0.0,
+                              closedElevation: 0.5,
+                              openBuilder: (context, callback) {
+                                return StoryDetailScreen(
+                                  story: _story,
+                                  callback: callback,
+                                );
+                              },
+                              closedBuilder: (context, callback) {
+                                return VTOnTapEffect(
+                                  onTap: () {
+                                    notifier.setClickedOutside(true);
+                                    callback();
+                                  },
+                                  effects: [
+                                    VTOnTapEffectItem(
+                                      effectType:
+                                          VTOnTapEffectType.touchableOpacity,
+                                      active: 0.5,
+                                    )
                                   ],
-                                ),
-                              ),
+                                  child: AnimatedOpacity(
+                                    duration: const Duration(milliseconds: 350),
+                                    opacity: opacity,
+                                    child: Container(
+                                      color: Theme.of(context).backgroundColor,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0,
+                                        vertical: 8.0,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _headerText,
+                                          const SizedBox(height: 4.0),
+                                          _paragraph,
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           );
                         },
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          );
-        },
-      ),
-    );
+                      );
+                    },
+                  )
+                : [],
+          ),
+        );
+      }
+    }
+
+    return list;
   }
 }
