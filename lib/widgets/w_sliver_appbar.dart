@@ -31,8 +31,6 @@ class WSliverAppBar extends HookWidget {
     final notifier = useProvider(appBarProvider);
     final controller = tabController ?? DefaultTabController.of(context);
 
-    final tabsNotEmpty = tabs != null && tabs.isNotEmpty;
-
     return SliverAppBar(
       floating: true,
       pinned: true,
@@ -72,8 +70,6 @@ class WSliverAppBar extends HookWidget {
     if (this.callback != null) {
       offsetX = -16.0;
     }
-
-    final tabsNotEmpty = tabs != null && tabs.isNotEmpty;
 
     final _headerTexts = Expanded(
       child: AnimatedOpacity(

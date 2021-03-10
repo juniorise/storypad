@@ -4,13 +4,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_your_story/app_helper/app_helper.dart';
 import 'package:write_your_story/colors.dart';
-import 'package:write_your_story/examples/stories_data.dart';
 import 'package:write_your_story/examples/stories_list_by_day_data.dart';
 import 'package:write_your_story/examples/stories_list_by_month_data.dart';
 import 'package:write_your_story/models/story_list_model.dart';
 import 'package:write_your_story/models/story_model.dart';
 import 'package:write_your_story/notifier/database_notifier.dart';
-import 'package:write_your_story/notifier/home_screen_notifier.dart';
 import 'package:write_your_story/screens/detail_screen.dart';
 import 'package:write_your_story/widgets/vt_ontap_effect.dart';
 import 'package:write_your_story/widgets/vt_tab_view.dart';
@@ -21,7 +19,7 @@ class HomeScreen extends HookWidget {
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
 
-    final notifier = useProvider(homeScreenProvider);
+    // final notifier = useProvider(homeScreenProvider);
     return DefaultTabController(
       length: 12,
       child: Scaffold(

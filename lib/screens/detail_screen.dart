@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_your_story/app_helper/app_helper.dart';
-import 'package:write_your_story/examples/stories_data.dart';
 import 'package:write_your_story/examples/stories_list_by_day_data.dart';
 import 'package:write_your_story/examples/stories_list_by_month_data.dart';
 import 'package:write_your_story/models/story_list_model.dart';
@@ -15,6 +14,7 @@ import 'package:write_your_story/widgets/vt_ontap_effect.dart';
 import 'package:write_your_story/widgets/vt_tab_view.dart';
 import 'package:write_your_story/widgets/w_sliver_appbar.dart';
 
+//TODO: doesn't work
 class DetailScreen extends HookWidget {
   const DetailScreen({
     Key key,

@@ -922,21 +922,21 @@ class _TabBarState extends State<WCopiedTabBar> {
 
     final TabBarTheme tabBarTheme = TabBarTheme.of(context);
 
-    final List<Widget> wrappedTabs = List<Widget>(widget.tabs.length);
-    for (int i = 0; i < widget.tabs.length; i += 1) {
-      wrappedTabs[i] = Center(
-        heightFactor: 1.0,
-        child: Padding(
-          padding: widget.labelPadding ??
-              tabBarTheme.labelPadding ??
-              kTabLabelPadding,
-          child: KeyedSubtree(
-            key: _tabKeys[i],
-            child: widget.tabs[i],
+    final List<Widget> wrappedTabs = <Widget>[
+      for (int i = 0; i < widget.tabs.length; i += 1)
+        Center(
+          heightFactor: 1.0,
+          child: Padding(
+            padding: widget.labelPadding ??
+                tabBarTheme.labelPadding ??
+                kTabLabelPadding,
+            child: KeyedSubtree(
+              key: _tabKeys[i],
+              child: widget.tabs[i],
+            ),
           ),
-        ),
-      );
-    }
+        )
+    ];
 
     // If the controller was provided by DefaultTabController and we're part
     // of a Hero (typically the AppBar), then we will not be able to find the

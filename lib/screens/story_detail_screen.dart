@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:write_your_story/app_helper/app_helper.dart';
 import 'package:write_your_story/models/story_model.dart';
 import 'package:write_your_story/widgets/vt_ontap_effect.dart';
-import 'package:write_your_story/widgets/w_sliver_appbar.dart';
 
 class StoryDetailScreen extends HookWidget {
   const StoryDetailScreen({
@@ -16,8 +15,6 @@ class StoryDetailScreen extends HookWidget {
   final VoidCallback callback;
   @override
   Widget build(BuildContext context) {
-    final double statusBarHeight = MediaQuery.of(context).padding.top;
-
     final _headerText = TextFormField(
       textAlign: TextAlign.left,
       initialValue: story.title,
@@ -83,16 +80,16 @@ class StoryDetailScreen extends HookWidget {
                 active: 0.9,
               ),
             ],
-            child: FlatButton(
-              highlightColor: _theme.disabledColor,
-              onPressed: callback,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(48.0),
-              ),
-              child: Icon(
-                Icons.cancel,
-                color: _theme.primaryColorDark,
-                size: 24,
+            child: Container(
+              height: kToolbarHeight,
+              child: IconButton(
+                highlightColor: _theme.disabledColor,
+                onPressed: callback,
+                icon: Icon(
+                  Icons.cancel,
+                  color: _theme.primaryColorDark,
+                  size: 24,
+                ),
               ),
             ),
           ),
@@ -106,13 +103,10 @@ class StoryDetailScreen extends HookWidget {
               ],
               child: Container(
                 width: kToolbarHeight,
-                child: FlatButton(
+                child: IconButton(
                   highlightColor: _theme.disabledColor,
                   onPressed: () {},
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(48.0),
-                  ),
-                  child: Icon(
+                  icon: Icon(
                     Icons.delete,
                     color: _theme.errorColor,
                     size: 24,
@@ -130,13 +124,10 @@ class StoryDetailScreen extends HookWidget {
               ],
               child: Container(
                 width: kToolbarHeight,
-                child: FlatButton(
+                child: IconButton(
                   highlightColor: _theme.disabledColor,
                   onPressed: () {},
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(48.0),
-                  ),
-                  child: Icon(
+                  icon: Icon(
                     Icons.save,
                     color: _theme.primaryColorDark,
                     size: 24,
