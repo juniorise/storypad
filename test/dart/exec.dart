@@ -5,7 +5,7 @@ void main() async {
   tmpGlbalStoryByID.forEach((key, value) {
     final title = value.title;
     final paragraph = value.paragraph;
-    int updateOn = null;
+    int updateOn;
     if (value.updateOn != null) {
       updateOn = value.updateOn.millisecondsSinceEpoch;
     }
@@ -15,6 +15,7 @@ void main() async {
       title, 
       paragraph, 
       create_on, 
+      for_date,
       update_on, 
       is_favorite
     )
@@ -22,7 +23,8 @@ void main() async {
         "$title", 
         "$paragraph", 
         ${value.createOn.millisecondsSinceEpoch}, 
-        $updateOn, 
+        ${value.forDate.millisecondsSinceEpoch}, 
+        $updateOn,
         0
     );
     ''');

@@ -31,15 +31,26 @@ class DatabaseNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  insertStory(StoryModel story) async {
+    await wDatabase.addStory(story: story);
+    await load();
+  }
+
+  clearAllStoryies() async {
+    await wDatabase.clearAllStories();
+  }
+
   _setStoryListByDayId() {
     final Map<DateTime, List<StoryModel>> _groupByDay = {};
+    final Map<DateTime, List<StoryModel>> _sortedGroupByDay = {};
 
+    // Fetch data from unsorted api
     this.storyById.entries.forEach((story) {
-      final createOn = story.value.createOn;
+      final forDate = story.value.forDate;
       final key = DateTime(
-        createOn.year,
-        createOn.month,
-        createOn.day,
+        forDate.year,
+        forDate.month,
+        forDate.day,
       );
 
       if (_groupByDay.containsKey(key)) {
@@ -49,13 +60,23 @@ class DatabaseNotifier extends ChangeNotifier {
       }
     });
 
+    // Sort data by date
+    _groupByDay.entries.map((e) => e.key).toList()
+      ..sort((a, b) {
+        return a.compareTo(b);
+      })
+      ..forEach((date) {
+        _sortedGroupByDay[date] = _groupByDay[date];
+      });
+
+    // Add them to each month
     int i = 1;
     final Map<int, StoryListModel> _mapStoryListByDayId = {};
-    _groupByDay.entries.forEach((storyList) {
+    _sortedGroupByDay.entries.forEach((storyList) {
       _mapStoryListByDayId[i] = StoryListModel(
         id: i++,
         isLeaf: true,
-        createOn: storyList.key,
+        forDate: storyList.key,
         childrenId: storyList.value.map((e) {
           return e.id;
         }).toList(),
@@ -69,48 +90,53 @@ class DatabaseNotifier extends ChangeNotifier {
 
   _setStoryListByMonthID() {
     final Map<DateTime, List<StoryListModel>> _groupByMonth = {};
-    this._storyListByDayId.entries.forEach((storyList) {
-      final createOn = storyList.value.createOn;
 
-      final key = DateTime(
-        createOn.year,
-        createOn.month,
-      );
+    if (this._storyListByDayId != null &&
+        this._storyListByDayId.entries != null &&
+        this._storyListByDayId.entries.isNotEmpty) {
+      this._storyListByDayId.entries.forEach((storyList) {
+        final forDate = storyList.value.forDate;
 
-      if (_groupByMonth.containsKey(key)) {
-        _groupByMonth[key].add(storyList.value);
-      } else {
-        _groupByMonth[key] = [storyList.value];
+        final key = DateTime(
+          forDate.year,
+          forDate.month,
+        );
+
+        if (_groupByMonth.containsKey(key)) {
+          _groupByMonth[key].add(storyList.value);
+        } else {
+          _groupByMonth[key] = [storyList.value];
+        }
+      });
+
+      final Map<int, StoryListModel> _mapStoryListByMonthId = {};
+      for (int i = 1; i <= 12; i++) {
+        _mapStoryListByMonthId[i] = StoryListModel(
+          id: i,
+          isLeaf: false,
+          childrenId: [],
+          forDate: DateTime(2021, i),
+        );
       }
-    });
 
-    final Map<int, StoryListModel> _mapStoryListByMonthId = {};
-    for (int i = 1; i <= 12; i++) {
-      _mapStoryListByMonthId[i] = StoryListModel(
-        id: i,
-        isLeaf: false,
-        childrenId: [],
-        createOn: DateTime(2021, i),
-      );
-    }
+      _groupByMonth.entries.forEach((storyList) {
+        final id = storyList.key.month;
 
-    _groupByMonth.entries.forEach((storyList) {
-      final id = storyList.key.month;
+        final childrenId = storyList.value.map((e) {
+          return e.id;
+        }).toList();
 
-      final childrenId = storyList.value.map((e) {
-        return e.id;
-      }).toList();
+        _mapStoryListByMonthId[id] = StoryListModel(
+          id: id,
+          childrenId: childrenId,
+          forDate: storyList.key,
+          isLeaf: false,
+        );
+      });
 
-      _mapStoryListByMonthId[id] = StoryListModel(
-        id: id,
-        childrenId: childrenId,
-        createOn: storyList.key,
-        isLeaf: false,
-      );
-    });
-
-    if (_mapStoryListByMonthId != null && _mapStoryListByMonthId.isNotEmpty) {
-      this._storyListByMonthID = _mapStoryListByMonthId;
+      if (_mapStoryListByMonthId != null && _mapStoryListByMonthId.isNotEmpty) {
+        this._storyListByMonthID = _mapStoryListByMonthId;
+      }
     }
   }
 

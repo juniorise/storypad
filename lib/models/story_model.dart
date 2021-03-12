@@ -7,6 +7,7 @@ class StoryModel {
   final String paragraph;
   final DateTime createOn;
   final DateTime updateOn;
+  final DateTime forDate;
   final bool isFavorite;
 
   const StoryModel({
@@ -14,13 +15,38 @@ class StoryModel {
     @required this.title,
     @required this.paragraph,
     @required this.createOn,
+    @required this.forDate,
     this.updateOn,
     this.isFavorite = false,
   });
 
+  copyWith({
+    int id,
+    String title,
+    String paragraph,
+    DateTime createOn,
+    DateTime updateOn,
+    DateTime forDate,
+    bool isFavorite,
+  }) {
+    return StoryModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      paragraph: paragraph ?? this.paragraph,
+      createOn: createOn ?? this.createOn,
+      forDate: forDate ?? this.forDate,
+      updateOn: updateOn ?? this.updateOn,
+      isFavorite: isFavorite ?? this.isFavorite,
+    );
+  }
+
   factory StoryModel.fromJson(Map<String, dynamic> json) {
     final DateTime createOn = DateTime.fromMillisecondsSinceEpoch(
       json["create_on"],
+    );
+
+    final DateTime forDate = DateTime.fromMillisecondsSinceEpoch(
+      json["for_date"],
     );
 
     final DateTime updateOn = json.containsKey('update_on')
@@ -40,6 +66,7 @@ class StoryModel {
       paragraph: json["paragraph"],
       updateOn: updateOn,
       createOn: createOn,
+      forDate: forDate,
       isFavorite: isFavorite,
     );
   }
@@ -51,6 +78,7 @@ class StoryModel {
       "paragraph": paragraph,
       "is_favorite": isFavorite,
       "create_on": createOn.millisecondsSinceEpoch,
+      "for_date": forDate.millisecondsSinceEpoch,
       "update_on": updateOn != null ? updateOn.millisecondsSinceEpoch : null,
     };
   }

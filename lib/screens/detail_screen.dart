@@ -10,6 +10,7 @@ import 'package:write_your_story/notifier/detail_screen_notifier.dart';
 import 'package:write_your_story/screens/story_detail_screen.dart';
 import 'package:write_your_story/widgets/vt_ontap_effect.dart';
 import 'package:write_your_story/widgets/vt_tab_view.dart';
+import 'package:write_your_story/widgets/w_add_to_story_fab.dart';
 import 'package:write_your_story/widgets/w_sliver_appbar.dart';
 
 class DetailScreen extends HookWidget {
@@ -34,7 +35,7 @@ class DetailScreen extends HookWidget {
     final database = useProvider(databaseProvider);
 
     final _storyListInMonth = database.storyListByMonthID[monthId];
-    final createOn = database.storyListByMonthID[monthId].createOn;
+    final forDate = database.storyListByMonthID[monthId].forDate;
 
     final _tabLength = getValidLength(
       _storyListInMonth.childrenId,
@@ -50,7 +51,7 @@ class DetailScreen extends HookWidget {
       return [
         WSliverAppBar(
           statusBarHeight: statusBarHeight,
-          backgroundText: AppHelper.toNameOfMonth(context).format(createOn),
+          backgroundText: AppHelper.toNameOfMonth(context).format(forDate),
           titleText: "ថយក្រោយ",
           subtitleText: "ចង់សរសេរអីដែរថ្ងៃនេះ?",
           tabController: tabController,
@@ -67,45 +68,13 @@ class DetailScreen extends HookWidget {
       ];
     };
 
-    final fabEffects = [
-      VTOnTapEffectItem(
-        effectType: VTOnTapEffectType.scaleDown,
-        active: 0.5,
-      ),
-      VTOnTapEffectItem(
-        effectType: VTOnTapEffectType.touchableOpacity,
-        active: 0.1,
-      )
-    ];
-
     return WillPopScope(
       onWillPop: () => notifier.setClickedOutside(false),
       child: GestureDetector(
         onTap: () => notifier.setClickedOutside(true),
         child: Scaffold(
           extendBodyBehindAppBar: true,
-          floatingActionButton: VTOnTapEffect(
-            effects: fabEffects,
-            child: FloatingActionButton(
-              onPressed: () {},
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-              child: const Icon(Icons.add),
-              elevation: 0.0,
-              highlightElevation: 0.0,
-              focusElevation: 0.0,
-              hoverElevation: 0.0,
-              disabledElevation: 0.0,
-            ),
-          ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
-          bottomNavigationBar: BottomAppBar(
-            color: Theme.of(context).backgroundColor,
-            clipBehavior: Clip.antiAlias,
-            shape: CircularNotchedRectangle(),
-            child: Container(height: kToolbarHeight),
-          ),
+          floatingActionButton: AddToStoryFAB(),
           body: NestedScrollView(
             headerSliverBuilder: headerSliverBuilder,
             body: buildVtTabView(
@@ -130,9 +99,9 @@ class DetailScreen extends HookWidget {
     _storyListInMonth.childrenId.forEach(
       (int _dayId) {
         if (_storyListByDayId.containsKey(_dayId)) {
-          DateTime _createOn = _storyListByDayId[_dayId].createOn;
-          String _dayInt = _createOn.day.toString();
-          String _dayName = AppHelper.toDay(context).format(_createOn);
+          DateTime _forDate = _storyListByDayId[_dayId].forDate;
+          String _dayInt = _forDate.day.toString();
+          String _dayName = AppHelper.toDay(context).format(_forDate);
           tabs.add(_dayName + " " + _dayInt);
         }
       },
@@ -273,12 +242,9 @@ class DetailScreen extends HookWidget {
                                         horizontal: 16.0,
                                         vertical: 8.0,
                                       ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                      child: Wrap(
                                         children: [
                                           _headerText,
-                                          const SizedBox(height: 4.0),
                                           _paragraph,
                                         ],
                                       ),

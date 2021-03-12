@@ -8,25 +8,14 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
 
   StoryModel draftStory;
 
-  String headerText;
-  String paragraph;
-
   setLoading(bool value) {
     this.loading = value;
     notifyListeners();
   }
 
   setDraftStory(StoryModel story) {
+    // print(story.forDate);
     this.draftStory = story;
-    notifyListeners();
-  }
-
-  setHeaderText(String title) {
-    this.headerText = title;
-  }
-
-  setParagraph(String paragraph) {
-    this.paragraph = paragraph;
   }
 }
 

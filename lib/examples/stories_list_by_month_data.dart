@@ -9,7 +9,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       5,
       8,
     ],
-    createOn: DateTime(2020, DateTime.january),
+    forDate: DateTime(2020, DateTime.january),
     isLeaf: false,
   ),
   2: StoryListModel(
@@ -20,7 +20,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       5,
       8,
     ],
-    createOn: DateTime(2020, DateTime.february),
+    forDate: DateTime(2020, DateTime.february),
     isLeaf: false,
   ),
   3: StoryListModel(
@@ -31,7 +31,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       6,
       8,
     ],
-    createOn: DateTime(2020, DateTime.march),
+    forDate: DateTime(2020, DateTime.march),
     isLeaf: false,
   ),
   4: StoryListModel(
@@ -42,7 +42,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       5,
       8,
     ],
-    createOn: DateTime(2020, DateTime.april),
+    forDate: DateTime(2020, DateTime.april),
     isLeaf: false,
   ),
   5: StoryListModel(
@@ -53,7 +53,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       5,
       6,
     ],
-    createOn: DateTime(2020, DateTime.may),
+    forDate: DateTime(2020, DateTime.may),
     isLeaf: false,
   ),
   6: StoryListModel(
@@ -64,7 +64,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       6,
       8,
     ],
-    createOn: DateTime(2020, DateTime.june),
+    forDate: DateTime(2020, DateTime.june),
     isLeaf: false,
   ),
   7: StoryListModel(
@@ -75,7 +75,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       6,
       8,
     ],
-    createOn: DateTime(2020, DateTime.july),
+    forDate: DateTime(2020, DateTime.july),
     isLeaf: false,
   ),
   8: StoryListModel(
@@ -86,7 +86,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       4,
       6,
     ],
-    createOn: DateTime(2020, DateTime.august),
+    forDate: DateTime(2020, DateTime.august),
     isLeaf: false,
   ),
   9: StoryListModel(
@@ -97,7 +97,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       6,
       8,
     ],
-    createOn: DateTime(2020, DateTime.september),
+    forDate: DateTime(2020, DateTime.september),
     isLeaf: false,
   ),
   10: StoryListModel(
@@ -108,7 +108,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       6,
       8,
     ],
-    createOn: DateTime(2020, DateTime.october),
+    forDate: DateTime(2020, DateTime.october),
     isLeaf: false,
   ),
   11: StoryListModel(
@@ -118,7 +118,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       3,
       4,
     ],
-    createOn: DateTime(2020, DateTime.november),
+    forDate: DateTime(2020, DateTime.november),
     isLeaf: false,
   ),
   12: StoryListModel(
@@ -129,7 +129,7 @@ final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
       6,
       8,
     ],
-    createOn: DateTime(2020, DateTime.december),
+    forDate: DateTime(2020, DateTime.december),
     isLeaf: false,
   ),
 };

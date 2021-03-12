@@ -49,7 +49,8 @@ class WDatabase {
     UPDATE story 
     SET title = "${story.title}", 
         paragraph = "${story.paragraph}",
-        update_on = ${DateTime.now().millisecondsSinceEpoch}
+        for_date = ${story.forDate.millisecondsSinceEpoch},
+        update_on = ${story.updateOn.millisecondsSinceEpoch}
     WHERE id = ${story.id}
     ''';
 
@@ -60,22 +61,38 @@ class WDatabase {
     @required StoryModel story,
   }) async {
     String query = '''
-    INSERT INTO "story" (
+    INSERT or REPLACE INTO "story" (
+      id,
       title, 
       paragraph, 
       create_on, 
+      for_date,
       update_on, 
       is_favorite
     )
     VALUES (
+        ${story.id},
         "${story.title}", 
         "${story.paragraph}", 
-        ${DateTime.now().millisecondsSinceEpoch}, 
-        ${DateTime.now().millisecondsSinceEpoch}, 
+        ${story.createOn.millisecondsSinceEpoch}, 
+        ${story.forDate.millisecondsSinceEpoch}, 
+        ${story.updateOn.millisecondsSinceEpoch}, 
         ${story.isFavorite ? 1 : 0}
-    );
+    )
     ''';
     await _database.execute(query);
+  }
+
+  Future<int> lastStoryId() async {
+    final query = '''
+    SELECT id 
+    FROM "story" 
+    ORDER BY id 
+    DESC LIMIT 1
+    ''';
+    final result = await _database.rawQuery(query);
+    final lastValue = result.first.values.first;
+    return lastValue;
   }
 
   Future<Map<int, StoryModel>> storyById() async {
@@ -88,6 +105,7 @@ class WDatabase {
         "paragraph",
         "create_on",
         "is_favorite",
+        "for_date",
       ],
     );
 
@@ -98,5 +116,9 @@ class WDatabase {
     });
 
     return map;
+  }
+
+  clearAllStories() async {
+    await _database.execute("delete from story");
   }
 }

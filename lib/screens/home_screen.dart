@@ -10,6 +10,7 @@ import 'package:write_your_story/notifier/database_notifier.dart';
 import 'package:write_your_story/screens/detail_screen.dart';
 import 'package:write_your_story/widgets/vt_ontap_effect.dart';
 import 'package:write_your_story/widgets/vt_tab_view.dart';
+import 'package:write_your_story/widgets/w_add_to_story_fab.dart';
 import 'package:write_your_story/widgets/w_sliver_appbar.dart';
 
 class HomeScreen extends HookWidget {
@@ -22,6 +23,7 @@ class HomeScreen extends HookWidget {
       length: 12,
       child: Scaffold(
         extendBodyBehindAppBar: true,
+        floatingActionButton: AddToStoryFAB(),
         body: NestedScrollView(
           headerSliverBuilder: (context, _) {
             return [
@@ -123,7 +125,7 @@ class HomeScreen extends HookWidget {
 
     final int dayOfWeek = AppHelper.dayOfWeek(
       context,
-      _storyListByDay.createOn,
+      _storyListByDay.forDate,
     );
 
     final Color containerColor = colorsByDay[dayOfWeek];
@@ -131,7 +133,7 @@ class HomeScreen extends HookWidget {
     /// if locale is km => dayName is ចន្ទ​​ អង្គារ​ ...
     /// if locale is en => dayName is Mon, Tue ...
     final String _dayName =
-        AppHelper.toDay(context).format(_storyListByDay.createOn);
+        AppHelper.toDay(context).format(_storyListByDay.forDate);
 
     final _leftSide = Column(
       children: [
@@ -155,7 +157,7 @@ class HomeScreen extends HookWidget {
               right: 0,
               bottom: 0,
               child: Text(
-                _storyListByDay.createOn.day.toString(),
+                _storyListByDay.forDate.day.toString(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Theme.of(context).backgroundColor,
@@ -328,6 +330,7 @@ class HomeScreen extends HookWidget {
                     closedBuilder: (context, callback) {
                       return Container(
                         padding: padding,
+                        width: double.infinity,
                         color: Theme.of(context).backgroundColor,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
