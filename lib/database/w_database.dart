@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -39,6 +40,42 @@ class WDatabase {
     }
 
     return await openDatabase(dbPath);
+  }
+
+  Future<void> updateStory({
+    @required StoryModel story,
+  }) async {
+    String query = '''
+    UPDATE story 
+    SET title = "${story.title}", 
+        paragraph = "${story.paragraph}",
+        update_on = ${DateTime.now().millisecondsSinceEpoch}
+    WHERE id = ${story.id}
+    ''';
+
+    await _database.execute(query);
+  }
+
+  Future<void> addStory({
+    @required StoryModel story,
+  }) async {
+    String query = '''
+    INSERT INTO "story" (
+      title, 
+      paragraph, 
+      create_on, 
+      update_on, 
+      is_favorite
+    )
+    VALUES (
+        "${story.title}", 
+        "${story.paragraph}", 
+        ${DateTime.now().millisecondsSinceEpoch}, 
+        ${DateTime.now().millisecondsSinceEpoch}, 
+        ${story.isFavorite ? 1 : 0}
+    );
+    ''';
+    await _database.execute(query);
   }
 
   Future<Map<int, StoryModel>> storyById() async {

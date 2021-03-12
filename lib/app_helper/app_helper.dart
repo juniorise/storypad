@@ -26,11 +26,11 @@ class AppHelper {
   }
 
   static DateFormat dateFormat(BuildContext context) {
-    return DateFormat.yMMMMd(context.locale.languageCode);
+    return DateFormat.yMd(context.locale.languageCode);
   }
 
   static DateFormat timeFormat(BuildContext context) {
-    return DateFormat.Hms(context.locale.languageCode);
+    return DateFormat.jm(context.locale.languageCode);
   }
 
   static int dayOfWeek(BuildContext context, DateTime dateTime) {

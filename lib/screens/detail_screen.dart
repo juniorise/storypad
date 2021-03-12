@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_your_story/app_helper/app_helper.dart';
-import 'package:write_your_story/examples/stories_list_by_day_data.dart';
-import 'package:write_your_story/examples/stories_list_by_month_data.dart';
 import 'package:write_your_story/models/story_list_model.dart';
 import 'package:write_your_story/models/story_model.dart';
 import 'package:write_your_story/notifier/database_notifier.dart';
@@ -14,7 +12,6 @@ import 'package:write_your_story/widgets/vt_ontap_effect.dart';
 import 'package:write_your_story/widgets/vt_tab_view.dart';
 import 'package:write_your_story/widgets/w_sliver_appbar.dart';
 
-//TODO: doesn't work
 class DetailScreen extends HookWidget {
   const DetailScreen({
     Key key,
@@ -32,16 +29,22 @@ class DetailScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final _storyListInMonth = globalStoryListByMonthID[monthId];
 
-    final _tabLength = getValidLength(_storyListInMonth.childrenId);
+    final notifier = useProvider(detailScreenNotifier);
+    final database = useProvider(databaseProvider);
+
+    final _storyListInMonth = database.storyListByMonthID[monthId];
+    final createOn = database.storyListByMonthID[monthId].createOn;
+
+    final _tabLength = getValidLength(
+      _storyListInMonth.childrenId,
+      database.storyListByDayId,
+    );
+
     final tabController = useTabController(
       initialLength: _tabLength,
       initialIndex: dayIndex,
     );
-
-    final notifier = useProvider(detailScreenNotifier);
-    final createOn = globalStoryListByMonthID[monthId].createOn;
 
     final headerSliverBuilder = (context, _) {
       return [
@@ -55,7 +58,11 @@ class DetailScreen extends HookWidget {
             notifier.setClickedOutside(false);
             callback();
           },
-          tabs: buildTabs(_storyListInMonth, context),
+          tabs: buildTabs(
+            _storyListInMonth,
+            context,
+            database.storyListByDayId,
+          ),
         ),
       ];
     };
@@ -102,10 +109,11 @@ class DetailScreen extends HookWidget {
           body: NestedScrollView(
             headerSliverBuilder: headerSliverBuilder,
             body: buildVtTabView(
+              context: context,
+              notifier: notifier,
               controller: tabController,
               storyListInMonth: _storyListInMonth,
-              notifier: notifier,
-              context: context,
+              storyListByDayId: database.storyListByDayId,
             ),
           ),
         ),
@@ -116,12 +124,13 @@ class DetailScreen extends HookWidget {
   List<String> buildTabs(
     StoryListModel _storyListInMonth,
     BuildContext context,
+    Map<int, StoryListModel> _storyListByDayId,
   ) {
     List<String> tabs = [];
     _storyListInMonth.childrenId.forEach(
       (int _dayId) {
-        if (globalStoryListByDayId.containsKey(_dayId)) {
-          DateTime _createOn = globalStoryListByDayId[_dayId].createOn;
+        if (_storyListByDayId.containsKey(_dayId)) {
+          DateTime _createOn = _storyListByDayId[_dayId].createOn;
           String _dayInt = _createOn.day.toString();
           String _dayName = AppHelper.toDay(context).format(_createOn);
           tabs.add(_dayName + " " + _dayInt);
@@ -131,10 +140,13 @@ class DetailScreen extends HookWidget {
     return tabs;
   }
 
-  int getValidLength(List<int> childrenId) {
+  int getValidLength(
+    List<int> childrenId,
+    Map<int, StoryListModel> _storyListByDayId,
+  ) {
     int i = 0;
     childrenId.forEach((int _dayId) {
-      if (globalStoryListByDayId.containsKey(_dayId)) i++;
+      if (_storyListByDayId.containsKey(_dayId)) i++;
     });
     return i;
   }
@@ -142,6 +154,7 @@ class DetailScreen extends HookWidget {
   VTTabView buildVtTabView({
     @required TabController controller,
     @required StoryListModel storyListInMonth,
+    @required Map<int, StoryListModel> storyListByDayId,
     @required DetailScreenNotifier notifier,
     @required BuildContext context,
   }) {
@@ -150,6 +163,7 @@ class DetailScreen extends HookWidget {
       children: buildTabChildren(
         storyListInMonth,
         notifier,
+        storyListByDayId,
       ),
     );
   }
@@ -157,6 +171,7 @@ class DetailScreen extends HookWidget {
   List<Widget> buildTabChildren(
     StoryListModel storyListInMonth,
     DetailScreenNotifier notifier,
+    Map<int, StoryListModel> _storyListByDayId,
   ) {
     List<Widget> list = [];
 
@@ -165,8 +180,8 @@ class DetailScreen extends HookWidget {
         _dayIndex++) {
       final _dayId = storyListInMonth.childrenId[_dayIndex];
 
-      if (globalStoryListByDayId.containsKey(_dayId)) {
-        final _storyListInDay = globalStoryListByDayId[_dayId];
+      if (_storyListByDayId.containsKey(_dayId)) {
+        final _storyListInDay = _storyListByDayId[_dayId];
 
         bool _storyNotEmpty = _storyListInDay != null &&
             _storyListInDay.childrenId != null &&

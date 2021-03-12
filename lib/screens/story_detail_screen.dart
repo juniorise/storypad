@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_your_story/app_helper/app_helper.dart';
 import 'package:write_your_story/models/story_model.dart';
+import 'package:write_your_story/notifier/database_notifier.dart';
+import 'package:write_your_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_your_story/widgets/vt_ontap_effect.dart';
 
 class StoryDetailScreen extends HookWidget {
@@ -15,11 +18,17 @@ class StoryDetailScreen extends HookWidget {
   final VoidCallback callback;
   @override
   Widget build(BuildContext context) {
+    final database = useProvider(databaseProvider);
+    final notifier = useProvider(storydetailScreenNotifier);
+
     final _headerText = TextFormField(
       textAlign: TextAlign.left,
       initialValue: story.title,
       style: Theme.of(context).textTheme.subtitle1,
       maxLines: null,
+      onChanged: (String value) {
+        notifier.setHeaderText(value);
+      },
       decoration: InputDecoration(
         border: InputBorder.none,
         contentPadding: EdgeInsets.only(top: 12.0),
@@ -29,11 +38,20 @@ class StoryDetailScreen extends HookWidget {
     String _aboutDateText = "Created on: " +
         AppHelper.dateFormat(context).format(
           story.createOn,
+        ) +
+        ", " +
+        AppHelper.timeFormat(context).format(
+          story.createOn,
         );
+    ;
 
     if (story.updateOn != null) {
       _aboutDateText += "\nUpdated on: " +
           AppHelper.dateFormat(context).format(
+            story.updateOn,
+          ) +
+          ", " +
+          AppHelper.timeFormat(context).format(
             story.updateOn,
           );
     }
@@ -50,6 +68,9 @@ class StoryDetailScreen extends HookWidget {
       textAlign: TextAlign.left,
       initialValue: story.paragraph,
       maxLines: null,
+      onChanged: (String value) {
+        notifier.setParagraph(value);
+      },
       decoration: InputDecoration(
         border: InputBorder.none,
         contentPadding: EdgeInsets.zero,
@@ -105,7 +126,18 @@ class StoryDetailScreen extends HookWidget {
                 width: kToolbarHeight,
                 child: IconButton(
                   highlightColor: _theme.disabledColor,
-                  onPressed: () {},
+                  onPressed: () async {
+                    print(notifier.headerText);
+                    await database.updateStory(
+                      StoryModel(
+                        id: story.id,
+                        title: notifier.headerText,
+                        paragraph: notifier.paragraph,
+                        createOn: story.createOn,
+                        updateOn: DateTime.now(),
+                      ),
+                    );
+                  },
                   icon: Icon(
                     Icons.delete,
                     color: _theme.errorColor,
@@ -140,7 +172,7 @@ class StoryDetailScreen extends HookWidget {
         body: SingleChildScrollView(
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 8.0),
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
               vertical: 8.0,
             ),

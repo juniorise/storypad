@@ -4,8 +4,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_your_story/app_helper/app_helper.dart';
 import 'package:write_your_story/colors.dart';
-import 'package:write_your_story/examples/stories_list_by_day_data.dart';
-import 'package:write_your_story/examples/stories_list_by_month_data.dart';
 import 'package:write_your_story/models/story_list_model.dart';
 import 'package:write_your_story/models/story_model.dart';
 import 'package:write_your_story/notifier/database_notifier.dart';
@@ -19,7 +17,7 @@ class HomeScreen extends HookWidget {
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
 
-    // final notifier = useProvider(homeScreenProvider);
+    final database = useProvider(databaseProvider);
     return DefaultTabController(
       length: 12,
       child: Scaffold(
@@ -42,6 +40,8 @@ class HomeScreen extends HookWidget {
                 return buildStoryInMonth(
                   monthId: monthID,
                   context: context,
+                  storyListByMonthId: database.storyListByMonthID,
+                  storyListByDayId: database.storyListByDayId,
                 );
               },
             ),
@@ -81,9 +81,16 @@ class HomeScreen extends HookWidget {
   ListView buildStoryInMonth({
     @required int monthId,
     @required BuildContext context,
+    @required Map<int, StoryListModel> storyListByMonthId,
+    @required Map<int, StoryListModel> storyListByDayId,
   }) {
-    final List<int> storiesInMonthIds =
-        globalStoryListByMonthID[monthId].childrenId;
+    List<int> storiesInMonthIds = [];
+
+    if (storyListByMonthId != null &&
+        storyListByMonthId.containsKey(monthId) &&
+        storyListByMonthId[monthId] != null) {
+      storiesInMonthIds = storyListByMonthId[monthId].childrenId;
+    }
 
     return ListView(
       physics: const BouncingScrollPhysics(),
@@ -97,6 +104,7 @@ class HomeScreen extends HookWidget {
             dayId: dayId,
             dayIndex: _dayIndex,
             monthId: monthId,
+            storyListByDayId: storyListByDayId,
           );
         },
       ),
@@ -108,8 +116,9 @@ class HomeScreen extends HookWidget {
     @required int monthId,
     @required int dayId,
     @required int dayIndex,
+    @required Map<int, StoryListModel> storyListByDayId,
   }) {
-    final StoryListModel _storyListByDay = globalStoryListByDayId[dayId];
+    final StoryListModel _storyListByDay = storyListByDayId[dayId];
     if (_storyListByDay == null) return SizedBox();
 
     final int dayOfWeek = AppHelper.dayOfWeek(

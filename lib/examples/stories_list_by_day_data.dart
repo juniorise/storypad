@@ -1,6 +1,6 @@
 import 'package:write_your_story/models/story_list_model.dart';
 
-final Map<int, StoryListModel> globalStoryListByDayId = {
+final Map<int, StoryListModel> tmpGlobalStoryListByDayId = {
   1: StoryListModel(
     id: 1,
     isLeaf: true,

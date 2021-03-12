@@ -4,7 +4,6 @@ import 'dart:convert';
 class StoryModel {
   final int id;
   final String title;
-  final String parentId;
   final String paragraph;
   final DateTime createOn;
   final DateTime updateOn;
@@ -15,7 +14,6 @@ class StoryModel {
     @required this.title,
     @required this.paragraph,
     @required this.createOn,
-    this.parentId,
     this.updateOn,
     this.isFavorite = false,
   });
@@ -43,7 +41,6 @@ class StoryModel {
       updateOn: updateOn,
       createOn: createOn,
       isFavorite: isFavorite,
-      parentId: json.containsKey("parent_id") ? json["parent_id"] : null,
     );
   }
 
@@ -51,7 +48,6 @@ class StoryModel {
     return {
       "id": id,
       "title": title,
-      "parent_id": parentId,
       "paragraph": paragraph,
       "is_favorite": isFavorite,
       "create_on": createOn.millisecondsSinceEpoch,
