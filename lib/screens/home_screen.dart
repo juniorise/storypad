@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_your_story/app_helper/app_helper.dart';
 import 'package:write_your_story/colors.dart';
+import 'package:write_your_story/mixins/hook_controller.dart';
 import 'package:write_your_story/models/story_list_model.dart';
 import 'package:write_your_story/models/story_model.dart';
 import 'package:write_your_story/notifier/database_notifier.dart';
@@ -13,39 +14,67 @@ import 'package:write_your_story/widgets/vt_tab_view.dart';
 import 'package:write_your_story/widgets/w_add_to_story_fab.dart';
 import 'package:write_your_story/widgets/w_sliver_appbar.dart';
 
-class HomeScreen extends HookWidget {
+class HomeScreen extends HookWidget with HookController {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-
     final database = useProvider(databaseProvider);
-    return DefaultTabController(
-      length: 12,
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        floatingActionButton: AddToStoryFAB(),
-        body: NestedScrollView(
-          headerSliverBuilder: (context, _) {
-            return [
-              buildHeaderAppBar(
-                statusBarHeight: statusBarHeight,
-                context: context,
-              ),
-            ];
-          },
-          body: VTTabView(
-            physics: const BouncingScrollPhysics(),
-            children: List.generate(
-              12,
-              (index) {
-                final int monthID = index + 1;
-                return buildStoryInMonth(
-                  monthId: monthID,
-                  context: context,
-                  storyListByMonthId: database.storyListByMonthID,
-                  storyListByDayId: database.storyListByDayId,
-                );
+
+    final controller = useTabController(initialLength: 12);
+    final now = DateTime.now();
+
+    return GestureDetector(
+      onDoubleTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Are you sure to clear database?"),
+            action: SnackBarAction(
+              label: "Yes",
+              onPressed: () async {
+                await database.clearAllStoryies();
               },
+            ),
+          ),
+        );
+      },
+      child: DefaultTabController(
+        length: 12,
+        child: Scaffold(
+          extendBodyBehindAppBar: true,
+          floatingActionButton: AddToStoryFAB(
+            forDate: DateTime(
+              now.year,
+              controller.index + 1,
+              now.day,
+              now.hour,
+              now.minute,
+            ),
+          ),
+          body: NestedScrollView(
+            headerSliverBuilder: (context, _) {
+              return [
+                buildHeaderAppBar(
+                  controller: controller,
+                  statusBarHeight: statusBarHeight,
+                  context: context,
+                ),
+              ];
+            },
+            body: VTTabView(
+              controller: controller,
+              physics: const BouncingScrollPhysics(),
+              children: List.generate(
+                12,
+                (index) {
+                  final int monthID = index + 1;
+                  return buildStoryInMonth(
+                    monthId: monthID,
+                    context: context,
+                    storyListByMonthId: database.storyListByMonthID,
+                    storyListByDayId: database.storyListByDayId,
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -61,6 +90,7 @@ class HomeScreen extends HookWidget {
   }
 
   WSliverAppBar buildHeaderAppBar({
+    TabController controller,
     double statusBarHeight,
     BuildContext context,
   }) {
@@ -69,6 +99,7 @@ class HomeScreen extends HookWidget {
       titleText: "សួរស្តីសុធា",
       subtitleText: "ចង់សរសេរអីដែរថ្ងៃនេះ?",
       backgroundText: DateTime.now().year.toString(),
+      tabController: controller,
       tabs: List.generate(
         12,
         (index) {
@@ -190,6 +221,7 @@ class HomeScreen extends HookWidget {
                   dayIndex: dayIndex,
                   dayId: dayId,
                   monthId: monthId,
+                  childrenId: _storyListByDay.childrenId,
                   margin: EdgeInsets.only(
                     top: _storyIndex == 0 ? 8.0 : 0,
                     bottom: 8.0,
@@ -223,6 +255,7 @@ class HomeScreen extends HookWidget {
     @required int dayId,
     @required int dayIndex,
     @required int storyIndex,
+    @required List<int> childrenId,
     EdgeInsets margin = const EdgeInsets.only(bottom: 8.0),
   }) {
     final _favoriteButtonEffect = [
@@ -262,8 +295,9 @@ class HomeScreen extends HookWidget {
           }
         }
 
-        final _headerText = Padding(
+        final _headerText = Container(
           padding: const EdgeInsets.only(right: 30),
+          width: MediaQuery.of(context).size.width - 16 * 7,
           child: Text(
             story != null ? story.title ?? "" : "",
             maxLines: 1,
@@ -273,15 +307,25 @@ class HomeScreen extends HookWidget {
           ),
         );
 
-        final _paragraph = Text(
-          story != null ? story.paragraph ?? "" : "",
-          textAlign: TextAlign.start,
-          maxLines: _paragraphMaxLines,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: Theme.of(context).textTheme.subtitle2.color.withOpacity(0.6),
-          ),
-        );
+        final _paragraphText = story != null ? story.paragraph ?? "" : "";
+        final _paragraph = _paragraphText.isNotEmpty
+            ? Container(
+                width: MediaQuery.of(context).size.width - 16 * 7,
+                child: Text(
+                  _paragraphText,
+                  textAlign: TextAlign.start,
+                  maxLines: _paragraphMaxLines,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Theme.of(context)
+                        .textTheme
+                        .subtitle2
+                        .color
+                        .withOpacity(0.6),
+                  ),
+                ),
+              )
+            : SizedBox();
 
         final _favoriteButton = Positioned(
           right: 0,
@@ -321,7 +365,16 @@ class HomeScreen extends HookWidget {
                         "monthId $monthId ,dayId: $dayId, dayIndex: $dayIndex, storyIndex: $storyIndex ",
                       );
                       return DetailScreen(
-                        callback: callback,
+                        callback: () async {
+                          callback();
+                          databaseNotifer.setLoading(true);
+                          await Future.delayed(Duration(milliseconds: 350))
+                              .then(
+                            (value) {
+                              return databaseNotifer.setLoading(false);
+                            },
+                          );
+                        },
                         monthId: monthId,
                         dayIndex: dayIndex,
                         storyIndex: storyIndex,
@@ -330,14 +383,16 @@ class HomeScreen extends HookWidget {
                     closedBuilder: (context, callback) {
                       return Container(
                         padding: padding,
-                        width: double.infinity,
                         color: Theme.of(context).backgroundColor,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _headerText,
-                            _paragraph,
-                          ],
+                        width: double.infinity,
+                        child: Container(
+                          child: Wrap(
+                            direction: Axis.vertical,
+                            children: [
+                              _headerText,
+                              _paragraph,
+                            ],
+                          ),
                         ),
                       );
                     },

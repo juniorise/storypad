@@ -34,7 +34,6 @@ class WSliverAppBar extends HookWidget {
     return SliverAppBar(
       floating: true,
       pinned: true,
-      snap: true,
       forceElevated: true,
       elevation: 1,
       backgroundColor: Theme.of(context).backgroundColor,

@@ -76,7 +76,7 @@ class WDatabase {
         "${story.paragraph}", 
         ${story.createOn.millisecondsSinceEpoch}, 
         ${story.forDate.millisecondsSinceEpoch}, 
-        ${story.updateOn.millisecondsSinceEpoch}, 
+        ${story.updateOn != null ? story.updateOn.millisecondsSinceEpoch : story.createOn.millisecondsSinceEpoch}, 
         ${story.isFavorite ? 1 : 0}
     )
     ''';

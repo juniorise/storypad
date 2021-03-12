@@ -41,7 +41,7 @@ class StoryDetailScreen extends HookWidget {
               title: "",
               paragraph: "",
               createOn: DateTime.now(),
-              forDate: DateTime.now(),
+              forDate: DateTime.fromMillisecondsSinceEpoch(futureId),
             ),
       );
 
@@ -51,12 +51,16 @@ class StoryDetailScreen extends HookWidget {
       style: _theme.textTheme.subtitle1,
       maxLines: null,
       onChanged: (String value) {
-        notifier.setDraftStory(story.copyWith(title: value));
+        notifier.setDraftStory(
+          notifier.draftStory.copyWith(
+            title: value.trim(),
+          ),
+        );
       },
       decoration: InputDecoration(
         hintText: "Your story title...",
         border: InputBorder.none,
-        contentPadding: EdgeInsets.only(top: 12.0),
+        contentPadding: const EdgeInsets.only(top: 12.0),
       ),
     );
 
@@ -94,7 +98,11 @@ class StoryDetailScreen extends HookWidget {
       initialValue: !insert ? story.paragraph : "",
       maxLines: null,
       onChanged: (String value) {
-        notifier.setDraftStory(story.copyWith(paragraph: value));
+        notifier.setDraftStory(
+          notifier.draftStory.copyWith(
+            paragraph: value.trim(),
+          ),
+        );
       },
       decoration: InputDecoration(
         hintText: "Write your story here...",
@@ -160,11 +168,14 @@ class StoryDetailScreen extends HookWidget {
                   child: IconButton(
                     highlightColor: _theme.disabledColor,
                     onPressed: () async {
-                      final DateTime forDate = await showDatePicker(
+                      final date =
+                          !insert ? story.forDate : notifier.draftStory.forDate;
+
+                      final forDate = await showDatePicker(
                         context: context,
-                        initialDate: story.forDate,
-                        firstDate: DateTime(story.forDate.year),
-                        lastDate: DateTime(story.forDate.year, 12, 31),
+                        initialDate: date,
+                        firstDate: DateTime(date.year),
+                        lastDate: DateTime(date.year, 12, 31),
                         builder: (BuildContext context, Widget child) {
                           return Theme(
                             child: child,
@@ -179,7 +190,9 @@ class StoryDetailScreen extends HookWidget {
                         },
                       );
 
-                      notifier.setDraftStory(story.copyWith(forDate: forDate));
+                      notifier.setDraftStory(
+                        notifier.draftStory.copyWith(forDate: forDate ?? date),
+                      );
                     },
                     icon: Icon(
                       Icons.date_range_sharp,
@@ -241,41 +254,42 @@ class StoryDetailScreen extends HookWidget {
                   ),
                 ),
               ),
-              VTOnTapEffect(
-                effects: [
-                  VTOnTapEffectItem(
-                    effectType: VTOnTapEffectType.scaleDown,
-                    active: 0.9,
-                  ),
-                ],
-                child: Container(
-                  width: kToolbarHeight,
-                  child: IconButton(
-                    highlightColor: _theme.disabledColor,
-                    onPressed: () async {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return Dialog(
-                            child: Container(
-                              child: _aboutDate,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 8.0,
+              if (!insert)
+                VTOnTapEffect(
+                  effects: [
+                    VTOnTapEffectItem(
+                      effectType: VTOnTapEffectType.scaleDown,
+                      active: 0.9,
+                    ),
+                  ],
+                  child: Container(
+                    width: kToolbarHeight,
+                    child: IconButton(
+                      highlightColor: _theme.disabledColor,
+                      onPressed: () async {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Dialog(
+                              child: Container(
+                                child: _aboutDate,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 8.0,
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    icon: Icon(
-                      Icons.info,
-                      size: 24,
-                      color: _theme.primaryColorDark,
+                            );
+                          },
+                        );
+                      },
+                      icon: Icon(
+                        Icons.info,
+                        size: 24,
+                        color: _theme.primaryColorDark,
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
           body: SingleChildScrollView(
@@ -285,7 +299,7 @@ class StoryDetailScreen extends HookWidget {
                 horizontal: 16.0,
                 vertical: 8.0,
               ),
-              child: Wrap(
+              child: Column(
                 children: [
                   _headerText,
                   _paragraph,

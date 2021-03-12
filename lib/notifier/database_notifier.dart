@@ -22,13 +22,14 @@ class DatabaseNotifier extends ChangeNotifier {
       _setStoryListByDayId();
       _setStoryListByMonthID();
     }
+
     setLoading(false);
   }
 
   updateStory(StoryModel story) async {
     await wDatabase.updateStory(story: story);
     this._storyById[story.id] = story;
-    notifyListeners();
+    await load();
   }
 
   insertStory(StoryModel story) async {
@@ -90,6 +91,7 @@ class DatabaseNotifier extends ChangeNotifier {
 
   _setStoryListByMonthID() {
     final Map<DateTime, List<StoryListModel>> _groupByMonth = {};
+    final Map<DateTime, List<StoryListModel>> _sortedGroupByMonth = {};
 
     if (this._storyListByDayId != null &&
         this._storyListByDayId.entries != null &&
@@ -108,6 +110,15 @@ class DatabaseNotifier extends ChangeNotifier {
           _groupByMonth[key] = [storyList.value];
         }
       });
+
+      // Sort data by date
+      _groupByMonth.entries.map((e) => e.key).toList()
+        ..sort((a, b) {
+          return a.compareTo(b);
+        })
+        ..forEach((date) {
+          _sortedGroupByMonth[date] = _groupByMonth[date];
+        });
 
       final Map<int, StoryListModel> _mapStoryListByMonthId = {};
       for (int i = 1; i <= 12; i++) {

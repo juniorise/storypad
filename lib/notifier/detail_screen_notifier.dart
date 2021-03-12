@@ -16,6 +16,10 @@ class DetailScreenNotifier extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void setState() {
+    notifyListeners();
+  }
 }
 
 final detailScreenNotifier = ChangeNotifierProvider<DetailScreenNotifier>(

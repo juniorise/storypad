@@ -47,6 +47,13 @@ class DetailScreen extends HookWidget {
       initialIndex: dayIndex,
     );
 
+    tabController
+      ..addListener(() {
+        if (tabController.previousIndex != tabController.index) {
+          notifier.setState();
+        }
+      });
+
     final headerSliverBuilder = (context, _) {
       return [
         WSliverAppBar(
@@ -68,13 +75,18 @@ class DetailScreen extends HookWidget {
       ];
     };
 
+    final now = database
+        .storyListByDayId[_storyListInMonth.childrenId[tabController.index]]
+        .forDate;
+
     return WillPopScope(
       onWillPop: () => notifier.setClickedOutside(false),
       child: GestureDetector(
         onTap: () => notifier.setClickedOutside(true),
         child: Scaffold(
           extendBodyBehindAppBar: true,
-          floatingActionButton: AddToStoryFAB(),
+          extendBody: true,
+          floatingActionButton: AddToStoryFAB(forDate: now),
           body: NestedScrollView(
             headerSliverBuilder: headerSliverBuilder,
             body: buildVtTabView(
@@ -83,6 +95,7 @@ class DetailScreen extends HookWidget {
               controller: tabController,
               storyListInMonth: _storyListInMonth,
               storyListByDayId: database.storyListByDayId,
+              database: database,
             ),
           ),
         ),
@@ -125,21 +138,26 @@ class DetailScreen extends HookWidget {
     @required StoryListModel storyListInMonth,
     @required Map<int, StoryListModel> storyListByDayId,
     @required DetailScreenNotifier notifier,
+    @required DatabaseNotifier database,
     @required BuildContext context,
   }) {
     return VTTabView(
       controller: controller,
       children: buildTabChildren(
+        context,
         storyListInMonth,
         notifier,
+        database,
         storyListByDayId,
       ),
     );
   }
 
   List<Widget> buildTabChildren(
+    BuildContext context,
     StoryListModel storyListInMonth,
     DetailScreenNotifier notifier,
+    DatabaseNotifier database,
     Map<int, StoryListModel> _storyListByDayId,
   ) {
     List<Widget> list = [];
@@ -178,83 +196,96 @@ class DetailScreen extends HookWidget {
                       if (!selected) opacity = 0.5;
                       if (notifier.clickedOutside) opacity = 1;
 
-                      return Consumer(
-                        builder: (context, watch, child) {
-                          final databaseNotifier = watch(databaseProvider);
+                      final StoryModel _story = database.storyById[_storyId];
 
-                          final StoryModel _story =
-                              databaseNotifier.storyById[_storyId];
+                      final _headerText = Container(
+                        width: MediaQuery.of(context).size.width - 16 * 4,
+                        child: Text(
+                          _story.title,
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle1
+                              .copyWith(height: 1.28),
+                          textAlign: TextAlign.start,
+                        ),
+                      );
 
-                          final _headerText = Text(
-                            _story.title,
-                            style: Theme.of(context)
-                                .textTheme
-                                .subtitle1
-                                .copyWith(height: 1.28),
-                            textAlign: TextAlign.start,
-                          );
+                      final _paragraphText =
+                          _story != null ? _story.paragraph ?? "" : "";
 
-                          final _paragraph = Text(
-                            _story.paragraph,
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .subtitle2
-                                  .color
-                                  .withOpacity(0.6),
-                            ),
-                          );
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 8.0),
-                            child: OpenContainer(
-                              transitionType:
-                                  ContainerTransitionType.fadeThrough,
-                              transitionDuration:
-                                  const Duration(milliseconds: 500),
-                              openElevation: 0.0,
-                              closedElevation: 0.5,
-                              openBuilder: (context, callback) {
-                                return StoryDetailScreen(
-                                  story: _story,
-                                  callback: callback,
-                                );
+                      final _paragraph = _paragraphText.isNotEmpty
+                          ? Container(
+                              width: MediaQuery.of(context).size.width - 16 * 4,
+                              child: Text(
+                                _story.paragraph,
+                                textAlign: TextAlign.start,
+                                maxLines: null,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      .color
+                                      .withOpacity(0.6),
+                                ),
+                              ),
+                            )
+                          : SizedBox();
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8.0),
+                        child: OpenContainer(
+                          transitionType: ContainerTransitionType.fadeThrough,
+                          transitionDuration: const Duration(milliseconds: 500),
+                          openElevation: 0.0,
+                          closedElevation: 0.5,
+                          openBuilder: (context, callback) {
+                            return StoryDetailScreen(
+                              story: _story,
+                              callback: () async {
+                                callback();
+                                database.setLoading(true);
+                                Future.delayed(Duration(milliseconds: 350))
+                                    .then((value) {
+                                  database.setLoading(false);
+                                });
                               },
-                              closedBuilder: (context, callback) {
-                                return VTOnTapEffect(
-                                  onTap: () {
-                                    notifier.setClickedOutside(true);
-                                    callback();
-                                  },
-                                  effects: [
-                                    VTOnTapEffectItem(
-                                      effectType:
-                                          VTOnTapEffectType.touchableOpacity,
-                                      active: 0.5,
-                                    )
-                                  ],
-                                  child: AnimatedOpacity(
-                                    duration: const Duration(milliseconds: 350),
-                                    opacity: opacity,
-                                    child: Container(
-                                      color: Theme.of(context).backgroundColor,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0,
-                                        vertical: 8.0,
-                                      ),
-                                      child: Wrap(
-                                        children: [
-                                          _headerText,
-                                          _paragraph,
-                                        ],
-                                      ),
-                                    ),
+                            );
+                          },
+                          closedBuilder: (context, callback) {
+                            return VTOnTapEffect(
+                              onTap: () {
+                                notifier.setClickedOutside(true);
+                                callback();
+                              },
+                              effects: [
+                                VTOnTapEffectItem(
+                                  effectType:
+                                      VTOnTapEffectType.touchableOpacity,
+                                  active: 0.5,
+                                )
+                              ],
+                              child: AnimatedOpacity(
+                                duration: const Duration(milliseconds: 350),
+                                opacity: database.loading ? 0 : opacity,
+                                child: Container(
+                                  color: Theme.of(context).backgroundColor,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                    vertical: 8.0,
                                   ),
-                                );
-                              },
-                            ),
-                          );
-                        },
+                                  alignment: Alignment.center,
+                                  child: Wrap(
+                                    direction: Axis.horizontal,
+                                    children: [
+                                      _headerText,
+                                      _paragraph,
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       );
                     },
                   )

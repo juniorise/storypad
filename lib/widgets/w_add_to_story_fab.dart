@@ -6,7 +6,10 @@ import 'package:write_your_story/widgets/vt_ontap_effect.dart';
 class AddToStoryFAB extends StatelessWidget {
   const AddToStoryFAB({
     Key key,
+    @required this.forDate,
   }) : super(key: key);
+
+  final DateTime forDate;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,7 @@ class AddToStoryFAB extends StatelessWidget {
       openBuilder: (context, callback) {
         return StoryDetailScreen(
           callback: callback,
-          futureId: DateTime.now().millisecondsSinceEpoch,
+          futureId: forDate.millisecondsSinceEpoch,
         );
       },
       closedBuilder: (context, callback) {
