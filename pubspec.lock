@@ -8,6 +8,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.2"
+  archive:
+    dependency: transitive
+    description:
+      name: archive
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.1.2"
   args:
     dependency: transitive
     description:
@@ -57,6 +64,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.15.0"
+  crypto:
+    dependency: transitive
+    description:
+      name: crypto
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -168,6 +182,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  logging:
+    dependency: transitive
+    description:
+      name: logging
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
+  lottie:
+    dependency: "direct main"
+    description:
+      name: lottie
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   matcher:
     dependency: transitive
     description:
