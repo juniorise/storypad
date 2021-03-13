@@ -15,6 +15,14 @@ class HomeScreenNotifier extends ChangeNotifier {
   /// Use to fade in widget smoother
   bool isInit = false;
 
+  HomeScreenNotifier() {
+    if (!isInit) {
+      Future.delayed(Duration(milliseconds: 1000)).then((value) {
+        setIsInit(true);
+      });
+    }
+  }
+
   setIsInit(bool value) {
     this.isInit = value;
     notifyListeners();

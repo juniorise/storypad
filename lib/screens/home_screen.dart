@@ -16,6 +16,7 @@ import 'package:write_your_story/screens/story_detail_screen.dart';
 import 'package:write_your_story/widgets/vt_ontap_effect.dart';
 import 'package:write_your_story/widgets/vt_tab_view.dart';
 import 'package:write_your_story/widgets/w_add_to_story_fab.dart';
+import 'package:write_your_story/widgets/w_no_data.dart';
 import 'package:write_your_story/widgets/w_sliver_appbar.dart';
 
 class HomeScreen extends HookWidget with HookController {
@@ -28,6 +29,8 @@ class HomeScreen extends HookWidget with HookController {
     final database = useProvider(databaseProvider);
 
     final controller = useTabController(initialLength: 12);
+    context.read(homeScreenProvider);
+
     final now = DateTime.now();
 
     controller.addListener(() {
@@ -77,6 +80,7 @@ class HomeScreen extends HookWidget with HookController {
               final _notifier = watch(homeScreenProvider);
               return NestedScrollView(
                 body: bodyInConsumer,
+                physics: BouncingScrollPhysics(),
                 headerSliverBuilder: (context, _) {
                   return [
                     buildHeaderAppBar(
@@ -139,7 +143,7 @@ class HomeScreen extends HookWidget with HookController {
     );
   }
 
-  ListView buildStoryInMonth({
+  Widget buildStoryInMonth({
     @required int monthId, // month index == monthId - 1
     @required BuildContext context,
     @required DatabaseNotifier database,
@@ -152,6 +156,26 @@ class HomeScreen extends HookWidget with HookController {
         storyListByMonthId.containsKey(monthId) &&
         storyListByMonthId[monthId] != null) {
       storiesInMonthIds = storyListByMonthId[monthId].childrenId;
+    }
+
+    if (storiesInMonthIds == null ||
+        (storiesInMonthIds != null && storiesInMonthIds.length == 0)) {
+      final monthName = AppHelper.toNameOfMonth(context)
+          .format(DateTime(DateTime.now().year, monthId));
+
+      return buildFadeInOnInit(
+        child: Consumer(
+          child: WNoData(monthName: monthName),
+          builder: (context, watch, child) {
+            final _notifier = watch(homeScreenProvider);
+            return AnimatedOpacity(
+              opacity: _notifier.showParagraphById ? 1 : 0,
+              duration: const Duration(milliseconds: 650),
+              child: child,
+            );
+          },
+        ),
+      );
     }
 
     return ListView(
