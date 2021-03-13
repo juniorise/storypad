@@ -107,6 +107,7 @@ class WDatabase {
         "title",
         "paragraph",
         "create_on",
+        "update_on",
         "is_favorite",
         "for_date",
       ],

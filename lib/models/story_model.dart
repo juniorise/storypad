@@ -20,6 +20,16 @@ class StoryModel {
     this.isFavorite = false,
   });
 
+  static StoryModel get empty {
+    return StoryModel(
+      id: DateTime.now().millisecondsSinceEpoch,
+      title: "",
+      paragraph: "",
+      createOn: DateTime.now(),
+      forDate: DateTime.now(),
+    );
+  }
+
   copyWith({
     int id,
     String title,
@@ -31,8 +41,8 @@ class StoryModel {
   }) {
     return StoryModel(
       id: id ?? this.id,
-      title: title ?? this.title,
-      paragraph: paragraph ?? this.paragraph,
+      title: title != null ? title : this.title,
+      paragraph: paragraph != null ? paragraph : this.paragraph,
       createOn: createOn ?? this.createOn,
       forDate: forDate ?? this.forDate,
       updateOn: updateOn ?? this.updateOn,
@@ -49,11 +59,12 @@ class StoryModel {
       json["for_date"],
     );
 
-    final DateTime updateOn = json.containsKey('update_on')
-        ? DateTime.fromMillisecondsSinceEpoch(
-            json["update_on"],
-          )
-        : null;
+    final DateTime updateOn =
+        json.containsKey('update_on') && json['update_on'] != null
+            ? DateTime.fromMillisecondsSinceEpoch(
+                json["update_on"],
+              )
+            : null;
 
     bool isFavorite = false;
     if (json.containsKey("is_favorite")) {

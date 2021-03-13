@@ -32,11 +32,13 @@ class DatabaseNotifier extends ChangeNotifier {
     await wDatabase.updateStory(story: story);
     this._storyById[story.id] = story;
     await load();
+    notifyListeners();
   }
 
   insertStory(StoryModel story) async {
     await wDatabase.addStory(story: story);
     await load();
+    notifyListeners();
   }
 
   clearAllStoryies() async {
@@ -158,25 +160,40 @@ class DatabaseNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> toggleFavorite(StoryModel story) async {
+    await wDatabase.updateStory(
+      story: story.copyWith(isFavorite: !story.isFavorite ?? true),
+    );
+    await load();
+  }
+
   void clearDb(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "Are you sure to clear database?",
-          style: Theme.of(context)
-              .textTheme
-              .bodyText1
-              .copyWith(color: Theme.of(context).backgroundColor),
-        ),
-        action: SnackBarAction(
-          label: "Yes",
-          textColor: Theme.of(context).backgroundColor,
-          onPressed: () async {
-            final database = context.read(databaseProvider);
-            await database.clearAllStoryies();
-          },
-        ),
-      ),
+    ScaffoldMessenger.of(context)
+        .showSnackBar(
+          SnackBar(
+            content: Text(
+              "Are you sure to clear database?",
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText1
+                  .copyWith(color: Theme.of(context).backgroundColor),
+            ),
+            action: SnackBarAction(
+              label: "Yes",
+              textColor: Theme.of(context).backgroundColor,
+              onPressed: () async {
+                final database = context.read(databaseProvider);
+                await database.clearAllStoryies();
+                await database.load();
+              },
+            ),
+          ),
+        )
+        .closed
+        .then(
+      (value) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      },
     );
   }
 
@@ -243,13 +260,6 @@ class DatabaseNotifier extends ChangeNotifier {
   /// }
   /// ```
   Map<int, StoryListModel> get storyListByMonthID => this._storyListByMonthID;
-
-  Future<void> toggleFavorite(StoryModel story) async {
-    await wDatabase.updateStory(
-      story: story.copyWith(isFavorite: !story.isFavorite ?? true),
-    );
-    await load();
-  }
 }
 
 final databaseProvider = ChangeNotifierProvider<DatabaseNotifier>(

@@ -20,15 +20,18 @@ import 'package:write_your_story/widgets/w_no_data.dart';
 import 'package:write_your_story/widgets/w_sliver_appbar.dart';
 
 class HomeScreen extends HookWidget with HookController {
-  final ValueNotifier<DateTime> dateTimeNotifier =
-      ValueNotifier(DateTime.now());
+  final ValueNotifier<DateTime> dateTimeNotifier = ValueNotifier(DateTime(
+    DateTime.now().year,
+    1,
+    DateTime.now().day,
+  ));
 
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final database = useProvider(databaseProvider);
 
-    final controller = useTabController(initialLength: 12);
+    final controller = useTabController(initialLength: 12, initialIndex: 0);
     context.read(homeScreenProvider);
 
     final now = DateTime.now();
@@ -409,21 +412,20 @@ class HomeScreen extends HookWidget with HookController {
           onPressed: () async {
             final database = context.read(databaseProvider);
             await database.toggleFavorite(story);
-            print("YES");
           },
           iconSize: 20,
           icon: Icon(
-              story != null && story.isFavorite == true
-                  ? Icons.favorite
-                  : Icons.favorite_border_rounded,
-              color: story.isFavorite == true
-                  ? Theme.of(context).errorColor
-                  : Theme.of(context).dividerColor),
+            story != null && story.isFavorite == true
+                ? Icons.favorite
+                : Icons.favorite_border_rounded,
+            color: story != null && story.isFavorite == true
+                ? Theme.of(context).errorColor
+                : Theme.of(context).dividerColor,
+          ),
         ),
       ),
     );
 
-    final page = StoryDetailScreen(story: story);
     return Container(
       width: double.infinity,
       margin: margin,
@@ -447,7 +449,10 @@ class HomeScreen extends HookWidget with HookController {
           });
         },
         openBuilder: (context, callback) {
-          return page;
+          return StoryDetailScreen(
+            story: story,
+            callback: callback,
+          );
         },
         closedBuilder: (context, callback) {
           final _tileEffects = [
