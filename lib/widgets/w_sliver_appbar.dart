@@ -12,6 +12,7 @@ class WSliverAppBar extends HookWidget {
     @required this.titleText,
     @required this.subtitleText,
     @required this.statusBarHeight,
+    @required this.isInit,
     this.tabs,
     this.backgroundText,
     this.tabController,
@@ -19,6 +20,7 @@ class WSliverAppBar extends HookWidget {
   }) : super(key: key);
 
   final double statusBarHeight;
+  final bool isInit;
   final Function callback;
   final List<String> tabs;
   final String titleText;
@@ -35,7 +37,7 @@ class WSliverAppBar extends HookWidget {
       floating: true,
       pinned: true,
       forceElevated: true,
-      elevation: 1,
+      elevation: isInit ? 0.5 : 0,
       backgroundColor: Theme.of(context).backgroundColor,
       expandedHeight: kToolbarHeight * 2.8,
       centerTitle: false,
@@ -48,8 +50,9 @@ class WSliverAppBar extends HookWidget {
           ? WTabBar(
               controller: controller,
               height: 40,
-              color: Theme.of(context).backgroundColor,
+              backgroundColor: Theme.of(context).backgroundColor,
               tabs: tabs,
+              isInit: isInit,
             )
           : null,
     );

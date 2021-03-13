@@ -9,13 +9,15 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
     Key key,
     @required this.height,
     @required this.tabs,
+    @required this.isInit,
     this.controller,
-    this.color,
+    this.backgroundColor,
     this.padding = const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
   }) : super(key: key);
 
   final double height;
-  final Color color;
+  final bool isInit;
+  final Color backgroundColor;
   final List<String> tabs;
   final TabController controller;
   final EdgeInsets padding;
@@ -23,7 +25,7 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final tabController = this.controller ?? DefaultTabController.of(context);
-    final scrollController = useScrollController();
+    final unselectedLabelColor = Theme.of(context).textTheme.bodyText1.color;
 
     return Theme(
       data: Theme.of(context),
@@ -35,7 +37,7 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
           padding.bottom,
         ),
         height: height + padding.top + padding.bottom,
-        color: color,
+        color: backgroundColor,
         child: Container(
           height: height + padding.top + padding.bottom,
           alignment: Alignment.center,
@@ -44,28 +46,36 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
             width: double.infinity,
             child: WCopiedTabBar(
               physics: const BouncingScrollPhysics(),
-              scrollController: scrollController,
               controller: tabController,
               isScrollable: true,
               onTap: (index) {},
-              unselectedLabelColor: Theme.of(context).textTheme.bodyText1.color,
-              labelColor: Colors.white,
+              unselectedLabelColor: unselectedLabelColor,
+              labelColor: isInit ? backgroundColor : unselectedLabelColor,
               labelStyle: Theme.of(context).textTheme.bodyText1,
               indicator: WTabIndicator(
-                borderSide: BorderSide(width: height),
+                borderSide: BorderSide(
+                  width: height,
+                  color: isInit ? unselectedLabelColor : backgroundColor,
+                ),
               ),
-              tabs: tabs
-                  .map(
-                    (text) => Padding(
+              tabs: List.generate(
+                tabs.length,
+                (index) {
+                  final text = tabs[index];
+                  return AnimatedOpacity(
+                    duration: Duration(milliseconds: (index + 1) * 350),
+                    opacity: isInit ? 1 : 0,
+                    child: Padding(
+                      child: Text(text),
                       padding: const EdgeInsets.only(
                         left: 8.0,
                         right: 8.0,
                         top: 2.0,
                       ),
-                      child: Text(text),
                     ),
-                  )
-                  .toList(),
+                  );
+                },
+              ),
             ),
           ),
         ),

@@ -6,11 +6,11 @@ import 'package:write_your_story/models/story_model.dart';
 import 'package:write_your_story/notifier/database_notifier.dart';
 import 'package:write_your_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_your_story/widgets/vt_ontap_effect.dart';
+import 'package:write_your_story/widgets/w_icon_button.dart';
 
 class StoryDetailScreen extends HookWidget {
   const StoryDetailScreen({
     Key key,
-    @required this.callback,
     this.story,
     this.futureId,
   })  : assert((story != null && futureId == null) ||
@@ -18,7 +18,6 @@ class StoryDetailScreen extends HookWidget {
         super(key: key);
 
   final StoryModel story;
-  final VoidCallback callback;
   final int futureId;
 
   String getDateLabel(DateTime date, BuildContext context, String label) {
@@ -65,7 +64,6 @@ class StoryDetailScreen extends HookWidget {
     );
 
     String _aboutDateText = "";
-
     if (!insert) {
       _aboutDateText = getDateLabel(story.createOn, context, "Create on") +
           "\n" +
@@ -114,198 +112,131 @@ class StoryDetailScreen extends HookWidget {
       ),
     );
 
-    return WillPopScope(
-      onWillPop: () {
-        callback();
-        return;
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        TextEditingController().clear();
       },
-      child: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-          TextEditingController().clear();
-        },
-        child: Scaffold(
-          backgroundColor: _theme.backgroundColor,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: false,
-            leading: VTOnTapEffect(
-              onTap: () {
-                callback();
-              },
-              effects: [
-                VTOnTapEffectItem(
-                  effectType: VTOnTapEffectType.scaleDown,
-                  active: 0.9,
-                ),
+      child: Scaffold(
+        backgroundColor: _theme.backgroundColor,
+        appBar: buildAppBar(
+          context,
+          _theme,
+          insert,
+          notifier,
+          database,
+          _aboutDate,
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
+            child: Column(
+              children: [
+                _headerText,
+                _paragraph,
               ],
-              child: Container(
-                height: kToolbarHeight,
-                child: IconButton(
-                  highlightColor: _theme.disabledColor,
-                  onPressed: () {
-                    callback();
-                  },
-                  icon: Icon(
-                    Icons.cancel,
-                    color: _theme.primaryColorDark,
-                    size: 24,
-                  ),
-                ),
-              ),
             ),
-            actions: [
-              VTOnTapEffect(
-                effects: [
-                  VTOnTapEffectItem(
-                    effectType: VTOnTapEffectType.scaleDown,
-                    active: 0.9,
-                  ),
-                ],
-                child: Container(
-                  width: kToolbarHeight,
-                  child: IconButton(
-                    highlightColor: _theme.disabledColor,
-                    onPressed: () async {
-                      final date =
-                          !insert ? story.forDate : notifier.draftStory.forDate;
-
-                      final forDate = await showDatePicker(
-                        context: context,
-                        initialDate: date,
-                        firstDate: DateTime(date.year),
-                        lastDate: DateTime(date.year, 12, 31),
-                        builder: (BuildContext context, Widget child) {
-                          return Theme(
-                            child: child,
-                            data: _theme.copyWith(
-                              splashColor: Colors.transparent,
-                              colorScheme: _theme.colorScheme.copyWith(
-                                primary: _theme.primaryColor,
-                                secondary: Colors.red,
-                              ),
-                            ),
-                          );
-                        },
-                      );
-
-                      notifier.setDraftStory(
-                        notifier.draftStory.copyWith(forDate: forDate ?? date),
-                      );
-                    },
-                    icon: Icon(
-                      Icons.date_range_sharp,
-                      color: _theme.primaryColorDark,
-                      size: 24,
-                    ),
-                  ),
-                ),
-              ),
-              if (!insert)
-                VTOnTapEffect(
-                  effects: [
-                    VTOnTapEffectItem(
-                      effectType: VTOnTapEffectType.scaleDown,
-                      active: 0.9,
-                    ),
-                  ],
-                  child: Container(
-                    width: kToolbarHeight,
-                    child: IconButton(
-                      highlightColor: _theme.disabledColor,
-                      onPressed: () async {},
-                      icon: Icon(
-                        Icons.delete,
-                        color: _theme.errorColor,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ),
-              VTOnTapEffect(
-                onTap: callback,
-                effects: [
-                  VTOnTapEffectItem(
-                    effectType: VTOnTapEffectType.scaleDown,
-                    active: 0.9,
-                  ),
-                ],
-                child: Container(
-                  width: kToolbarHeight,
-                  child: IconButton(
-                    highlightColor: _theme.disabledColor,
-                    onPressed: () async {
-                      if (insert) {
-                        await database.insertStory(notifier.draftStory);
-                      } else {
-                        await database.updateStory(
-                          notifier.draftStory.copyWith(
-                            updateOn: DateTime.now(),
-                          ),
-                        );
-                      }
-                    },
-                    icon: Icon(
-                      Icons.save,
-                      color: _theme.primaryColor,
-                      size: 24,
-                    ),
-                  ),
-                ),
-              ),
-              if (!insert)
-                VTOnTapEffect(
-                  effects: [
-                    VTOnTapEffectItem(
-                      effectType: VTOnTapEffectType.scaleDown,
-                      active: 0.9,
-                    ),
-                  ],
-                  child: Container(
-                    width: kToolbarHeight,
-                    child: IconButton(
-                      highlightColor: _theme.disabledColor,
-                      onPressed: () async {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return Dialog(
-                              child: Container(
-                                child: _aboutDate,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                  vertical: 8.0,
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      icon: Icon(
-                        Icons.info,
-                        size: 24,
-                        color: _theme.primaryColorDark,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
           ),
-          body: SingleChildScrollView(
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Column(
-                children: [
-                  _headerText,
-                  _paragraph,
-                ],
-              ),
-            ),
+        ),
+      ),
+    );
+  }
+
+  AppBar buildAppBar(
+    BuildContext context,
+    ThemeData _theme,
+    bool insert,
+    StoryDetailScreenNotifier notifier,
+    DatabaseNotifier database,
+    Widget _aboutDate,
+  ) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: false,
+      leading: buildAppBarLeadingButton(context, _theme),
+      actions: [
+        WIconButton(
+          iconData: Icons.date_range_rounded,
+          onPressed: () async {
+            notifier.onPickDate(
+              context,
+              !insert ? story.forDate : notifier.draftStory.forDate,
+            );
+          },
+        ),
+        if (!insert)
+          WIconButton(
+            iconData: Icons.delete,
+            onPressed: () {},
+            iconColor: _theme.errorColor,
+          ),
+        WIconButton(
+          iconData: Icons.save,
+          iconColor: _theme.primaryColor,
+          onPressed: () async {
+            if (insert) {
+              await database.insertStory(notifier.draftStory);
+            } else {
+              await database.updateStory(
+                notifier.draftStory.copyWith(
+                  updateOn: DateTime.now(),
+                ),
+              );
+            }
+          },
+        ),
+        if (!insert)
+          WIconButton(
+            iconData: Icons.info,
+            onPressed: () async {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return Dialog(
+                    child: Container(
+                      child: _aboutDate,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  VTOnTapEffect buildAppBarLeadingButton(
+      BuildContext context, ThemeData _theme) {
+    return VTOnTapEffect(
+      onTap: () {
+        Navigator.of(context).pop();
+      },
+      effects: [
+        VTOnTapEffectItem(
+          effectType: VTOnTapEffectType.scaleDown,
+          active: 0.9,
+        ),
+      ],
+      child: Container(
+        height: kToolbarHeight,
+        child: IconButton(
+          highlightColor: _theme.disabledColor,
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: Icon(
+            Icons.cancel,
+            color: _theme.primaryColorDark,
+            size: 24,
           ),
         ),
       ),

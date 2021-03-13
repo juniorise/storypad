@@ -673,7 +673,10 @@ class _TabBarState extends State<WCopiedTabBar> {
     // If indicatorSize is TabIndicatorSize.label, _tabKeys[i] is used to find
     // the width of tab widget i. See _IndicatorPainter.indicatorRect().
     _tabKeys = widget.tabs.map((Widget tab) => GlobalKey()).toList();
-    _scrollController = widget.scrollController;
+
+    if (widget.scrollController != null) {
+      this._scrollController = widget.scrollController;
+    }
   }
 
   Decoration get _indicator {

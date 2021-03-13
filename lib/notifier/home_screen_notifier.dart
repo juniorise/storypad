@@ -1,12 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:write_your_story/models/index_model.dart';
 
 class HomeScreenNotifier extends ChangeNotifier {
-  double remainHeight = 0;
-  bool loading = false;
+  /// Since we wrap paragraph with Wrap Widget and when it is click
+  /// paragraph start showing unexpected ui.
+  ///
+  /// Solution is hide them when story tile is clicked
+  /// and show them back when navigate or pop back.
+  // int lastNavigatorToStoryId = 1;
+  bool showParagraphById = true;
+  IndexModel lastIndexes;
 
-  setRemainHeight(double remainHeight) {
-    this.remainHeight = remainHeight;
+  /// Use to fade in widget smoother
+  bool isInit = false;
+
+  setIsInit(bool value) {
+    this.isInit = value;
+    notifyListeners();
+  }
+
+  // setLastNavigatorToStoryId(int value) {
+  //   this.lastNavigatorToStoryId = value;
+  // }
+
+  setLastIndexesModel(IndexModel lastIndex) {
+    this.lastIndexes = lastIndex;
+    notifyListeners();
+  }
+
+  setShowParagraphById(bool value) {
+    this.showParagraphById = value;
     notifyListeners();
   }
 }
