@@ -243,6 +243,13 @@ class DatabaseNotifier extends ChangeNotifier {
   /// }
   /// ```
   Map<int, StoryListModel> get storyListByMonthID => this._storyListByMonthID;
+
+  Future<void> toggleFavorite(StoryModel story) async {
+    await wDatabase.updateStory(
+      story: story.copyWith(isFavorite: !story.isFavorite ?? true),
+    );
+    await load();
+  }
 }
 
 final databaseProvider = ChangeNotifierProvider<DatabaseNotifier>(

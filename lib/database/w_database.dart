@@ -45,12 +45,15 @@ class WDatabase {
   Future<void> updateStory({
     @required StoryModel story,
   }) async {
+    final DateTime updateOn =
+        story.updateOn != null ? story.updateOn : DateTime.now();
     String query = '''
     UPDATE story 
     SET title = "${story.title}", 
         paragraph = "${story.paragraph}",
         for_date = ${story.forDate.millisecondsSinceEpoch},
-        update_on = ${story.updateOn.millisecondsSinceEpoch}
+        update_on = ${updateOn.millisecondsSinceEpoch},
+        is_favorite = ${story.isFavorite == true ? 1 : 0}
     WHERE id = ${story.id}
     ''';
 

@@ -382,14 +382,19 @@ class HomeScreen extends HookWidget with HookController {
       child: VTOnTapEffect(
         effects: _favoriteButtonEffect,
         child: IconButton(
-          onPressed: () {},
+          onPressed: () async {
+            final database = context.read(databaseProvider);
+            await database.toggleFavorite(story);
+            print("YES");
+          },
           iconSize: 20,
           icon: Icon(
-            story != null && story.isFavorite
-                ? Icons.favorite
-                : Icons.favorite_border_rounded,
-            color: Theme.of(context).dividerColor,
-          ),
+              story != null && story.isFavorite == true
+                  ? Icons.favorite
+                  : Icons.favorite_border_rounded,
+              color: story.isFavorite == true
+                  ? Theme.of(context).errorColor
+                  : Theme.of(context).dividerColor),
         ),
       ),
     );
