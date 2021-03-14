@@ -1,4 +1,4 @@
-import 'package:write_your_story/models/story_model.dart';
+import 'package:write_story/models/story_model.dart';
 
 final Map<int, StoryModel> tmpGlbalStoryByID = {
   1: StoryModel(

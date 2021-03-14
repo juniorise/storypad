@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:write_your_story/screens/story_detail_screen.dart';
-import 'package:write_your_story/widgets/vt_ontap_effect.dart';
+import 'package:write_story/screens/story_detail_screen.dart';
+import 'package:write_story/widgets/vt_ontap_effect.dart';
 
 class AddToStoryFAB extends StatelessWidget {
   const AddToStoryFAB({

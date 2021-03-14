@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_your_story/database/w_database.dart';
-import 'package:write_your_story/models/story_list_model.dart';
-import 'package:write_your_story/models/story_model.dart';
+import 'package:write_story/database/w_database.dart';
+import 'package:write_story/models/story_list_model.dart';
+import 'package:write_story/models/story_model.dart';
 
 class DatabaseNotifier extends ChangeNotifier {
   final WDatabase wDatabase = WDatabase.instance;

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_your_story/models/story_model.dart';
+import 'package:write_story/models/story_model.dart';
 
 class StoryDetailScreenNotifier extends ChangeNotifier {
   StoryModel draftStory;

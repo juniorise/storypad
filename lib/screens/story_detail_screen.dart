@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_your_story/app_helper/app_helper.dart';
-import 'package:write_your_story/models/story_model.dart';
-import 'package:write_your_story/notifier/database_notifier.dart';
-import 'package:write_your_story/notifier/story_detail_screen_notifier.dart';
-import 'package:write_your_story/widgets/vt_ontap_effect.dart';
-import 'package:write_your_story/widgets/w_icon_button.dart';
+import 'package:write_story/app_helper/app_helper.dart';
+import 'package:write_story/models/story_model.dart';
+import 'package:write_story/notifier/database_notifier.dart';
+import 'package:write_story/notifier/story_detail_screen_notifier.dart';
+import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:write_story/widgets/w_icon_button.dart';
 
 class StoryDetailScreen extends HookWidget {
   const StoryDetailScreen({
