@@ -1,4 +1,4 @@
-package com.example.write_your_story
+package com.tc.writestory
 
 import io.flutter.embedding.android.FlutterActivity
 
