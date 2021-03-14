@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:write_your_story/widgets/w_copied_tab_bar.dart';
-import 'package:write_your_story/widgets/w_tab_indicator.dart';
+import 'package:write_story/widgets/w_copied_tab_bar.dart';
+import 'package:write_story/widgets/w_tab_indicator.dart';
 
 class WTabBar extends HookWidget implements PreferredSizeWidget {
   WTabBar({

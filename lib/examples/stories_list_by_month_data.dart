@@ -1,4 +1,4 @@
-import 'package:write_your_story/models/story_list_model.dart';
+import 'package:write_story/models/story_list_model.dart';
 
 final Map<int, StoryListModel> tmpGlobalStoryListByMonthID = {
   1: StoryListModel(

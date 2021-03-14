@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import "package:path/path.dart";
-import 'package:write_your_story/models/story_model.dart';
+import 'package:write_story/models/story_model.dart';
 
 class WDatabase {
   WDatabase._privateConstructor();
@@ -20,14 +20,14 @@ class WDatabase {
 
   Future<Database> _init() async {
     Directory applicationDirectory = await getApplicationDocumentsDirectory();
-    String dbPath = join(applicationDirectory.path, "write_your_story.db");
+    String dbPath = join(applicationDirectory.path, "write_story.db");
 
     bool dbExists = await File(dbPath).exists();
 
     if (!dbExists) {
       // copy from asset
       ByteData data = await rootBundle.load(
-        join("assets/database", "write_your_story.db"),
+        join("assets/database", "write_story.db"),
       );
 
       List<int> bytes = data.buffer.asUint8List(

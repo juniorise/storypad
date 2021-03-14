@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:write_your_story/screens/home_screen.dart';
+import 'package:write_story/screens/home_screen.dart';
 
 class App extends StatelessWidget {
   @override

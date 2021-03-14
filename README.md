@@ -1,4 +1,4 @@
-# write_your_story
+# write_story
 
 A new Flutter project.
 

@@ -1,4 +1,4 @@
-name: write_your_story
+name: write_story
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -60,7 +60,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/translations/
-    - assets/database/write_your_story.db
+    - assets/database/write_story.db
     
     # Ref: https://iconscout.com/illustration/thinking-woman-1840996
     - assets/illustrations/thinking-woman.png

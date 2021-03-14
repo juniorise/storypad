@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_your_story/models/index_model.dart';
+import 'package:write_story/models/index_model.dart';
 
 class HomeScreenNotifier extends ChangeNotifier {
   /// Since we wrap paragraph with Wrap Widget and when it is click
