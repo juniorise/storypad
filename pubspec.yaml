@@ -27,6 +27,12 @@ dependencies:
 
   animations: ^1.1.2
   lottie: ^1.0.1
+
+  page_transition: ^1.1.7+6
+  auto_orientation: ^2.0.0
+
+  # User Info
+  client_information: ^1.0.1
   
   # State management
   flutter_hooks: ^0.16.0
@@ -64,7 +70,7 @@ flutter:
     
     # Ref: https://iconscout.com/illustration/thinking-woman-1840996
     - assets/illustrations/thinking-woman.png
-
+    - assets/animations/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

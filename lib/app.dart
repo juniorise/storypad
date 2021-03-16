@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:write_story/screens/home_screen.dart';
+import 'package:write_story/screens/wrapper_screens.dart';
 
 class App extends StatelessWidget {
   @override
@@ -12,14 +12,14 @@ class App extends StatelessWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: WrapperScreens(),
       theme: ThemeData(
         visualDensity: VisualDensity.adaptivePlatformDensity,
         primaryColorDark: Color(0xFF263238),
         primaryColor: Color(0xFF0E4DA4),
         backgroundColor: Colors.white,
         scaffoldBackgroundColor: Color(0xFFF6F6F6),
-        disabledColor: Color(0xFF263238).withOpacity(0.1),
+        disabledColor: Color(0xFF263238).withOpacity(0.2),
         dividerColor: Color(0xFFE9E9E9),
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,

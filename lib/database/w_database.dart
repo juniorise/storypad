@@ -1,20 +1,23 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import "package:path/path.dart";
 import 'package:write_story/models/story_model.dart';
+import 'package:write_story/models/user_model.dart';
 
 class WDatabase {
   WDatabase._privateConstructor();
   static final WDatabase instance = WDatabase._privateConstructor();
 
   static Database _database;
+  static String deviceId = "os";
+
   Future<Database> get database async {
     if (_database != null) return _database;
     _database = await _init();
+
     return _database;
   }
 
@@ -124,5 +127,45 @@ class WDatabase {
 
   clearAllStories() async {
     await _database.execute("delete from story");
+  }
+
+  Future<void> setUserModel(UserModel user) async {
+    String query = '''
+    INSERT or REPLACE INTO "user_info" (
+      device_id,
+      nickname,
+      dob,
+      create_on,
+      update_on
+    )
+    VALUES (
+      "$deviceId",
+      "${user.nickname}",
+      ${user.dob != null ? user.dob.millisecondsSinceEpoch : null},
+      ${user.createOn != null ? user.createOn.millisecondsSinceEpoch : null},
+      ${user.updateOn != null ? user.updateOn.millisecondsSinceEpoch : null}
+    )
+    ''';
+    await _database.execute(query);
+  }
+
+  Future<UserModel> userModel() async {
+    final client = await database;
+    List<Map<String, dynamic>> maps = await client.query(
+      "user_info",
+      columns: [
+        "nickname",
+        "dob",
+        "create_on",
+        "update_on",
+      ],
+      where: "device_id = '$deviceId'",
+    );
+
+    if (maps != null && maps.length > 0) {
+      return UserModel.fromJson(maps.first);
+    } else {
+      return null;
+    }
   }
 }

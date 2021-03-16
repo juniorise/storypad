@@ -1,8 +1,10 @@
+import 'package:auto_orientation/auto_orientation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/measure_size.dart';
 import 'package:write_story/notifier/appbar_notifier.dart';
+import 'package:write_story/screens/ask_for_name_sheet.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_tabbar.dart';
 
@@ -73,84 +75,80 @@ class WSliverAppBar extends HookWidget {
       offsetX = -16.0;
     }
 
-    final _headerTexts = Expanded(
-      child: AnimatedOpacity(
-        opacity: _inited ? 1 : 0,
-        curve: Curves.easeInOutQuad,
-        duration: const Duration(milliseconds: 1000),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              children: [
-                AnimatedContainer(
-                  curve: Curves.easeInOutQuad,
-                  transform: Matrix4.identity()..translate(offsetX, 0.0),
-                  duration: const Duration(milliseconds: 500),
-                  child: Container(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 24),
-                        if (callback != null)
-                          Container(
-                            height: 24,
-                            child: VTOnTapEffect(
-                              effects: [
-                                VTOnTapEffectItem(
-                                  effectType: VTOnTapEffectType.scaleDown,
-                                  active: 0.8,
-                                ),
-                                VTOnTapEffectItem(
-                                  effectType:
-                                      VTOnTapEffectType.touchableOpacity,
-                                  active: 0.8,
-                                )
-                              ],
-                              child: IconButton(
-                                highlightColor: _theme.disabledColor,
-                                iconSize: 20,
-                                padding: EdgeInsets.zero,
-                                onPressed: callback,
-                                icon: Icon(
-                                  Icons.arrow_left,
-                                  color: _theme.primaryColor,
-                                ),
+    final _headerTexts = AnimatedOpacity(
+      opacity: _inited ? 1 : 0,
+      curve: Curves.easeInOutQuad,
+      duration: const Duration(milliseconds: 1000),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            children: [
+              AnimatedContainer(
+                curve: Curves.easeInOutQuad,
+                transform: Matrix4.identity()..translate(offsetX, 0.0),
+                duration: const Duration(milliseconds: 500),
+                child: Container(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 24),
+                      if (callback != null)
+                        Container(
+                          height: 24,
+                          child: VTOnTapEffect(
+                            effects: [
+                              VTOnTapEffectItem(
+                                effectType: VTOnTapEffectType.scaleDown,
+                                active: 0.8,
+                              ),
+                              VTOnTapEffectItem(
+                                effectType: VTOnTapEffectType.touchableOpacity,
+                                active: 0.8,
+                              )
+                            ],
+                            child: IconButton(
+                              highlightColor: _theme.disabledColor,
+                              iconSize: 20,
+                              padding: EdgeInsets.zero,
+                              onPressed: callback,
+                              icon: Icon(
+                                Icons.arrow_left,
+                                color: _theme.primaryColor,
                               ),
                             ),
                           ),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 350),
-                          transform: Matrix4.identity()
-                            ..translate(
-                                this.callback != null ? -4.0 : 0.0, 0.0),
-                          child: Text(
-                            this.titleText,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: _headerStyle.copyWith(
-                                color: _theme.primaryColor),
-                          ),
                         ),
-                      ],
-                    ),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 350),
+                        transform: Matrix4.identity()
+                          ..translate(this.callback != null ? -4.0 : 0.0, 0.0),
+                        child: Text(
+                          this.titleText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              _headerStyle.copyWith(color: _theme.primaryColor),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-            AnimatedOpacity(
-              opacity: _inited ? 1 : 0,
-              duration: const Duration(milliseconds: 1000),
-              curve: Curves.easeInQuad,
-              child: Text(
-                this.subtitleText,
-                style: _textTheme.bodyText1,
               ),
-            )
-          ],
-        ),
+            ],
+          ),
+          AnimatedOpacity(
+            opacity: _inited ? 1 : 0,
+            duration: const Duration(milliseconds: 1000),
+            curve: Curves.easeInQuad,
+            child: Text(
+              this.subtitleText,
+              style: _textTheme.bodyText1,
+            ),
+          )
+        ],
       ),
     );
 
@@ -184,7 +182,30 @@ class WSliverAppBar extends HookWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _headerTexts,
+            VTOnTapEffect(
+              onTap: () async {
+                await AutoOrientation.portraitAutoMode();
+                showModalBottomSheet(
+                  isDismissible: false,
+                  context: context,
+                  enableDrag: true,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) {
+                    return AskForNameSheet();
+                  },
+                ).then((value) async {
+                  await AutoOrientation.fullAutoMode();
+                });
+              },
+              effects: [
+                VTOnTapEffectItem(
+                  effectType: VTOnTapEffectType.touchableOpacity,
+                  active: 0.5,
+                )
+              ],
+              child: _headerTexts,
+            ),
             _yearText ?? const SizedBox(),
           ],
         ),

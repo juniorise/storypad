@@ -35,13 +35,7 @@ class WNoData extends StatelessWidget {
                   width: imageSize,
                   height: imageSize,
                 ),
-                Container(
-                  margin: EdgeInsets.only(top: tablet ? 0 : 16.0),
-                  child: Text(
-                    tr("no_data_yet"),
-                    style: Theme.of(context).textTheme.headline6,
-                  ),
-                ),
+                const SizedBox(height: 16.0),
                 Container(
                   width: constrant.maxWidth / 2,
                   child: Text(

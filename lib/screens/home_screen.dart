@@ -12,6 +12,7 @@ import 'package:write_story/models/story_list_model.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/database_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
+import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
@@ -57,12 +58,17 @@ class HomeScreen extends HookWidget with HookController {
 
     final scaffold = GestureDetector(
       onDoubleTap: () => database.clearDb(context),
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        TextEditingController().clear();
+      },
       child: DefaultTabController(
         length: 12,
         child: Scaffold(
           backgroundColor: Colors.transparent,
           extendBodyBehindAppBar: true,
           floatingActionButton: floatingActionButton,
+          resizeToAvoidBottomInset: false,
           body: Consumer(
             child: VTTabView(
               controller: controller,
@@ -81,6 +87,8 @@ class HomeScreen extends HookWidget with HookController {
             ),
             builder: (context, watch, bodyInConsumer) {
               final _notifier = watch(homeScreenProvider);
+              final _userNotifier = watch(userModelProvider);
+
               return NestedScrollView(
                 body: bodyInConsumer,
                 physics: BouncingScrollPhysics(),
@@ -89,6 +97,7 @@ class HomeScreen extends HookWidget with HookController {
                     buildHeaderAppBar(
                       isInit: _notifier.isInit,
                       controller: controller,
+                      userNotifier: _userNotifier,
                       statusBarHeight: statusBarHeight,
                       context: context,
                     ),
@@ -127,10 +136,11 @@ class HomeScreen extends HookWidget with HookController {
     @required double statusBarHeight,
     @required BuildContext context,
     @required bool isInit,
+    @required UserModelNotifier userNotifier,
   }) {
     return WSliverAppBar(
       statusBarHeight: statusBarHeight,
-      titleText: "សួរស្តីសុធា",
+      titleText: "សួរស្តី ${userNotifier.user.nickname}",
       subtitleText: "ចង់សរសេរអីដែរថ្ងៃនេះ?",
       backgroundText: DateTime.now().year.toString(),
       tabController: controller,
