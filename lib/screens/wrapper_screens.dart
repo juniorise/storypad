@@ -1,4 +1,3 @@
-import 'package:auto_orientation/auto_orientation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -34,18 +33,16 @@ class WrapperScreens extends HookWidget {
 
           return AnimatedContainer(
             margin: _margin,
-            duration: const Duration(milliseconds: 350),
+            duration: const Duration(milliseconds: 650),
             width: double.infinity,
             child: LottieBuilder.asset(
               "assets/animations/45130-book.json",
               height: lottieHeight,
               controller: controller,
               onLoaded: (LottieComposition composition) async {
-                Future.delayed(Duration(milliseconds: 350)).then((value) {
-                  controller
-                    ..duration = composition.duration
-                    ..forward();
-                });
+                controller
+                  ..duration = composition.duration
+                  ..forward();
               },
             ),
           );
@@ -60,6 +57,7 @@ class WrapperScreens extends HookWidget {
         const Duration(microseconds: 0),
         () async {
           if (notifier.alreadyHasUser) {
+            print("1");
             Navigator.of(context).pushReplacement(
               PageTransition(
                 child: HomeScreen(),
@@ -68,11 +66,11 @@ class WrapperScreens extends HookWidget {
               ),
             );
           } else {
+            print("2");
             await Future.delayed(Duration(milliseconds: 350))
                 .then((value) async {
               if (!notifier.isInit) {
                 notifier.setInit();
-                await AutoOrientation.portraitAutoMode();
                 showModalBottomSheet(
                   barrierColor: Colors.transparent,
                   isDismissible: false,
@@ -83,9 +81,7 @@ class WrapperScreens extends HookWidget {
                   builder: (context) {
                     return AskForNameSheet();
                   },
-                ).then((value) async {
-                  await AutoOrientation.fullAutoMode();
-                });
+                );
               }
             });
           }

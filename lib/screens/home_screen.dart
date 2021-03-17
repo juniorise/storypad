@@ -32,7 +32,10 @@ class HomeScreen extends HookWidget with HookController {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final database = useProvider(databaseProvider);
 
-    final controller = useTabController(initialLength: 12, initialIndex: 0);
+    final controller = useTabController(
+      initialLength: 12,
+      initialIndex: DateTime.now().month - 1,
+    );
     context.read(homeScreenProvider);
 
     final now = DateTime.now();
@@ -140,7 +143,7 @@ class HomeScreen extends HookWidget with HookController {
   }) {
     return WSliverAppBar(
       statusBarHeight: statusBarHeight,
-      titleText: "សួរស្តី ${userNotifier.user.nickname}",
+      titleText: "សួរស្តី${userNotifier.user.nickname}",
       subtitleText: "ចង់សរសេរអីដែរថ្ងៃនេះ?",
       backgroundText: DateTime.now().year.toString(),
       tabController: controller,

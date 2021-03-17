@@ -1,3 +1,4 @@
+import 'package:auto_orientation/auto_orientation.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -8,8 +9,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   EasyLocalization.ensureInitialized();
 
-  final db = WDatabase.instance;
-  await db.storyById();
+  await WDatabase.instance.database;
+  AutoOrientation.portraitAutoMode();
 
   runApp(
     ProviderScope(

@@ -1,4 +1,3 @@
-import 'package:auto_orientation/auto_orientation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -184,7 +183,6 @@ class WSliverAppBar extends HookWidget {
           children: [
             VTOnTapEffect(
               onTap: () async {
-                await AutoOrientation.portraitAutoMode();
                 showModalBottomSheet(
                   isDismissible: false,
                   context: context,
@@ -194,9 +192,7 @@ class WSliverAppBar extends HookWidget {
                   builder: (context) {
                     return AskForNameSheet();
                   },
-                ).then((value) async {
-                  await AutoOrientation.fullAutoMode();
-                });
+                );
               },
               effects: [
                 VTOnTapEffectItem(
