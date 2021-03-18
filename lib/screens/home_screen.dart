@@ -1,10 +1,8 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/app_helper.dart';
-import 'package:write_story/app_helper/measure_size.dart';
 import 'package:write_story/colors.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/models/index_model.dart';
@@ -36,7 +34,6 @@ class HomeScreen extends HookWidget with HookController {
       initialLength: 12,
       initialIndex: DateTime.now().month - 1,
     );
-    context.read(homeScreenProvider);
 
     final now = DateTime.now();
 
@@ -60,7 +57,6 @@ class HomeScreen extends HookWidget with HookController {
     );
 
     final scaffold = GestureDetector(
-      onDoubleTap: () => database.clearDb(context),
       onTap: () {
         FocusScope.of(context).unfocus();
         TextEditingController().clear();
@@ -128,7 +124,6 @@ class HomeScreen extends HookWidget with HookController {
             color: Theme.of(context).scaffoldBackgroundColor,
           ),
         ),
-
         scaffold,
       ],
     );
@@ -180,17 +175,7 @@ class HomeScreen extends HookWidget with HookController {
           .format(DateTime(DateTime.now().year, monthId));
 
       return buildFadeInOnInit(
-        child: Consumer(
-          child: WNoData(monthName: monthName),
-          builder: (context, watch, child) {
-            final _notifier = watch(homeScreenProvider);
-            return AnimatedOpacity(
-              opacity: _notifier.showParagraphById ? 1 : 0,
-              duration: const Duration(milliseconds: 650),
-              child: child,
-            );
-          },
-        ),
+        child: WNoData(monthName: monthName),
       );
     }
 
@@ -324,49 +309,38 @@ class HomeScreen extends HookWidget with HookController {
           opacity: 0,
           child: const Text("អាទិត្យ", style: TextStyle(height: 0)),
         ),
-        MeasureSize(
-          onChange: (Size size) {
-            final _notifier = context.read(homeScreenProvider);
-
-            if (!_notifier.isInit) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _notifier.setIsInit(true);
-              });
-            }
-          },
-          child: Column(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(bottom: 4.0),
-                child: Text(dayName),
-              ),
-              Stack(
-                children: [
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: containerColor,
+        Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 4.0),
+              child: Text(dayName),
+            ),
+            Stack(
+              children: [
+                Container(
+                  height: 30,
+                  width: 30,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: containerColor,
+                  ),
+                ),
+                Positioned(
+                  top: 3,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Text(
+                    storyListByDay.forDate.day.toString(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Theme.of(context).backgroundColor,
                     ),
                   ),
-                  Positioned(
-                    top: 3,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: Text(
-                      storyListByDay.forDate.day.toString(),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).backgroundColor,
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
+                ),
+              ],
+            )
+          ],
         ),
       ],
     );
@@ -379,7 +353,7 @@ class HomeScreen extends HookWidget with HookController {
     EdgeInsets margin = const EdgeInsets.only(bottom: 8.0),
   }) {
     /// Title
-    final _titleChild = Container(
+    final _titleWidget = Container(
       padding: const EdgeInsets.only(right: 30),
       width: MediaQuery.of(context).size.width - 16 * 7,
       child: Text(
@@ -387,10 +361,6 @@ class HomeScreen extends HookWidget with HookController {
         style: Theme.of(context).textTheme.subtitle1.copyWith(height: 1.28),
         textAlign: TextAlign.start,
       ),
-    );
-    final _titleWidget = buildFadeInOnPopBack(
-      child: _titleChild,
-      indexes: indexes,
     );
 
     /// Paragraph
@@ -405,9 +375,8 @@ class HomeScreen extends HookWidget with HookController {
         ),
       ),
     );
-    final _paragraphWidget = _paragraphText.isNotEmpty
-        ? buildFadeInOnPopBack(child: _paragraphChild, indexes: indexes)
-        : const SizedBox();
+    final _paragraphWidget =
+        _paragraphText.isNotEmpty ? _paragraphChild : const SizedBox();
 
     // Favorite button
     final _favoriteButtonEffect = [
@@ -439,75 +408,48 @@ class HomeScreen extends HookWidget with HookController {
       ),
     );
 
+    final _tileEffects = [
+      VTOnTapEffectItem(
+        effectType: VTOnTapEffectType.touchableOpacity,
+        active: 0.5,
+      )
+    ];
+
     return Container(
       width: double.infinity,
       margin: margin,
-      child: OpenContainer(
-        transitionType: ContainerTransitionType.fadeThrough,
-        transitionDuration: const Duration(milliseconds: 650),
-        openElevation: 0.0,
-        closedElevation: 0.5,
-        closedColor: Theme.of(context).backgroundColor,
-        openColor: Theme.of(context).backgroundColor,
-        closedShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4.0),
-        ),
-        openShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(0),
-        ),
-        onClosed: (val) {
-          Future.delayed(Duration(milliseconds: 650)).then((value) {
-            final _notifier = context.read(homeScreenProvider);
-            _notifier.setShowParagraphById(true);
-          });
-        },
-        openBuilder: (context, callback) {
-          return StoryDetailScreen(
-            story: story,
-            callback: callback,
-          );
-        },
-        closedBuilder: (context, callback) {
-          final _tileEffects = [
-            VTOnTapEffectItem(
-              effectType: VTOnTapEffectType.touchableOpacity,
-              active: 0.5,
-            )
-          ];
-          return VTOnTapEffect(
-            effects: _tileEffects,
-            onTap: () {
-              final _notifier = context.read(homeScreenProvider);
-
-              _notifier.setShowParagraphById(false);
-              _notifier.setLastIndexesModel(indexes);
-
-              Future.delayed(Duration(milliseconds: 65)).then((value) {
-                callback();
-              });
-            },
-            child: Stack(
-              children: [
-                Container(
-                  padding: padding,
-                  color: Theme.of(context).backgroundColor,
-                  width: double.infinity,
-                  child: Wrap(
-                    direction: Axis.vertical,
-                    alignment: WrapAlignment.start,
-                    crossAxisAlignment: WrapCrossAlignment.start,
-                    children: [
-                      _titleWidget,
-                      const SizedBox(height: 4.0),
-                      _paragraphWidget,
-                    ],
-                  ),
-                ),
-                _favoriteButton,
-              ],
+      child: VTOnTapEffect(
+        effects: _tileEffects,
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              fullscreenDialog: true,
+              builder: (context) {
+                return StoryDetailScreen(story: story);
+              },
             ),
           );
         },
+        child: Stack(
+          children: [
+            Container(
+              padding: padding,
+              color: Theme.of(context).backgroundColor,
+              width: double.infinity,
+              child: Wrap(
+                direction: Axis.vertical,
+                alignment: WrapAlignment.start,
+                crossAxisAlignment: WrapCrossAlignment.start,
+                children: [
+                  _titleWidget,
+                  const SizedBox(height: 4.0),
+                  _paragraphWidget,
+                ],
+              ),
+            ),
+            _favoriteButton,
+          ],
+        ),
       ),
     );
   }
@@ -523,47 +465,6 @@ class HomeScreen extends HookWidget with HookController {
         return AnimatedOpacity(
           duration: duration,
           opacity: _notifier.isInit ? 1 : 0,
-          child: child,
-        );
-      },
-    );
-  }
-
-  Consumer buildFadeInOnPopBack({
-    @required Widget child,
-    @required IndexModel indexes,
-  }) {
-    return Consumer(
-      child: child,
-      builder: (context, watch, child) {
-        final _notifier = watch(homeScreenProvider);
-        final bool isLastSelected = indexes == _notifier.lastIndexes;
-        double opacity = 1;
-
-        if (isLastSelected) {
-          if (_notifier.showParagraphById)
-            opacity = 1;
-          else
-            opacity = 0;
-        }
-
-        int durationValue;
-
-        /// opacity == 1 mean that it is navigating back,
-        /// so we want a slow animation duration
-        ///
-        /// opacity == 0 mean that we click to navigate
-        /// to other screen
-        /// so we need faster animation duration
-        if (opacity == 1) {
-          durationValue = 350;
-        } else {
-          durationValue = 65;
-        }
-
-        return AnimatedOpacity(
-          duration: Duration(milliseconds: durationValue),
-          opacity: opacity,
           child: child,
         );
       },

@@ -167,36 +167,6 @@ class DatabaseNotifier extends ChangeNotifier {
     await load();
   }
 
-  void clearDb(BuildContext context) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-          SnackBar(
-            content: Text(
-              "Are you sure to clear database?",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText1
-                  .copyWith(color: Theme.of(context).backgroundColor),
-            ),
-            action: SnackBarAction(
-              label: "Yes",
-              textColor: Theme.of(context).backgroundColor,
-              onPressed: () async {
-                final database = context.read(databaseProvider);
-                await database.clearAllStoryies();
-                await database.load();
-              },
-            ),
-          ),
-        )
-        .closed
-        .then(
-      (value) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      },
-    );
-  }
-
   /// ```
   /// {
   ///   1: StoryModel(

@@ -13,7 +13,6 @@ class StoryDetailScreen extends HookWidget {
     Key key,
     this.story,
     this.futureId,
-    this.callback,
     this.forDate,
   })  : assert((story != null && (futureId == null && forDate == null)) ||
             (story == null && (futureId != null && forDate != null))),
@@ -21,7 +20,6 @@ class StoryDetailScreen extends HookWidget {
 
   final StoryModel story;
   final int futureId;
-  final VoidCallback callback;
   final DateTime forDate;
 
   String getDateLabel(DateTime date, BuildContext context, String label) {
@@ -33,11 +31,7 @@ class StoryDetailScreen extends HookWidget {
 
   void onPop(BuildContext context, StoryDetailScreenNotifier notifier) {
     notifier.setDraftStory(StoryModel.empty);
-    if (callback != null) {
-      callback();
-    } else {
-      Navigator.of(context).pop();
-    }
+    Navigator.of(context).pop();
   }
 
   @override
