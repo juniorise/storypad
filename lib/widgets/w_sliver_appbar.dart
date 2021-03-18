@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/measure_size.dart';
 import 'package:write_story/notifier/appbar_notifier.dart';
+import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/ask_for_name_sheet.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_tabbar.dart';
@@ -74,6 +75,7 @@ class WSliverAppBar extends HookWidget {
       offsetX = -16.0;
     }
 
+    final _notifier = context.read(userModelProvider);
     final _headerTexts = AnimatedOpacity(
       opacity: _inited ? 1 : 0,
       curve: Curves.easeInOutQuad,
@@ -125,7 +127,7 @@ class WSliverAppBar extends HookWidget {
                         transform: Matrix4.identity()
                           ..translate(this.callback != null ? -4.0 : 0.0, 0.0),
                         child: Text(
-                          this.titleText,
+                          this.titleText + "${_notifier.user.nickname}",
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style:

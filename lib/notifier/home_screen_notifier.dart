@@ -11,6 +11,12 @@ class HomeScreenNotifier extends ChangeNotifier {
   Map<int, StoryListModel> _storyListByDayId;
   Map<int, StoryListModel> _storyListByMonthID;
 
+  int currentIndex = DateTime.now().month - 1;
+
+  setCurrentIndex(int index) {
+    this.currentIndex = index;
+  }
+
   bool inited = false;
   bool loading = false;
 
@@ -157,11 +163,14 @@ class HomeScreenNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggleFavorite(StoryModel story) async {
-    await wDatabase.updateStory(
-      story: story.copyWith(isFavorite: !story.isFavorite ?? true),
-    );
-    await load();
+  Future<void> toggleFavorite(int storyId) async {
+    final story = this._storyById[storyId];
+    final result = story.copyWith(isFavorite: !story.isFavorite ?? true);
+
+    this._storyById[storyId] = result;
+    notifyListeners();
+
+    await wDatabase.updateStory(story: result);
   }
 
   /// ```

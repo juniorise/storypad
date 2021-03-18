@@ -9,7 +9,6 @@ import 'package:write_story/models/index_model.dart';
 import 'package:write_story/models/story_list_model.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
-import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
@@ -27,21 +26,20 @@ class HomeScreen extends HookWidget with HookController {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-
     final _notifier = useProvider(homeScreenProvider);
-    final _userNotifier = useProvider(userModelProvider);
 
     final controller = useTabController(
       initialLength: 12,
-      initialIndex: DateTime.now().month - 1,
+      initialIndex: _notifier.currentIndex,
     );
 
     final now = DateTime.now();
 
     controller.addListener(() {
+      _notifier.setCurrentIndex(controller.index);
       dateTimeNotifier.value = DateTime(
         now.year,
-        controller.index + 1,
+        _notifier.currentIndex + 1,
         now.day,
         now.hour,
         now.minute,
@@ -91,7 +89,6 @@ class HomeScreen extends HookWidget with HookController {
                 buildHeaderAppBar(
                   isInit: _notifier.inited,
                   controller: controller,
-                  userNotifier: _userNotifier,
                   statusBarHeight: statusBarHeight,
                   context: context,
                 ),
@@ -127,12 +124,11 @@ class HomeScreen extends HookWidget with HookController {
     @required double statusBarHeight,
     @required BuildContext context,
     @required bool isInit,
-    @required UserModelNotifier userNotifier,
   }) {
     return WSliverAppBar(
       statusBarHeight: statusBarHeight,
-      titleText: "សួរស្តី${userNotifier.user.nickname}",
-      subtitleText: "ចង់សរសេរអីដែរថ្ងៃនេះ?",
+      titleText: "សួរស្តី",
+      subtitleText: "ចង់សរសេរអ្វីដែរថ្ងៃនេះ?",
       backgroundText: DateTime.now().year.toString(),
       tabController: controller,
       isInit: isInit,
@@ -387,7 +383,7 @@ class HomeScreen extends HookWidget with HookController {
         effects: _favoriteButtonEffect,
         child: IconButton(
           onPressed: () async {
-            await notifier.toggleFavorite(story);
+            await notifier.toggleFavorite(story.id);
           },
           iconSize: 20,
           icon: Icon(
