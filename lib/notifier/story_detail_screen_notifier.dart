@@ -27,6 +27,14 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
   void setDraftStory(StoryModel story) {
     this.draftStory = story;
   }
+
+  Future<bool> removeStoryById(int id) async {
+    final success = await wDatabase.removeStoryById(id);
+    if (success) {
+      this.hasChanged = true;
+    }
+    return success;
+  }
 }
 
 final storydetailScreenNotifier =

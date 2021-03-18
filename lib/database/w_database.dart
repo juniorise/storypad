@@ -136,6 +136,15 @@ class WDatabase {
     return map;
   }
 
+  Future<bool> removeStoryById(int id) async {
+    try {
+      await _database.delete("story", where: "id = $id");
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   clearAllStories() async {
     await _database.execute("delete from story");
   }

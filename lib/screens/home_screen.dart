@@ -50,7 +50,12 @@ class HomeScreen extends HookWidget with HookController {
       child: ValueListenableBuilder(
         valueListenable: dateTimeNotifier,
         builder: (context, value, child) {
-          return AddToStoryFAB(forDate: value);
+          return AddToStoryFAB(
+            forDate: value,
+            onSaved: () async {
+              await _notifier.load();
+            },
+          );
         },
       ),
     );
@@ -420,7 +425,7 @@ class HomeScreen extends HookWidget with HookController {
             ),
           );
 
-          if (hasChanged) notifier.load();
+          if (hasChanged) await notifier.load();
         },
         child: Stack(
           children: [
