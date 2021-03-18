@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -18,12 +20,10 @@ class WSliverAppBar extends HookWidget {
     this.tabs,
     this.backgroundText,
     this.tabController,
-    this.callback,
   }) : super(key: key);
 
   final double statusBarHeight;
   final bool isInit;
-  final Function callback;
   final List<String> tabs;
   final String titleText;
   final String subtitleText;
@@ -71,9 +71,12 @@ class WSliverAppBar extends HookWidget {
     final _inited = notifier.headlineWidth != 0;
     double offsetX = _inited ? 0.0 : -8.0;
 
-    if (this.callback != null) {
-      offsetX = -16.0;
-    }
+    final leftSideWidth = notifier.headlineWidth != 0
+        ? MediaQuery.of(context).size.width -
+            16 * 2 -
+            notifier.headlineWidth -
+            16
+        : kToolbarHeight * 2;
 
     final _notifier = context.read(userModelProvider);
     final _headerTexts = AnimatedOpacity(
@@ -89,53 +92,12 @@ class WSliverAppBar extends HookWidget {
               AnimatedContainer(
                 curve: Curves.easeInOutQuad,
                 transform: Matrix4.identity()..translate(offsetX, 0.0),
-                duration: const Duration(milliseconds: 500),
-                child: Container(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 24),
-                      if (callback != null)
-                        Container(
-                          height: 24,
-                          child: VTOnTapEffect(
-                            effects: [
-                              VTOnTapEffectItem(
-                                effectType: VTOnTapEffectType.scaleDown,
-                                active: 0.8,
-                              ),
-                              VTOnTapEffectItem(
-                                effectType: VTOnTapEffectType.touchableOpacity,
-                                active: 0.8,
-                              )
-                            ],
-                            child: IconButton(
-                              highlightColor: _theme.disabledColor,
-                              iconSize: 20,
-                              padding: EdgeInsets.zero,
-                              onPressed: callback,
-                              icon: Icon(
-                                Icons.arrow_left,
-                                color: _theme.primaryColor,
-                              ),
-                            ),
-                          ),
-                        ),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 350),
-                        transform: Matrix4.identity()
-                          ..translate(this.callback != null ? -4.0 : 0.0, 0.0),
-                        child: Text(
-                          this.titleText + "${_notifier.user.nickname}",
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              _headerStyle.copyWith(color: _theme.primaryColor),
-                        ),
-                      ),
-                    ],
-                  ),
+                duration: const Duration(milliseconds: 650),
+                width: leftSideWidth,
+                child: Text(
+                  this.titleText + "${_notifier.user.nickname}",
+                  maxLines: 1,
+                  style: _headerStyle.copyWith(color: _theme.primaryColor),
                 ),
               ),
             ],
@@ -144,9 +106,15 @@ class WSliverAppBar extends HookWidget {
             opacity: _inited ? 1 : 0,
             duration: const Duration(milliseconds: 1000),
             curve: Curves.easeInQuad,
-            child: Text(
-              this.subtitleText,
-              style: _textTheme.bodyText1,
+            child: AnimatedContainer(
+              curve: Curves.easeInOutQuad,
+              duration: const Duration(milliseconds: 500),
+              width: leftSideWidth,
+              child: Text(
+                this.subtitleText,
+                style: _textTheme.bodyText1,
+                overflow: TextOverflow.fade,
+              ),
             ),
           )
         ],
@@ -179,9 +147,9 @@ class WSliverAppBar extends HookWidget {
     return FlexibleSpaceBar(
       background: Padding(
         padding: _padding.copyWith(top: 0, bottom: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Stack(
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             VTOnTapEffect(
               onTap: () async {
@@ -204,7 +172,17 @@ class WSliverAppBar extends HookWidget {
               ],
               child: _headerTexts,
             ),
-            _yearText ?? const SizedBox(),
+            Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(
+                    alignment: Alignment.centerRight,
+                    decoration: BoxDecoration(color: Colors.white),
+                    child: _yearText,
+                  ),
+                ) ??
+                const SizedBox(),
           ],
         ),
       ),
