@@ -3,9 +3,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:write_story/app_helper/app_helper.dart';
+import 'package:write_story/database/w_database.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/models/user_model.dart';
-import 'package:write_story/notifier/database_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/home_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
@@ -20,6 +20,7 @@ class AskForNameSheet extends HookWidget {
 
     final nameNotEmpty =
         notifier.nickname != null && notifier.nickname.isNotEmpty;
+
     bool canContinue = nameNotEmpty;
     if (notifier.user != null && notifier.user.nickname != null) {
       canContinue = nameNotEmpty && notifier.user.nickname != notifier.nickname;
@@ -33,9 +34,9 @@ class AskForNameSheet extends HookWidget {
       onTap: () async {
         final user = await notifier.wDatabase.userModel();
         if (user == null) {
-          final database = context.read(databaseProvider);
-          database.insertStory(
-            StoryModel(
+          final database = WDatabase.instance;
+          database.addStory(
+            story: StoryModel(
               id: DateTime.now().millisecondsSinceEpoch,
               title: "Start write my story",
               paragraph:
@@ -46,8 +47,8 @@ class AskForNameSheet extends HookWidget {
           );
 
           /// ref: https://www.thehomeschoolmom.com/creative-writing-writing-day-life-story/
-          database.insertStory(
-            StoryModel(
+          database.addStory(
+            story: StoryModel(
               id: DateTime.now().millisecondsSinceEpoch,
               title: "Writing a Day in the Life Story",
               paragraph:

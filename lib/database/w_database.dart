@@ -45,7 +45,7 @@ class WDatabase {
     return await openDatabase(dbPath);
   }
 
-  Future<void> updateStory({
+  Future<bool> updateStory({
     @required StoryModel story,
   }) async {
     final DateTime updateOn =
@@ -60,10 +60,15 @@ class WDatabase {
     WHERE id = ${story.id}
     ''';
 
-    await _database.execute(query);
+    try {
+      await _database.execute(query);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
-  Future<void> addStory({
+  Future<bool> addStory({
     @required StoryModel story,
   }) async {
     String query = '''
@@ -86,7 +91,13 @@ class WDatabase {
         ${story.isFavorite ? 1 : 0}
     )
     ''';
-    await _database.execute(query);
+
+    try {
+      await _database.execute(query);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<int> lastStoryId() async {

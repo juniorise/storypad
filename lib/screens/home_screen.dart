@@ -8,7 +8,6 @@ import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/models/index_model.dart';
 import 'package:write_story/models/story_list_model.dart';
 import 'package:write_story/models/story_model.dart';
-import 'package:write_story/notifier/database_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
@@ -28,7 +27,9 @@ class HomeScreen extends HookWidget with HookController {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final database = useProvider(databaseProvider);
+
+    final _notifier = useProvider(homeScreenProvider);
+    final _userNotifier = useProvider(userModelProvider);
 
     final controller = useTabController(
       initialLength: 12,
@@ -68,8 +69,8 @@ class HomeScreen extends HookWidget with HookController {
           extendBodyBehindAppBar: true,
           floatingActionButton: floatingActionButton,
           resizeToAvoidBottomInset: false,
-          body: Consumer(
-            child: VTTabView(
+          body: NestedScrollView(
+            body: VTTabView(
               controller: controller,
               physics: const BouncingScrollPhysics(),
               children: List.generate(
@@ -79,30 +80,22 @@ class HomeScreen extends HookWidget with HookController {
                   return buildStoryInMonth(
                     monthId: monthID,
                     context: context,
-                    database: database,
+                    notifier: _notifier,
                   );
                 },
               ),
             ),
-            builder: (context, watch, bodyInConsumer) {
-              final _notifier = watch(homeScreenProvider);
-              final _userNotifier = watch(userModelProvider);
-
-              return NestedScrollView(
-                body: bodyInConsumer,
-                physics: BouncingScrollPhysics(),
-                headerSliverBuilder: (context, _) {
-                  return [
-                    buildHeaderAppBar(
-                      isInit: _notifier.isInit,
-                      controller: controller,
-                      userNotifier: _userNotifier,
-                      statusBarHeight: statusBarHeight,
-                      context: context,
-                    ),
-                  ];
-                },
-              );
+            physics: BouncingScrollPhysics(),
+            headerSliverBuilder: (context, _) {
+              return [
+                buildHeaderAppBar(
+                  isInit: _notifier.inited,
+                  controller: controller,
+                  userNotifier: _userNotifier,
+                  statusBarHeight: statusBarHeight,
+                  context: context,
+                ),
+              ];
             },
           ),
         ),
@@ -157,9 +150,9 @@ class HomeScreen extends HookWidget with HookController {
   Widget buildStoryInMonth({
     @required int monthId, // month index == monthId - 1
     @required BuildContext context,
-    @required DatabaseNotifier database,
+    @required HomeScreenNotifier notifier,
   }) {
-    final storyListByMonthId = database.storyListByMonthID;
+    final storyListByMonthId = notifier.storyListByMonthID;
 
     List<int> storiesInMonthIds = [];
 
@@ -191,7 +184,7 @@ class HomeScreen extends HookWidget with HookController {
             dayId: dayId,
             dayIndex: _dayIndex,
             monthId: monthId,
-            database: database,
+            notifier: notifier,
           );
         },
       ),
@@ -203,9 +196,9 @@ class HomeScreen extends HookWidget with HookController {
     @required int monthId, // monthIndex == monthId - 1
     @required int dayIndex,
     @required BuildContext context,
-    @required DatabaseNotifier database,
+    @required HomeScreenNotifier notifier,
   }) {
-    final Map<int, StoryListModel> storyListByDayId = database.storyListByDayId;
+    final Map<int, StoryListModel> storyListByDayId = notifier.storyListByDayId;
     final StoryListModel _storyListByDay = storyListByDayId[dayId];
 
     if (_storyListByDay == null) return const SizedBox();
@@ -218,7 +211,7 @@ class HomeScreen extends HookWidget with HookController {
     final _rightSide = buildStoryListTiles(
       context,
       _storyListByDay,
-      database,
+      notifier,
       dayIndex,
       monthId,
     );
@@ -245,7 +238,7 @@ class HomeScreen extends HookWidget with HookController {
   Expanded buildStoryListTiles(
     BuildContext context,
     StoryListModel _storyListByDay,
-    DatabaseNotifier database,
+    HomeScreenNotifier notifier,
     int dayIndex,
     int monthId,
   ) {
@@ -265,12 +258,13 @@ class HomeScreen extends HookWidget with HookController {
                 final int _storyId = childrenId[_storyIndex];
                 return buildStoryTile(
                   context: context,
-                  story: database.storyById[_storyId],
+                  story: notifier.storyById[_storyId],
                   indexes: IndexModel(
                     storyIndex: _storyIndex,
                     dayIndex: dayIndex,
                     monthIndex: monthId - 1,
                   ),
+                  notifier: notifier,
                   margin: EdgeInsets.only(
                     top: _storyIndex == 0 ? 8.0 : 0,
                     bottom: _storyIndex != childrenId.length - 1 ? 8.0 : 0.0,
@@ -350,6 +344,7 @@ class HomeScreen extends HookWidget with HookController {
     @required BuildContext context,
     @required StoryModel story,
     @required IndexModel indexes,
+    @required HomeScreenNotifier notifier,
     EdgeInsets margin = const EdgeInsets.only(bottom: 8.0),
   }) {
     /// Title
@@ -392,8 +387,7 @@ class HomeScreen extends HookWidget with HookController {
         effects: _favoriteButtonEffect,
         child: IconButton(
           onPressed: () async {
-            final database = context.read(databaseProvider);
-            await database.toggleFavorite(story);
+            await notifier.toggleFavorite(story);
           },
           iconSize: 20,
           icon: Icon(
@@ -420,8 +414,8 @@ class HomeScreen extends HookWidget with HookController {
       margin: margin,
       child: VTOnTapEffect(
         effects: _tileEffects,
-        onTap: () {
-          Navigator.of(context).push(
+        onTap: () async {
+          final bool hasChanged = await Navigator.of(context).push(
             MaterialPageRoute(
               fullscreenDialog: true,
               builder: (context) {
@@ -429,6 +423,8 @@ class HomeScreen extends HookWidget with HookController {
               },
             ),
           );
+
+          if (hasChanged) notifier.load();
         },
         child: Stack(
           children: [
@@ -464,7 +460,7 @@ class HomeScreen extends HookWidget with HookController {
         final _notifier = watch(homeScreenProvider);
         return AnimatedOpacity(
           duration: duration,
-          opacity: _notifier.isInit ? 1 : 0,
+          opacity: _notifier.inited ? 1 : 0,
           child: child,
         );
       },
