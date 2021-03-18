@@ -288,37 +288,26 @@ class StoryDetailScreen extends HookWidget {
         if (!insert)
           WIconButton(
             iconData: Icons.delete,
-            onPressed: () {},
             iconColor: _theme.errorColor,
+            onPressed: () async => onDelete(
+              context: context,
+              notifier: notifier,
+              insert: insert,
+            ),
           ),
         WIconButton(
           iconData: Icons.save,
           iconColor: _theme.primaryColor,
           onPressed: () async {
             if (notifier.draftStory.title.trim().isEmpty) {
-              final snack = SnackBar(
-                content: Text(
-                  "Title must not empty!",
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText1
-                      .copyWith(color: Theme.of(context).backgroundColor),
-                ),
-                action: SnackBarAction(
-                  label: "Yes",
-                  textColor: Theme.of(context).backgroundColor,
-                  onPressed: () async {
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  },
-                ),
+              await showSnackBar(
+                context: context,
+                title: "Title must not empty!",
+                actionLabel: "Yes",
+                onActionPressed: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
               );
-
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(snack)
-                  .closed
-                  .then((value) {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              });
             } else {
               if (insert) {
                 await notifier.addStory(notifier.draftStory);
@@ -356,6 +345,32 @@ class StoryDetailScreen extends HookWidget {
     );
   }
 
+  SnackBar buildSnackBar(
+    String title,
+    BuildContext context,
+    String actionLabel,
+    void onActionPressed(),
+  ) {
+    return SnackBar(
+      content: Text(
+        title,
+        style: Theme.of(context)
+            .textTheme
+            .bodyText1
+            .copyWith(color: Theme.of(context).backgroundColor),
+      ),
+      action: onActionPressed != null
+          ? SnackBarAction(
+              label: actionLabel ?? "Okay",
+              textColor: Theme.of(context).backgroundColor,
+              onPressed: () async {
+                onActionPressed();
+              },
+            )
+          : null,
+    );
+  }
+
   VTOnTapEffect buildAppBarLeadingButton(
     BuildContext context,
     ThemeData _theme,
@@ -382,6 +397,56 @@ class StoryDetailScreen extends HookWidget {
           ),
         ),
       ),
+    );
+  }
+
+  showSnackBar({
+    BuildContext context,
+    @required String title,
+    String actionLabel,
+    VoidCallback onActionPressed,
+    VoidCallback onClose,
+  }) {
+    final snack = buildSnackBar(title, context, actionLabel, onActionPressed);
+
+    ScaffoldMessenger.of(context).showSnackBar(snack).closed.then(
+      (value) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        if (onClose != null) onClose();
+      },
+    );
+  }
+
+  Future<void> onDelete({
+    BuildContext context,
+    StoryDetailScreenNotifier notifier,
+    bool insert,
+  }) async {
+    await showSnackBar(
+      context: context,
+      title: "Are you sure to delete?",
+      actionLabel: "Yes",
+      onActionPressed: () async {
+        final success = await notifier.removeStoryById(story.id);
+        if (success) {
+          await Future.delayed(Duration(milliseconds: 350)).then((value) {
+            onPop(context, notifier);
+          });
+        } else {
+          await showSnackBar(
+            context: context,
+            title: "Can not delete!",
+            actionLabel: "Try again",
+            onActionPressed: () async {
+              onDelete(
+                context: context,
+                notifier: notifier,
+                insert: insert,
+              );
+            },
+          );
+        }
+      },
     );
   }
 }
