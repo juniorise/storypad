@@ -79,6 +79,7 @@ class WSliverAppBar extends HookWidget {
         : kToolbarHeight * 2;
 
     final _notifier = context.read(userModelProvider);
+
     final _headerTexts = AnimatedOpacity(
       opacity: _inited ? 1 : 0,
       curve: Curves.easeInOutQuad,
@@ -87,20 +88,17 @@ class WSliverAppBar extends HookWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Stack(
-            children: [
-              AnimatedContainer(
-                curve: Curves.easeInOutQuad,
-                transform: Matrix4.identity()..translate(offsetX, 0.0),
-                duration: const Duration(milliseconds: 650),
-                width: leftSideWidth,
-                child: Text(
-                  this.titleText + "${_notifier.user.nickname}",
-                  maxLines: 1,
-                  style: _headerStyle.copyWith(color: _theme.primaryColor),
-                ),
-              ),
-            ],
+          AnimatedContainer(
+            curve: Curves.easeInOutQuad,
+            transform: Matrix4.identity()..translate(offsetX, 0.0),
+            duration: const Duration(milliseconds: 650),
+            width: leftSideWidth,
+            child: Text(
+              this.titleText + "${_notifier.user.nickname}",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: _headerStyle.copyWith(color: _theme.primaryColor),
+            ),
           ),
           AnimatedOpacity(
             opacity: _inited ? 1 : 0,

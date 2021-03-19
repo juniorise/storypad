@@ -230,50 +230,57 @@ class StoryDetailScreen extends HookWidget {
         return;
       },
       child: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-          TextEditingController().clear();
-        },
-        child: Scaffold(
-          backgroundColor: _theme.backgroundColor,
-          appBar: buildAppBar(
-            context,
-            _theme,
-            insert,
-            notifier,
-            _aboutDate,
-          ),
-          body: SingleChildScrollView(
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
-              ),
-              child: Column(
-                children: [
-                  _headerText,
-                  _paragraph,
-                ],
+          onTap: () {
+            FocusScope.of(context).unfocus();
+            TextEditingController().clear();
+          },
+          child: Scaffold(
+            backgroundColor: _theme.backgroundColor,
+            body: NestedScrollView(
+              headerSliverBuilder: (context, val) {
+                return [
+                  buildAppBar(
+                    context,
+                    _theme,
+                    insert,
+                    notifier,
+                    _aboutDate,
+                  ),
+                ];
+              },
+              body: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                  child: Column(
+                    children: [
+                      _headerText,
+                      _paragraph,
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
+          )),
     );
   }
 
-  AppBar buildAppBar(
+  Widget buildAppBar(
     BuildContext context,
     ThemeData _theme,
     bool insert,
     StoryDetailScreenNotifier notifier,
     Widget _aboutDate,
   ) {
-    return AppBar(
+    return SliverAppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
       centerTitle: false,
+      floating: true,
       leading: buildAppBarLeadingButton(context, _theme, notifier),
       actions: [
         WIconButton(
