@@ -26,6 +26,9 @@ class App extends StatelessWidget {
         appBarTheme: AppBarTheme(
           brightness: Brightness.light,
         ),
+        canvasColor: Theme.of(context).scaffoldBackgroundColor,
+        iconTheme: IconThemeData(color: Color(0xFF263238)),
+        toggleableActiveColor: Color(0xFF263238),
         textTheme: buildTextTheme(fontFamilyFallback).apply(
           bodyColor: Color(0xFF263238),
           displayColor: Color(0xFF263238),

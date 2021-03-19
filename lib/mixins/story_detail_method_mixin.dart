@@ -128,6 +128,9 @@ mixin StoryDetailMethodMixin {
     @required BuildContext context,
     @required DateTime date,
   }) async {
+    FocusScope.of(context).unfocus();
+    TextEditingController().clear();
+
     final _theme = Theme.of(context);
     final notifier = context.read(storydetailScreenNotifier);
 
@@ -136,7 +139,7 @@ mixin StoryDetailMethodMixin {
     DateTime lastDate = DateTime(now + 50);
 
     DateTime forDate;
-    if (Platform.isAndroid) {
+    if (Platform.isIOS) {
       forDate = await showModalBottomSheet<DateTime>(
         context: context,
         builder: (context) {

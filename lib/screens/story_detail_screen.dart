@@ -1,16 +1,23 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_quill/models/documents/document.dart';
+import 'package:flutter_quill/widgets/controller.dart';
+import 'package:flutter_quill/widgets/editor.dart';
+import 'package:flutter_quill/widgets/toolbar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 
-class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
+class StoryDetailScreen extends HookWidget
+    with StoryDetailMethodMixin, HookController {
   StoryDetailScreen({
     Key key,
     this.story,
@@ -33,7 +40,10 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
   /// if [story] is not null
   final DateTime forDate;
 
-  final ValueNotifier<bool> isEditing = ValueNotifier<bool>(false);
+  final ValueNotifier<double> headerPaddingTopNotifier =
+      ValueNotifier<double>(0);
+
+  final FocusNode focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -60,19 +70,47 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
 
     _notifier..setDraftStory(!insert ? story : draftStory);
 
+    var json;
+    try {
+      json = jsonDecode(_notifier.draftStory.paragraph);
+    } catch (e) {}
+
+    final quillController = useQuillController(
+      document: json != null ? Document.fromJson(json) : null,
+      selection: json != null ? TextSelection.collapsed(offset: 0) : null,
+      isBasic: json != null ? false : true,
+    );
+
+    final scrollController = useScrollController();
+    final sliverController = useScrollController();
+
+    quillController.addListener(
+      () {
+        var json = jsonEncode(quillController.document.toDelta().toJson());
+        // print("json hah: $json");
+        _notifier
+            .setDraftStory(_notifier.draftStory.copyWith(paragraph: "$json"));
+      },
+    );
+
+    scrollController.addListener(() {
+      sliverController.jumpTo(scrollController.offset);
+    });
+
+    sliverController.addListener(() {
+      double top = lerpDouble(0, MediaQuery.of(context).viewPadding.top,
+          sliverController.offset / sliverController.position.maxScrollExtent);
+      headerPaddingTopNotifier.value = top;
+    });
+
     final _headerText = buildHeaderTextField(
       insert: insert,
       notifier: _notifier,
       context: context,
     );
 
-    final _paragraph = buildParagraphTextField(
-      insert: insert,
-      notifier: _notifier,
-      context: context,
-    );
-
     final _scaffoldBody = NestedScrollView(
+      controller: sliverController,
       headerSliverBuilder: (context, val) {
         return [
           buildAppBar(
@@ -82,21 +120,41 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
           ),
         ];
       },
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 8.0),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16.0,
-            vertical: 8.0,
+      body: Column(
+        children: [
+          ValueListenableBuilder(
+            valueListenable: headerPaddingTopNotifier,
+            builder: (context, value, child) {
+              return Padding(
+                child: _headerText,
+                padding:
+                    EdgeInsets.symmetric(horizontal: 16.0).copyWith(top: value),
+              );
+            },
           ),
-          child: Column(
-            children: [
-              _headerText,
-              _paragraph,
-            ],
+          const Divider(height: 0),
+          Expanded(
+            child: QuillEditor(
+              maxHeight: null,
+              placeholder: "Write your story here...",
+              controller: quillController,
+              scrollController: scrollController,
+              scrollPhysics: ClampingScrollPhysics(),
+              scrollable: true,
+              focusNode: focusNode,
+              autoFocus: true,
+              readOnly: false,
+              showCursor: true,
+              keyboardAppearance: Theme.of(context).brightness,
+              enableInteractiveSelection: true,
+              expands: false,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 16.0,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
 
@@ -104,6 +162,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
       context: context,
       notifier: _notifier,
       body: _scaffoldBody,
+      controller: quillController,
     );
   }
 
@@ -114,6 +173,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
   }) {
     final _theme = Theme.of(context);
     return TextFormField(
+      autofocus: false,
       textAlign: TextAlign.left,
       initialValue: !insert ? story.title ?? "" : notifier.draftStory.title,
       style: _theme.textTheme.subtitle1.copyWith(height: 1.5),
@@ -123,37 +183,10 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
           notifier.draftStory.copyWith(title: value),
         );
       },
+      keyboardAppearance: Theme.of(context).brightness,
       decoration: InputDecoration(
         hintText: "Your story title...",
         border: InputBorder.none,
-      ),
-    );
-  }
-
-  Transform buildParagraphTextField({
-    @required bool insert,
-    @required StoryDetailScreenNotifier notifier,
-    @required BuildContext context,
-  }) {
-    final _theme = Theme.of(context);
-    return Transform.translate(
-      offset: Offset(0, -16),
-      child: TextFormField(
-        textAlign: TextAlign.start,
-        initialValue: !insert ? story.paragraph : notifier.draftStory.paragraph,
-        maxLines: null,
-        onChanged: (String value) {
-          notifier.setDraftStory(
-            notifier.draftStory.copyWith(paragraph: value),
-          );
-        },
-        decoration: InputDecoration(
-          hintText: "Write your story here...",
-          border: InputBorder.none,
-        ),
-        style: _theme.textTheme.bodyText2.copyWith(
-          color: _theme.textTheme.subtitle2.color.withOpacity(0.6),
-        ),
       ),
     );
   }
@@ -162,6 +195,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
     @required BuildContext context,
     @required StoryDetailScreenNotifier notifier,
     @required Widget body,
+    @required QuillController controller,
   }) {
     final _theme = Theme.of(context);
     return WillPopScope(
@@ -180,6 +214,29 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
         child: Scaffold(
           backgroundColor: _theme.backgroundColor,
           body: body,
+          extendBody: true,
+          bottomNavigationBar: Container(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: SafeArea(
+              child: Padding(
+                padding: MediaQuery.of(context).viewInsets,
+                child: QuillToolbar.basic(
+                  controller: controller,
+                  toolbarIconSize: 24,
+                  showLink: false,
+                  showHeaderStyle: false,
+                  showCodeBlock: false,
+                  showUnderLineButton: true,
+                  showHorizontalRule: false,
+                  showStrikeThrough: false,
+                  showIndent: false,
+                  showClearFormat: false,
+                  showColorButton: false,
+                  showBackgroundColorButton: false,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -193,10 +250,10 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
     final _theme = Theme.of(context);
 
     return SliverAppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
+      backgroundColor: _theme.backgroundColor,
       centerTitle: false,
       floating: true,
+      elevation: 0.5,
       leading: buildAppBarLeadingButton(context: context, notifier: notifier),
       actions: [
         WIconButton(
@@ -268,35 +325,18 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
     );
   }
 
-  VTOnTapEffect buildAppBarLeadingButton({
+  Widget buildAppBarLeadingButton({
     @required BuildContext context,
     @required StoryDetailScreenNotifier notifier,
   }) {
-    final _theme = Theme.of(context);
-    return VTOnTapEffect(
-      effects: [
-        VTOnTapEffectItem(
-          effectType: VTOnTapEffectType.scaleDown,
-          active: 0.9,
-        ),
-      ],
-      child: Container(
-        height: kToolbarHeight,
-        child: IconButton(
-          highlightColor: _theme.disabledColor,
-          onPressed: () {
-            onPopNavigator(
-              context: context,
-              notifier: notifier,
-            );
-          },
-          icon: Icon(
-            Icons.cancel,
-            color: _theme.primaryColorDark,
-            size: 24,
-          ),
-        ),
-      ),
+    return WIconButton(
+      iconData: Icons.cancel,
+      onPressed: () {
+        onPopNavigator(
+          context: context,
+          notifier: notifier,
+        );
+      },
     );
   }
 
