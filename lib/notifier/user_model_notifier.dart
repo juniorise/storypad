@@ -10,6 +10,7 @@ class UserModelNotifier extends ChangeNotifier {
 
   UserModel user;
   String nickname;
+  DateTime dob;
 
   bool isInit = false;
 
@@ -50,6 +51,11 @@ class UserModelNotifier extends ChangeNotifier {
 
   setNickname(String nickname) async {
     this.nickname = nickname;
+    notifyListeners();
+  }
+
+  setDob(DateTime dob) async {
+    this.dob = dob;
     notifyListeners();
   }
 

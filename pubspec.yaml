@@ -41,6 +41,11 @@ dependencies:
   sqflite: ^2.0.0+2
   path_provider: ^2.0.1
 
+  flutter_components_ecom:
+    git:
+      url: 'git@github.com:bookmebus/flutter-components-ecom.git'
+      ref: 3-update-config-constant
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0

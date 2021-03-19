@@ -38,7 +38,8 @@ class AddToStoryFAB extends StatelessWidget {
         ],
         child: FloatingActionButton(
           onPressed: () async {
-            final bool success = await Navigator.of(context).push(
+            final bool success =
+                await Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 fullscreenDialog: true,
                 builder: (context) {

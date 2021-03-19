@@ -5,7 +5,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/colors.dart';
 import 'package:write_story/mixins/hook_controller.dart';
-import 'package:write_story/models/index_model.dart';
 import 'package:write_story/models/story_list_model.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
@@ -18,15 +17,12 @@ import 'package:write_story/widgets/w_sliver_appbar.dart';
 
 class HomeScreen extends HookWidget with HookController {
   static final now = DateTime.now();
-
   final ValueNotifier<DateTime> dateTimeNotifier = ValueNotifier(now);
 
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final _notifier = useProvider(homeScreenProvider);
-
-    print("build home");
 
     final controller = useTabController(
       initialLength: 12,
@@ -44,21 +40,26 @@ class HomeScreen extends HookWidget with HookController {
       );
     });
 
-    final floatingActionButton = buildFadeInOnInit(
-      child: ValueListenableBuilder(
-        valueListenable: dateTimeNotifier,
-        builder: (context, value, child) {
-          return AddToStoryFAB(
-            forDate: value,
-            onSaved: () async {
-              await _notifier.load();
-            },
-          );
-        },
-      ),
+    final Widget scaffold = buildScaffold(
+      context: context,
+      notifier: _notifier,
+      controller: controller,
+      statusBarHeight: statusBarHeight,
     );
 
-    final scaffold = GestureDetector(
+    return buildFadeInitAnimationBackground(
+      context: context,
+      scaffold: scaffold,
+    );
+  }
+
+  GestureDetector buildScaffold({
+    @required BuildContext context,
+    @required HomeScreenNotifier notifier,
+    @required TabController controller,
+    @required double statusBarHeight,
+  }) {
+    return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
         TextEditingController().clear();
@@ -68,9 +69,18 @@ class HomeScreen extends HookWidget with HookController {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           extendBodyBehindAppBar: true,
-          floatingActionButton: floatingActionButton,
+          floatingActionButton: buildFAB(notifier),
           resizeToAvoidBottomInset: false,
           body: NestedScrollView(
+            physics: BouncingScrollPhysics(),
+            headerSliverBuilder: (context, _) => [
+              buildHeaderAppBar(
+                isInit: notifier.inited,
+                controller: controller,
+                statusBarHeight: statusBarHeight,
+                context: context,
+              )
+            ],
             body: VTTabView(
               controller: controller,
               physics: const BouncingScrollPhysics(),
@@ -81,44 +91,30 @@ class HomeScreen extends HookWidget with HookController {
                   return buildStoryInMonth(
                     monthId: monthID,
                     context: context,
-                    notifier: _notifier,
+                    notifier: notifier,
                   );
                 },
               ),
             ),
-            physics: BouncingScrollPhysics(),
-            headerSliverBuilder: (context, _) {
-              return [
-                buildHeaderAppBar(
-                  isInit: _notifier.inited,
-                  controller: controller,
-                  statusBarHeight: statusBarHeight,
-                  context: context,
-                ),
-              ];
-            },
           ),
         ),
       ),
     );
+  }
 
-    return Stack(
-      children: [
-        /// we use this to animation background
-        Container(
-          color: Colors.white,
-          width: double.infinity,
-          height: double.infinity,
-        ),
-        buildFadeInOnInit(
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            color: Theme.of(context).scaffoldBackgroundColor,
-          ),
-        ),
-        scaffold,
-      ],
+  Widget buildFAB(HomeScreenNotifier notifier) {
+    return buildFadeInOnInit(
+      child: ValueListenableBuilder(
+        valueListenable: dateTimeNotifier,
+        builder: (context, value, child) {
+          return AddToStoryFAB(
+            forDate: value,
+            onSaved: () async {
+              await notifier.load();
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -153,19 +149,21 @@ class HomeScreen extends HookWidget with HookController {
   }) {
     final storyListByMonthId = notifier.storyListByMonthID;
 
+    // fetching data
     List<int> storiesInMonthIds = [];
-
-    if (storyListByMonthId != null &&
+    bool storiesNotNull = storyListByMonthId != null &&
         storyListByMonthId.containsKey(monthId) &&
-        storyListByMonthId[monthId] != null) {
+        storyListByMonthId[monthId] != null;
+    if (storiesNotNull) {
       storiesInMonthIds = storyListByMonthId[monthId].childrenId;
     }
 
-    if (storiesInMonthIds == null ||
-        (storiesInMonthIds != null && storiesInMonthIds.length == 0)) {
+    // showing if data is empty
+    bool noData = storiesInMonthIds == null ||
+        (storiesInMonthIds != null && storiesInMonthIds.length == 0);
+    if (noData) {
       final monthName = AppHelper.toNameOfMonth(context)
           .format(DateTime(DateTime.now().year, monthId));
-
       return buildFadeInOnInit(
         child: WNoData(monthName: monthName),
       );
@@ -182,7 +180,6 @@ class HomeScreen extends HookWidget with HookController {
             context: context,
             dayId: dayId,
             dayIndex: _dayIndex,
-            monthId: monthId,
             notifier: notifier,
           );
         },
@@ -192,11 +189,11 @@ class HomeScreen extends HookWidget with HookController {
 
   Widget buildStoryInDay({
     @required int dayId,
-    @required int monthId, // monthIndex == monthId - 1
     @required int dayIndex,
     @required BuildContext context,
     @required HomeScreenNotifier notifier,
   }) {
+    // fetching data
     final Map<int, StoryListModel> storyListByDayId = notifier.storyListByDayId;
     final StoryListModel _storyListByDay = storyListByDayId[dayId];
 
@@ -208,16 +205,14 @@ class HomeScreen extends HookWidget with HookController {
     );
 
     final _rightSide = buildStoryListTiles(
-      context,
-      _storyListByDay,
-      notifier,
-      dayIndex,
-      monthId,
+      context: context,
+      storyListByDay: _storyListByDay,
+      notifier: notifier,
     );
 
     final _sizedBox = const SizedBox(width: 8.0);
-
     final Duration duration = Duration(milliseconds: (dayIndex + 3) * 350);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 4.0),
       child: buildFadeInOnInit(
@@ -234,13 +229,11 @@ class HomeScreen extends HookWidget with HookController {
     );
   }
 
-  Expanded buildStoryListTiles(
-    BuildContext context,
-    StoryListModel _storyListByDay,
-    HomeScreenNotifier notifier,
-    int dayIndex,
-    int monthId,
-  ) {
+  Widget buildStoryListTiles({
+    @required BuildContext context,
+    @required StoryListModel storyListByDay,
+    @required HomeScreenNotifier notifier,
+  }) {
     return Expanded(
       child: Column(
         children: [
@@ -251,18 +244,13 @@ class HomeScreen extends HookWidget with HookController {
           ),
           Column(
             children: List.generate(
-              _storyListByDay.childrenId.length,
+              storyListByDay.childrenId.length,
               (_storyIndex) {
-                final childrenId = _storyListByDay.childrenId;
+                final childrenId = storyListByDay.childrenId;
                 final int _storyId = childrenId[_storyIndex];
                 return buildStoryTile(
                   context: context,
                   story: notifier.storyById[_storyId],
-                  indexes: IndexModel(
-                    storyIndex: _storyIndex,
-                    dayIndex: dayIndex,
-                    monthIndex: monthId - 1,
-                  ),
                   notifier: notifier,
                   margin: EdgeInsets.only(
                     top: _storyIndex == 0 ? 8.0 : 0,
@@ -277,7 +265,7 @@ class HomeScreen extends HookWidget with HookController {
     );
   }
 
-  Column buildDayContainer({
+  Widget buildDayContainer({
     @required BuildContext context,
     @required StoryListModel storyListByDay,
   }) {
@@ -286,12 +274,9 @@ class HomeScreen extends HookWidget with HookController {
     final String dayName =
         AppHelper.toDay(context).format(storyListByDay.forDate);
 
-    final int dayOfWeek = AppHelper.dayOfWeek(
-      context,
-      storyListByDay.forDate,
-    );
-
-    final Color containerColor = colorsByDay[dayOfWeek];
+    /// get stand color of the week
+    final int dayOfWeek = AppHelper.dayOfWeek(context, storyListByDay.forDate);
+    final Color standColor = colorsByDay[dayOfWeek];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -315,7 +300,7 @@ class HomeScreen extends HookWidget with HookController {
                   width: 30,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: containerColor,
+                    color: standColor,
                   ),
                 ),
                 Positioned(
@@ -342,7 +327,6 @@ class HomeScreen extends HookWidget with HookController {
   Widget buildStoryTile({
     @required BuildContext context,
     @required StoryModel story,
-    @required IndexModel indexes,
     @required HomeScreenNotifier notifier,
     EdgeInsets margin = const EdgeInsets.only(bottom: 8.0),
   }) {
@@ -373,17 +357,80 @@ class HomeScreen extends HookWidget with HookController {
         _paragraphText.isNotEmpty ? _paragraphChild : const SizedBox();
 
     // Favorite button
-    final _favoriteButtonEffect = [
+    final _favoriteButton = buildFavoriteButton(
+      notifier: notifier,
+      story: story,
+      context: context,
+    );
+
+    final _tileEffects = [
+      VTOnTapEffectItem(
+        effectType: VTOnTapEffectType.touchableOpacity,
+        active: 0.3,
+      ),
+    ];
+
+    return VTOnTapEffect(
+      effects: _tileEffects,
+      onTap: () async {
+        final bool hasChanged = await Navigator.of(
+          context,
+          rootNavigator: true,
+        ).push(
+          MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (context) => StoryDetailScreen(story: story),
+          ),
+        );
+        if (hasChanged) await notifier.load();
+      },
+      child: Container(
+        width: double.infinity,
+        margin: margin,
+        child: Material(
+          elevation: 0.5,
+          color: Theme.of(context).backgroundColor,
+          child: Stack(
+            children: [
+              Container(
+                padding: padding,
+                width: double.infinity,
+                child: Wrap(
+                  direction: Axis.vertical,
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.start,
+                  children: [
+                    _titleWidget,
+                    const SizedBox(height: 4.0),
+                    _paragraphWidget,
+                  ],
+                ),
+              ),
+              _favoriteButton,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildFavoriteButton({
+    @required HomeScreenNotifier notifier,
+    @required StoryModel story,
+    @required BuildContext context,
+  }) {
+    final favoriteButtonEffect = [
       VTOnTapEffectItem(
         effectType: VTOnTapEffectType.scaleDown,
         active: 0.9,
       )
     ];
-    final _favoriteButton = Positioned(
+
+    return Positioned(
       right: 0,
       top: 0,
       child: VTOnTapEffect(
-        effects: _favoriteButtonEffect,
+        effects: favoriteButtonEffect,
         child: IconButton(
           onPressed: () async {
             await notifier.toggleFavorite(story.id);
@@ -400,56 +447,33 @@ class HomeScreen extends HookWidget with HookController {
         ),
       ),
     );
+  }
 
-    final _tileEffects = [
-      VTOnTapEffectItem(
-        effectType: VTOnTapEffectType.touchableOpacity,
-        active: 0.5,
-      )
-    ];
-
-    return Container(
-      width: double.infinity,
-      margin: margin,
-      child: VTOnTapEffect(
-        effects: _tileEffects,
-        onTap: () async {
-          final bool hasChanged = await Navigator.of(context).push(
-            MaterialPageRoute(
-              fullscreenDialog: true,
-              builder: (context) {
-                return StoryDetailScreen(story: story);
-              },
-            ),
-          );
-
-          if (hasChanged) await notifier.load();
-        },
-        child: Stack(
-          children: [
-            Container(
-              padding: padding,
-              color: Theme.of(context).backgroundColor,
-              width: double.infinity,
-              child: Wrap(
-                direction: Axis.vertical,
-                alignment: WrapAlignment.start,
-                crossAxisAlignment: WrapCrossAlignment.start,
-                children: [
-                  _titleWidget,
-                  const SizedBox(height: 4.0),
-                  _paragraphWidget,
-                ],
-              ),
-            ),
-            _favoriteButton,
-          ],
+  Widget buildFadeInitAnimationBackground({
+    @required BuildContext context,
+    @required GestureDetector scaffold,
+  }) {
+    return Stack(
+      children: [
+        /// we use this to animation background
+        Container(
+          color: Colors.white,
+          width: double.infinity,
+          height: double.infinity,
         ),
-      ),
+        buildFadeInOnInit(
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Theme.of(context).scaffoldBackgroundColor,
+          ),
+        ),
+        scaffold,
+      ],
     );
   }
 
-  Consumer buildFadeInOnInit({
+  Widget buildFadeInOnInit({
     @required Widget child,
     Duration duration = const Duration(milliseconds: 350),
   }) {

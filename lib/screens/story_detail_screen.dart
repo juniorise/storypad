@@ -1,16 +1,15 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/app_helper/app_helper.dart';
+import 'package:write_story/mixins/story_detail_method_mixin.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 
-class StoryDetailScreen extends HookWidget {
-  const StoryDetailScreen({
+class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
+  StoryDetailScreen({
     Key key,
     this.story,
     this.futureId,
@@ -19,150 +18,100 @@ class StoryDetailScreen extends HookWidget {
             (story == null && (futureId != null && forDate != null))),
         super(key: key);
 
+  /// [story] must be null if
+  /// [futureId] and [forDate] is not null
   final StoryModel story;
+
+  /// if [futureId] not null
+  /// which mean that this screen
+  /// is inserting new story
   final int futureId;
+
+  /// [forDate] must be null,
+  /// if [story] is not null
   final DateTime forDate;
 
-  String getDateLabel(DateTime date, BuildContext context, String label) {
-    return "$label: " +
-        AppHelper.dateFormat(context).format(date) +
-        ", " +
-        AppHelper.timeFormat(context).format(date);
-  }
-
-  void onPop(BuildContext context, StoryDetailScreenNotifier notifier) {
-    notifier.setDraftStory(StoryModel.empty);
-    Navigator.of(context).pop(notifier.hasChanged);
-  }
-
-  Container buildIosDatePicker(
-    BuildContext context,
-    DateTime tempPickedDate,
-    DateTime firstDate,
-    DateTime lastDate,
-    DateTime date,
-  ) {
-    return Container(
-      height: 250,
-      child: Column(
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              CupertinoButton(
-                child: Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              CupertinoButton(
-                child: Text('Done'),
-                onPressed: () {
-                  Navigator.of(context).pop(tempPickedDate);
-                },
-              ),
-            ],
-          ),
-          const Divider(height: 0),
-          Expanded(
-            child: Container(
-              child: CupertinoDatePicker(
-                minimumDate: firstDate,
-                maximumDate: lastDate,
-                initialDateTime: date,
-                mode: CupertinoDatePickerMode.date,
-                onDateTimeChanged: (DateTime dateTime) {
-                  tempPickedDate = dateTime;
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> onPickDate(
-    BuildContext context,
-    DateTime date,
-  ) async {
-    final _theme = Theme.of(context);
-    final notifier = context.read(storydetailScreenNotifier);
-
-    DateTime forDate;
-
-    final firstDate = DateTime(date.year);
-    final lastDate = DateTime(date.year, 12, 31);
-
-    if (Platform.isIOS) {
-      forDate = await showModalBottomSheet<DateTime>(
-        context: context,
-        builder: (context) {
-          DateTime tempPickedDate;
-          return buildIosDatePicker(
-            context,
-            tempPickedDate,
-            firstDate,
-            lastDate,
-            date,
-          );
-        },
-      );
-    } else {
-      forDate = await showDatePicker(
-        context: context,
-        initialDate: date,
-        firstDate: firstDate,
-        lastDate: lastDate,
-        builder: (BuildContext context, Widget child) {
-          return Theme(
-            child: child,
-            data: _theme.copyWith(
-              splashColor: Colors.transparent,
-              colorScheme: _theme.colorScheme.copyWith(
-                primary: _theme.primaryColor,
-                secondary: Colors.red,
-              ),
-            ),
-          );
-        },
-      );
-    }
-
-    notifier.setDraftStory(
-      notifier.draftStory.copyWith(forDate: forDate ?? date),
-    );
-  }
+  final ValueNotifier<bool> isEditing = ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
     print("build detail");
 
-    final _theme = Theme.of(context);
     final bool insert = futureId != null;
-    final notifier = useProvider(storydetailScreenNotifier);
+    final _notifier = useProvider(storydetailScreenNotifier);
 
-    final initTitle =
-        !insert && notifier.draftStory != null ? notifier.draftStory.title : "";
-
-    final initParagraph = !insert && notifier.draftStory != null
-        ? notifier.draftStory.paragraph
+    final initTitle = !insert && _notifier.draftStory != null
+        ? _notifier.draftStory.title
         : "";
 
-    notifier
-      ..setDraftStory(
-        !insert
-            ? story
-            : StoryModel(
-                id: futureId,
-                title: initTitle,
-                paragraph: initParagraph,
-                createOn: DateTime.now(),
-                forDate: forDate,
-              ),
-      );
+    final initParagraph = !insert && _notifier.draftStory != null
+        ? _notifier.draftStory.paragraph
+        : "";
 
-    final _headerText = TextFormField(
+    final draftStory = StoryModel(
+      id: futureId,
+      title: initTitle,
+      paragraph: initParagraph,
+      createOn: DateTime.now(),
+      forDate: forDate,
+    );
+
+    _notifier..setDraftStory(!insert ? story : draftStory);
+
+    final _headerText = buildHeaderTextField(
+      insert: insert,
+      notifier: _notifier,
+      context: context,
+    );
+
+    final _paragraph = buildParagraphTextField(
+      insert: insert,
+      notifier: _notifier,
+      context: context,
+    );
+
+    final _scaffoldBody = NestedScrollView(
+      headerSliverBuilder: (context, val) {
+        return [
+          buildAppBar(
+            context: context,
+            insert: insert,
+            notifier: _notifier,
+          ),
+        ];
+      },
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 8.0,
+          ),
+          child: Column(
+            children: [
+              _headerText,
+              _paragraph,
+            ],
+          ),
+        ),
+      ),
+    );
+
+    return buildDefinedScaffold(
+      context: context,
+      notifier: _notifier,
+      body: _scaffoldBody,
+    );
+  }
+
+  TextFormField buildHeaderTextField({
+    @required bool insert,
+    @required StoryDetailScreenNotifier notifier,
+    @required BuildContext context,
+  }) {
+    final _theme = Theme.of(context);
+    return TextFormField(
       textAlign: TextAlign.left,
       initialValue: !insert ? story.title ?? "" : notifier.draftStory.title,
       style: _theme.textTheme.subtitle1.copyWith(height: 1.5),
@@ -177,36 +126,15 @@ class StoryDetailScreen extends HookWidget {
         border: InputBorder.none,
       ),
     );
+  }
 
-    String _aboutDateText = "";
-    if (!insert) {
-      _aboutDateText = getDateLabel(story.createOn, context, "Create on") +
-          "\n" +
-          getDateLabel(story.forDate, context, "For Date");
-    }
-
-    if (!insert && story.updateOn != null) {
-      _aboutDateText += "\nUpdated on: " +
-          AppHelper.dateFormat(context).format(
-            story.updateOn,
-          ) +
-          ", " +
-          AppHelper.timeFormat(context).format(
-            story.updateOn,
-          );
-    }
-
-    final _aboutDate = !insert
-        ? Text(
-            _aboutDateText,
-            textAlign: TextAlign.start,
-            style: TextStyle(
-              color: _theme.textTheme.subtitle2.color.withOpacity(0.6),
-            ),
-          )
-        : const SizedBox();
-
-    final _paragraph = Transform.translate(
+  Transform buildParagraphTextField({
+    @required bool insert,
+    @required StoryDetailScreenNotifier notifier,
+    @required BuildContext context,
+  }) {
+    final _theme = Theme.of(context);
+    return Transform.translate(
       offset: Offset(0, -16),
       child: TextFormField(
         textAlign: TextAlign.start,
@@ -226,72 +154,55 @@ class StoryDetailScreen extends HookWidget {
         ),
       ),
     );
+  }
 
+  WillPopScope buildDefinedScaffold({
+    @required BuildContext context,
+    @required StoryDetailScreenNotifier notifier,
+    @required Widget body,
+  }) {
+    final _theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () {
-        onPop(context, notifier);
+        onPopNavigator(
+          context: context,
+          notifier: notifier,
+        );
         return;
       },
       child: GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-            TextEditingController().clear();
-          },
-          child: Scaffold(
-            backgroundColor: _theme.backgroundColor,
-            body: NestedScrollView(
-              headerSliverBuilder: (context, val) {
-                return [
-                  buildAppBar(
-                    context,
-                    _theme,
-                    insert,
-                    notifier,
-                    _aboutDate,
-                  ),
-                ];
-              },
-              body: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
-                  child: Column(
-                    children: [
-                      _headerText,
-                      _paragraph,
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          )),
+        onTap: () {
+          FocusScope.of(context).unfocus();
+          TextEditingController().clear();
+        },
+        child: Scaffold(
+          backgroundColor: _theme.backgroundColor,
+          body: body,
+        ),
+      ),
     );
   }
 
-  Widget buildAppBar(
+  Widget buildAppBar({
     BuildContext context,
-    ThemeData _theme,
     bool insert,
     StoryDetailScreenNotifier notifier,
-    Widget _aboutDate,
-  ) {
+  }) {
+    final _theme = Theme.of(context);
+
     return SliverAppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
       centerTitle: false,
       floating: true,
-      leading: buildAppBarLeadingButton(context, _theme, notifier),
+      leading: buildAppBarLeadingButton(context: context, notifier: notifier),
       actions: [
         WIconButton(
           iconData: Icons.date_range_rounded,
           onPressed: () async {
             onPickDate(
-              context,
-              !insert ? story.forDate : notifier.draftStory.forDate,
+              context: context,
+              date: !insert ? story.forDate : notifier.draftStory.forDate,
             );
           },
         ),
@@ -303,45 +214,18 @@ class StoryDetailScreen extends HookWidget {
               context: context,
               notifier: notifier,
               insert: insert,
+              id: story.id,
             ),
           ),
         WIconButton(
           iconData: Icons.save,
           iconColor: _theme.primaryColor,
           onPressed: () async {
-            if (notifier.draftStory.title.trim().isEmpty) {
-              await showSnackBar(
-                context: context,
-                title: "Title must not empty!",
-                actionLabel: "Yes",
-                onActionPressed: () {
-                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                },
-              );
-            } else {
-              bool success;
-              if (insert) {
-                success = await notifier.addStory(notifier.draftStory);
-              } else {
-                success = await notifier.updateStory(
-                  notifier.draftStory.copyWith(
-                    updateOn: DateTime.now(),
-                  ),
-                );
-              }
-
-              if (success == true) {
-                await showSnackBar(
-                  context: context,
-                  title: "Saved",
-                );
-              } else {
-                await showSnackBar(
-                  context: context,
-                  title: "Can not be saved!",
-                );
-              }
-            }
+            await onSave(
+              notifier: notifier,
+              context: context,
+              insert: insert,
+            );
           },
         ),
         if (!insert)
@@ -353,7 +237,10 @@ class StoryDetailScreen extends HookWidget {
                 builder: (context) {
                   return Dialog(
                     child: Container(
-                      child: _aboutDate,
+                      child: buildAboutDateText(
+                        context: context,
+                        insert: insert,
+                      ),
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16.0,
                         vertical: 8.0,
@@ -368,37 +255,11 @@ class StoryDetailScreen extends HookWidget {
     );
   }
 
-  SnackBar buildSnackBar(
-    String title,
-    BuildContext context,
-    String actionLabel,
-    void onActionPressed(),
-  ) {
-    return SnackBar(
-      content: Text(
-        title,
-        style: Theme.of(context)
-            .textTheme
-            .bodyText1
-            .copyWith(color: Theme.of(context).backgroundColor),
-      ),
-      action: onActionPressed != null
-          ? SnackBarAction(
-              label: actionLabel ?? "Okay",
-              textColor: Theme.of(context).backgroundColor,
-              onPressed: () async {
-                onActionPressed();
-              },
-            )
-          : null,
-    );
-  }
-
-  VTOnTapEffect buildAppBarLeadingButton(
-    BuildContext context,
-    ThemeData _theme,
-    StoryDetailScreenNotifier notifier,
-  ) {
+  VTOnTapEffect buildAppBarLeadingButton({
+    @required BuildContext context,
+    @required StoryDetailScreenNotifier notifier,
+  }) {
+    final _theme = Theme.of(context);
     return VTOnTapEffect(
       effects: [
         VTOnTapEffectItem(
@@ -411,7 +272,10 @@ class StoryDetailScreen extends HookWidget {
         child: IconButton(
           highlightColor: _theme.disabledColor,
           onPressed: () {
-            onPop(context, notifier);
+            onPopNavigator(
+              context: context,
+              notifier: notifier,
+            );
           },
           icon: Icon(
             Icons.cancel,
@@ -423,53 +287,45 @@ class StoryDetailScreen extends HookWidget {
     );
   }
 
-  showSnackBar({
-    BuildContext context,
-    @required String title,
-    String actionLabel,
-    VoidCallback onActionPressed,
-    VoidCallback onClose,
+  Widget buildAboutDateText({
+    @required BuildContext context,
+    @required bool insert,
   }) {
-    final snack = buildSnackBar(title, context, actionLabel, onActionPressed);
-
-    ScaffoldMessenger.of(context).showSnackBar(snack).closed.then(
-      (value) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        if (onClose != null) onClose();
-      },
-    );
-  }
-
-  Future<void> onDelete({
-    BuildContext context,
-    StoryDetailScreenNotifier notifier,
-    bool insert,
-  }) async {
-    await showSnackBar(
-      context: context,
-      title: "Are you sure to delete?",
-      actionLabel: "Yes",
-      onActionPressed: () async {
-        final success = await notifier.removeStoryById(story.id);
-        if (success) {
-          await Future.delayed(Duration(milliseconds: 350)).then((value) {
-            onPop(context, notifier);
-          });
-        } else {
-          await showSnackBar(
+    final _theme = Theme.of(context);
+    String _aboutDateText = "";
+    if (!insert) {
+      _aboutDateText = getDateLabel(
+            date: story.createOn,
             context: context,
-            title: "Can not delete!",
-            actionLabel: "Try again",
-            onActionPressed: () async {
-              onDelete(
-                context: context,
-                notifier: notifier,
-                insert: insert,
-              );
-            },
+            label: "Create on",
+          ) +
+          "\n" +
+          getDateLabel(
+            date: story.forDate,
+            context: context,
+            label: "For Date",
           );
-        }
-      },
-    );
+    }
+
+    if (!insert && story.updateOn != null) {
+      _aboutDateText += "\n" +
+          getDateLabel(
+            date: story.updateOn,
+            context: context,
+            label: "Update on",
+          );
+    }
+
+    final aboutDate = !insert
+        ? Text(
+            _aboutDateText,
+            textAlign: TextAlign.start,
+            style: TextStyle(
+              color: _theme.textTheme.subtitle2.color.withOpacity(0.6),
+            ),
+          )
+        : const SizedBox();
+
+    return aboutDate;
   }
 }
