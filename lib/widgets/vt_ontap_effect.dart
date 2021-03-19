@@ -11,8 +11,8 @@ class VTOnTapEffectItem {
   final double active;
 
   const VTOnTapEffectItem({
-    this.effectType = VTOnTapEffectType.scaleDown,
-    this.active = 0.98,
+    this.effectType = VTOnTapEffectType.touchableOpacity,
+    this.active = 0.5,
   }) : assert(active < 1 && active > 0);
 }
 

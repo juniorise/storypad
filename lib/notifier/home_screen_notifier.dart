@@ -10,7 +10,9 @@ class HomeScreenNotifier extends ChangeNotifier {
   Map<int, StoryModel> _storyById;
   Map<int, StoryListModel> _storyListByDayId;
   Map<int, StoryListModel> _storyListByMonthID;
+  List<int> availableYears = [];
 
+  int currentSelectedYear = DateTime.now().year;
   int currentIndex = DateTime.now().month - 1;
 
   setCurrentIndex(int index) {
@@ -18,7 +20,6 @@ class HomeScreenNotifier extends ChangeNotifier {
   }
 
   bool inited = false;
-  bool loading = false;
 
   HomeScreenNotifier() {
     if (!inited) {
@@ -33,8 +34,14 @@ class HomeScreenNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  load() async {
-    setLoading(true);
+  Future<void> setCurrentSelectedYear(int year) async {
+    if (this.currentSelectedYear != year) {
+      this.currentSelectedYear = year;
+    }
+    await load();
+  }
+
+  Future<void> load() async {
     final result = await wDatabase.storyById();
 
     if (result != null) {
@@ -43,14 +50,15 @@ class HomeScreenNotifier extends ChangeNotifier {
       _setStoryListByMonthID();
     }
 
-    // Future.delayed(Duration(milliseconds: 250)).then((value) {
-    setLoading(false);
-    // });
+    notifyListeners();
   }
 
   _setStoryListByDayId() {
     final Map<DateTime, List<StoryModel>> _groupByDay = {};
     final Map<DateTime, List<StoryModel>> _sortedGroupByDay = {};
+
+    final Map<int, List<int>> _storiesInYear = {};
+    availableYears.clear();
 
     // Fetch data from unsorted api
     this.storyById.entries.forEach((story) {
@@ -61,12 +69,37 @@ class HomeScreenNotifier extends ChangeNotifier {
         forDate.day,
       );
 
-      if (_groupByDay.containsKey(key)) {
-        _groupByDay[key].add(story.value);
+      if (key.year == currentSelectedYear) {
+        if (_groupByDay.containsKey(key)) {
+          _groupByDay[key].add(story.value);
+        } else {
+          _groupByDay[key] = [story.value];
+        }
+      }
+
+      /// set all story in year to `_storiesInYear` year
+      if (_storiesInYear.containsKey(key.year)) {
+        _storiesInYear[key.year].add(story.value.id);
       } else {
-        _groupByDay[key] = [story.value];
+        _storiesInYear[key.year] = [story.value.id];
       }
     });
+
+    // check if story in year
+    // has value in it or not
+    _storiesInYear.forEach((key, value) {
+      if (value != null && value.length > 0) {
+        if (!availableYears.contains(key)) {
+          availableYears.add(key);
+        }
+      }
+    });
+
+    // if available year is empty, add a default
+    if (availableYears.length == 0) {
+      final currentYear = DateTime.now().year;
+      availableYears.add(currentYear);
+    }
 
     // Sort data by date
     _groupByDay.entries.map((e) => e.key).toList()
@@ -91,9 +124,7 @@ class HomeScreenNotifier extends ChangeNotifier {
       );
     });
 
-    if (_mapStoryListByDayId != null && _mapStoryListByDayId.isNotEmpty) {
-      this._storyListByDayId = _mapStoryListByDayId;
-    }
+    this._storyListByDayId = _mapStoryListByDayId ?? {};
   }
 
   _setStoryListByMonthID() {
@@ -126,41 +157,34 @@ class HomeScreenNotifier extends ChangeNotifier {
         ..forEach((date) {
           _sortedGroupByMonth[date] = _groupByMonth[date];
         });
-
-      final Map<int, StoryListModel> _mapStoryListByMonthId = {};
-      for (int i = 1; i <= 12; i++) {
-        _mapStoryListByMonthId[i] = StoryListModel(
-          id: i,
-          isLeaf: false,
-          childrenId: [],
-          forDate: DateTime(2021, i),
-        );
-      }
-
-      _groupByMonth.entries.forEach((storyList) {
-        final id = storyList.key.month;
-
-        final childrenId = storyList.value.map((e) {
-          return e.id;
-        }).toList();
-
-        _mapStoryListByMonthId[id] = StoryListModel(
-          id: id,
-          childrenId: childrenId,
-          forDate: storyList.key,
-          isLeaf: false,
-        );
-      });
-
-      if (_mapStoryListByMonthId != null && _mapStoryListByMonthId.isNotEmpty) {
-        this._storyListByMonthID = _mapStoryListByMonthId;
-      }
     }
-  }
 
-  setLoading(bool value) {
-    this.loading = value;
-    notifyListeners();
+    final Map<int, StoryListModel> _mapStoryListByMonthId = {};
+    for (int i = 1; i <= 12; i++) {
+      _mapStoryListByMonthId[i] = StoryListModel(
+        id: i,
+        isLeaf: false,
+        childrenId: [],
+        forDate: DateTime(2021, i),
+      );
+    }
+
+    _groupByMonth.entries.forEach((storyList) {
+      final id = storyList.key.month;
+
+      final childrenId = storyList.value.map((e) {
+        return e.id;
+      }).toList();
+
+      _mapStoryListByMonthId[id] = StoryListModel(
+        id: id,
+        childrenId: childrenId,
+        forDate: storyList.key,
+        isLeaf: false,
+      );
+    });
+
+    this._storyListByMonthID = _mapStoryListByMonthId;
   }
 
   Future<void> toggleFavorite(int storyId) async {

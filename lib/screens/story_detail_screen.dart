@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -232,23 +234,34 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin {
           WIconButton(
             iconData: Icons.info,
             onPressed: () async {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return Dialog(
-                    child: Container(
-                      child: buildAboutDateText(
-                        context: context,
-                        insert: insert,
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 8.0,
-                      ),
-                    ),
-                  );
-                },
+              final dialog = Dialog(
+                child: Container(
+                  child: buildAboutDateText(
+                    context: context,
+                    insert: insert,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 8.0,
+                  ),
+                ),
               );
+              if (Platform.isIOS) {
+                showCupertinoDialog(
+                  barrierDismissible: true,
+                  context: context,
+                  builder: (context) {
+                    return dialog;
+                  },
+                );
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return dialog;
+                  },
+                );
+              }
             },
           ),
       ],
