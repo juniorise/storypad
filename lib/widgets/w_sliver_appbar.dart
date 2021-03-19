@@ -1,10 +1,12 @@
+import 'dart:io';
 import 'dart:ui';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/measure_size.dart';
 import 'package:write_story/notifier/appbar_notifier.dart';
+import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/ask_for_name_sheet.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
@@ -135,7 +137,7 @@ class WSliverAppBar extends HookWidget {
               ),
             ),
           )
-        : null;
+        : const SizedBox();
 
     final _padding = const EdgeInsets.symmetric(
       horizontal: 16.0,
@@ -171,17 +173,97 @@ class WSliverAppBar extends HookWidget {
               child: _headerTexts,
             ),
             Positioned(
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: Container(
-                    alignment: Alignment.centerRight,
-                    decoration: BoxDecoration(color: Colors.white),
-                    child: _yearText,
-                  ),
-                ) ??
-                const SizedBox(),
+              right: 0,
+              top: 0,
+              bottom: 0,
+              child: VTOnTapEffect(
+                onTap: () async {
+                  if (Platform.isIOS) {
+                    showCupertinoDialog(
+                      context: context,
+                      barrierDismissible: true,
+                      builder: (context) {
+                        final homeNotifier = context.read(homeScreenProvider);
+                        final years = homeNotifier.availableYears;
+                        return buildYearChooserDialog(years, context);
+                      },
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        final homeNotifier = context.read(homeScreenProvider);
+                        final years = homeNotifier.availableYears;
+                        return buildYearChooserDialog(years, context);
+                      },
+                    );
+                  }
+                },
+                effects: [
+                  VTOnTapEffectItem(
+                    effectType: VTOnTapEffectType.touchableOpacity,
+                    active: 0.5,
+                  )
+                ],
+                child: Container(
+                  alignment: Alignment.centerRight,
+                  decoration: BoxDecoration(color: Colors.white),
+                  child: _yearText,
+                ),
+              ),
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildYearChooserDialog(List<int> years, BuildContext context) {
+    final notifier = context.read(homeScreenProvider);
+
+    return AlertDialog(
+      contentPadding: const EdgeInsets.all(0),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(0.0),
+      ),
+      content: SingleChildScrollView(
+        child: Wrap(
+          children: List.generate(
+            years.length,
+            (index) {
+              final selected = notifier.currentSelectedYear == years[index];
+              return Column(
+                children: [
+                  VTOnTapEffect(
+                    onTap: () async {
+                      notifier.setCurrentSelectedYear(years[index]);
+                      Navigator.of(context).pop();
+                    },
+                    child: Container(
+                      color: selected
+                          ? Theme.of(context).backgroundColor
+                          : Theme.of(context).scaffoldBackgroundColor,
+                      height: 48,
+                      alignment: Alignment.center,
+                      child: Text(
+                        years[index].toString(),
+                        style: TextStyle(
+                          color: selected
+                              ? Theme.of(context).primaryColor
+                              : Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .color
+                                  .withOpacity(0.6),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (index != years.length) const Divider(height: 0.1)
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

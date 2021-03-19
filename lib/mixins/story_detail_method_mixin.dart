@@ -21,9 +21,11 @@ mixin StoryDetailMethodMixin {
     @required BuildContext context,
     @required StoryDetailScreenNotifier notifier,
   }) async {
-    notifier.setDraftStory(StoryModel.empty);
     ScaffoldMessenger.maybeOf(context).removeCurrentSnackBar();
-    Navigator.of(context).pop(notifier.hasChanged);
+    Navigator.of(context).pop(
+      notifier.hasChanged ? notifier.draftStory.forDate.year : null,
+    );
+    notifier.setDraftStory(StoryModel.empty);
   }
 
   Future<void> showSnackBar({
@@ -129,17 +131,18 @@ mixin StoryDetailMethodMixin {
     final _theme = Theme.of(context);
     final notifier = context.read(storydetailScreenNotifier);
 
-    final firstDate = DateTime(date.year);
-    final lastDate = DateTime(date.year, 12, 31);
+    final now = DateTime.now().year;
+    DateTime firstDate = DateTime(1900);
+    DateTime lastDate = DateTime(now + 50);
 
     DateTime forDate;
-    if (Platform.isIOS) {
+    if (Platform.isAndroid) {
       forDate = await showModalBottomSheet<DateTime>(
         context: context,
         builder: (context) {
           DateTime tempPickedDate;
           return buildIosDatePicker(
-            date: date,
+            date: notifier.draftStory.forDate,
             context: context,
             lastDate: lastDate,
             firstDate: firstDate,
@@ -150,8 +153,9 @@ mixin StoryDetailMethodMixin {
     } else {
       forDate = await showDatePicker(
         context: context,
-        initialDate: date,
+        initialDate: notifier.draftStory.forDate,
         firstDate: firstDate,
+        initialDatePickerMode: DatePickerMode.year,
         lastDate: lastDate,
         builder: (BuildContext context, Widget child) {
           return Theme(
@@ -167,11 +171,12 @@ mixin StoryDetailMethodMixin {
         },
       );
     }
-    notifier.setDraftStory(
-      notifier.draftStory.copyWith(
-        forDate: forDate ?? date,
-      ),
-    );
+
+    if (forDate != null) {
+      notifier.setDraftStory(
+        notifier.draftStory.copyWith(forDate: forDate),
+      );
+    }
   }
 
   Future<void> onDelete({

@@ -10,7 +10,7 @@ class AddToStoryFAB extends StatelessWidget {
   }) : super(key: key);
 
   final DateTime forDate;
-  final Function onSaved;
+  final ValueChanged<int> onSaved;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class AddToStoryFAB extends StatelessWidget {
         ],
         child: FloatingActionButton(
           onPressed: () async {
-            final bool success =
+            final dynamic selected =
                 await Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 fullscreenDialog: true,
@@ -50,8 +50,8 @@ class AddToStoryFAB extends StatelessWidget {
                 },
               ),
             );
-            if (success) {
-              if (this.onSaved != null) await onSaved();
+            if (selected != null && selected is int) {
+              if (this.onSaved != null) onSaved(selected);
             }
           },
           backgroundColor: Theme.of(context).primaryColor,

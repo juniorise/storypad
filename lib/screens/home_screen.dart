@@ -24,6 +24,10 @@ class HomeScreen extends HookWidget with HookController {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final _notifier = useProvider(homeScreenProvider);
 
+    dateTimeNotifier.value =
+        DateTime(_notifier.currentSelectedYear, now.month, now.day, now.hour);
+
+    print("rebuild");
     final controller = useTabController(
       initialLength: 12,
       initialIndex: _notifier.currentIndex,
@@ -32,7 +36,7 @@ class HomeScreen extends HookWidget with HookController {
     controller.addListener(() {
       _notifier.setCurrentIndex(controller.index);
       dateTimeNotifier.value = DateTime(
-        now.year,
+        _notifier.currentSelectedYear,
         _notifier.currentIndex + 1,
         now.day,
         now.hour,
@@ -79,6 +83,7 @@ class HomeScreen extends HookWidget with HookController {
                 controller: controller,
                 statusBarHeight: statusBarHeight,
                 context: context,
+                notifier: notifier,
               )
             ],
             body: VTTabView(
@@ -109,8 +114,10 @@ class HomeScreen extends HookWidget with HookController {
         builder: (context, value, child) {
           return AddToStoryFAB(
             forDate: value,
-            onSaved: () async {
-              await notifier.load();
+            onSaved: (int year) async {
+              if (year != null) {
+                notifier.setCurrentSelectedYear(year);
+              }
             },
           );
         },
@@ -123,12 +130,13 @@ class HomeScreen extends HookWidget with HookController {
     @required double statusBarHeight,
     @required BuildContext context,
     @required bool isInit,
+    @required HomeScreenNotifier notifier,
   }) {
     return WSliverAppBar(
       statusBarHeight: statusBarHeight,
       titleText: "សួរស្តី",
       subtitleText: "ចង់សរសេរអ្វីដែរថ្ងៃនេះ?",
-      backgroundText: DateTime.now().year.toString(),
+      backgroundText: notifier.currentSelectedYear.toString(),
       tabController: controller,
       isInit: isInit,
       tabs: List.generate(
@@ -248,9 +256,11 @@ class HomeScreen extends HookWidget with HookController {
               (_storyIndex) {
                 final childrenId = storyListByDay.childrenId;
                 final int _storyId = childrenId[_storyIndex];
+
+                final story = notifier.storyById[_storyId];
                 return buildStoryTile(
                   context: context,
-                  story: notifier.storyById[_storyId],
+                  story: story,
                   notifier: notifier,
                   margin: EdgeInsets.only(
                     top: _storyIndex == 0 ? 8.0 : 0,
@@ -373,16 +383,25 @@ class HomeScreen extends HookWidget with HookController {
     return VTOnTapEffect(
       effects: _tileEffects,
       onTap: () async {
-        final bool hasChanged = await Navigator.of(
-          context,
-          rootNavigator: true,
-        ).push(
-          MaterialPageRoute(
-            fullscreenDialog: true,
-            builder: (context) => StoryDetailScreen(story: story),
-          ),
-        );
-        if (hasChanged) await notifier.load();
+        if (story != null) {
+          final dynamic selected = await Navigator.of(
+            context,
+            rootNavigator: true,
+          ).push(
+            MaterialPageRoute(
+              fullscreenDialog: true,
+              builder: (context) => StoryDetailScreen(story: story),
+            ),
+          );
+          if (selected != null && selected is int) {
+            await notifier.setCurrentSelectedYear(selected);
+          }
+        } else {
+          showSnackBar(
+            context: context,
+            title: "Story is deleted",
+          );
+        }
       },
       child: Container(
         width: double.infinity,
@@ -494,6 +513,55 @@ class HomeScreen extends HookWidget with HookController {
     return const EdgeInsets.symmetric(
       horizontal: 16.0,
       vertical: 8.0,
+    );
+  }
+
+  Future<void> showSnackBar({
+    @required BuildContext context,
+    @required String title,
+    String actionLabel,
+    VoidCallback onActionPressed,
+    VoidCallback onClose,
+  }) async {
+    SnackBar buildSnackBar({
+      @required String title,
+      @required BuildContext context,
+      String actionLabel = "Okay",
+      VoidCallback onActionPressed,
+    }) {
+      final style = Theme.of(context)
+          .textTheme
+          .bodyText1
+          .copyWith(color: Theme.of(context).backgroundColor);
+
+      final actions = onActionPressed != null
+          ? SnackBarAction(
+              label: actionLabel,
+              textColor: Theme.of(context).backgroundColor,
+              onPressed: () async {
+                onActionPressed();
+              },
+            )
+          : null;
+
+      return SnackBar(
+        content: Text(title, style: style),
+        action: actions,
+      );
+    }
+
+    final Widget snack = buildSnackBar(
+      title: title,
+      context: context,
+      actionLabel: actionLabel,
+      onActionPressed: onActionPressed,
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snack).closed.then(
+      (value) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        if (onClose != null) onClose();
+      },
     );
   }
 }
