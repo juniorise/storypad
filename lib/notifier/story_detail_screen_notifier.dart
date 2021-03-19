@@ -10,18 +10,20 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
 
   bool hasChanged = false;
 
-  Future<void> updateStory(StoryModel story) async {
+  Future<bool> updateStory(StoryModel story) async {
     final success = await wDatabase.updateStory(story: story);
     if (success) {
       this.hasChanged = true;
     }
+    return success;
   }
 
-  Future<void> addStory(StoryModel story) async {
+  Future<bool> addStory(StoryModel story) async {
     final success = await wDatabase.addStory(story: story);
     if (success) {
       this.hasChanged = true;
     }
+    return success;
   }
 
   void setDraftStory(StoryModel story) {

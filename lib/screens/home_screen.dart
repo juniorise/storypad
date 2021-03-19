@@ -17,23 +17,21 @@ import 'package:write_story/widgets/w_no_data.dart';
 import 'package:write_story/widgets/w_sliver_appbar.dart';
 
 class HomeScreen extends HookWidget with HookController {
-  final ValueNotifier<DateTime> dateTimeNotifier = ValueNotifier(DateTime(
-    DateTime.now().year,
-    1,
-    DateTime.now().day,
-  ));
+  static final now = DateTime.now();
+
+  final ValueNotifier<DateTime> dateTimeNotifier = ValueNotifier(now);
 
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final _notifier = useProvider(homeScreenProvider);
 
+    print("build home");
+
     final controller = useTabController(
       initialLength: 12,
       initialIndex: _notifier.currentIndex,
     );
-
-    final now = DateTime.now();
 
     controller.addListener(() {
       _notifier.setCurrentIndex(controller.index);

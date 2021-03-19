@@ -136,12 +136,15 @@ class StoryDetailScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("build detail");
+
     final _theme = Theme.of(context);
     final bool insert = futureId != null;
     final notifier = useProvider(storydetailScreenNotifier);
 
     final initTitle =
         !insert && notifier.draftStory != null ? notifier.draftStory.title : "";
+
     final initParagraph = !insert && notifier.draftStory != null
         ? notifier.draftStory.paragraph
         : "";
@@ -316,13 +319,26 @@ class StoryDetailScreen extends HookWidget {
                 },
               );
             } else {
+              bool success;
               if (insert) {
-                await notifier.addStory(notifier.draftStory);
+                success = await notifier.addStory(notifier.draftStory);
               } else {
-                await notifier.updateStory(
+                success = await notifier.updateStory(
                   notifier.draftStory.copyWith(
                     updateOn: DateTime.now(),
                   ),
+                );
+              }
+
+              if (success == true) {
+                await showSnackBar(
+                  context: context,
+                  title: "Saved",
+                );
+              } else {
+                await showSnackBar(
+                  context: context,
+                  title: "Can not be saved!",
                 );
               }
             }
