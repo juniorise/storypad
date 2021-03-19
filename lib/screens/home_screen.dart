@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_quill/models/documents/document.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/colors.dart';
@@ -356,13 +359,14 @@ class HomeScreen extends HookWidget with HookController {
     final _paragraphChild = Container(
       width: MediaQuery.of(context).size.width - 16 * 7,
       child: Text(
-        _paragraphText,
+        Document.fromJson(jsonDecode(story.paragraph)).toPlainText(),
         textAlign: TextAlign.start,
         style: TextStyle(
           color: Theme.of(context).textTheme.subtitle2.color.withOpacity(0.6),
         ),
       ),
     );
+
     final _paragraphWidget =
         _paragraphText.isNotEmpty ? _paragraphChild : const SizedBox();
 

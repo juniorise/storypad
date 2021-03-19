@@ -16,22 +16,28 @@ class WIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _theme = Theme.of(context);
-    return VTOnTapEffect(
-      effects: [
-        VTOnTapEffectItem(
-          effectType: VTOnTapEffectType.scaleDown,
-          active: 0.9,
-        ),
-      ],
+    return Center(
       child: Container(
-        width: kToolbarHeight,
-        child: IconButton(
-          highlightColor: _theme.disabledColor,
-          onPressed: onPressed,
-          icon: Icon(
-            iconData,
-            color: iconColor ?? _theme.primaryColorDark,
-            size: 24,
+        height: 48,
+        width: 48,
+        child: VTOnTapEffect(
+          onTap: onPressed,
+          effects: [
+            VTOnTapEffectItem(
+              effectType: VTOnTapEffectType.scaleDown,
+              active: 0.9,
+            ),
+          ],
+          child: InkWell(
+            highlightColor:
+                Theme.of(context).primaryColorDark.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(48),
+            onTap: onPressed,
+            child: Icon(
+              iconData,
+              color: iconColor ?? _theme.primaryColorDark,
+              size: 24,
+            ),
           ),
         ),
       ),

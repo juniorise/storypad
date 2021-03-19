@@ -50,10 +50,12 @@ class WDatabase {
   }) async {
     final DateTime updateOn =
         story.updateOn != null ? story.updateOn : DateTime.now();
+
+    print("last data: ${story.paragraph}");
     String query = '''
     UPDATE story 
     SET title = "${story.title}", 
-        paragraph = "${story.paragraph}",
+        paragraph = '${story.paragraph}',
         for_date = ${story.forDate.millisecondsSinceEpoch},
         update_on = ${updateOn.millisecondsSinceEpoch},
         is_favorite = ${story.isFavorite == true ? 1 : 0}
