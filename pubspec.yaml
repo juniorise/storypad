@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -29,7 +29,8 @@ dependencies:
   lottie: ^1.0.1
 
   page_transition: ^1.1.7+6
-  auto_orientation: ^2.0.0
+
+  http_parser: ^4.0.0
 
   # State management
   flutter_hooks: ^0.16.0
@@ -37,11 +38,6 @@ dependencies:
 
   sqflite: ^2.0.0+2
   path_provider: ^2.0.1
-
-  flutter_components_ecom:
-    git:
-      url: 'git@github.com:bookmebus/flutter-components-ecom.git'
-      ref: 3-update-config-constant
 
   flutter_quill: ^1.0.9
 
@@ -75,6 +71,8 @@ flutter:
     # Ref: https://iconscout.com/illustration/thinking-woman-1840996
     - assets/illustrations/thinking-woman.png
     - assets/animations/
+
+    - assets/flags/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

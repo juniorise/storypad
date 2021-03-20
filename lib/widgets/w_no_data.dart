@@ -18,7 +18,6 @@ class WNoData extends StatelessWidget {
         final imageSize =
             tablet ? constrant.maxHeight : constrant.maxWidth / 1.5;
         return SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
           child: Container(
             height: constrant.maxHeight,
             width: constrant.maxWidth,

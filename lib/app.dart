@@ -8,6 +8,12 @@ class App extends StatelessWidget {
     final fontFamilyFallback = ["Kantumruy", "Quicksand"];
 
     return MaterialApp(
+      // builder: (context, child) {
+      //   return ScrollConfiguration(
+      //     behavior: WBehavior(),
+      //     child: child,
+      //   );
+      // },
       locale: context.locale,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,

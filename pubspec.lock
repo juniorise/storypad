@@ -29,13 +29,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.5.0"
-  auto_orientation:
-    dependency: "direct main"
-    description:
-      name: auto_orientation
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -153,15 +146,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.5"
-  flutter_components_ecom:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: "3-update-config-constant"
-      resolved-ref: "012de9c5932ef5bbf311c8c68e5b122fbbaf171f"
-      url: "git@github.com:bookmebus/flutter-components-ecom.git"
-    source: git
-    version: "0.0.1"
   flutter_hooks:
     dependency: "direct main"
     description:
@@ -255,7 +239,7 @@ packages:
     source: hosted
     version: "0.13.0"
   http_parser:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http_parser
       url: "https://pub.dartlang.org"

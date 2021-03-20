@@ -56,7 +56,7 @@ class WrapperScreens extends HookWidget {
       Future.delayed(
         const Duration(microseconds: 0),
         () async {
-          if (notifier.alreadyHasUser) {
+          if (notifier.alreadyHasUser && notifier.user?.nickname != null) {
             print("1");
             Navigator.of(context).pushReplacement(
               PageTransition(

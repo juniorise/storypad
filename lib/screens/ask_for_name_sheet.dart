@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -39,8 +42,12 @@ class AskForNameSheet extends HookWidget {
             story: StoryModel(
               id: DateTime.now().millisecondsSinceEpoch,
               title: "Start write my story",
-              paragraph:
-                  "I started to write my story on ${AppHelper.dateFormat(context).format(DateTime.now())} with an offline mobile app which is named Stories.",
+              paragraph: jsonEncode([
+                {
+                  "insert":
+                      "I started to write my story on ${AppHelper.dateFormat(context).format(DateTime.now())} with an offline mobile app which is named Stories\n"
+                }
+              ]),
               createOn: DateTime.now(),
               forDate: DateTime.now(),
             ),
@@ -51,8 +58,12 @@ class AskForNameSheet extends HookWidget {
             story: StoryModel(
               id: DateTime.now().millisecondsSinceEpoch,
               title: "Writing a Day in the Life Story",
-              paragraph:
-                  "A day in the life story is just that–a description of a typical or not so typical day in the life of your family who also happens to homeschool. These stories do not need to be an hour by hour account of every little thing that happens. Show your children how to pick out interesting snapshots or conversations, lessons, co-op discussions, interactions with siblings, funny moments, mishaps while on the road, etc. and how to describe those scenes using vivid language. A handful of scenes should be sufficient for a nice balanced look at your homeschool day. Weekend days count, too.",
+              paragraph: jsonEncode([
+                {
+                  "insert":
+                      "A day in the life story is just that–a description of a typical or not so typical day in the life of your family who also happens to homeschool. These stories do not need to be an hour by hour account of every little thing that happens. Show your children how to pick out interesting snapshots or conversations, lessons, co-op discussions, interactions with siblings, funny moments, mishaps while on the road, etc. and how to describe those scenes using vivid language. A handful of scenes should be sufficient for a nice balanced look at your homeschool day. Weekend days count, too\n"
+                }
+              ]),
               createOn: DateTime.now().add(Duration(hours: 1)),
               forDate: DateTime.now().add(Duration(hours: 1)),
             ),
@@ -98,7 +109,7 @@ class AskForNameSheet extends HookWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildHeaderText(_theme),
+                buildHeaderText(_theme, context),
                 const SizedBox(height: 24.0),
                 Container(
                   child: buildTextField(notifier, _theme, context),
@@ -128,28 +139,58 @@ class AskForNameSheet extends HookWidget {
     );
   }
 
-  Widget buildHeaderText(ThemeData _theme) {
+  Widget buildHeaderText(ThemeData _theme, BuildContext context) {
     final _style =
         _theme.textTheme.headline4.copyWith(color: _theme.primaryColor);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "សួរស្តី!",
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.left,
-          style: _style,
-        ),
-        Text(
-          "តើខ្ងុំគួរហៅអ្នកដូចម្តេចដែរ?",
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.left,
-          style: _theme.textTheme.bodyText1,
-        ),
-      ],
+    return Container(
+      width: double.infinity,
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "សួរស្តី!",
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.left,
+                style: _style,
+              ),
+              Text(
+                "តើខ្ងុំគួរហៅអ្នកដូចម្តេចដែរ?",
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.left,
+                style: _theme.textTheme.bodyText1,
+              ),
+            ],
+          ),
+          Positioned(
+            right: 0,
+            child: Container(
+              height: 38.0,
+              child: Row(
+                children: [
+                  VTOnTapEffect(
+                    onTap: () {
+                      context.setLocale(Locale("km"));
+                    },
+                    child: Image.asset("assets/flags/km-flag.png"),
+                  ),
+                  const SizedBox(width: 4.0),
+                  VTOnTapEffect(
+                    onTap: () {
+                      context.setLocale(Locale("en"));
+                    },
+                    child: Image.asset("assets/flags/en-flag.png"),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 

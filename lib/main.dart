@@ -1,16 +1,17 @@
-import 'package:auto_orientation/auto_orientation.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app.dart';
-import 'package:write_story/database/w_database.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   EasyLocalization.ensureInitialized();
 
-  await WDatabase.instance.database;
-  AutoOrientation.portraitAutoMode();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   runApp(
     ProviderScope(

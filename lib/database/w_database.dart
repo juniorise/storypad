@@ -28,6 +28,8 @@ class WDatabase {
     bool dbExists = await File(dbPath).exists();
 
     if (!dbExists) {
+      print("No exist yet");
+
       // copy from asset
       ByteData data = await rootBundle.load(
         join("assets/database", "write_story.db"),
@@ -54,7 +56,7 @@ class WDatabase {
     print("last data: ${story.paragraph}");
     String query = '''
     UPDATE story 
-    SET title = "${story.title}", 
+    SET title = '${story.title}', 
         paragraph = '${story.paragraph}',
         for_date = ${story.forDate.millisecondsSinceEpoch},
         update_on = ${updateOn.millisecondsSinceEpoch},
@@ -85,8 +87,8 @@ class WDatabase {
     )
     VALUES (
         ${story.id},
-        "${story.title}", 
-        "${story.paragraph}", 
+        '${story.title}', 
+        '${story.paragraph}', 
         ${story.createOn.millisecondsSinceEpoch}, 
         ${story.forDate.millisecondsSinceEpoch}, 
         ${story.updateOn != null ? story.updateOn.millisecondsSinceEpoch : story.createOn.millisecondsSinceEpoch}, 
@@ -151,7 +153,7 @@ class WDatabase {
     await _database.execute("delete from story");
   }
 
-  Future<void> setUserModel(UserModel user) async {
+  Future<bool> setUserModel(UserModel user) async {
     String query = '''
     INSERT or REPLACE INTO "user_info" (
       device_id,
@@ -168,11 +170,18 @@ class WDatabase {
       ${user.updateOn != null ? user.updateOn.millisecondsSinceEpoch : null}
     )
     ''';
-    await _database.execute(query);
+
+    try {
+      await _database.execute(query);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<UserModel> userModel() async {
     final client = await database;
+
     List<Map<String, dynamic>> maps = await client.query(
       "user_info",
       columns: [
