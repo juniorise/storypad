@@ -33,15 +33,13 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
     toolbar.OnImagePickCallback? onImagePickCallback,
   }) {
     final spaceBetween = const SizedBox(width: 4.0);
+    final spaceBetween2 = const SizedBox(width: 8.0);
+
     toolbar.iconSize = toolbarIconSize;
     return WQuillToolbar(
       key: key,
       children: [
-        VerticalDivider(
-          indent: 16,
-          endIndent: 16,
-          color: Colors.grey.shade400,
-        ),
+        spaceBetween2,
         Visibility(
           visible: showBoldButton,
           child: toolbar.ToggleStyleButton(
@@ -99,32 +97,19 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             background: true,
           ),
         ),
-        spaceBetween,
+        Visibility(
+          visible: showClearFormat,
+          child: VerticalDivider(
+            indent: 16,
+            endIndent: 16,
+            color: Colors.grey.shade400,
+          ),
+        ),
         Visibility(
           visible: showClearFormat,
           child: toolbar.ClearFormatButton(
             icon: Icons.format_clear,
             controller: controller,
-          ),
-        ),
-        spaceBetween,
-        Visibility(
-          visible: onImagePickCallback != null,
-          child: toolbar.ImageButton(
-            icon: Icons.image,
-            controller: controller,
-            imageSource: ImageSource.gallery,
-            onImagePickCallback: onImagePickCallback,
-          ),
-        ),
-        spaceBetween,
-        Visibility(
-          visible: onImagePickCallback != null,
-          child: toolbar.ImageButton(
-            icon: Icons.photo_camera,
-            controller: controller,
-            imageSource: ImageSource.camera,
-            onImagePickCallback: onImagePickCallback,
           ),
         ),
         Visibility(
@@ -191,6 +176,11 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             color: Colors.grey.shade400,
           ),
         ),
+        VerticalDivider(
+          indent: 16,
+          endIndent: 16,
+          color: Colors.grey.shade400,
+        ),
         Visibility(
           visible: showQuote,
           child: toolbar.ToggleStyleButton(
@@ -232,6 +222,26 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
           endIndent: 16,
           color: Colors.grey.shade400,
         ),
+        Visibility(
+          visible: onImagePickCallback != null,
+          child: toolbar.ImageButton(
+            icon: Icons.image,
+            controller: controller,
+            imageSource: ImageSource.gallery,
+            onImagePickCallback: onImagePickCallback,
+          ),
+        ),
+        spaceBetween,
+        Visibility(
+          visible: onImagePickCallback != null,
+          child: toolbar.ImageButton(
+            icon: Icons.photo_camera,
+            controller: controller,
+            imageSource: ImageSource.camera,
+            onImagePickCallback: onImagePickCallback,
+          ),
+        ),
+        spaceBetween2,
       ],
     );
   }
@@ -263,7 +273,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
       child: toolbar.QuillIconButton(
         highlightElevation: 1,
         hoverElevation: 0,
-        size: 48,
+        size: 44,
         icon: Icon(icon, size: 24, color: iconColor),
         fillColor: fillColor,
         onPressed: onPressed,
@@ -275,7 +285,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
   _WQuillToolbarState createState() => _WQuillToolbarState();
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => Size.fromHeight(44 + 8.0);
 }
 
 class _WQuillToolbarState extends State<WQuillToolbar> {
