@@ -15,13 +15,13 @@ import 'package:write_story/widgets/w_tabbar.dart';
 class WSliverAppBar extends HookWidget {
   const WSliverAppBar({
     Key? key,
-    required this.titleText,
-    required this.subtitleText,
     required this.statusBarHeight,
     required this.isInit,
     this.tabs,
     this.backgroundText,
     this.tabController,
+    this.titleText = "សួរស្តី",
+    this.subtitleText = "ចង់សរសេរអ្វីដែរថ្ងៃនេះ",
   }) : super(key: key);
 
   final double statusBarHeight;
@@ -96,7 +96,7 @@ class WSliverAppBar extends HookWidget {
             duration: const Duration(milliseconds: 650),
             width: leftSideWidth,
             child: Text(
-              this.titleText + "${_notifier.user?.nickname}",
+              this.titleText + "${_notifier.user?.nickname ?? ""}",
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: _headerStyle?.copyWith(color: _theme.primaryColor),

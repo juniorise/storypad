@@ -21,7 +21,7 @@ class UserModelNotifier extends ChangeNotifier {
   Future<void> load() async {
     final result = await wDatabase.userModel();
 
-    if (result != null) {
+    if (result != null && result is UserModel) {
       this.user = result;
       alreadyHasUser = true;
     } else {

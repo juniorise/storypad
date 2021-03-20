@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app.dart';
+import 'package:write_story/database/w_database.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  EasyLocalization.ensureInitialized();
+  await EasyLocalization.ensureInitialized();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  await WDatabase.instance.database;
 
   runApp(
     ProviderScope(

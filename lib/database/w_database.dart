@@ -16,7 +16,6 @@ class WDatabase {
   Future<Database?> get database async {
     if (_database != null) return _database;
     _database = await _init();
-
     return _database;
   }
 
@@ -174,20 +173,23 @@ class WDatabase {
 
   Future<UserModel?> userModel() async {
     final client = await database;
+    List<Map<String, dynamic>>? maps;
 
-    List<Map<String, dynamic>> maps = await client!.query(
-      "user_info",
-      columns: [
-        "nickname",
-        "dob",
-        "create_on",
-        "update_on",
-      ],
-      where: "device_id = '$deviceId'",
-    );
+    try {
+      maps = await client!.query(
+        "user_info",
+        columns: [
+          "nickname",
+          "dob",
+          "create_on",
+          "update_on",
+        ],
+        where: "device_id = '$deviceId'",
+      );
+    } catch (e) {}
 
-    if (maps.length > 0) {
-      return UserModel.fromJson(maps.first);
+    if (maps?.isNotEmpty == true) {
+      return UserModel.fromJson(maps!.first);
     } else {
       return null;
     }
