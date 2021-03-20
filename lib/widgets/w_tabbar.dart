@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:write_story/widgets/w_copied_tabbar.dart';
 import 'package:write_story/widgets/w_tab_indicator.dart';
 
 class WTabBar extends HookWidget implements PreferredSizeWidget {
@@ -40,71 +41,39 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
         child: Container(
           height: height,
           width: double.infinity,
-          child: AnimatedBuilder(
-            animation: tabController!.animation!,
-            builder: (context, child) {
-              double value = 0;
-              final index = tabController.index;
-              final length = tabController.length - 1; // origin legnth is 12
-
-              final offset = tabController.offset;
-              final dragRight = offset >= 0;
-              final dragLeft = offset < 0;
-
-              final animation = tabController.animation!.value;
-
-              /// leading index padding
-              if (index == 0 && dragRight || index == 1 && dragLeft) {
-                value = 1 - animation;
-              }
-
-              /// last index padding
-              if (index == length - 1 && dragRight ||
-                  index == length && dragLeft) {
-                value = 1 - (length - animation);
-              }
-
-              if (animation == length) value = 1;
-
-              return TabBar(
-                indicatorPadding: EdgeInsets.only(
-                  right: lerpDouble(0, 8, value)!,
-                  left: lerpDouble(0, 8, value)!,
-                ),
-                controller: tabController,
-                isScrollable: true,
-                onTap: (index) {},
-                unselectedLabelColor: unselectedLabelColor,
-                labelColor: isInit ? backgroundColor : unselectedLabelColor,
-                labelStyle: Theme.of(context).textTheme.bodyText1,
-                indicator: WTabIndicator(
-                  borderSide: BorderSide(
-                    width: height,
-                    color: isInit
-                        ? unselectedLabelColor
-                        : backgroundColor ?? unselectedLabelColor,
+          child: WCopiedTabBar(
+            controller: tabController,
+            isScrollable: true,
+            onTap: (index) {},
+            unselectedLabelColor: unselectedLabelColor,
+            labelColor: isInit ? backgroundColor : unselectedLabelColor,
+            labelStyle: Theme.of(context).textTheme.bodyText1,
+            indicator: WTabIndicator(
+              borderSide: BorderSide(
+                width: height,
+                color: isInit
+                    ? unselectedLabelColor
+                    : backgroundColor ?? unselectedLabelColor,
+              ),
+            ),
+            tabs: List.generate(
+              tabs.length,
+              (index) {
+                final text = tabs[index];
+                return AnimatedOpacity(
+                  duration: Duration(milliseconds: (index + 1) * 350),
+                  opacity: isInit ? 1 : 0,
+                  child: Padding(
+                    child: Text(text),
+                    padding: const EdgeInsets.only(
+                      left: 8.0,
+                      right: 8.0,
+                      top: 2.0,
+                    ),
                   ),
-                ),
-                tabs: List.generate(
-                  tabs.length,
-                  (index) {
-                    final text = tabs[index];
-                    return AnimatedOpacity(
-                      duration: Duration(milliseconds: (index + 1) * 350),
-                      opacity: isInit ? 1 : 0,
-                      child: Padding(
-                        child: Text(text),
-                        padding: const EdgeInsets.only(
-                          left: 8.0,
-                          right: 8.0,
-                          top: 2.0,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
       ),
