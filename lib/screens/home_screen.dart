@@ -61,10 +61,10 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   GestureDetector buildScaffold({
-    @required BuildContext context,
-    @required HomeScreenNotifier notifier,
-    @required TabController controller,
-    @required double statusBarHeight,
+    required BuildContext context,
+    required HomeScreenNotifier notifier,
+    required TabController controller,
+    required double statusBarHeight,
   }) {
     return GestureDetector(
       onTap: () {
@@ -114,8 +114,8 @@ class HomeScreen extends HookWidget with HookController {
         valueListenable: dateTimeNotifier,
         builder: (context, value, child) {
           return AddToStoryFAB(
-            forDate: value,
-            onSaved: (int year) async {
+            forDate: dateTimeNotifier.value,
+            onSaved: (int? year) async {
               if (year != null) {
                 notifier.setCurrentSelectedYear(year);
               }
@@ -127,11 +127,11 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   Widget buildHeaderAppBar({
-    @required TabController controller,
-    @required double statusBarHeight,
-    @required BuildContext context,
-    @required bool isInit,
-    @required HomeScreenNotifier notifier,
+    required TabController controller,
+    required double statusBarHeight,
+    required BuildContext context,
+    required bool isInit,
+    required HomeScreenNotifier notifier,
   }) {
     return WSliverAppBar(
       statusBarHeight: statusBarHeight,
@@ -152,24 +152,23 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   Widget buildStoryInMonth({
-    @required int monthId, // month index == monthId - 1
-    @required BuildContext context,
-    @required HomeScreenNotifier notifier,
+    required int monthId, // month index == monthId - 1
+    required BuildContext context,
+    required HomeScreenNotifier notifier,
   }) {
     final storyListByMonthId = notifier.storyListByMonthID;
 
     // fetching data
-    List<int> storiesInMonthIds = [];
+    List<int>? storiesInMonthIds = [];
     bool storiesNotNull = storyListByMonthId != null &&
         storyListByMonthId.containsKey(monthId) &&
         storyListByMonthId[monthId] != null;
     if (storiesNotNull) {
-      storiesInMonthIds = storyListByMonthId[monthId].childrenId;
+      storiesInMonthIds = storyListByMonthId[monthId]?.childrenId;
     }
 
     // showing if data is empty
-    bool noData = storiesInMonthIds == null ||
-        (storiesInMonthIds != null && storiesInMonthIds.length == 0);
+    bool noData = storiesInMonthIds == null || (storiesInMonthIds.length == 0);
     if (noData) {
       final monthName = AppHelper.toNameOfMonth(context)
           .format(DateTime(DateTime.now().year, monthId));
@@ -183,7 +182,7 @@ class HomeScreen extends HookWidget with HookController {
       children: List.generate(
         storiesInMonthIds.length,
         (_dayIndex) {
-          int dayId = storiesInMonthIds[_dayIndex];
+          int dayId = storiesInMonthIds![_dayIndex];
           return buildStoryInDay(
             context: context,
             dayId: dayId,
@@ -196,14 +195,15 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   Widget buildStoryInDay({
-    @required int dayId,
-    @required int dayIndex,
-    @required BuildContext context,
-    @required HomeScreenNotifier notifier,
+    required int dayId,
+    required int dayIndex,
+    required BuildContext context,
+    required HomeScreenNotifier notifier,
   }) {
     // fetching data
-    final Map<int, StoryListModel> storyListByDayId = notifier.storyListByDayId;
-    final StoryListModel _storyListByDay = storyListByDayId[dayId];
+    final Map<int, StoryListModel>? storyListByDayId =
+        notifier.storyListByDayId;
+    final StoryListModel? _storyListByDay = storyListByDayId?[dayId];
 
     if (_storyListByDay == null) return const SizedBox();
 
@@ -238,9 +238,9 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   Widget buildStoryListTiles({
-    @required BuildContext context,
-    @required StoryListModel storyListByDay,
-    @required HomeScreenNotifier notifier,
+    required BuildContext context,
+    required StoryListModel storyListByDay,
+    required HomeScreenNotifier notifier,
   }) {
     return Expanded(
       child: Column(
@@ -257,10 +257,10 @@ class HomeScreen extends HookWidget with HookController {
                 final childrenId = storyListByDay.childrenId;
                 final int _storyId = childrenId[_storyIndex];
 
-                final story = notifier.storyById[_storyId];
+                final story = notifier.storyById?[_storyId];
                 return buildStoryTile(
                   context: context,
-                  story: story,
+                  story: story!,
                   notifier: notifier,
                   margin: EdgeInsets.only(
                     top: _storyIndex == 0 ? 8.0 : 0,
@@ -276,8 +276,8 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   Widget buildDayContainer({
-    @required BuildContext context,
-    @required StoryListModel storyListByDay,
+    required BuildContext context,
+    required StoryListModel storyListByDay,
   }) {
     /// if locale is km => dayName is ចន្ទ​​ អង្គារ​ ...
     /// if locale is en => dayName is Mon, Tue ...
@@ -286,7 +286,7 @@ class HomeScreen extends HookWidget with HookController {
 
     /// get stand color of the week
     final int dayOfWeek = AppHelper.dayOfWeek(context, storyListByDay.forDate);
-    final Color standColor = colorsByDay[dayOfWeek];
+    final Color standColor = colorsByDay[dayOfWeek]!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -335,9 +335,9 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   Widget buildStoryTile({
-    @required BuildContext context,
-    @required StoryModel story,
-    @required HomeScreenNotifier notifier,
+    required BuildContext context,
+    required StoryModel story,
+    required HomeScreenNotifier notifier,
     EdgeInsets margin = const EdgeInsets.only(bottom: 8.0),
   }) {
     /// Title
@@ -345,21 +345,21 @@ class HomeScreen extends HookWidget with HookController {
       padding: const EdgeInsets.only(right: 30),
       width: MediaQuery.of(context).size.width - 16 * 7,
       child: Text(
-        story != null ? story.title ?? "" : "",
-        style: Theme.of(context).textTheme.subtitle1.copyWith(height: 1.28),
+        story.title,
+        style: Theme.of(context).textTheme.subtitle1?.copyWith(height: 1.28),
         textAlign: TextAlign.start,
       ),
     );
 
     /// Paragraph
-    final _paragraphText = story != null ? story.paragraph ?? "" : "";
+    final _paragraphText = story.paragraph ?? "";
     final _paragraphChild = Container(
       width: MediaQuery.of(context).size.width - 16 * 7,
       child: Text(
-        Document.fromJson(jsonDecode(story.paragraph)).toPlainText().trim(),
+        Document.fromJson(jsonDecode(story.paragraph!)).toPlainText().trim(),
         textAlign: TextAlign.start,
         style: TextStyle(
-          color: Theme.of(context).textTheme.subtitle2.color.withOpacity(0.6),
+          color: Theme.of(context).textTheme.subtitle2!.color!.withOpacity(0.6),
         ),
       ),
     );
@@ -384,24 +384,17 @@ class HomeScreen extends HookWidget with HookController {
     return VTOnTapEffect(
       effects: _tileEffects,
       onTap: () async {
-        if (story != null) {
-          final dynamic selected = await Navigator.of(
-            context,
-            rootNavigator: true,
-          ).push(
-            MaterialPageRoute(
-              fullscreenDialog: true,
-              builder: (context) => StoryDetailScreen(story: story),
-            ),
-          );
-          if (selected != null && selected is int) {
-            await notifier.setCurrentSelectedYear(selected);
-          }
-        } else {
-          showSnackBar(
-            context: context,
-            title: "Story is deleted",
-          );
+        final dynamic selected = await Navigator.of(
+          context,
+          rootNavigator: true,
+        ).push(
+          MaterialPageRoute(
+            fullscreenDialog: true,
+            builder: (context) => StoryDetailScreen(story: story),
+          ),
+        );
+        if (selected != null && selected is int) {
+          await notifier.setCurrentSelectedYear(selected);
         }
       },
       child: Container(
@@ -435,9 +428,9 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   Widget buildFavoriteButton({
-    @required HomeScreenNotifier notifier,
-    @required StoryModel story,
-    @required BuildContext context,
+    required HomeScreenNotifier notifier,
+    required StoryModel story,
+    required BuildContext context,
   }) {
     final favoriteButtonEffect = [
       VTOnTapEffectItem(
@@ -450,6 +443,9 @@ class HomeScreen extends HookWidget with HookController {
       right: 0,
       top: 0,
       child: VTOnTapEffect(
+        onTap: () async {
+          await notifier.toggleFavorite(story.id);
+        },
         effects: favoriteButtonEffect,
         child: IconButton(
           onPressed: () async {
@@ -457,10 +453,10 @@ class HomeScreen extends HookWidget with HookController {
           },
           iconSize: 20,
           icon: Icon(
-            story != null && story.isFavorite == true
+            story.isFavorite == true
                 ? Icons.favorite
                 : Icons.favorite_border_rounded,
-            color: story != null && story.isFavorite == true
+            color: story.isFavorite == true
                 ? Theme.of(context).errorColor
                 : Theme.of(context).dividerColor,
           ),
@@ -470,8 +466,8 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   Widget buildFadeInitAnimationBackground({
-    @required BuildContext context,
-    @required GestureDetector scaffold,
+    required BuildContext context,
+    required Widget scaffold,
   }) {
     return Stack(
       children: [
@@ -494,7 +490,7 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   Widget buildFadeInOnInit({
-    @required Widget child,
+    required Widget child,
     Duration duration = const Duration(milliseconds: 350),
   }) {
     return Consumer(
@@ -518,21 +514,21 @@ class HomeScreen extends HookWidget with HookController {
   }
 
   Future<void> showSnackBar({
-    @required BuildContext context,
-    @required String title,
-    String actionLabel,
-    VoidCallback onActionPressed,
-    VoidCallback onClose,
+    required BuildContext context,
+    required String title,
+    String? actionLabel,
+    VoidCallback? onActionPressed,
+    VoidCallback? onClose,
   }) async {
     SnackBar buildSnackBar({
-      @required String title,
-      @required BuildContext context,
+      required String title,
+      required BuildContext context,
       String actionLabel = "Okay",
-      VoidCallback onActionPressed,
+      VoidCallback? onActionPressed,
     }) {
       final style = Theme.of(context)
           .textTheme
-          .bodyText1
+          .bodyText1!
           .copyWith(color: Theme.of(context).backgroundColor);
 
       final actions = onActionPressed != null
@@ -551,10 +547,10 @@ class HomeScreen extends HookWidget with HookController {
       );
     }
 
-    final Widget snack = buildSnackBar(
+    final SnackBar snack = buildSnackBar(
       title: title,
       context: context,
-      actionLabel: actionLabel,
+      actionLabel: actionLabel!,
       onActionPressed: onActionPressed,
     );
 

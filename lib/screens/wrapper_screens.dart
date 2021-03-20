@@ -8,7 +8,7 @@ import 'package:write_story/screens/home_screen.dart';
 import 'package:write_story/screens/ask_for_name_sheet.dart';
 
 class WrapperScreens extends HookWidget {
-  WrapperScreens({Key key}) : super(key: key);
+  WrapperScreens({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class WrapperScreens extends HookWidget {
               tablet ? constrant.maxHeight / 2 : constrant.maxWidth / 2;
 
           var _margin = EdgeInsets.only(
-            top: notifier.alreadyHasUser != null && !notifier.alreadyHasUser
+            top: notifier.alreadyHasUser == false
                 ? statusBarHeight
                 : constrant.maxHeight / 2.5 - statusBarHeight,
           );
@@ -56,7 +56,8 @@ class WrapperScreens extends HookWidget {
       Future.delayed(
         const Duration(microseconds: 0),
         () async {
-          if (notifier.alreadyHasUser && notifier.user?.nickname != null) {
+          if (notifier.alreadyHasUser == true &&
+              notifier.user?.nickname != null) {
             print("1");
             Navigator.of(context).pushReplacement(
               PageTransition(

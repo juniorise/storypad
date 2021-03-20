@@ -7,9 +7,9 @@ import 'package:write_story/models/story_model.dart';
 class HomeScreenNotifier extends ChangeNotifier {
   final WDatabase wDatabase = WDatabase.instance;
 
-  Map<int, StoryModel> _storyById;
-  Map<int, StoryListModel> _storyListByDayId;
-  Map<int, StoryListModel> _storyListByMonthID;
+  Map<int, StoryModel>? _storyById;
+  Map<int, StoryListModel>? _storyListByDayId;
+  Map<int, StoryListModel>? _storyListByMonthID;
   List<int> availableYears = [];
 
   int currentSelectedYear = DateTime.now().year;
@@ -42,7 +42,7 @@ class HomeScreenNotifier extends ChangeNotifier {
   }
 
   Future<void> load() async {
-    final result = await wDatabase.storyById();
+    final Map<int, StoryModel>? result = await wDatabase.storyById();
 
     if (result != null) {
       this._storyById = result;
@@ -61,7 +61,7 @@ class HomeScreenNotifier extends ChangeNotifier {
     availableYears.clear();
 
     // Fetch data from unsorted api
-    this.storyById.entries.forEach((story) {
+    this.storyById!.entries.forEach((story) {
       final forDate = story.value.forDate;
       final key = DateTime(
         forDate.year,
@@ -71,7 +71,7 @@ class HomeScreenNotifier extends ChangeNotifier {
 
       if (key.year == currentSelectedYear) {
         if (_groupByDay.containsKey(key)) {
-          _groupByDay[key].add(story.value);
+          _groupByDay[key]?.add(story.value);
         } else {
           _groupByDay[key] = [story.value];
         }
@@ -79,7 +79,7 @@ class HomeScreenNotifier extends ChangeNotifier {
 
       /// set all story in year to `_storiesInYear` year
       if (_storiesInYear.containsKey(key.year)) {
-        _storiesInYear[key.year].add(story.value.id);
+        _storiesInYear[key.year]?.add(story.value.id);
       } else {
         _storiesInYear[key.year] = [story.value.id];
       }
@@ -87,11 +87,9 @@ class HomeScreenNotifier extends ChangeNotifier {
 
     // check if story in year
     // has value in it or not
-    _storiesInYear.forEach((key, value) {
-      if (value != null && value.length > 0) {
-        if (!availableYears.contains(key)) {
-          availableYears.add(key);
-        }
+    _storiesInYear.forEach((key, List<int>? value) {
+      if (value!.length > 0 && !availableYears.contains(key)) {
+        availableYears.add(key);
       }
     });
 
@@ -107,14 +105,14 @@ class HomeScreenNotifier extends ChangeNotifier {
         return a.compareTo(b);
       })
       ..forEach((date) {
-        _sortedGroupByDay[date] = _groupByDay[date];
+        _sortedGroupByDay[date] = _groupByDay[date]!;
       });
 
     // Add them to each month
     int i = 1;
-    final Map<int, StoryListModel> _mapStoryListByDayId = {};
+    final Map<int, StoryListModel>? _mapStoryListByDayId = {};
     _sortedGroupByDay.entries.forEach((storyList) {
-      _mapStoryListByDayId[i] = StoryListModel(
+      _mapStoryListByDayId?[i] = StoryListModel(
         id: i++,
         isLeaf: true,
         forDate: storyList.key,
@@ -128,13 +126,11 @@ class HomeScreenNotifier extends ChangeNotifier {
   }
 
   _setStoryListByMonthID() {
-    final Map<DateTime, List<StoryListModel>> _groupByMonth = {};
-    final Map<DateTime, List<StoryListModel>> _sortedGroupByMonth = {};
+    final Map<DateTime, List<StoryListModel>?> _groupByMonth = {};
+    final Map<DateTime, List<StoryListModel>?> _sortedGroupByMonth = {};
 
-    if (this._storyListByDayId != null &&
-        this._storyListByDayId.entries != null &&
-        this._storyListByDayId.entries.isNotEmpty) {
-      this._storyListByDayId.entries.forEach((storyList) {
+    if (this._storyListByDayId!.entries.isNotEmpty) {
+      this._storyListByDayId!.entries.forEach((storyList) {
         final forDate = storyList.value.forDate;
 
         final key = DateTime(
@@ -143,7 +139,7 @@ class HomeScreenNotifier extends ChangeNotifier {
         );
 
         if (_groupByMonth.containsKey(key)) {
-          _groupByMonth[key].add(storyList.value);
+          _groupByMonth[key]?.add(storyList.value);
         } else {
           _groupByMonth[key] = [storyList.value];
         }
@@ -172,13 +168,13 @@ class HomeScreenNotifier extends ChangeNotifier {
     _groupByMonth.entries.forEach((storyList) {
       final id = storyList.key.month;
 
-      final childrenId = storyList.value.map((e) {
+      final childrenId = storyList.value?.map((e) {
         return e.id;
       }).toList();
 
       _mapStoryListByMonthId[id] = StoryListModel(
         id: id,
-        childrenId: childrenId,
+        childrenId: childrenId ?? [],
         forDate: storyList.key,
         isLeaf: false,
       );
@@ -188,10 +184,10 @@ class HomeScreenNotifier extends ChangeNotifier {
   }
 
   Future<void> toggleFavorite(int storyId) async {
-    final story = this._storyById[storyId];
-    final result = story.copyWith(isFavorite: !story.isFavorite ?? true);
+    final story = this._storyById![storyId];
+    final result = story!.copyWith(isFavorite: !story.isFavorite);
 
-    this._storyById[storyId] = result;
+    this._storyById?[storyId] = result;
     notifyListeners();
 
     await wDatabase.updateStory(story: result);
@@ -213,7 +209,7 @@ class HomeScreenNotifier extends ChangeNotifier {
   ///   ),
   /// }
   /// ```
-  Map<int, StoryModel> get storyById => this._storyById;
+  Map<int, StoryModel>? get storyById => this._storyById;
 
   /// ```
   /// {
@@ -231,7 +227,7 @@ class HomeScreenNotifier extends ChangeNotifier {
   ///   ),
   /// }
   /// ```
-  Map<int, StoryListModel> get storyListByDayId => this._storyListByDayId;
+  Map<int, StoryListModel>? get storyListByDayId => this._storyListByDayId;
 
   /// ```
   /// {
@@ -259,7 +255,7 @@ class HomeScreenNotifier extends ChangeNotifier {
   ///   ),
   /// }
   /// ```
-  Map<int, StoryListModel> get storyListByMonthID => this._storyListByMonthID;
+  Map<int, StoryListModel>? get storyListByMonthID => this._storyListByMonthID;
 }
 
 final homeScreenProvider = ChangeNotifierProvider<HomeScreenNotifier>((ref) {

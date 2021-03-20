@@ -21,7 +21,7 @@ mixin HookController {
     return controller;
   }
 
-  TransformationController useTransformationController([Matrix4 value]) {
+  TransformationController useTransformationController([Matrix4? value]) {
     var transformationController = TransformationController(value);
     final controller = useMemoized(() => transformationController);
     useEffect(() {
@@ -31,15 +31,15 @@ mixin HookController {
   }
 
   QuillController useQuillController({
-    Document document,
-    TextSelection selection,
-    bool isBasic = false,
+    Document? document,
+    TextSelection? selection,
+    bool isBasic = true,
   }) {
     QuillController quillController;
     if (!isBasic) {
       quillController = QuillController(
-        document: document,
-        selection: selection,
+        document: document!,
+        selection: selection!,
       );
     } else {
       quillController = QuillController.basic();

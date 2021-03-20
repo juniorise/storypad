@@ -5,8 +5,8 @@ class SliverWidgetDelegate extends SliverPersistentHeaderDelegate {
   final double height;
 
   SliverWidgetDelegate({
-    this.child,
-    this.height,
+    required this.child,
+    required this.height,
   });
 
   @override

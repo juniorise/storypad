@@ -7,6 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/editor.dart';
+import 'package:flutter_quill/widgets/toolbar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
@@ -18,26 +19,24 @@ import 'package:write_story/widgets/w_quil_toolbar.dart';
 class StoryDetailScreen extends HookWidget
     with StoryDetailMethodMixin, HookController {
   StoryDetailScreen({
-    Key key,
+    Key? key,
     this.story,
     this.futureId,
     this.forDate,
-  })  : assert((story != null && (futureId == null && forDate == null)) ||
-            (story == null && (futureId != null && forDate != null))),
-        super(key: key);
+  }) : super(key: key);
 
   /// [story] must be null if
   /// [futureId] and [forDate] is not null
-  final StoryModel story;
+  final StoryModel? story;
 
   /// if [futureId] not null
   /// which mean that this screen
   /// is inserting new story
-  final int futureId;
+  final int? futureId;
 
   /// [forDate] must be null,
   /// if [story] is not null
-  final DateTime forDate;
+  final DateTime? forDate;
 
   final ValueNotifier<double> headerPaddingTopNotifier =
       ValueNotifier<double>(0);
@@ -51,20 +50,22 @@ class StoryDetailScreen extends HookWidget
     final bool insert = futureId != null;
 
     final draftStory = StoryModel(
-      id: futureId,
-      title: insert ? "" : story.title,
-      paragraph: insert ? "" : story.paragraph,
+      id: insert ? futureId! : story!.id,
+      title: insert ? "" : story!.title,
+      paragraph: insert ? "" : story!.paragraph,
       createOn: DateTime.now(),
-      forDate: forDate,
+      forDate: insert ? forDate! : story!.forDate,
     );
 
     final _notifier =
-        useProvider(storydetailScreenNotifier(!insert ? story : draftStory));
+        useProvider(storydetailScreenNotifier(!insert ? story! : draftStory));
 
-    var json;
+    List<dynamic>? json;
     try {
-      json = jsonDecode(_notifier.draftStory.paragraph);
-    } catch (e) {}
+      json = jsonDecode(_notifier.draftStory.paragraph!);
+    } catch (e) {
+      json = null;
+    }
 
     final quillController = useQuillController(
       document: json != null ? Document.fromJson(json) : null,
@@ -79,8 +80,6 @@ class StoryDetailScreen extends HookWidget
       () {
         final quil = quillController.document.toDelta().toJson();
         var json = jsonEncode(quil);
-        print("$quil");
-        // print("json hah: $json");
         _notifier
             .setDraftStory(_notifier.draftStory.copyWith(paragraph: "$json"));
       },
@@ -92,7 +91,7 @@ class StoryDetailScreen extends HookWidget
 
     sliverController.addListener(() {
       double top = lerpDouble(0, MediaQuery.of(context).viewPadding.top,
-          sliverController.offset / sliverController.position.maxScrollExtent);
+          sliverController.offset / sliverController.position.maxScrollExtent)!;
       headerPaddingTopNotifier.value = top;
     });
 
@@ -110,6 +109,7 @@ class StoryDetailScreen extends HookWidget
             context: context,
             insert: insert,
             notifier: _notifier,
+            controller: quillController,
           ),
         ];
       },
@@ -120,8 +120,8 @@ class StoryDetailScreen extends HookWidget
             builder: (context, value, child) {
               return Padding(
                 child: _headerText,
-                padding:
-                    EdgeInsets.symmetric(horizontal: 16.0).copyWith(top: value),
+                padding: EdgeInsets.symmetric(horizontal: 16.0)
+                    .copyWith(top: headerPaddingTopNotifier.value),
               );
             },
           ),
@@ -158,16 +158,16 @@ class StoryDetailScreen extends HookWidget
   }
 
   TextFormField buildHeaderTextField({
-    @required bool insert,
-    @required StoryDetailScreenNotifier notifier,
-    @required BuildContext context,
+    required bool insert,
+    required StoryDetailScreenNotifier notifier,
+    required BuildContext context,
   }) {
     final _theme = Theme.of(context);
     return TextFormField(
       autofocus: false,
       textAlign: TextAlign.left,
-      initialValue: !insert ? story.title ?? "" : notifier.draftStory.title,
-      style: _theme.textTheme.subtitle1.copyWith(height: 1.5),
+      initialValue: !insert ? story?.title ?? "" : notifier.draftStory.title,
+      style: _theme.textTheme.subtitle1?.copyWith(height: 1.5),
       maxLines: null,
       onChanged: (String value) {
         notifier.setDraftStory(
@@ -183,19 +183,19 @@ class StoryDetailScreen extends HookWidget
   }
 
   WillPopScope buildDefinedScaffold({
-    @required BuildContext context,
-    @required StoryDetailScreenNotifier notifier,
-    @required Widget body,
-    @required QuillController controller,
+    required BuildContext context,
+    required StoryDetailScreenNotifier notifier,
+    required Widget body,
+    required QuillController controller,
   }) {
     final _theme = Theme.of(context);
     return WillPopScope(
-      onWillPop: () {
+      onWillPop: () async {
         onPopNavigator(
           context: context,
           notifier: notifier,
         );
-        return;
+        return false;
       },
       child: GestureDetector(
         onTap: () {
@@ -210,9 +210,7 @@ class StoryDetailScreen extends HookWidget
             color: Theme.of(context).scaffoldBackgroundColor,
             child: SafeArea(
               child: Padding(
-                padding: MediaQuery.of(context)
-                    .viewInsets
-                    .copyWith(left: 0, right: 0),
+                padding: MediaQuery.of(context).viewInsets,
                 child: WQuillToolbar.basic(
                   controller: controller,
                   toolbarIconSize: 24,
@@ -223,9 +221,12 @@ class StoryDetailScreen extends HookWidget
                   showHorizontalRule: false,
                   showStrikeThrough: false,
                   showIndent: false,
-                  showClearFormat: false,
+                  showClearFormat: true,
                   showColorButton: false,
                   showBackgroundColorButton: false,
+                  onImagePickCallback: (File image) async {
+                    return image.path;
+                  },
                 ),
               ),
             ),
@@ -236,9 +237,10 @@ class StoryDetailScreen extends HookWidget
   }
 
   Widget buildAppBar({
-    BuildContext context,
-    bool insert,
-    StoryDetailScreenNotifier notifier,
+    required BuildContext context,
+    required bool insert,
+    required StoryDetailScreenNotifier notifier,
+    required QuillController controller,
   }) {
     final _theme = Theme.of(context);
 
@@ -249,12 +251,22 @@ class StoryDetailScreen extends HookWidget
       elevation: 0.5,
       leading: buildAppBarLeadingButton(context: context, notifier: notifier),
       actions: [
+        HistoryButton(
+          icon: Icons.undo_outlined,
+          controller: controller,
+          undo: true,
+        ),
+        HistoryButton(
+          icon: Icons.redo_outlined,
+          controller: controller,
+          undo: false,
+        ),
         WIconButton(
           iconData: Icons.date_range_rounded,
           onPressed: () async {
             onPickDate(
               context: context,
-              date: !insert ? story.forDate : notifier.draftStory.forDate,
+              date: !insert ? story!.forDate : notifier.draftStory.forDate,
               notifier: notifier,
             );
           },
@@ -267,7 +279,7 @@ class StoryDetailScreen extends HookWidget
               context: context,
               notifier: notifier,
               insert: insert,
-              id: story.id,
+              id: story!.id,
             ),
           ),
         WIconButton(
@@ -320,8 +332,8 @@ class StoryDetailScreen extends HookWidget
   }
 
   Widget buildAppBarLeadingButton({
-    @required BuildContext context,
-    @required StoryDetailScreenNotifier notifier,
+    required BuildContext context,
+    required StoryDetailScreenNotifier notifier,
   }) {
     return WIconButton(
       iconData: Icons.cancel,
@@ -335,29 +347,29 @@ class StoryDetailScreen extends HookWidget
   }
 
   Widget buildAboutDateText({
-    @required BuildContext context,
-    @required bool insert,
+    required BuildContext context,
+    required bool insert,
   }) {
     final _theme = Theme.of(context);
     String _aboutDateText = "";
     if (!insert) {
       _aboutDateText = getDateLabel(
-            date: story.createOn,
+            date: story!.createOn,
             context: context,
             label: "Create on",
           ) +
           "\n" +
           getDateLabel(
-            date: story.forDate,
+            date: story!.forDate,
             context: context,
             label: "For Date",
           );
     }
 
-    if (!insert && story.updateOn != null) {
+    if (!insert && story!.updateOn != null) {
       _aboutDateText += "\n" +
           getDateLabel(
-            date: story.updateOn,
+            date: story!.updateOn ?? DateTime.now(),
             context: context,
             label: "Update on",
           );
@@ -368,7 +380,7 @@ class StoryDetailScreen extends HookWidget
             _aboutDateText,
             textAlign: TextAlign.start,
             style: TextStyle(
-              color: _theme.textTheme.subtitle2.color.withOpacity(0.6),
+              color: _theme.textTheme.subtitle2?.color?.withOpacity(0.6),
             ),
           )
         : const SizedBox();
