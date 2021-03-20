@@ -2,14 +2,13 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:write_story/app_helper/app_helper.dart';
-import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
 
 mixin StoryDetailMethodMixin {
   String getDateLabel({
-    @required DateTime date,
-    @required BuildContext context,
-    @required String label,
+    required DateTime date,
+    required BuildContext context,
+    required String label,
   }) {
     final _date = AppHelper.dateFormat(context).format(date);
     final _time = AppHelper.timeFormat(context).format(date);
@@ -17,51 +16,50 @@ mixin StoryDetailMethodMixin {
   }
 
   void onPopNavigator({
-    @required BuildContext context,
-    @required StoryDetailScreenNotifier notifier,
+    required BuildContext context,
+    required StoryDetailScreenNotifier notifier,
   }) async {
-    ScaffoldMessenger.maybeOf(context).removeCurrentSnackBar();
+    ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
     Navigator.of(context).pop(
       notifier.hasChanged ? notifier.draftStory.forDate.year : null,
     );
-    notifier.setDraftStory(StoryModel.empty);
+  }
+
+  SnackBar buildSnackBar({
+    required String title,
+    required BuildContext context,
+    String actionLabel = "Okay",
+    VoidCallback? onActionPressed,
+  }) {
+    final style = Theme.of(context)
+        .textTheme
+        .bodyText1!
+        .copyWith(color: Theme.of(context).backgroundColor);
+
+    final actions = onActionPressed != null
+        ? SnackBarAction(
+            label: actionLabel,
+            textColor: Theme.of(context).backgroundColor,
+            onPressed: () async {
+              onActionPressed();
+            },
+          )
+        : null;
+
+    return SnackBar(
+      content: Text(title, style: style),
+      action: actions,
+    );
   }
 
   Future<void> showSnackBar({
-    @required BuildContext context,
-    @required String title,
-    String actionLabel,
-    VoidCallback onActionPressed,
-    VoidCallback onClose,
+    required BuildContext context,
+    required String title,
+    String actionLabel = "Okay",
+    VoidCallback? onActionPressed,
+    VoidCallback? onClose,
   }) async {
-    SnackBar buildSnackBar({
-      @required String title,
-      @required BuildContext context,
-      String actionLabel = "Okay",
-      VoidCallback onActionPressed,
-    }) {
-      final style = Theme.of(context)
-          .textTheme
-          .bodyText1
-          .copyWith(color: Theme.of(context).backgroundColor);
-
-      final actions = onActionPressed != null
-          ? SnackBarAction(
-              label: actionLabel,
-              textColor: Theme.of(context).backgroundColor,
-              onPressed: () async {
-                onActionPressed();
-              },
-            )
-          : null;
-
-      return SnackBar(
-        content: Text(title, style: style),
-        action: actions,
-      );
-    }
-
-    final Widget snack = buildSnackBar(
+    final SnackBar snack = buildSnackBar(
       title: title,
       context: context,
       actionLabel: actionLabel,
@@ -77,11 +75,11 @@ mixin StoryDetailMethodMixin {
   }
 
   Container buildIosDatePicker({
-    @required BuildContext context,
-    @required DateTime tempPickedDate,
-    @required DateTime firstDate,
-    @required DateTime lastDate,
-    @required DateTime date,
+    required BuildContext context,
+    required DateTime tempPickedDate,
+    required DateTime firstDate,
+    required DateTime lastDate,
+    required DateTime date,
   }) {
     final Widget actionButtons = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,9 +122,9 @@ mixin StoryDetailMethodMixin {
   }
 
   Future<void> onPickDate({
-    @required BuildContext context,
-    @required DateTime date,
-    @required StoryDetailScreenNotifier notifier,
+    required BuildContext context,
+    required DateTime date,
+    required StoryDetailScreenNotifier notifier,
   }) async {
     FocusScope.of(context).unfocus();
     TextEditingController().clear();
@@ -137,12 +135,12 @@ mixin StoryDetailMethodMixin {
     DateTime firstDate = DateTime(1900);
     DateTime lastDate = DateTime(now + 50);
 
-    DateTime forDate;
+    DateTime? forDate;
     if (Platform.isIOS) {
       forDate = await showModalBottomSheet<DateTime>(
         context: context,
         builder: (context) {
-          DateTime tempPickedDate;
+          DateTime tempPickedDate = DateTime.now();
           return buildIosDatePicker(
             date: notifier.draftStory.forDate,
             context: context,
@@ -159,9 +157,9 @@ mixin StoryDetailMethodMixin {
         firstDate: firstDate,
         initialDatePickerMode: DatePickerMode.year,
         lastDate: lastDate,
-        builder: (BuildContext context, Widget child) {
+        builder: (BuildContext context, Widget? child) {
           return Theme(
-            child: child,
+            child: child ?? const SizedBox(),
             data: _theme.copyWith(
               splashColor: Colors.transparent,
               colorScheme: _theme.colorScheme.copyWith(
@@ -182,10 +180,10 @@ mixin StoryDetailMethodMixin {
   }
 
   Future<void> onDelete({
-    @required BuildContext context,
-    @required StoryDetailScreenNotifier notifier,
-    @required bool insert,
-    @required int id,
+    required BuildContext context,
+    required StoryDetailScreenNotifier notifier,
+    required bool insert,
+    required int id,
   }) async {
     await showSnackBar(
       context: context,
@@ -220,9 +218,9 @@ mixin StoryDetailMethodMixin {
   }
 
   Future<void> onSave({
-    @required StoryDetailScreenNotifier notifier,
-    @required BuildContext context,
-    @required bool insert,
+    required StoryDetailScreenNotifier notifier,
+    required BuildContext context,
+    required bool insert,
   }) async {
     if (notifier.draftStory.title.trim().isEmpty) {
       await showSnackBar(

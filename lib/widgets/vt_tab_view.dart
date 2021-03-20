@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class VTTabView extends StatelessWidget {
   const VTTabView({
-    Key key,
+    Key? key,
     this.children = const [],
     this.controller,
     this.physics,
@@ -13,15 +13,14 @@ class VTTabView extends StatelessWidget {
 
   /// if `TabController` isn't provided, make sure you have
   /// wraped your widget with `DefaultTabController`
-  final TabController controller;
-  final ScrollPhysics physics;
+  final TabController? controller;
+  final ScrollPhysics? physics;
   final List<Widget> children;
   final DragStartBehavior dragStartBehavior;
 
   @override
   Widget build(BuildContext context) {
-    final TabController tabController =
-        controller ?? DefaultTabController.of(context);
+    final tabController = controller ?? DefaultTabController.of(context)!;
     final List<Widget> children =
         buildChildren(context: context, controller: tabController);
 
@@ -35,8 +34,8 @@ class VTTabView extends StatelessWidget {
   }
 
   List<Widget> buildChildren({
-    BuildContext context,
-    TabController controller,
+    required BuildContext context,
+    required TabController controller,
   }) {
     final double width = MediaQuery.of(context).size.width;
     List<Widget> result = [];
@@ -46,7 +45,7 @@ class VTTabView extends StatelessWidget {
       result.add(
         AnimatedBuilder(
           child: child,
-          animation: controller.animation,
+          animation: controller.animation!,
           builder: (context, child) {
             final double offset = controller.offset;
 
@@ -80,12 +79,12 @@ class VTTabView extends StatelessWidget {
               if (inScope) {
                 if (isCurrentChild) {
                   translateX1 = width * offset;
-                  opacity = lerpDouble(1, -1, offset);
-                  translateX2 = lerpDouble(0, -50, offset);
+                  opacity = lerpDouble(1, -1, offset)!;
+                  translateX2 = lerpDouble(0, -50, offset)!;
                 } else {
                   translateX1 = width * (offset - 1);
-                  opacity = lerpDouble(-1, 1, offset);
-                  translateX2 = lerpDouble(50, 0, offset);
+                  opacity = lerpDouble(-1, 1, offset)!;
+                  translateX2 = lerpDouble(50, 0, offset)!;
                 }
               }
             } else {
@@ -94,13 +93,13 @@ class VTTabView extends StatelessWidget {
 
               if (inScope) {
                 if (isCurrentChild) {
-                  opacity = lerpDouble(1, -1, -offset);
+                  opacity = lerpDouble(1, -1, -offset)!;
                   translateX1 = width * offset;
-                  translateX2 = lerpDouble(0, -50, offset);
+                  translateX2 = lerpDouble(0, -50, offset)!;
                 } else {
-                  opacity = lerpDouble(-1, 1, -offset);
+                  opacity = lerpDouble(-1, 1, -offset)!;
                   translateX1 = width * (offset + 1);
-                  translateX2 = lerpDouble(-50, -100, offset);
+                  translateX2 = lerpDouble(-50, -100, offset)!;
                 }
               }
             }

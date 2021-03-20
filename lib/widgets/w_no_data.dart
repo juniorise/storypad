@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 class WNoData extends StatelessWidget {
   const WNoData({
-    Key key,
-    @required this.monthName,
+    Key? key,
+    required this.monthName,
   }) : super(key: key);
 
   final String monthName;
@@ -46,8 +46,8 @@ class WNoData extends StatelessWidget {
                     style: TextStyle(
                         color: Theme.of(context)
                             .textTheme
-                            .bodyText1
-                            .color
+                            .bodyText1!
+                            .color!
                             .withOpacity(0.5)),
                   ),
                 ),

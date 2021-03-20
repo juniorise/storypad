@@ -3,15 +3,15 @@ import 'package:write_story/widgets/vt_ontap_effect.dart';
 
 class WIconButton extends StatelessWidget {
   const WIconButton({
-    Key key,
-    @required this.iconData,
-    @required this.onPressed,
+    Key? key,
+    required this.iconData,
+    required this.onPressed,
     this.iconColor,
   }) : super(key: key);
 
   final IconData iconData;
   final VoidCallback onPressed;
-  final Color iconColor;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {

@@ -10,7 +10,7 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
 
   bool hasChanged = false;
 
-  StoryDetailScreenNotifier({this.draftStory});
+  StoryDetailScreenNotifier({required this.draftStory});
 
   Future<bool> updateStory(StoryModel story) async {
     final success = await wDatabase.updateStory(story: story);

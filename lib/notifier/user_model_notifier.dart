@@ -5,11 +5,11 @@ import 'package:write_story/models/user_model.dart';
 
 class UserModelNotifier extends ChangeNotifier {
   final WDatabase wDatabase = WDatabase.instance;
-  bool alreadyHasUser;
+  bool? alreadyHasUser;
 
-  UserModel user;
-  String nickname;
-  DateTime dob;
+  UserModel? user;
+  String? nickname;
+  DateTime? dob;
 
   bool isInit = false;
 

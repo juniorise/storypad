@@ -4,13 +4,13 @@ import 'package:write_story/widgets/vt_ontap_effect.dart';
 
 class AddToStoryFAB extends StatelessWidget {
   const AddToStoryFAB({
-    Key key,
-    @required this.forDate,
-    @required this.onSaved,
+    Key? key,
+    required this.forDate,
+    required this.onSaved,
   }) : super(key: key);
 
   final DateTime forDate;
-  final ValueChanged<int> onSaved;
+  final ValueChanged<int>? onSaved;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class AddToStoryFAB extends StatelessWidget {
               ),
             );
             if (selected != null && selected is int) {
-              if (this.onSaved != null) onSaved(selected);
+              if (this.onSaved != null) onSaved!(selected);
             }
           },
           backgroundColor: Theme.of(context).primaryColor,

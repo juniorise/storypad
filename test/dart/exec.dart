@@ -5,9 +5,9 @@ void main() async {
   tmpGlbalStoryByID.forEach((key, value) {
     final title = value.title;
     final paragraph = value.paragraph;
-    int updateOn;
+    int? updateOn;
     if (value.updateOn != null) {
-      updateOn = value.updateOn.millisecondsSinceEpoch;
+      updateOn = value.updateOn?.millisecondsSinceEpoch;
     }
 
     print('''

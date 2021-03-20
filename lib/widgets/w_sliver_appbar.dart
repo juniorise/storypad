@@ -14,11 +14,11 @@ import 'package:write_story/widgets/w_tabbar.dart';
 
 class WSliverAppBar extends HookWidget {
   const WSliverAppBar({
-    Key key,
-    @required this.titleText,
-    @required this.subtitleText,
-    @required this.statusBarHeight,
-    @required this.isInit,
+    Key? key,
+    required this.titleText,
+    required this.subtitleText,
+    required this.statusBarHeight,
+    required this.isInit,
     this.tabs,
     this.backgroundText,
     this.tabController,
@@ -26,11 +26,11 @@ class WSliverAppBar extends HookWidget {
 
   final double statusBarHeight;
   final bool isInit;
-  final List<String> tabs;
+  final List<String>? tabs;
   final String titleText;
   final String subtitleText;
-  final String backgroundText;
-  final TabController tabController;
+  final String? backgroundText;
+  final TabController? tabController;
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +50,12 @@ class WSliverAppBar extends HookWidget {
         context: context,
         notifier: notifier,
       ),
-      bottom: this.tabs != null && tabs.isNotEmpty
+      bottom: this.tabs!.isNotEmpty
           ? WTabBar(
               controller: controller,
               height: 40,
               backgroundColor: Theme.of(context).backgroundColor,
-              tabs: tabs,
+              tabs: tabs ?? [],
               isInit: isInit,
             )
           : null,
@@ -63,8 +63,8 @@ class WSliverAppBar extends HookWidget {
   }
 
   FlexibleSpaceBar buildFlexibleSpaceBar({
-    BuildContext context,
-    AppBarNotifier notifier,
+    required BuildContext context,
+    required AppBarNotifier notifier,
   }) {
     final _theme = Theme.of(context);
     final _textTheme = _theme.textTheme;
@@ -96,10 +96,10 @@ class WSliverAppBar extends HookWidget {
             duration: const Duration(milliseconds: 650),
             width: leftSideWidth,
             child: Text(
-              this.titleText + "${_notifier.user.nickname}",
+              this.titleText + "${_notifier.user?.nickname}",
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: _headerStyle.copyWith(color: _theme.primaryColor),
+              style: _headerStyle?.copyWith(color: _theme.primaryColor),
             ),
           ),
           AnimatedOpacity(
@@ -131,9 +131,9 @@ class WSliverAppBar extends HookWidget {
                 notifier.setHeadlineWidth(size.width);
               },
               child: Text(
-                this.backgroundText,
+                this.backgroundText!,
                 style:
-                    _textTheme.headline2.copyWith(color: _theme.disabledColor),
+                    _textTheme.headline2?.copyWith(color: _theme.disabledColor),
               ),
             ),
           )
@@ -252,8 +252,8 @@ class WSliverAppBar extends HookWidget {
                               ? Theme.of(context).primaryColor
                               : Theme.of(context)
                                   .textTheme
-                                  .bodyText1
-                                  .color
+                                  .bodyText1!
+                                  .color!
                                   .withOpacity(0.6),
                         ),
                       ),

@@ -3,220 +3,272 @@ import 'package:flutter_quill/models/documents/attribute.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
 import 'package:image_picker/image_picker.dart';
+import 'package:write_story/widgets/vt_ontap_effect.dart';
 
 class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget> children;
 
-  const WQuillToolbar({Key key, @required this.children}) : super(key: key);
+  const WQuillToolbar({Key? key, required this.children}) : super(key: key);
 
-  factory WQuillToolbar.basic(
-      {Key key,
-      @required QuillController controller,
-      double toolbarIconSize = 18.0,
-      bool showBoldButton = true,
-      bool showItalicButton = true,
-      bool showUnderLineButton = true,
-      bool showStrikeThrough = true,
-      bool showColorButton = true,
-      bool showBackgroundColorButton = true,
-      bool showClearFormat = true,
-      bool showHeaderStyle = true,
-      bool showListNumbers = true,
-      bool showListBullets = true,
-      bool showListCheck = true,
-      bool showCodeBlock = true,
-      bool showQuote = true,
-      bool showIndent = true,
-      bool showLink = true,
-      bool showHistory = true,
-      bool showHorizontalRule = false,
-      toolbar.OnImagePickCallback onImagePickCallback}) {
+  factory WQuillToolbar.basic({
+    Key? key,
+    required QuillController controller,
+    double toolbarIconSize = 18.0,
+    bool showBoldButton = true,
+    bool showItalicButton = true,
+    bool showUnderLineButton = true,
+    bool showStrikeThrough = true,
+    bool showColorButton = true,
+    bool showBackgroundColorButton = true,
+    bool showClearFormat = true,
+    bool showHeaderStyle = true,
+    bool showListNumbers = true,
+    bool showListBullets = true,
+    bool showListCheck = true,
+    bool showCodeBlock = true,
+    bool showQuote = true,
+    bool showIndent = true,
+    bool showLink = true,
+    bool showHorizontalRule = false,
+    toolbar.OnImagePickCallback? onImagePickCallback,
+  }) {
+    final spaceBetween = const SizedBox(width: 4.0);
     toolbar.iconSize = toolbarIconSize;
-    return WQuillToolbar(key: key, children: [
-      Visibility(
-        visible: showHistory,
-        child: toolbar.HistoryButton(
-          icon: Icons.undo_outlined,
-          controller: controller,
-          undo: true,
+    return WQuillToolbar(
+      key: key,
+      children: [
+        VerticalDivider(
+          indent: 16,
+          endIndent: 16,
+          color: Colors.grey.shade400,
         ),
-      ),
-      Visibility(
-        visible: showHistory,
-        child: toolbar.HistoryButton(
-          icon: Icons.redo_outlined,
-          controller: controller,
-          undo: false,
+        Visibility(
+          visible: showBoldButton,
+          child: toolbar.ToggleStyleButton(
+            attribute: Attribute.bold,
+            icon: Icons.format_bold,
+            controller: controller,
+            childBuilder: defaultToggleStyleButtonBuilder,
+          ),
         ),
-      ),
-      SizedBox(width: 0.6),
-      Visibility(
-        visible: showBoldButton,
-        child: toolbar.ToggleStyleButton(
-          attribute: Attribute.bold,
-          icon: Icons.format_bold,
-          controller: controller,
+        spaceBetween,
+        Visibility(
+          visible: showItalicButton,
+          child: toolbar.ToggleStyleButton(
+            attribute: Attribute.italic,
+            icon: Icons.format_italic,
+            controller: controller,
+            childBuilder: defaultToggleStyleButtonBuilder,
+          ),
         ),
-      ),
-      SizedBox(width: 0.6),
-      Visibility(
-        visible: showItalicButton,
-        child: toolbar.ToggleStyleButton(
-          attribute: Attribute.italic,
-          icon: Icons.format_italic,
-          controller: controller,
+        spaceBetween,
+        Visibility(
+          visible: showUnderLineButton,
+          child: toolbar.ToggleStyleButton(
+            attribute: Attribute.underline,
+            icon: Icons.format_underline,
+            controller: controller,
+            childBuilder: defaultToggleStyleButtonBuilder,
+          ),
         ),
-      ),
-      SizedBox(width: 0.6),
-      Visibility(
-        visible: showUnderLineButton,
-        child: toolbar.ToggleStyleButton(
-          attribute: Attribute.underline,
-          icon: Icons.format_underline,
-          controller: controller,
+        spaceBetween,
+        Visibility(
+          visible: showStrikeThrough,
+          child: toolbar.ToggleStyleButton(
+            attribute: Attribute.strikeThrough,
+            icon: Icons.format_strikethrough,
+            controller: controller,
+            childBuilder: defaultToggleStyleButtonBuilder,
+          ),
         ),
-      ),
-      SizedBox(width: 0.6),
-      Visibility(
-        visible: showStrikeThrough,
-        child: toolbar.ToggleStyleButton(
-          attribute: Attribute.strikeThrough,
-          icon: Icons.format_strikethrough,
-          controller: controller,
+        spaceBetween,
+        Visibility(
+          visible: showColorButton,
+          child: toolbar.ColorButton(
+            icon: Icons.color_lens,
+            controller: controller,
+            background: false,
+          ),
         ),
-      ),
-      SizedBox(width: 0.6),
-      Visibility(
-        visible: showColorButton,
-        child: toolbar.ColorButton(
-          icon: Icons.color_lens,
-          controller: controller,
-          background: false,
+        spaceBetween,
+        Visibility(
+          visible: showBackgroundColorButton,
+          child: toolbar.ColorButton(
+            icon: Icons.format_color_fill,
+            controller: controller,
+            background: true,
+          ),
         ),
-      ),
-      SizedBox(width: 0.6),
-      Visibility(
-        visible: showBackgroundColorButton,
-        child: toolbar.ColorButton(
-          icon: Icons.format_color_fill,
-          controller: controller,
-          background: true,
+        spaceBetween,
+        Visibility(
+          visible: showClearFormat,
+          child: toolbar.ClearFormatButton(
+            icon: Icons.format_clear,
+            controller: controller,
+          ),
         ),
-      ),
-      SizedBox(width: 0.6),
-      Visibility(
-        visible: showClearFormat,
-        child: toolbar.ClearFormatButton(
-          icon: Icons.format_clear,
-          controller: controller,
+        spaceBetween,
+        Visibility(
+          visible: onImagePickCallback != null,
+          child: toolbar.ImageButton(
+            icon: Icons.image,
+            controller: controller,
+            imageSource: ImageSource.gallery,
+            onImagePickCallback: onImagePickCallback,
+          ),
         ),
-      ),
-      SizedBox(width: 0.6),
-      Visibility(
-        visible: onImagePickCallback != null,
-        child: toolbar.ImageButton(
-          icon: Icons.image,
-          controller: controller,
-          imageSource: ImageSource.gallery,
-          onImagePickCallback: onImagePickCallback,
+        spaceBetween,
+        Visibility(
+          visible: onImagePickCallback != null,
+          child: toolbar.ImageButton(
+            icon: Icons.photo_camera,
+            controller: controller,
+            imageSource: ImageSource.camera,
+            onImagePickCallback: onImagePickCallback,
+          ),
         ),
-      ),
-      SizedBox(width: 0.6),
-      Visibility(
-        visible: onImagePickCallback != null,
-        child: toolbar.ImageButton(
-          icon: Icons.photo_camera,
-          controller: controller,
-          imageSource: ImageSource.camera,
-          onImagePickCallback: onImagePickCallback,
-        ),
-      ),
-      Visibility(
+        Visibility(
           visible: showHeaderStyle,
           child: VerticalDivider(
-              indent: 16, endIndent: 16, color: Colors.grey.shade400)),
-      Visibility(
+            indent: 16,
+            endIndent: 16,
+            color: Colors.grey.shade400,
+          ),
+        ),
+        Visibility(
           visible: showHeaderStyle,
-          child: toolbar.SelectHeaderStyleButton(controller: controller)),
-      VerticalDivider(indent: 16, endIndent: 16, color: Colors.grey.shade400),
-      Visibility(
-        visible: showListNumbers,
-        child: toolbar.ToggleStyleButton(
-          attribute: Attribute.ol,
-          controller: controller,
-          icon: Icons.format_list_numbered,
+          child: toolbar.SelectHeaderStyleButton(controller: controller),
         ),
-      ),
-      Visibility(
-        visible: showListBullets,
-        child: toolbar.ToggleStyleButton(
-          attribute: Attribute.ul,
-          controller: controller,
-          icon: Icons.format_list_bulleted,
+        VerticalDivider(
+          indent: 16,
+          endIndent: 16,
+          color: Colors.grey.shade400,
         ),
-      ),
-      Visibility(
-        visible: showListCheck,
-        child: toolbar.ToggleCheckListButton(
-          attribute: Attribute.unchecked,
-          controller: controller,
-          icon: Icons.check_box,
+        Visibility(
+          visible: showListNumbers,
+          child: toolbar.ToggleStyleButton(
+            attribute: Attribute.ol,
+            controller: controller,
+            icon: Icons.format_list_numbered,
+            childBuilder: defaultToggleStyleButtonBuilder,
+          ),
         ),
-      ),
-      Visibility(
-        visible: showCodeBlock,
-        child: toolbar.ToggleStyleButton(
-          attribute: Attribute.codeBlock,
-          controller: controller,
-          icon: Icons.code,
+        Visibility(
+          visible: showListBullets,
+          child: toolbar.ToggleStyleButton(
+            attribute: Attribute.ul,
+            controller: controller,
+            icon: Icons.format_list_bulleted,
+            childBuilder: defaultToggleStyleButtonBuilder,
+          ),
         ),
-      ),
-      Visibility(
+        Visibility(
+          visible: showListCheck,
+          child: toolbar.ToggleCheckListButton(
+            attribute: Attribute.unchecked,
+            controller: controller,
+            icon: Icons.check_box,
+            childBuilder: defaultToggleStyleButtonBuilder,
+          ),
+        ),
+        Visibility(
+          visible: showCodeBlock,
+          child: toolbar.ToggleStyleButton(
+            attribute: Attribute.codeBlock,
+            controller: controller,
+            icon: Icons.code,
+            childBuilder: defaultToggleStyleButtonBuilder,
+          ),
+        ),
+        Visibility(
           visible: !showListNumbers &&
               !showListBullets &&
               !showListCheck &&
               !showCodeBlock,
           child: VerticalDivider(
-              indent: 16, endIndent: 16, color: Colors.grey.shade400)),
-      Visibility(
-        visible: showQuote,
-        child: toolbar.ToggleStyleButton(
-          attribute: Attribute.blockQuote,
-          controller: controller,
-          icon: Icons.format_quote,
+            indent: 16,
+            endIndent: 16,
+            color: Colors.grey.shade400,
+          ),
         ),
-      ),
-      Visibility(
-        visible: showIndent,
-        child: toolbar.IndentButton(
-          icon: Icons.format_indent_increase,
-          controller: controller,
-          isIncrease: true,
-        ),
-      ),
-      Visibility(
-        visible: showIndent,
-        child: toolbar.IndentButton(
-          icon: Icons.format_indent_decrease,
-          controller: controller,
-          isIncrease: false,
-        ),
-      ),
-      Visibility(
+        Visibility(
           visible: showQuote,
-          child: VerticalDivider(
-              indent: 16, endIndent: 16, color: Colors.grey.shade400)),
-      Visibility(
-          visible: showLink,
-          child: toolbar.LinkStyleButton(controller: controller)),
-      Visibility(
-        visible: showHorizontalRule,
-        child: toolbar.InsertEmbedButton(
-          controller: controller,
-          icon: Icons.horizontal_rule,
+          child: toolbar.ToggleStyleButton(
+            attribute: Attribute.blockQuote,
+            controller: controller,
+            icon: Icons.format_quote,
+            childBuilder: defaultToggleStyleButtonBuilder,
+          ),
         ),
+        Visibility(
+          visible: showIndent,
+          child: toolbar.IndentButton(
+            icon: Icons.format_indent_increase,
+            controller: controller,
+            isIncrease: true,
+          ),
+        ),
+        Visibility(
+          visible: showIndent,
+          child: toolbar.IndentButton(
+            icon: Icons.format_indent_decrease,
+            controller: controller,
+            isIncrease: false,
+          ),
+        ),
+        Visibility(
+          visible: showLink,
+          child: toolbar.LinkStyleButton(controller: controller),
+        ),
+        Visibility(
+          visible: showHorizontalRule,
+          child: toolbar.InsertEmbedButton(
+            controller: controller,
+            icon: Icons.horizontal_rule,
+          ),
+        ),
+        VerticalDivider(
+          indent: 16,
+          endIndent: 16,
+          color: Colors.grey.shade400,
+        ),
+      ],
+    );
+  }
+
+  static Widget defaultToggleStyleButtonBuilder(
+    BuildContext context,
+    Attribute attribute,
+    IconData icon,
+    bool? isToggled,
+    VoidCallback? onPressed,
+  ) {
+    final theme = Theme.of(context);
+    final isEnabled = onPressed != null;
+    final iconColor = isEnabled ? theme.iconTheme.color : theme.disabledColor;
+    final fillColor =
+        isToggled == true ? theme.dividerColor : Colors.transparent;
+    return VTOnTapEffect(
+      onTap: () => onPressed!(),
+      effects: [
+        VTOnTapEffectItem(
+          effectType: VTOnTapEffectType.scaleDown,
+          active: 0.95,
+        ),
+        VTOnTapEffectItem(
+          effectType: VTOnTapEffectType.touchableOpacity,
+          active: 0.5,
+        ),
+      ],
+      child: toolbar.QuillIconButton(
+        highlightElevation: 1,
+        hoverElevation: 0,
+        size: 48,
+        icon: Icon(icon, size: 24, color: iconColor),
+        fillColor: fillColor,
+        onPressed: onPressed,
       ),
-    ]);
+    );
   }
 
   @override

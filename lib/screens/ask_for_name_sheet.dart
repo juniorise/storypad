@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -14,7 +13,7 @@ import 'package:write_story/screens/home_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 
 class AskForNameSheet extends HookWidget {
-  const AskForNameSheet({Key key}) : super(key: key);
+  const AskForNameSheet({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +21,10 @@ class AskForNameSheet extends HookWidget {
     final statusBarHeight = MediaQuery.of(context).padding.top;
 
     final nameNotEmpty =
-        notifier.nickname != null && notifier.nickname.isNotEmpty;
+        notifier.nickname != null && notifier.nickname!.isNotEmpty;
 
     bool canContinue = nameNotEmpty;
-    if (notifier.user != null && notifier.user.nickname != null) {
-      canContinue = nameNotEmpty && notifier.user.nickname != notifier.nickname;
-    }
+    canContinue = nameNotEmpty && notifier.user?.nickname != notifier.nickname;
 
     final _theme = Theme.of(context);
 
@@ -72,7 +69,7 @@ class AskForNameSheet extends HookWidget {
 
         final success = await notifier.setUser(
           UserModel(
-            nickname: notifier.nickname,
+            nickname: notifier.nickname!,
             createOn: DateTime.now(),
           ),
         );
@@ -141,7 +138,7 @@ class AskForNameSheet extends HookWidget {
 
   Widget buildHeaderText(ThemeData _theme, BuildContext context) {
     final _style =
-        _theme.textTheme.headline4.copyWith(color: _theme.primaryColor);
+        _theme.textTheme.headline4?.copyWith(color: _theme.primaryColor);
 
     return Container(
       width: double.infinity,
@@ -201,11 +198,11 @@ class AskForNameSheet extends HookWidget {
   ) {
     final _textTheme = _theme.textTheme;
 
-    final _style = _textTheme.subtitle1.copyWith(
-      color: _textTheme.bodyText1.color.withOpacity(0.7),
+    final _style = _textTheme.subtitle1?.copyWith(
+      color: _textTheme.bodyText1?.color?.withOpacity(0.7),
     );
 
-    final _hintStyle = _textTheme.subtitle1.copyWith(
+    final _hintStyle = _textTheme.subtitle1?.copyWith(
       color: _theme.disabledColor,
     );
 
@@ -226,7 +223,7 @@ class AskForNameSheet extends HookWidget {
       textAlign: TextAlign.center,
       style: _style,
       maxLines: 1,
-      initialValue: notifier.user != null ? notifier.user.nickname : null,
+      initialValue: notifier.user != null ? notifier.user?.nickname : null,
       decoration: _decoration,
       onChanged: (String value) {
         notifier.setNickname(value);
@@ -235,9 +232,9 @@ class AskForNameSheet extends HookWidget {
   }
 
   Widget buildContinueButton({
-    bool nameNotEmpty,
-    VoidCallback onTap,
-    BuildContext context,
+    required bool nameNotEmpty,
+    required VoidCallback onTap,
+    required BuildContext context,
   }) {
     final _theme = Theme.of(context);
 
@@ -267,7 +264,7 @@ class AskForNameSheet extends HookWidget {
           alignment: Alignment.center,
           child: Text(
             "បន្តរ",
-            style: _theme.textTheme.bodyText1.copyWith(
+            style: _theme.textTheme.bodyText1?.copyWith(
               color: nameNotEmpty ? Colors.white : _theme.disabledColor,
             ),
           ),

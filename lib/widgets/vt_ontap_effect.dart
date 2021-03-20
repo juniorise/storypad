@@ -18,9 +18,9 @@ class VTOnTapEffectItem {
 
 class VTOnTapEffect extends HookWidget {
   VTOnTapEffect({
-    Key key,
-    this.child,
-    this.onTap,
+    Key? key,
+    required this.child,
+    required this.onTap,
     this.duration = const Duration(milliseconds: 250),
     this.effects = const [
       VTOnTapEffectItem(),
@@ -76,7 +76,7 @@ class VTOnTapEffect extends HookWidget {
         valueListenable: valueNotifier,
         child: child,
         builder: (context, value, child) {
-          Widget result = child;
+          Widget result = child ?? const SizedBox();
 
           for (var effect in effects) {
             final tmp = result;
@@ -89,7 +89,7 @@ class VTOnTapEffect extends HookWidget {
             if (effect.effectType == VTOnTapEffectType.touchableOpacity) {
               result = AnimatedOpacity(
                 duration: this.duration,
-                opacity: value,
+                opacity: valueNotifier.value,
                 child: tmp,
               );
             }

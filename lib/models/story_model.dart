@@ -1,21 +1,20 @@
-import 'package:flutter/material.dart';
 import 'dart:convert';
 
 class StoryModel {
   final int id;
   final String title;
-  final String paragraph;
+  final String? paragraph;
   final DateTime createOn;
-  final DateTime updateOn;
+  final DateTime? updateOn;
   final DateTime forDate;
   final bool isFavorite;
 
   const StoryModel({
-    @required this.id,
-    @required this.title,
-    @required this.paragraph,
-    @required this.createOn,
-    @required this.forDate,
+    required this.id,
+    required this.title,
+    required this.paragraph,
+    required this.createOn,
+    required this.forDate,
     this.updateOn,
     this.isFavorite = false,
   });
@@ -31,13 +30,13 @@ class StoryModel {
   }
 
   copyWith({
-    int id,
-    String title,
-    String paragraph,
-    DateTime createOn,
-    DateTime updateOn,
-    DateTime forDate,
-    bool isFavorite,
+    int? id,
+    String? title,
+    String? paragraph,
+    DateTime? createOn,
+    DateTime? updateOn,
+    DateTime? forDate,
+    bool? isFavorite,
   }) {
     return StoryModel(
       id: id ?? this.id,
@@ -59,7 +58,7 @@ class StoryModel {
       json["for_date"],
     );
 
-    final DateTime updateOn =
+    final DateTime? updateOn =
         json.containsKey('update_on') && json['update_on'] != null
             ? DateTime.fromMillisecondsSinceEpoch(
                 json["update_on"],
@@ -90,7 +89,7 @@ class StoryModel {
       "is_favorite": isFavorite,
       "create_on": createOn.millisecondsSinceEpoch,
       "for_date": forDate.millisecondsSinceEpoch,
-      "update_on": updateOn != null ? updateOn.millisecondsSinceEpoch : null,
+      "update_on": updateOn != null ? updateOn!.millisecondsSinceEpoch : null,
     };
   }
 }
