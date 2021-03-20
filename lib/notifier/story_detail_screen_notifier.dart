@@ -10,6 +10,8 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
 
   bool hasChanged = false;
 
+  StoryDetailScreenNotifier({this.draftStory});
+
   Future<bool> updateStory(StoryModel story) async {
     final success = await wDatabase.updateStory(story: story);
     if (success) {
@@ -40,8 +42,8 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
 }
 
 final storydetailScreenNotifier =
-    ChangeNotifierProvider<StoryDetailScreenNotifier>(
-  (ref) {
-    return StoryDetailScreenNotifier();
+    ChangeNotifierProvider.family<StoryDetailScreenNotifier, StoryModel>(
+  (ref, story) {
+    return StoryDetailScreenNotifier(draftStory: story);
   },
 );

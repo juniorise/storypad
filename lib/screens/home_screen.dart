@@ -79,7 +79,6 @@ class HomeScreen extends HookWidget with HookController {
           floatingActionButton: buildFAB(notifier),
           resizeToAvoidBottomInset: false,
           body: NestedScrollView(
-            physics: BouncingScrollPhysics(),
             headerSliverBuilder: (context, _) => [
               buildHeaderAppBar(
                 isInit: notifier.inited,
@@ -91,7 +90,6 @@ class HomeScreen extends HookWidget with HookController {
             ],
             body: VTTabView(
               controller: controller,
-              physics: const BouncingScrollPhysics(),
               children: List.generate(
                 12,
                 (index) {
@@ -181,7 +179,6 @@ class HomeScreen extends HookWidget with HookController {
     }
 
     return ListView(
-      physics: const BouncingScrollPhysics(),
       padding: padding,
       children: List.generate(
         storiesInMonthIds.length,
@@ -359,7 +356,7 @@ class HomeScreen extends HookWidget with HookController {
     final _paragraphChild = Container(
       width: MediaQuery.of(context).size.width - 16 * 7,
       child: Text(
-        Document.fromJson(jsonDecode(story.paragraph)).toPlainText(),
+        Document.fromJson(jsonDecode(story.paragraph)).toPlainText().trim(),
         textAlign: TextAlign.start,
         style: TextStyle(
           color: Theme.of(context).textTheme.subtitle2.color.withOpacity(0.6),

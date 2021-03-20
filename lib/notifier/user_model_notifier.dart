@@ -5,7 +5,6 @@ import 'package:write_story/models/user_model.dart';
 
 class UserModelNotifier extends ChangeNotifier {
   final WDatabase wDatabase = WDatabase.instance;
-  bool loading = false;
   bool alreadyHasUser;
 
   UserModel user;
@@ -19,8 +18,7 @@ class UserModelNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  load() async {
-    setLoading(true);
+  Future<void> load() async {
     final result = await wDatabase.userModel();
 
     if (result != null) {
@@ -30,21 +28,20 @@ class UserModelNotifier extends ChangeNotifier {
       alreadyHasUser = false;
     }
 
-    setLoading(false);
+    notifyListeners();
   }
 
   Future<bool> setUser(UserModel user) async {
-    try {
-      await wDatabase.setUserModel(user);
+    final bool success = await wDatabase.setUserModel(user);
+
+    if (success) {
       this.user = user;
       alreadyHasUser = true;
       notifyListeners();
-
       return true;
-    } catch (e) {
+    } else {
       alreadyHasUser = true;
       notifyListeners();
-
       return false;
     }
   }
@@ -56,11 +53,6 @@ class UserModelNotifier extends ChangeNotifier {
 
   setDob(DateTime dob) async {
     this.dob = dob;
-    notifyListeners();
-  }
-
-  setLoading(bool value) {
-    this.loading = value;
     notifyListeners();
   }
 }

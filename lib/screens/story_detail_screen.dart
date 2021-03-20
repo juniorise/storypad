@@ -7,14 +7,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/editor.dart';
-import 'package:flutter_quill/widgets/toolbar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
-import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
+import 'package:write_story/widgets/w_quil_toolbar.dart';
 
 class StoryDetailScreen extends HookWidget
     with StoryDetailMethodMixin, HookController {
@@ -50,25 +49,17 @@ class StoryDetailScreen extends HookWidget
     print("build detail");
 
     final bool insert = futureId != null;
-    final _notifier = useProvider(storydetailScreenNotifier);
-
-    final initTitle = !insert && _notifier.draftStory != null
-        ? _notifier.draftStory.title
-        : "";
-
-    final initParagraph = !insert && _notifier.draftStory != null
-        ? _notifier.draftStory.paragraph
-        : "";
 
     final draftStory = StoryModel(
       id: futureId,
-      title: initTitle,
-      paragraph: initParagraph,
+      title: insert ? "" : story.title,
+      paragraph: insert ? "" : story.paragraph,
       createOn: DateTime.now(),
       forDate: forDate,
     );
 
-    _notifier..setDraftStory(!insert ? story : draftStory);
+    final _notifier =
+        useProvider(storydetailScreenNotifier(!insert ? story : draftStory));
 
     var json;
     try {
@@ -86,7 +77,9 @@ class StoryDetailScreen extends HookWidget
 
     quillController.addListener(
       () {
-        var json = jsonEncode(quillController.document.toDelta().toJson());
+        final quil = quillController.document.toDelta().toJson();
+        var json = jsonEncode(quil);
+        print("$quil");
         // print("json hah: $json");
         _notifier
             .setDraftStory(_notifier.draftStory.copyWith(paragraph: "$json"));
@@ -136,10 +129,8 @@ class StoryDetailScreen extends HookWidget
           Expanded(
             child: QuillEditor(
               maxHeight: null,
-              placeholder: "Write your story here...",
               controller: quillController,
               scrollController: scrollController,
-              scrollPhysics: ClampingScrollPhysics(),
               scrollable: true,
               focusNode: focusNode,
               autoFocus: true,
@@ -151,7 +142,7 @@ class StoryDetailScreen extends HookWidget
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
                 vertical: 16.0,
-              ),
+              ).copyWith(bottom: 48.0 + 16.0),
             ),
           ),
         ],
@@ -219,8 +210,10 @@ class StoryDetailScreen extends HookWidget
             color: Theme.of(context).scaffoldBackgroundColor,
             child: SafeArea(
               child: Padding(
-                padding: MediaQuery.of(context).viewInsets,
-                child: QuillToolbar.basic(
+                padding: MediaQuery.of(context)
+                    .viewInsets
+                    .copyWith(left: 0, right: 0),
+                child: WQuillToolbar.basic(
                   controller: controller,
                   toolbarIconSize: 24,
                   showLink: false,
@@ -262,6 +255,7 @@ class StoryDetailScreen extends HookWidget
             onPickDate(
               context: context,
               date: !insert ? story.forDate : notifier.draftStory.forDate,
+              notifier: notifier,
             );
           },
         ),

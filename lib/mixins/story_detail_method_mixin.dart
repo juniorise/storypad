@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 mixin StoryDetailMethodMixin {
   String getDateLabel({
@@ -127,12 +126,12 @@ mixin StoryDetailMethodMixin {
   Future<void> onPickDate({
     @required BuildContext context,
     @required DateTime date,
+    @required StoryDetailScreenNotifier notifier,
   }) async {
     FocusScope.of(context).unfocus();
     TextEditingController().clear();
 
     final _theme = Theme.of(context);
-    final notifier = context.read(storydetailScreenNotifier);
 
     final now = DateTime.now().year;
     DateTime firstDate = DateTime(1900);
