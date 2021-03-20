@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -135,8 +134,6 @@ class HomeScreen extends HookWidget with HookController {
   }) {
     return WSliverAppBar(
       statusBarHeight: statusBarHeight,
-      titleText: "សួរស្តី",
-      subtitleText: "ចង់សរសេរអ្វីដែរថ្ងៃនេះ?",
       backgroundText: notifier.currentSelectedYear.toString(),
       tabController: controller,
       isInit: isInit,
@@ -351,12 +348,20 @@ class HomeScreen extends HookWidget with HookController {
       ),
     );
 
+    String? paragraph;
+
+    try {
+      final decode = jsonDecode(story.paragraph!);
+      final document = Document.fromJson(decode);
+      paragraph = document.toPlainText().trim();
+    } catch (e) {}
+
     /// Paragraph
-    final _paragraphText = story.paragraph ?? "";
+    final String _paragraphText = paragraph ?? "${story.paragraph}";
     final _paragraphChild = Container(
       width: MediaQuery.of(context).size.width - 16 * 7,
       child: Text(
-        Document.fromJson(jsonDecode(story.paragraph!)).toPlainText().trim(),
+        _paragraphText,
         textAlign: TextAlign.start,
         style: TextStyle(
           color: Theme.of(context).textTheme.subtitle2!.color!.withOpacity(0.6),

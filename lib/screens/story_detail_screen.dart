@@ -60,17 +60,16 @@ class StoryDetailScreen extends HookWidget
     final _notifier =
         useProvider(storydetailScreenNotifier(!insert ? story! : draftStory));
 
-    List<dynamic>? json;
+    Document? doc;
     try {
-      json = jsonDecode(_notifier.draftStory.paragraph!);
-    } catch (e) {
-      json = null;
-    }
+      List<dynamic>? json = jsonDecode(_notifier.draftStory.paragraph!);
+      doc = Document.fromJson(json!);
+    } catch (e) {}
 
     final quillController = useQuillController(
-      document: json != null ? Document.fromJson(json) : null,
-      selection: json != null ? TextSelection.collapsed(offset: 0) : null,
-      isBasic: json != null ? false : true,
+      document: doc != null ? doc : null,
+      selection: doc != null ? TextSelection.collapsed(offset: 0) : null,
+      isBasic: doc != null ? false : true,
     );
 
     final scrollController = useScrollController();
