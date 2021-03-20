@@ -26,8 +26,6 @@ class WDatabase {
     bool dbExists = await File(dbPath).exists();
 
     if (!dbExists) {
-      print("No exist yet");
-
       // copy from asset
       ByteData data = await rootBundle.load(
         join("assets/database", "write_story.db"),
@@ -55,7 +53,6 @@ class WDatabase {
       updateOn = DateTime.now();
     }
 
-    print("last data: ${story.paragraph}");
     String query = '''
     UPDATE story 
     SET title = '${story.title}', 

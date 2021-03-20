@@ -20,9 +20,10 @@ mixin StoryDetailMethodMixin {
     required StoryDetailScreenNotifier notifier,
   }) async {
     ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
-    Navigator.of(context).pop(
-      notifier.hasChanged ? notifier.draftStory.forDate.year : null,
-    );
+    final draftStory =
+        notifier.hasChanged ? notifier.draftStory.forDate.year : null;
+    Navigator.of(context).pop(draftStory);
+    notifier.dispose();
   }
 
   SnackBar buildSnackBar({
@@ -59,19 +60,22 @@ mixin StoryDetailMethodMixin {
     VoidCallback? onActionPressed,
     VoidCallback? onClose,
   }) async {
-    final SnackBar snack = buildSnackBar(
-      title: title,
-      context: context,
-      actionLabel: actionLabel,
-      onActionPressed: onActionPressed,
-    );
+    ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
+    Future.delayed(Duration(microseconds: 0)).then((value) {
+      final SnackBar snack = buildSnackBar(
+        title: title,
+        context: context,
+        actionLabel: actionLabel,
+        onActionPressed: onActionPressed,
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(snack).closed.then(
-      (value) {
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        if (onClose != null) onClose();
-      },
-    );
+      ScaffoldMessenger.of(context).showSnackBar(snack).closed.then(
+        (value) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          if (onClose != null) onClose();
+        },
+      );
+    });
   }
 
   Container buildIosDatePicker({

@@ -29,7 +29,6 @@ class HomeScreen extends HookWidget with HookController {
     dateTimeNotifier.value =
         DateTime(_notifier.currentSelectedYear, now.month, now.day, now.hour);
 
-    print("rebuild");
     final controller = useTabController(
       initialLength: 12,
       initialIndex: _notifier.currentIndex,

@@ -49,16 +49,21 @@ class StoryDetailScreen extends HookWidget
 
     final bool insert = futureId != null;
 
-    final draftStory = StoryModel(
-      id: insert ? futureId! : story!.id,
-      title: insert ? "" : story!.title,
-      paragraph: insert ? "" : story!.paragraph,
-      createOn: DateTime.now(),
-      forDate: insert ? forDate! : story!.forDate,
+    final _notifier = useProvider(
+      storydetailScreenNotifier(
+        !insert
+            ? story!
+            : StoryModel(
+                id: insert
+                    ? futureId ?? DateTime.now().millisecondsSinceEpoch
+                    : story!.id,
+                title: insert ? "" : story!.title,
+                paragraph: insert ? "" : story!.paragraph,
+                createOn: DateTime.now(),
+                forDate: insert ? forDate! : story!.forDate,
+              ),
+      ),
     );
-
-    final _notifier =
-        useProvider(storydetailScreenNotifier(!insert ? story! : draftStory));
 
     Document? doc;
     try {
@@ -132,7 +137,7 @@ class StoryDetailScreen extends HookWidget
               scrollController: scrollController,
               scrollable: true,
               focusNode: focusNode,
-              autoFocus: true,
+              autoFocus: false,
               readOnly: false,
               showCursor: true,
               keyboardAppearance: Theme.of(context).brightness,
@@ -163,11 +168,10 @@ class StoryDetailScreen extends HookWidget
   }) {
     final _theme = Theme.of(context);
     return TextFormField(
-      autofocus: false,
       textAlign: TextAlign.left,
       initialValue: !insert ? story?.title ?? "" : notifier.draftStory.title,
       style: _theme.textTheme.subtitle1?.copyWith(height: 1.5),
-      maxLines: null,
+      maxLines: 1,
       onChanged: (String value) {
         notifier.setDraftStory(
           notifier.draftStory.copyWith(title: value),
