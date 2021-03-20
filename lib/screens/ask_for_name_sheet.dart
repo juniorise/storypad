@@ -1,12 +1,8 @@
-import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:write_story/app_helper/app_helper.dart';
-import 'package:write_story/database/w_database.dart';
-import 'package:write_story/models/story_model.dart';
 import 'package:write_story/models/user_model.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/home_screen.dart';
@@ -32,41 +28,6 @@ class AskForNameSheet extends HookWidget {
       nameNotEmpty: canContinue,
       context: context,
       onTap: () async {
-        final user = await notifier.wDatabase.userModel();
-        if (user == null) {
-          final database = WDatabase.instance;
-          database.addStory(
-            story: StoryModel(
-              id: DateTime.now().millisecondsSinceEpoch,
-              title: "Start write my story",
-              paragraph: jsonEncode([
-                {
-                  "insert":
-                      "I started to write my story on ${AppHelper.dateFormat(context).format(DateTime.now())} with an offline mobile app which is named Stories\n"
-                }
-              ]),
-              createOn: DateTime.now(),
-              forDate: DateTime.now(),
-            ),
-          );
-
-          /// ref: https://www.thehomeschoolmom.com/creative-writing-writing-day-life-story/
-          database.addStory(
-            story: StoryModel(
-              id: DateTime.now().millisecondsSinceEpoch,
-              title: "Writing a Day in the Life Story",
-              paragraph: jsonEncode([
-                {
-                  "insert":
-                      "A day in the life story is just that–a description of a typical or not so typical day in the life of your family who also happens to homeschool. These stories do not need to be an hour by hour account of every little thing that happens. Show your children how to pick out interesting snapshots or conversations, lessons, co-op discussions, interactions with siblings, funny moments, mishaps while on the road, etc. and how to describe those scenes using vivid language. A handful of scenes should be sufficient for a nice balanced look at your homeschool day. Weekend days count, too\n"
-                }
-              ]),
-              createOn: DateTime.now().add(Duration(hours: 1)),
-              forDate: DateTime.now().add(Duration(hours: 1)),
-            ),
-          );
-        }
-
         final success = await notifier.setUser(
           UserModel(
             nickname: notifier.nickname!,
@@ -108,9 +69,7 @@ class AskForNameSheet extends HookWidget {
               children: [
                 buildHeaderText(_theme, context),
                 const SizedBox(height: 24.0),
-                Container(
-                  child: buildTextField(notifier, _theme, context),
-                ),
+                buildTextField(notifier, _theme, context),
               ],
             ),
             _continueButton,
