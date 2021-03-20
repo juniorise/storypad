@@ -7,12 +7,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/editor.dart';
-import 'package:flutter_quill/widgets/toolbar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
+import 'package:write_story/widgets/w_history_button.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:write_story/widgets/w_quil_toolbar.dart';
 
@@ -250,12 +250,12 @@ class StoryDetailScreen extends HookWidget
       elevation: 0.5,
       leading: buildAppBarLeadingButton(context: context, notifier: notifier),
       actions: [
-        HistoryButton(
+        WHistoryButton(
           icon: Icons.undo_outlined,
           controller: controller,
           undo: true,
         ),
-        HistoryButton(
+        WHistoryButton(
           icon: Icons.redo_outlined,
           controller: controller,
           undo: false,
