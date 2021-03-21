@@ -410,9 +410,7 @@ class HomeScreen extends HookWidget with HookController {
             },
           ),
         );
-        if (selected != null && selected is DateTime) {
-          await notifier.setCurrentSelectedYear(selected.year);
-        }
+        if (selected != null && selected is DateTime) onSaved(selected);
       },
       child: Container(
         width: double.infinity,

@@ -11,9 +11,9 @@ class VTOnTapEffectItem {
   final double active;
 
   const VTOnTapEffectItem({
-    this.effectType = VTOnTapEffectType.touchableOpacity,
-    this.active = 0.5,
-  }) : assert(active < 1 && active > 0);
+    required this.effectType,
+    required this.active,
+  }) : assert(active <= 1 && active >= 0);
 }
 
 class VTOnTapEffect extends HookWidget {
@@ -21,9 +21,12 @@ class VTOnTapEffect extends HookWidget {
     Key? key,
     required this.child,
     required this.onTap,
-    this.duration = const Duration(milliseconds: 250),
+    this.duration = const Duration(milliseconds: 150),
     this.effects = const [
-      VTOnTapEffectItem(),
+      VTOnTapEffectItem(
+        effectType: VTOnTapEffectType.touchableOpacity,
+        active: 0.5,
+      ),
     ],
   }) : super(key: key);
 
@@ -31,20 +34,19 @@ class VTOnTapEffect extends HookWidget {
   final List<VTOnTapEffectItem> effects;
   final VoidCallback onTap;
   final Duration duration;
-  final ValueNotifier<double> valueNotifier = ValueNotifier(1);
 
-  static double scaleActive = 0.98;
-  static double opacityActive = 0.5;
+  static double _scaleActive = 0.98;
+  static double _opacityActive = 0.5;
 
   setActiveValue() {
     effects.forEach(
       (e) {
         switch (e.effectType) {
           case VTOnTapEffectType.scaleDown:
-            scaleActive = e.active;
+            _scaleActive = e.active;
             break;
           case VTOnTapEffectType.touchableOpacity:
-            opacityActive = e.active;
+            _opacityActive = e.active;
             break;
         }
       },
@@ -55,29 +57,27 @@ class VTOnTapEffect extends HookWidget {
   Widget build(BuildContext context) {
     final controller = useAnimationController(duration: duration);
     final animation =
-        Tween<double>(begin: 1, end: scaleActive).animate(controller);
+        Tween<double>(begin: 1, end: _scaleActive).animate(controller);
+    final animation2 =
+        Tween<double>(begin: 1, end: _opacityActive).animate(controller);
 
     setActiveValue();
     return GestureDetector(
       onTapDown: (_) {
-        valueNotifier.value = opacityActive;
         controller.forward();
       },
       onTapUp: (_) {
-        valueNotifier.value = 1;
         controller.reverse();
         onTap();
       },
       onTapCancel: () {
-        valueNotifier.value = 1;
         controller.reverse();
       },
-      child: ValueListenableBuilder(
-        valueListenable: valueNotifier,
+      child: AnimatedBuilder(
         child: child,
-        builder: (context, value, child) {
+        animation: controller,
+        builder: (context, child) {
           Widget result = child ?? const SizedBox();
-
           for (var effect in effects) {
             final tmp = result;
             if (effect.effectType == VTOnTapEffectType.scaleDown) {
@@ -89,7 +89,7 @@ class VTOnTapEffect extends HookWidget {
             if (effect.effectType == VTOnTapEffectType.touchableOpacity) {
               result = AnimatedOpacity(
                 duration: this.duration,
-                opacity: valueNotifier.value,
+                opacity: animation2.value,
                 child: tmp,
               );
             }

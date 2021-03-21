@@ -161,7 +161,7 @@ class WSliverAppBar extends HookWidget {
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (context) {
-                    return AskForNameSheet();
+                    return AskForNameSheet(statusBarHeight: statusBarHeight);
                   },
                 );
               },
