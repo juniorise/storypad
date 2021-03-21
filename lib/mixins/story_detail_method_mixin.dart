@@ -20,9 +20,9 @@ mixin StoryDetailMethodMixin {
     required StoryDetailScreenNotifier notifier,
   }) async {
     ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
-    final draftStory =
-        notifier.hasChanged ? notifier.draftStory.forDate.year : null;
-    Navigator.of(context).pop(draftStory);
+    final draftStoryDate =
+        notifier.hasChanged ? notifier.draftStory.forDate : null;
+    Navigator.of(context).pop(draftStoryDate);
     notifier.dispose();
   }
 

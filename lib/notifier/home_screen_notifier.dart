@@ -17,6 +17,7 @@ class HomeScreenNotifier extends ChangeNotifier {
 
   setCurrentIndex(int index) {
     this.currentIndex = index;
+    notifyListeners();
   }
 
   bool inited = false;

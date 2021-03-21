@@ -10,6 +10,7 @@ import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/models/story_list_model.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
+import 'package:write_story/notifier/tab_controller_notifier.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
@@ -19,37 +20,25 @@ import 'package:write_story/widgets/w_sliver_appbar.dart';
 
 class HomeScreen extends HookWidget with HookController {
   static final now = DateTime.now();
-  final ValueNotifier<DateTime> dateTimeNotifier = ValueNotifier(now);
 
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final _notifier = useProvider(homeScreenProvider);
 
-    dateTimeNotifier.value =
-        DateTime(_notifier.currentSelectedYear, now.month, now.day, now.hour);
-
     final controller = useTabController(
       initialLength: 12,
       initialIndex: _notifier.currentIndex,
     );
 
-    controller.addListener(() {
-      _notifier.setCurrentIndex(controller.index);
-      dateTimeNotifier.value = DateTime(
-        _notifier.currentSelectedYear,
-        _notifier.currentIndex + 1,
-        now.day,
-        now.hour,
-        now.minute,
-      );
-    });
+    final _tabNotifier = useProvider(tabControllerProvider(controller));
 
     final Widget scaffold = buildScaffold(
       context: context,
       notifier: _notifier,
       controller: controller,
       statusBarHeight: statusBarHeight,
+      tabNotifier: _tabNotifier,
     );
 
     return buildFadeInitAnimationBackground(
@@ -63,6 +52,7 @@ class HomeScreen extends HookWidget with HookController {
     required HomeScreenNotifier notifier,
     required TabController controller,
     required double statusBarHeight,
+    required TabControllerNotifier tabNotifier,
   }) {
     return GestureDetector(
       onTap: () {
@@ -74,7 +64,19 @@ class HomeScreen extends HookWidget with HookController {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           extendBodyBehindAppBar: true,
-          floatingActionButton: buildFAB(notifier),
+          floatingActionButton: buildFAB(
+            forDate: DateTime(
+              notifier.currentSelectedYear,
+              tabNotifier.currentIndex + 1,
+              now.day,
+            ),
+            onSaved: (DateTime? date) async {
+              if (date != null) {
+                notifier.setCurrentSelectedYear(date.year);
+                controller.animateTo(date.month - 1, curve: Curves.easeInQuart);
+              }
+            },
+          ),
           resizeToAvoidBottomInset: false,
           body: NestedScrollView(
             headerSliverBuilder: (context, _) => [
@@ -96,6 +98,13 @@ class HomeScreen extends HookWidget with HookController {
                     monthId: monthID,
                     context: context,
                     notifier: notifier,
+                    onSaved: (DateTime? date) async {
+                      if (date != null) {
+                        notifier.setCurrentSelectedYear(date.year);
+                        controller.animateTo(date.month - 1,
+                            curve: Curves.easeInQuart);
+                      }
+                    },
                   );
                 },
               ),
@@ -106,20 +115,14 @@ class HomeScreen extends HookWidget with HookController {
     );
   }
 
-  Widget buildFAB(HomeScreenNotifier notifier) {
+  Widget buildFAB({
+    required DateTime forDate,
+    required ValueChanged<DateTime> onSaved,
+  }) {
     return buildFadeInOnInit(
-      child: ValueListenableBuilder(
-        valueListenable: dateTimeNotifier,
-        builder: (context, value, child) {
-          return AddToStoryFAB(
-            forDate: dateTimeNotifier.value,
-            onSaved: (int? year) async {
-              if (year != null) {
-                notifier.setCurrentSelectedYear(year);
-              }
-            },
-          );
-        },
+      child: AddToStoryFAB(
+        forDate: forDate,
+        onSaved: onSaved,
       ),
     );
   }
@@ -151,6 +154,7 @@ class HomeScreen extends HookWidget with HookController {
     required int monthId, // month index == monthId - 1
     required BuildContext context,
     required HomeScreenNotifier notifier,
+    required ValueChanged<DateTime> onSaved,
   }) {
     final storyListByMonthId = notifier.storyListByMonthID;
 
@@ -184,6 +188,7 @@ class HomeScreen extends HookWidget with HookController {
             dayId: dayId,
             dayIndex: _dayIndex,
             notifier: notifier,
+            onSaved: onSaved,
           );
         },
       ),
@@ -195,6 +200,7 @@ class HomeScreen extends HookWidget with HookController {
     required int dayIndex,
     required BuildContext context,
     required HomeScreenNotifier notifier,
+    required ValueChanged<DateTime> onSaved,
   }) {
     // fetching data
     final Map<int, StoryListModel>? storyListByDayId =
@@ -212,6 +218,7 @@ class HomeScreen extends HookWidget with HookController {
       context: context,
       storyListByDay: _storyListByDay,
       notifier: notifier,
+      onSaved: onSaved,
     );
 
     final _sizedBox = const SizedBox(width: 8.0);
@@ -237,6 +244,7 @@ class HomeScreen extends HookWidget with HookController {
     required BuildContext context,
     required StoryListModel storyListByDay,
     required HomeScreenNotifier notifier,
+    required ValueChanged<DateTime> onSaved,
   }) {
     return Expanded(
       child: Column(
@@ -255,6 +263,7 @@ class HomeScreen extends HookWidget with HookController {
 
                 final story = notifier.storyById?[_storyId];
                 return buildStoryTile(
+                  onSaved: onSaved,
                   context: context,
                   story: story!,
                   notifier: notifier,
@@ -335,6 +344,7 @@ class HomeScreen extends HookWidget with HookController {
     required StoryModel story,
     required HomeScreenNotifier notifier,
     EdgeInsets margin = const EdgeInsets.only(bottom: 8.0),
+    required ValueChanged<DateTime> onSaved,
   }) {
     /// Title
     final _titleWidget = Container(
@@ -399,8 +409,8 @@ class HomeScreen extends HookWidget with HookController {
             },
           ),
         );
-        if (selected != null && selected is int) {
-          await notifier.setCurrentSelectedYear(selected);
+        if (selected != null && selected is DateTime) {
+          await notifier.setCurrentSelectedYear(selected.year);
         }
       },
       child: Container(

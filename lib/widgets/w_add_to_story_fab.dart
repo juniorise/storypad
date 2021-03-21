@@ -11,10 +11,11 @@ class AddToStoryFAB extends StatelessWidget {
   }) : super(key: key);
 
   final DateTime forDate;
-  final ValueChanged<int>? onSaved;
+  final ValueChanged<DateTime>? onSaved;
 
   @override
   Widget build(BuildContext context) {
+    print("3 ----$forDate");
     return Container(
       width: kToolbarHeight,
       height: kToolbarHeight,
@@ -45,13 +46,13 @@ class AddToStoryFAB extends StatelessWidget {
                 fullscreenDialog: true,
                 builder: (context) {
                   return StoryDetailScreen(
-                    story: StoryModel.empty,
+                    story: StoryModel.empty.copyWith(forDate: forDate),
                     insert: true,
                   );
                 },
               ),
             );
-            if (selected != null && selected is int) {
+            if (selected != null && selected is DateTime) {
               if (this.onSaved != null) onSaved!(selected);
             }
           },
