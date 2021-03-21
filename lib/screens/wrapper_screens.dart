@@ -80,7 +80,10 @@ class WrapperScreens extends HookWidget {
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (context) {
-                    return AskForNameSheet();
+                    return AskForNameSheet(
+                      init: true,
+                      statusBarHeight: statusBarHeight,
+                    );
                   },
                 );
               }

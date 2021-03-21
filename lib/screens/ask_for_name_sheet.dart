@@ -1,23 +1,34 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:write_story/app_helper/app_helper.dart';
+import 'package:write_story/database/w_database.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
+import 'package:write_story/models/db_backup_model.dart';
 import 'package:write_story/models/user_model.dart';
 import 'package:write_story/notifier/auth_notifier.dart';
+import 'package:write_story/notifier/home_screen_notifier.dart';
+import 'package:write_story/notifier/remote_database_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/home_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
 
 class AskForNameSheet extends HookWidget {
-  const AskForNameSheet({Key? key}) : super(key: key);
+  const AskForNameSheet({
+    Key? key,
+    this.init = false,
+    required this.statusBarHeight,
+  }) : super(key: key);
+  final bool init;
+  final double statusBarHeight;
 
   @override
   Widget build(BuildContext context) {
     final notifier = useProvider(userModelProvider);
-    final statusBarHeight = MediaQuery.of(context).padding.top;
 
     final nameNotEmpty =
         notifier.nickname != null && notifier.nickname!.isNotEmpty;
@@ -25,7 +36,7 @@ class AskForNameSheet extends HookWidget {
     bool canContinue = nameNotEmpty;
     canContinue = nameNotEmpty && notifier.user?.nickname != notifier.nickname;
 
-    final tabController = useTabController(initialLength: 2);
+    final tabController = useTabController(initialLength: init ? 1 : 2);
     final _continueButton = _buildContinueButton(
       nameNotEmpty: canContinue,
       context: context,
@@ -40,89 +51,104 @@ class AskForNameSheet extends HookWidget {
 
         if (success) {
           Navigator.of(context).pop();
-          Navigator.of(context).pushReplacement(
-            PageTransition(
-              type: PageTransitionType.fade,
-              duration: const Duration(milliseconds: 1000),
-              child: HomeScreen(),
-            ),
-          );
+          if (init) {
+            Navigator.of(context).pushReplacement(
+              PageTransition(
+                type: PageTransitionType.fade,
+                duration: const Duration(milliseconds: 1000),
+                child: HomeScreen(),
+              ),
+            );
+          }
         }
       },
     );
 
-    return LayoutBuilder(
-      builder: (context, constrant) {
-        bool tablet = constrant.maxWidth > constrant.maxHeight;
-        final lottieHeight =
-            tablet ? constrant.maxHeight / 2 : constrant.maxWidth / 2;
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        TextEditingController().clear();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: false,
+        extendBody: true,
+        extendBodyBehindAppBar: true,
+        body: LayoutBuilder(
+          builder: (context, constrant) {
+            bool tablet = constrant.maxWidth > constrant.maxHeight;
+            final lottieHeight =
+                tablet ? constrant.maxHeight / 2 : constrant.maxWidth / 2;
 
-        final initHeight = (constrant.maxHeight -
-                lottieHeight -
-                statusBarHeight -
-                kToolbarHeight) /
-            constrant.maxHeight;
+            final initHeight = (constrant.maxHeight -
+                    lottieHeight -
+                    statusBarHeight -
+                    kToolbarHeight) /
+                constrant.maxHeight;
 
-        final tab1 = Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
+            final tab1 = Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeaderText(
-                  context: context,
-                  title: tr("ask_for_name_sheet.hello_msg"),
-                  subtitle: tr("ask_for_name_sheet.msg"),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeaderText(
+                      context: context,
+                      title: tr("ask_for_name_sheet.hello_msg"),
+                      subtitle: tr("ask_for_name_sheet.msg"),
+                    ),
+                    const SizedBox(height: 24.0),
+                    _buildTextField(
+                      context: context,
+                      hintText: tr("ask_for_name_sheet.hint_text"),
+                      initialValue: notifier.user != null
+                          ? notifier.user?.nickname
+                          : null,
+                      onChanged: (String value) {
+                        notifier.setNickname(value);
+                      },
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24.0),
-                _buildTextField(
-                  context: context,
-                  hintText: tr("ask_for_name_sheet.hint_text"),
-                  initialValue:
-                      notifier.user != null ? notifier.user?.nickname : null,
-                  onChanged: (String value) {
-                    notifier.setNickname(value);
-                  },
-                ),
+                _continueButton,
               ],
-            ),
-            _continueButton,
-          ],
-        );
+            );
 
-        final tab2 = WTab2();
-        return DraggableScrollableSheet(
-          initialChildSize: initHeight,
-          maxChildSize: 1,
-          minChildSize: 0.2,
-          builder: (context, controller) {
-            return Container(
-              height: double.infinity,
-              decoration: buildBoxDecoration(context),
-              child: VTTabView(
-                controller: tabController,
-                children: [
-                  Container(
-                    child: tab1,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 32.0,
-                    ),
+            return DraggableScrollableSheet(
+              initialChildSize: initHeight >= 1 ? 1 : initHeight,
+              maxChildSize:
+                  1 - statusBarHeight / MediaQuery.of(context).size.height,
+              minChildSize: 0.2,
+              builder: (context, controller) {
+                final tab2 = WTab2(controller: controller);
+
+                return Container(
+                  height: double.infinity,
+                  decoration: buildBoxDecoration(context),
+                  child: VTTabView(
+                    controller: tabController,
+                    children: [
+                      Container(
+                        child: tab1,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 32.0,
+                        ),
+                      ),
+                      if (!init)
+                        Container(
+                          child: tab2,
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        )
+                    ],
                   ),
-                  Container(
-                    child: tab2,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 32.0,
-                    ),
-                  )
-                ],
-              ),
+                );
+              },
             );
           },
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -149,21 +175,24 @@ class AskForNameSheet extends HookWidget {
 }
 
 class WTab2 extends HookWidget with StoryDetailMethodMixin {
-  const WTab2({
+  WTab2({
     Key? key,
+    this.controller,
   }) : super(key: key);
+
+  final ScrollController? controller;
 
   @override
   Widget build(BuildContext context) {
-    final notifier = useProvider(authenticatoinProvider);
-
     final info =
         "Email and password are used to identify your database. Please try not to forget it.";
     final dbInfo =
-        "For your privacy, backup data will be encrypted before upload to our database.";
+        "Data with same export month will be replace with current export data.";
 
     var loginInfo = _buildInfo(context, info);
     var databaseInfo = _buildInfo(context, dbInfo);
+
+    final notifier = useProvider(authenticatoinProvider);
 
     if (notifier.isAccountSignedIn && notifier.user != null) {
       return buildBackup(context, databaseInfo, notifier);
@@ -182,12 +211,22 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
       onTap: () async {
         if (notifier.email.trim().isNotEmpty &&
             notifier.password.trim().isNotEmpty) {
-          print(notifier.email);
-          print(notifier.password);
-          await notifier.logAccount(
+          bool success = await notifier.logAccount(
             notifier.email.trim(),
             notifier.password.trim(),
           );
+
+          if (success == true) {
+            showSnackBar(
+              context: context,
+              title: "Success!",
+            );
+          } else {
+            showSnackBar(
+              context: context,
+              title: "Can not login!",
+            );
+          }
         } else {
           showSnackBar(
             context: context,
@@ -206,6 +245,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 32),
             _buildHeaderText(
               context: context,
               title: "Setting",
@@ -239,86 +279,161 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
             loginInfo,
             const SizedBox(height: 16.0),
             _logButton,
+            const SizedBox(height: 32),
           ],
         ),
       ],
     );
   }
 
-  Column buildBackup(
+  Widget buildBackup(
     BuildContext context,
     Row databaseInfo,
     AuthenticatoinNotifier notifier,
   ) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
+    return ShaderMask(
+      shaderCallback: (Rect rect) {
+        return LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.purple,
+            Colors.transparent,
+            Colors.transparent,
+            Colors.purple
+          ],
+          stops: [0, 0.05, 0.95, 1], // 10% purple, 80% transparent, 10% purple
+        ).createShader(rect);
+      },
+      blendMode: BlendMode.dstOut,
+      child: SingleChildScrollView(
+        controller: controller,
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeaderText(
-              context: context,
-              title: "Setting",
-              subtitle: "Backup or restore your data from cloud.",
-              showLangs: false,
-            ),
-            const SizedBox(height: 8.0),
-            VTOnTapEffect(
-              onTap: () {},
-              child: Container(
-                height: 48,
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 12.0),
-                alignment: Alignment.centerLeft,
-                color: Theme.of(context).scaffoldBackgroundColor,
-                child: Text(
-                  "Restore last backup - 12 May 2020",
-                  maxLines: 1,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            VTOnTapEffect(
-              onTap: () {},
-              child: Container(
-                height: 48,
-                width: double.infinity,
-                padding: EdgeInsets.symmetric(horizontal: 12.0),
-                alignment: Alignment.centerLeft,
-                color: Theme.of(context).scaffoldBackgroundColor,
-                child: Text(
-                  "Backup current database",
-                  maxLines: 1,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            Row(
+            const SizedBox(height: 32),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Signed in: ${notifier.user?.email}"),
-                SizedBox(width: 8.0),
-                VTOnTapEffect(
-                  onTap: () async {
-                    await notifier.signOut();
-                  },
-                  child: Text(
-                    "Sign out",
-                    style: TextStyle(
-                      color: Theme.of(context).errorColor,
-                    ),
-                  ),
+                _buildHeaderText(
+                  context: context,
+                  title: "Setting",
+                  subtitle: "Backup or restore your data from cloud.",
+                  showLangs: false,
                 ),
+                Consumer(
+                  builder: (context, watch, child) {
+                    final dbNotifier = watch(remoteDatabaseProvider)..load();
+
+                    final WDatabase database = WDatabase.instance;
+                    return Column(
+                      children: [
+                        Divider(),
+                        Row(
+                          children: [
+                            Text(
+                              "${notifier.user?.email}",
+                              style: Theme.of(context).textTheme.bodyText2,
+                            ),
+                            const SizedBox(width: 8.0),
+                            VTOnTapEffect(
+                              onTap: () async {
+                                await notifier.signOut();
+                                context.read(remoteDatabaseProvider).reset();
+                              },
+                              child: Text(
+                                "Sign out",
+                                style: TextStyle(
+                                  color: Theme.of(context).errorColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(),
+                        VTOnTapEffect(
+                          onTap: () async {
+                            String backup = await database.generateBackup();
+                            final backupModel = DbBackupModel(
+                              createOn: Timestamp.now(),
+                              db: backup,
+                            );
+                            await dbNotifier.add(backupModel);
+                          },
+                          child: Container(
+                            height: 48,
+                            width: double.infinity,
+                            alignment: Alignment.centerLeft,
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            padding: EdgeInsets.symmetric(horizontal: 12.0),
+                            child: Text("Export current database", maxLines: 1),
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Column(
+                          children: dbNotifier.backups.map((item) {
+                            return buildBackItem(database, item, context);
+                          }).toList(),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 8.0),
               ],
             ),
+            Column(
+              children: [
+                databaseInfo,
+                const SizedBox(height: 16.0),
+              ],
+            ),
+            const SizedBox(height: 32),
           ],
         ),
-        Column(
-          children: [
-            databaseInfo,
-            const SizedBox(height: 16.0),
-          ],
+      ),
+    );
+  }
+
+  Widget buildBackItem(
+    WDatabase database,
+    DbBackupModel item,
+    BuildContext context,
+  ) {
+    return Column(
+      children: [
+        VTOnTapEffect(
+          onTap: () async {
+            final bool success = await database.restoreBackup(item.db);
+            if (success) {
+              await context.read(homeScreenProvider).load();
+              showSnackBar(
+                context: context,
+                title: tr("save.success_msg"),
+              );
+            } else {
+              showSnackBar(
+                context: context,
+                title: tr("save.fail_msg"),
+              );
+            }
+          },
+          child: Container(
+            height: 48,
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 12.0),
+            alignment: Alignment.centerLeft,
+            color: Theme.of(context).scaffoldBackgroundColor,
+            child: Text(
+              "Import last backup: " +
+                  AppHelper.dateFormat(context).format(item.createOn.toDate()) +
+                  ", " +
+                  AppHelper.timeFormat(context).format(item.createOn.toDate()),
+              maxLines: 1,
+            ),
+          ),
         ),
+        const SizedBox(height: 8.0),
       ],
     );
   }
@@ -376,24 +491,6 @@ Widget _buildHeaderText({
                       context.setLocale(Locale("en"));
                     },
                     child: Image.asset("assets/flags/en-flag.png"),
-                  ),
-                  const SizedBox(width: 4.0),
-                  VTOnTapEffect(
-                    onTap: () {
-                      context.setLocale(Locale("en"));
-                    },
-                    child: Container(
-                      height: 38,
-                      width: 38,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColorDark,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.save,
-                        color: Theme.of(context).backgroundColor,
-                      ),
-                    ),
                   ),
                 ],
               ),

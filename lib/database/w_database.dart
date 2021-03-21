@@ -17,9 +17,6 @@ class WDatabase {
   static Database? _database;
   static String deviceId = "os";
 
-  static List<String> _backups = [];
-  List<String> get backups => _backups;
-
   Future<Database?> get database async {
     if (_database != null) return _database;
     _database = await _init();
@@ -50,7 +47,7 @@ class WDatabase {
     return await openDatabase(dbPath);
   }
 
-  Future<void> generateBackup({bool isEncrypted = true}) async {
+  Future<String> generateBackup({bool isEncrypted = true}) async {
     var dbs = await this.database;
 
     List data = [];
@@ -75,32 +72,37 @@ class WDatabase {
     } else {
       backup = json;
     }
-    _backups.add(backup);
+    return backup;
   }
 
-  restoreBackup(String backup, {bool isEncrypted = true}) async {
-    var dbs = await this.database;
+  Future<bool> restoreBackup(String backup, {bool isEncrypted = true}) async {
+    try {
+      var dbs = await this.database;
 
-    Batch batch = dbs!.batch();
-    final key = encrypt.Key.fromUtf8(SECRET_KEY);
-    final iv = encrypt.IV.fromLength(16);
-    final encrypter = encrypt.Encrypter(encrypt.AES(key));
+      Batch batch = dbs!.batch();
+      final key = encrypt.Key.fromUtf8(SECRET_KEY);
+      final iv = encrypt.IV.fromLength(16);
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
 
-    List json = convert
-        .jsonDecode(isEncrypted ? encrypter.decrypt64(backup, iv: iv) : backup);
+      List json = convert.jsonDecode(
+          isEncrypted ? encrypter.decrypt64(backup, iv: iv) : backup);
 
-    for (var i = 0; i < json[0].length; i++) {
-      for (var k = 0; k < json[1][i].length; k++) {
-        batch.insert(
-          json[0][i],
-          json[1][i][k],
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
+      for (var i = 0; i < json[0].length; i++) {
+        for (var k = 0; k < json[1][i].length; k++) {
+          batch.insert(
+            json[0][i],
+            json[1][i][k],
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
       }
-    }
 
-    await batch.commit(continueOnError: false, noResult: true);
-    print('RESTORE BACKUP');
+      await batch.commit(continueOnError: false, noResult: true);
+      print('RESTORE BACKUP');
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<bool> updateStory({

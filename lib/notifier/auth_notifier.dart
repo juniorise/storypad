@@ -30,9 +30,15 @@ class AuthenticatoinNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> logAccount(String email, String password) async {
-    await service?.createUserWithEmailAndPassword(email, password);
-    load();
+  Future<bool> logAccount(String email, String password) async {
+    var success =
+        await service?.createUserWithEmailAndPassword(email, password);
+    if (success == true) {
+      await load();
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future<void> signOut() async {
