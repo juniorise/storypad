@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:write_story/mixins/story_detail_method_mixin.dart';
 import 'package:write_story/models/user_model.dart';
+import 'package:write_story/notifier/auth_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/home_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
@@ -146,16 +148,15 @@ class AskForNameSheet extends HookWidget {
   }
 }
 
-class WTab2 extends StatelessWidget {
+class WTab2 extends HookWidget with StoryDetailMethodMixin {
   const WTab2({
     Key? key,
-    this.isSignin = false,
   }) : super(key: key);
-
-  final bool isSignin;
 
   @override
   Widget build(BuildContext context) {
+    final notifier = useProvider(authenticatoinProvider);
+
     final info =
         "Email and password are used to identify your database. Please try not to forget it.";
     final dbInfo =
@@ -164,16 +165,36 @@ class WTab2 extends StatelessWidget {
     var loginInfo = _buildInfo(context, info);
     var databaseInfo = _buildInfo(context, dbInfo);
 
-    if (!isSignin)
-      return buildSignInAuth(context, loginInfo);
-    else
-      return buildBackup(context, databaseInfo);
+    if (notifier.isAccountSignedIn && notifier.user != null) {
+      return buildBackup(context, databaseInfo, notifier);
+    } else {
+      return buildSignInAuth(context, loginInfo, notifier);
+    }
   }
 
-  Column buildSignInAuth(BuildContext context, Row loginInfo) {
+  Column buildSignInAuth(
+    BuildContext context,
+    Row loginInfo,
+    AuthenticatoinNotifier notifier,
+  ) {
     final _logButton = _buildContinueButton(
       nameNotEmpty: true,
-      onTap: () {},
+      onTap: () async {
+        if (notifier.email.trim().isNotEmpty &&
+            notifier.password.trim().isNotEmpty) {
+          print(notifier.email);
+          print(notifier.password);
+          await notifier.logAccount(
+            notifier.email.trim(),
+            notifier.password.trim(),
+          );
+        } else {
+          showSnackBar(
+            context: context,
+            title: "Email or password can't be empty",
+          );
+        }
+      },
       context: context,
       title: "Log into your account",
     );
@@ -197,13 +218,17 @@ class WTab2 extends StatelessWidget {
                 _buildTextField(
                   context: context,
                   hintText: "Your email",
-                  onChanged: (String value) {},
+                  onChanged: (String value) {
+                    notifier.setEmail(value);
+                  },
                 ),
                 const SizedBox(height: 12.0),
                 _buildTextField(
                   context: context,
                   hintText: "Your password",
-                  onChanged: (String value) {},
+                  onChanged: (String value) {
+                    notifier.setPassword(value);
+                  },
                 ),
               ],
             ),
@@ -220,7 +245,11 @@ class WTab2 extends StatelessWidget {
     );
   }
 
-  Column buildBackup(BuildContext context, Row databaseInfo) {
+  Column buildBackup(
+    BuildContext context,
+    Row databaseInfo,
+    AuthenticatoinNotifier notifier,
+  ) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,10 +296,12 @@ class WTab2 extends StatelessWidget {
             const SizedBox(height: 8.0),
             Row(
               children: [
-                Text("Signed in: theacheng.g6@gmail.com"),
+                Text("Signed in: ${notifier.user?.email}"),
                 SizedBox(width: 8.0),
                 VTOnTapEffect(
-                  onTap: () {},
+                  onTap: () async {
+                    await notifier.signOut();
+                  },
                   child: Text(
                     "Sign out",
                     style: TextStyle(
