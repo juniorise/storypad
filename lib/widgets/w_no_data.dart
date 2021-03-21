@@ -39,8 +39,8 @@ class WNoData extends StatelessWidget {
                   width: constrant.maxWidth / 2,
                   child: Text(
                     tr(
-                      "click_plus_to_add_data_to",
-                      namedArgs: {'month': monthName},
+                      "home_screen.empty_msg",
+                      namedArgs: {'MONTH_NAME': monthName},
                     ),
                     textAlign: tablet ? TextAlign.start : TextAlign.center,
                     style: TextStyle(

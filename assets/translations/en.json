@@ -1,4 +1,22 @@
 {
-  "click_plus_to_add_data_to": "Click + to add data to {month}",
-  "no_data_yet": "No data yet!"
+  "str": "en",
+  "ask_for_name_sheet.hello_msg": "Hello!",
+  "ask_for_name_sheet.hint_text": "Your nickname...",
+  "ask_for_name_sheet.msg": "What should I call you?",
+  "common.continute_msg": "Continue",
+  "common.cancel_msg": "Cancel",
+  "common.try_again_msg": "Try again!",
+  "common.okay_msg": "Okay",
+  "common.done_msg": "Done",
+  "delete.fail_msg": "Can not be deleted!",
+  "delete.warning_msg": "Are you sure to delete?",
+  "editing_screen.title.hint_text": "Your story title...",
+  "home_screen.empty_msg": "Please click on + to add story to {MONTH_NAME}",
+  "home_screen.hello_name": "Hello {USER_NAME}",
+  "home_screen.question_msg": "What did you have in mind?",
+  "save.fail_msg": "Can not be saved!",
+  "save.success_msg": "Saved!",
+  "story_detail.create_on_msg": "Create on: {DATE}",
+  "story_detail.for_date_msg": "For date: {DATE}",
+  "story_detail.update_on_msg": "Update on: {DATE}"
 }

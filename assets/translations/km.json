@@ -1,4 +1,22 @@
 {
-  "click_plus_to_add_data_to": "សូមចុចលើសញ្គា + ដើម្បីចាប់ផ្តើមសរសេរសម្រាប់ខែ{month}",
-  "no_data_yet": "អ្នកមិនទាន់មានរឿងនៅទីនេះទេ!"
+  "str": "km",
+  "ask_for_name_sheet.hello_msg": "ជំរាបសួរ!",
+  "ask_for_name_sheet.hint_text": "ឈ្មោះហៅក្រៅរបស់អ្នក ...",
+  "ask_for_name_sheet.msg": "តើខ្ញុំគួរហៅអ្នកដូចម្តេចដែរ?",
+  "common.continute_msg": "បន្ត",
+  "common.cancel_msg": "បោះបង់",
+  "common.try_again_msg": "ព្យាយាម​ម្តង​ទៀត!",
+  "common.okay_msg": "យល់ព្រម",
+  "common.done_msg": "រួចរាល់",
+  "delete.fail_msg": "មិនអាចត្រូវបានលុប!",
+  "delete.warning_msg": "តើអ្នកចង់លុបវាមែនទេ?",
+  "editing_screen.title.hint_text": "ចំណងជើងរឿងរបស់អ្នក ...",
+  "home_screen.empty_msg": "សូមចុចលើ + ដើម្បីបន្ថែមរឿងទៅ {MONTH_NAME}",
+  "home_screen.hello_name": "ជំរាបសួរ {USER_NAME}",
+  "home_screen.question_msg": "តើអ្នកមានអ្វីនៅក្នុងចិត្ត?",
+  "save.fail_msg": "មិនអាចត្រូវបានរក្សាទុក!",
+  "save.success_msg": "បានរក្សាទុក!",
+  "story_detail.create_on_msg": "បានបង្កើតនៅ: {DATE}",
+  "story_detail.for_date_msg": "សម្រាប់កាលបរិច្ឆេទ: {DATE}",
+  "story_detail.update_on_msg": "បានកែនៅ: {DATE}"
 }

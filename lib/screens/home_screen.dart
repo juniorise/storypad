@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -539,7 +540,7 @@ class HomeScreen extends HookWidget with HookController {
     SnackBar buildSnackBar({
       required String title,
       required BuildContext context,
-      String actionLabel = "Okay",
+      String? actionLabel,
       VoidCallback? onActionPressed,
     }) {
       final style = Theme.of(context)
@@ -549,7 +550,7 @@ class HomeScreen extends HookWidget with HookController {
 
       final actions = onActionPressed != null
           ? SnackBarAction(
-              label: actionLabel,
+              label: actionLabel ?? tr("common.okay_msg"),
               textColor: Theme.of(context).backgroundColor,
               onPressed: () async {
                 onActionPressed();

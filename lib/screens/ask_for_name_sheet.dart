@@ -107,14 +107,14 @@ class AskForNameSheet extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "សួរស្តី!",
+                tr("ask_for_name_sheet.hello_msg"),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.left,
                 style: _style,
               ),
               Text(
-                "តើខ្ងុំគួរហៅអ្នកដូចម្តេចដែរ?",
+                tr("ask_for_name_sheet.msg"),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.left,
@@ -168,7 +168,7 @@ class AskForNameSheet extends HookWidget {
     final _decoration = InputDecoration(
       contentPadding: const EdgeInsets.symmetric(horizontal: 2.0),
       fillColor: _theme.scaffoldBackgroundColor,
-      hintText: "ឈ្មោះក្រៅរបស់អ្នក...",
+      hintText: tr("ask_for_name_sheet.hint_text"),
       hintStyle: _hintStyle,
       filled: true,
       border: OutlineInputBorder(
@@ -221,7 +221,7 @@ class AskForNameSheet extends HookWidget {
           decoration: _decoration,
           alignment: Alignment.center,
           child: Text(
-            "បន្តរ",
+            tr("common.continute_msg"),
             style: _theme.textTheme.bodyText1?.copyWith(
               color: nameNotEmpty ? Colors.white : _theme.disabledColor,
             ),

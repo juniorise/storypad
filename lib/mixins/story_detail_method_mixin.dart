@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:write_story/app_helper/app_helper.dart';
@@ -8,11 +9,11 @@ mixin StoryDetailMethodMixin {
   String getDateLabel({
     required DateTime date,
     required BuildContext context,
-    required String label,
+    required String labelKey,
   }) {
     final _date = AppHelper.dateFormat(context).format(date);
     final _time = AppHelper.timeFormat(context).format(date);
-    return "$label: " + _date + ", " + _time;
+    return tr(labelKey, namedArgs: {"DATE": _date + ", " + _time});
   }
 
   void onPopNavigator({
