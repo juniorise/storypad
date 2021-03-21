@@ -7,12 +7,10 @@ class TabControllerNotifier with ChangeNotifier {
 
   TabControllerNotifier(this.controller) {
     this._currentIndex = controller.index;
-    print(currentIndex);
     notifyListeners();
 
     controller.addListener(() {
       this._currentIndex = controller.index;
-      print(this.currentIndex);
       notifyListeners();
     });
   }

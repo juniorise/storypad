@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -20,15 +21,11 @@ class WSliverAppBar extends HookWidget {
     this.tabs,
     this.backgroundText,
     this.tabController,
-    this.titleText = "សួរស្តី",
-    this.subtitleText = "ចង់សរសេរអ្វីដែរថ្ងៃនេះ",
   }) : super(key: key);
 
   final double statusBarHeight;
   final bool isInit;
   final List<String>? tabs;
-  final String titleText;
-  final String subtitleText;
   final String? backgroundText;
   final TabController? tabController;
 
@@ -96,7 +93,10 @@ class WSliverAppBar extends HookWidget {
             duration: const Duration(milliseconds: 650),
             width: leftSideWidth,
             child: Text(
-              this.titleText + "${_notifier.user?.nickname ?? ""}",
+              tr(
+                "home_screen.hello_name",
+                namedArgs: {"USER_NAME": _notifier.user?.nickname ?? ""},
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: _headerStyle?.copyWith(color: _theme.primaryColor),
@@ -111,9 +111,10 @@ class WSliverAppBar extends HookWidget {
               duration: const Duration(milliseconds: 500),
               width: leftSideWidth,
               child: Text(
-                this.subtitleText,
+                tr("home_screen.question_msg"),
                 style: _textTheme.bodyText1,
                 overflow: TextOverflow.fade,
+                maxLines: 1,
               ),
             ),
           )

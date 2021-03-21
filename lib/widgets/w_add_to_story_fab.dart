@@ -15,7 +15,6 @@ class AddToStoryFAB extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("3 ----$forDate");
     return Container(
       width: kToolbarHeight,
       height: kToolbarHeight,

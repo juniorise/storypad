@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -146,7 +147,7 @@ class StoryDetailScreen extends HookWidget
       onChanged: onChanged,
       keyboardAppearance: Theme.of(context).brightness,
       decoration: InputDecoration(
-        hintText: "Your story title...",
+        hintText: tr("editing_screen.title.hint_text"),
         border: InputBorder.none,
       ),
     );
@@ -328,13 +329,13 @@ class StoryDetailScreen extends HookWidget
       _aboutDateText = getDateLabel(
             date: story.createOn,
             context: context,
-            label: "Create on",
+            labelKey: "story_detail.create_on_msg",
           ) +
           "\n" +
           getDateLabel(
             date: story.forDate,
             context: context,
-            label: "For Date",
+            labelKey: "story_detail.for_date_msg",
           );
     }
 
@@ -343,7 +344,7 @@ class StoryDetailScreen extends HookWidget
           getDateLabel(
             date: story.updateOn ?? DateTime.now(),
             context: context,
-            label: "Update on",
+            labelKey: "story_detail.update_on_msg",
           );
     }
 
