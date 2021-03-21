@@ -394,7 +394,9 @@ class HomeScreen extends HookWidget with HookController {
         ).push(
           MaterialPageRoute(
             fullscreenDialog: true,
-            builder: (context) => StoryDetailScreen(story: story),
+            builder: (context) {
+              return StoryDetailScreen(story: story);
+            },
           ),
         );
         if (selected != null && selected is int) {

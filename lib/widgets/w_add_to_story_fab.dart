@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:write_story/models/story_model.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 
@@ -44,8 +45,8 @@ class AddToStoryFAB extends StatelessWidget {
                 fullscreenDialog: true,
                 builder: (context) {
                   return StoryDetailScreen(
-                    futureId: DateTime.now().millisecondsSinceEpoch,
-                    forDate: forDate,
+                    story: StoryModel.empty,
+                    insert: true,
                   );
                 },
               ),

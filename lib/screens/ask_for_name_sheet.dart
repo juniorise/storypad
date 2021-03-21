@@ -198,7 +198,6 @@ class AskForNameSheet extends HookWidget {
     final _theme = Theme.of(context);
 
     final _effects = [
-      VTOnTapEffectItem(effectType: VTOnTapEffectType.scaleDown),
       VTOnTapEffectItem(
         effectType: VTOnTapEffectType.touchableOpacity,
         active: 0.5,

@@ -11,6 +11,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
 import 'package:write_story/models/story_model.dart';
+import 'package:write_story/notifier/quill_controller_notifier.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_story/widgets/w_history_button.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
@@ -20,23 +21,12 @@ class StoryDetailScreen extends HookWidget
     with StoryDetailMethodMixin, HookController {
   StoryDetailScreen({
     Key? key,
-    this.story,
-    this.futureId,
-    this.forDate,
+    required this.story,
+    this.insert = false,
   }) : super(key: key);
 
-  /// [story] must be null if
-  /// [futureId] and [forDate] is not null
-  final StoryModel? story;
-
-  /// if [futureId] not null
-  /// which mean that this screen
-  /// is inserting new story
-  final int? futureId;
-
-  /// [forDate] must be null,
-  /// if [story] is not null
-  final DateTime? forDate;
+  final StoryModel story;
+  final bool insert;
 
   final ValueNotifier<double> headerPaddingTopNotifier =
       ValueNotifier<double>(0);
@@ -46,24 +36,7 @@ class StoryDetailScreen extends HookWidget
   @override
   Widget build(BuildContext context) {
     print("build detail");
-
-    final bool insert = futureId != null;
-
-    final _notifier = useProvider(
-      storydetailScreenNotifier(
-        !insert
-            ? story!
-            : StoryModel(
-                id: insert
-                    ? futureId ?? DateTime.now().millisecondsSinceEpoch
-                    : story!.id,
-                title: insert ? "" : story!.title,
-                paragraph: insert ? "" : story!.paragraph,
-                createOn: DateTime.now(),
-                forDate: insert ? forDate! : story!.forDate,
-              ),
-      ),
-    );
+    final _notifier = useProvider(storydetailScreenNotifier(story));
 
     Document? doc;
     try {
@@ -77,17 +50,10 @@ class StoryDetailScreen extends HookWidget
       isBasic: doc != null ? false : true,
     );
 
+    final quillNotifier = useProvider(quillControllerProvider(quillController));
+
     final scrollController = useScrollController();
     final sliverController = useScrollController();
-
-    quillController.addListener(
-      () {
-        final quil = quillController.document.toDelta().toJson();
-        var json = jsonEncode(quil);
-        _notifier
-            .setDraftStory(_notifier.draftStory.copyWith(paragraph: "$json"));
-      },
-    );
 
     scrollController.addListener(() {
       sliverController.jumpTo(scrollController.offset);
@@ -103,6 +69,9 @@ class StoryDetailScreen extends HookWidget
       insert: insert,
       notifier: _notifier,
       context: context,
+      onChanged: (String value) {
+        _notifier.setDraftStory(_notifier.draftStory.copyWith(title: value));
+      },
     );
 
     final _scaffoldBody = NestedScrollView(
@@ -114,6 +83,7 @@ class StoryDetailScreen extends HookWidget
             insert: insert,
             notifier: _notifier,
             controller: quillController,
+            paragraph: quillNotifier.draftParagraph,
           ),
         ];
       },
@@ -165,18 +135,15 @@ class StoryDetailScreen extends HookWidget
     required bool insert,
     required StoryDetailScreenNotifier notifier,
     required BuildContext context,
+    required ValueChanged<String> onChanged,
   }) {
     final _theme = Theme.of(context);
     return TextFormField(
       textAlign: TextAlign.left,
-      initialValue: !insert ? story?.title ?? "" : notifier.draftStory.title,
+      initialValue: notifier.draftStory.title,
       style: _theme.textTheme.subtitle1?.copyWith(height: 1.5),
       maxLines: 1,
-      onChanged: (String value) {
-        notifier.setDraftStory(
-          notifier.draftStory.copyWith(title: value),
-        );
-      },
+      onChanged: onChanged,
       keyboardAppearance: Theme.of(context).brightness,
       decoration: InputDecoration(
         hintText: "Your story title...",
@@ -244,6 +211,7 @@ class StoryDetailScreen extends HookWidget
     required bool insert,
     required StoryDetailScreenNotifier notifier,
     required QuillController controller,
+    required String paragraph,
   }) {
     final _theme = Theme.of(context);
 
@@ -269,7 +237,7 @@ class StoryDetailScreen extends HookWidget
           onPressed: () async {
             onPickDate(
               context: context,
-              date: !insert ? story!.forDate : notifier.draftStory.forDate,
+              date: notifier.draftStory.forDate,
               notifier: notifier,
             );
           },
@@ -282,7 +250,7 @@ class StoryDetailScreen extends HookWidget
               context: context,
               notifier: notifier,
               insert: insert,
-              id: story!.id,
+              id: story.id,
             ),
           ),
         WIconButton(
@@ -293,6 +261,7 @@ class StoryDetailScreen extends HookWidget
               notifier: notifier,
               context: context,
               insert: insert,
+              paragraph: paragraph,
             );
           },
         ),
@@ -357,22 +326,22 @@ class StoryDetailScreen extends HookWidget
     String _aboutDateText = "";
     if (!insert) {
       _aboutDateText = getDateLabel(
-            date: story!.createOn,
+            date: story.createOn,
             context: context,
             label: "Create on",
           ) +
           "\n" +
           getDateLabel(
-            date: story!.forDate,
+            date: story.forDate,
             context: context,
             label: "For Date",
           );
     }
 
-    if (!insert && story!.updateOn != null) {
+    if (!insert && story.updateOn != null) {
       _aboutDateText += "\n" +
           getDateLabel(
-            date: story!.updateOn ?? DateTime.now(),
+            date: story.updateOn ?? DateTime.now(),
             context: context,
             label: "Update on",
           );

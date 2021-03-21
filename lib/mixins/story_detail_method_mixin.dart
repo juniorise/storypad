@@ -224,9 +224,11 @@ mixin StoryDetailMethodMixin {
   Future<void> onSave({
     required StoryDetailScreenNotifier notifier,
     required BuildContext context,
+    required String paragraph,
     required bool insert,
   }) async {
-    if (notifier.draftStory.title.trim().isEmpty) {
+    final draftStory = notifier.draftStory.copyWith(paragraph: paragraph);
+    if (draftStory.title.trim().isEmpty) {
       await showSnackBar(
         context: context,
         title: "Title must not empty!",
@@ -238,12 +240,10 @@ mixin StoryDetailMethodMixin {
     } else {
       bool success;
       if (insert) {
-        success = await notifier.addStory(notifier.draftStory);
+        success = await notifier.addStory(draftStory);
       } else {
         success = await notifier.updateStory(
-          notifier.draftStory.copyWith(
-            updateOn: DateTime.now(),
-          ),
+          draftStory.copyWith(updateOn: DateTime.now()),
         );
       }
 

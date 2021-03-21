@@ -9,7 +9,6 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
   StoryModel draftStory;
 
   bool hasChanged = false;
-
   StoryDetailScreenNotifier({required this.draftStory});
 
   Future<bool> updateStory(StoryModel story) async {
