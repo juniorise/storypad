@@ -70,6 +70,27 @@ class AskForNameSheet extends HookWidget {
                 buildHeaderText(_theme, context),
                 const SizedBox(height: 24.0),
                 buildTextField(notifier, _theme, context),
+                TextButton(
+                  onPressed: () async {
+                    await notifier.wDatabase.generateBackup();
+                  },
+                  child: Text(
+                    "Generate backup",
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                for (var val in notifier.wDatabase.backups)
+                  TextButton(
+                    onPressed: () async {
+                      await notifier.wDatabase.restoreBackup(val);
+                    },
+                    child: Text(
+                      " $val",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
               ],
             ),
             _continueButton,

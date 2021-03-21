@@ -5,13 +5,20 @@ import 'package:sqflite/sqflite.dart';
 import "package:path/path.dart";
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/models/user_model.dart';
+import 'dart:convert' as convert;
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 class WDatabase {
   WDatabase._privateConstructor();
   static final WDatabase instance = WDatabase._privateConstructor();
 
+  static const SECRET_KEY = "2020_PRIVATES_KEYS_ENCRYPTS_2020";
+
   static Database? _database;
   static String deviceId = "os";
+
+  static List<String> _backups = [];
+  List<String> get backups => _backups;
 
   Future<Database?> get database async {
     if (_database != null) return _database;
@@ -41,6 +48,59 @@ class WDatabase {
     }
 
     return await openDatabase(dbPath);
+  }
+
+  Future<void> generateBackup({bool isEncrypted = true}) async {
+    var dbs = await this.database;
+
+    List data = [];
+    final List<String> tables = ["user_info", "story"];
+    List<Map<String, dynamic>> listMaps = [];
+
+    for (var i = 0; i < tables.length; i++) {
+      listMaps = await dbs!.query(tables[i]);
+      data.add(listMaps);
+    }
+
+    List backups = [tables, data];
+    String json = convert.jsonEncode(backups);
+
+    String backup;
+    if (isEncrypted) {
+      final key = encrypt.Key.fromUtf8(SECRET_KEY);
+      final iv = encrypt.IV.fromLength(16);
+      final encrypter = encrypt.Encrypter(encrypt.AES(key));
+      final encrypted = encrypter.encrypt(json, iv: iv);
+      backup = encrypted.base64;
+    } else {
+      backup = json;
+    }
+    _backups.add(backup);
+  }
+
+  restoreBackup(String backup, {bool isEncrypted = true}) async {
+    var dbs = await this.database;
+
+    Batch batch = dbs!.batch();
+    final key = encrypt.Key.fromUtf8(SECRET_KEY);
+    final iv = encrypt.IV.fromLength(16);
+    final encrypter = encrypt.Encrypter(encrypt.AES(key));
+
+    List json = convert
+        .jsonDecode(isEncrypted ? encrypter.decrypt64(backup, iv: iv) : backup);
+
+    for (var i = 0; i < json[0].length; i++) {
+      for (var k = 0; k < json[1][i].length; k++) {
+        batch.insert(
+          json[0][i],
+          json[1][i][k],
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
+    }
+
+    await batch.commit(continueOnError: false, noResult: true);
+    print('RESTORE BACKUP');
   }
 
   Future<bool> updateStory({
