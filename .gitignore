@@ -41,3 +41,7 @@ app.*.symbols
 app.*.map.json
 
 api_constant.dart
+GoogleService-Info.plist
+android/app/google-services.json
+
+ios/build/XCBuildData/*

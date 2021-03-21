@@ -48,6 +48,12 @@
 	<string>Can I use the mic please?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Can I pick image from please?</string>
+
+	<key>NSAppTransportSecurity</key>
+	<dict>
+	<key>NSAllowsLocalNetworking</key>
+	<true/>
+	</dict>
 	
 	<key>CFBundleLocalizations</key>
 	<array>

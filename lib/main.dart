@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -14,6 +15,7 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
+  await Firebase.initializeApp();
   await WDatabase.instance.database;
 
   runApp(
