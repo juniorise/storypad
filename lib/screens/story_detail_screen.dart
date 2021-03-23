@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:flutter_quill/widgets/controller.dart';
+import 'package:flutter_quill/widgets/default_styles.dart';
 import 'package:flutter_quill/widgets/editor.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/mixins/hook_controller.dart';
@@ -17,6 +18,7 @@ import 'package:write_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_story/widgets/w_history_button.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:write_story/widgets/w_quil_toolbar.dart';
+import 'package:tuple/tuple.dart';
 
 class StoryDetailScreen extends HookWidget
     with StoryDetailMethodMixin, HookController {
@@ -75,6 +77,8 @@ class StoryDetailScreen extends HookWidget
       },
     );
 
+    final _theme = Theme.of(context);
+
     final _scaffoldBody = NestedScrollView(
       controller: sliverController,
       headerSliverBuilder: (context, val) {
@@ -103,6 +107,7 @@ class StoryDetailScreen extends HookWidget
           const Divider(height: 0),
           Expanded(
             child: QuillEditor(
+              placeholder: tr("hint_text.story_detail"),
               maxHeight: null,
               controller: quillController,
               scrollController: scrollController,
@@ -111,9 +116,26 @@ class StoryDetailScreen extends HookWidget
               autoFocus: false,
               readOnly: false,
               showCursor: true,
-              keyboardAppearance: Theme.of(context).brightness,
+              keyboardAppearance: _theme.brightness,
               enableInteractiveSelection: true,
               expands: false,
+              textCapitalization: TextCapitalization.sentences,
+              customStyles: DefaultStyles(
+                placeHolder: DefaultTextBlockStyle(
+                  _theme.textTheme.bodyText1!.copyWith(
+                    color: _theme.primaryColorDark.withOpacity(0.3),
+                  ),
+                  Tuple2(0.0, 0.0),
+                  Tuple2(0.0, 0.0),
+                  null,
+                ),
+                paragraph: DefaultTextBlockStyle(
+                  Theme.of(context).textTheme.bodyText1!,
+                  Tuple2(0.0, 0.0),
+                  Tuple2(0.0, 0.0),
+                  null,
+                ),
+              ),
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
                 vertical: 16.0,
@@ -142,12 +164,15 @@ class StoryDetailScreen extends HookWidget
     return TextFormField(
       textAlign: TextAlign.left,
       initialValue: notifier.draftStory.title,
-      style: _theme.textTheme.subtitle1?.copyWith(height: 1.5),
-      maxLines: 1,
+      style: _theme.textTheme.headline6,
+      maxLines: null,
       onChanged: onChanged,
-      keyboardAppearance: Theme.of(context).brightness,
+      keyboardAppearance: _theme.brightness,
       decoration: InputDecoration(
         hintText: tr("hint_text.title"),
+        hintStyle: _theme.textTheme.headline6?.copyWith(
+          color: _theme.primaryColorDark.withOpacity(0.3),
+        ),
         border: InputBorder.none,
       ),
     );
@@ -178,7 +203,7 @@ class StoryDetailScreen extends HookWidget
           body: body,
           extendBody: true,
           bottomNavigationBar: Container(
-            color: Theme.of(context).scaffoldBackgroundColor,
+            color: _theme.scaffoldBackgroundColor,
             child: SafeArea(
               child: Padding(
                 padding: MediaQuery.of(context).viewInsets,
@@ -309,7 +334,7 @@ class StoryDetailScreen extends HookWidget
     required StoryDetailScreenNotifier notifier,
   }) {
     return WIconButton(
-      iconData: Icons.cancel,
+      iconData: Icons.clear,
       onPressed: () {
         onPopNavigator(
           context: context,

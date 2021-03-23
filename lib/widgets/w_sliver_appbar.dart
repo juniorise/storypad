@@ -67,7 +67,7 @@ class WSliverAppBar extends HookWidget {
   }) {
     final _theme = Theme.of(context);
     final _textTheme = _theme.textTheme;
-    final _headerStyle = _textTheme.headline4;
+    final _headerStyle = _textTheme.headline5;
 
     final _inited = notifier.headlineWidth != 0;
     double offsetX = _inited ? 0.0 : -8.0;
@@ -157,7 +157,7 @@ class WSliverAppBar extends HookWidget {
             VTOnTapEffect(
               onTap: () async {
                 showModalBottomSheet(
-                  isDismissible: false,
+                  isDismissible: true,
                   context: context,
                   enableDrag: true,
                   isScrollControlled: true,

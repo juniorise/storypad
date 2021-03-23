@@ -360,7 +360,7 @@ class HomeScreen extends HookWidget with HookController {
       width: MediaQuery.of(context).size.width - 16 * 7,
       child: Text(
         story.title,
-        style: Theme.of(context).textTheme.subtitle1?.copyWith(height: 1.28),
+        style: Theme.of(context).textTheme.subtitle1,
         textAlign: TextAlign.start,
       ),
     );

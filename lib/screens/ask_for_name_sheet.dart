@@ -1,10 +1,12 @@
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/database/w_database.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
@@ -130,7 +132,7 @@ class AskForNameSheet extends HookWidget {
                   1 - statusBarHeight / MediaQuery.of(context).size.height,
               minChildSize: 0.2,
               builder: (context, controller) {
-                final tab2 = WTab2(controller: controller);
+                final tab2 = WTab2();
 
                 return Container(
                   height: double.infinity,
@@ -242,10 +244,7 @@ class AskForNameSheet extends HookWidget {
 class WTab2 extends HookWidget with StoryDetailMethodMixin {
   WTab2({
     Key? key,
-    this.controller,
   }) : super(key: key);
-
-  final ScrollController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -315,6 +314,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                 title: tr("title.setting"),
                 subtitle: tr("subtitle.backup_restore"),
                 showLangs: false,
+                showInfo: true,
               ),
               Column(
                 children: [
@@ -333,6 +333,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                     onChanged: (String value) {
                       notifier.setPassword(value);
                     },
+                    isPassword: true,
                   ),
                 ],
               ),
@@ -341,9 +342,9 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
           Column(
             children: [
               const SizedBox(height: 16.0),
-              loginInfo,
-              const SizedBox(height: 16.0),
               _logButton,
+              const SizedBox(height: 16.0),
+              loginInfo,
               const SizedBox(height: 32),
             ],
           ),
@@ -372,87 +373,85 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
         ).createShader(rect);
       },
       blendMode: BlendMode.dstOut,
-      child: SingleChildScrollView(
-        controller: controller,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 32),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeaderText(
-                  context: context,
-                  title: tr("title.setting"),
-                  subtitle: tr("subtitle.backup_restore"),
-                  showLangs: false,
-                ),
-                Consumer(
-                  builder: (context, watch, child) {
-                    final dbNotifier = watch(remoteDatabaseProvider)..load();
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 32),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeaderText(
+                context: context,
+                title: tr("title.setting"),
+                subtitle: tr("subtitle.backup_restore"),
+                showLangs: false,
+                showInfo: true,
+              ),
+              Consumer(
+                builder: (context, watch, child) {
+                  final dbNotifier = watch(remoteDatabaseProvider)..load();
 
-                    final WDatabase database = WDatabase.instance;
-                    return Column(
-                      children: [
-                        Divider(),
-                        Row(
-                          children: [
-                            Text(
-                              "${notifier.user?.email}",
-                              style: Theme.of(context).textTheme.bodyText2,
-                            ),
-                            const SizedBox(width: 8.0),
-                            VTOnTapEffect(
-                              onTap: () async {
-                                await notifier.signOut();
-                                context.read(remoteDatabaseProvider).reset();
-                              },
-                              child: Text(
-                                tr("button.signout"),
-                                style: TextStyle(
-                                  color: Theme.of(context).errorColor,
-                                ),
+                  final WDatabase database = WDatabase.instance;
+                  return Column(
+                    children: [
+                      Divider(),
+                      Row(
+                        children: [
+                          Text(
+                            "${notifier.user?.email}",
+                            style: Theme.of(context).textTheme.bodyText2,
+                          ),
+                          const SizedBox(width: 8.0),
+                          VTOnTapEffect(
+                            onTap: () async {
+                              await notifier.signOut();
+                              context.read(remoteDatabaseProvider).reset();
+                            },
+                            child: Text(
+                              tr("button.signout"),
+                              style: TextStyle(
+                                color: Theme.of(context).errorColor,
                               ),
                             ),
-                          ],
-                        ),
-                        const Divider(),
-                        const SizedBox(height: 8.0),
-                        VTOnTapEffect(
-                          onTap: () async {
-                            String backup = await database.generateBackup();
-                            final backupModel = DbBackupModel(
-                              createOn: Timestamp.now(),
-                              db: backup,
-                            );
-                            await dbNotifier.add(backupModel);
-                          },
-                          child: Container(
-                            height: 48,
-                            width: double.infinity,
-                            alignment: Alignment.centerLeft,
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            padding: EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Text(tr("msg.backup.export"), maxLines: 1),
                           ),
+                        ],
+                      ),
+                      const Divider(),
+                      const SizedBox(height: 8.0),
+                      VTOnTapEffect(
+                        onTap: () async {
+                          String backup = await database.generateBackup();
+                          final backupModel = DbBackupModel(
+                            createOn: Timestamp.now(),
+                            db: backup,
+                          );
+                          await dbNotifier.add(backupModel);
+                        },
+                        child: Container(
+                          height: 48,
+                          width: double.infinity,
+                          alignment: Alignment.centerLeft,
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          padding: EdgeInsets.symmetric(horizontal: 12.0),
+                          child: Text(tr("msg.backup.export"), maxLines: 1),
                         ),
-                        const SizedBox(height: 8.0),
-                        if (dbNotifier.backup != null &&
-                            dbNotifier.backup is DbBackupModel)
-                          buildBackItem(
-                            database,
-                            dbNotifier.backup!,
-                            context,
-                          ),
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 8.0),
-              ],
-            ),
-          ],
-        ),
+                      ),
+                      const SizedBox(height: 8.0),
+                      if (dbNotifier.backup != null &&
+                          dbNotifier.backup is DbBackupModel)
+                        buildBackItem(
+                          database,
+                          dbNotifier.backup!,
+                          context,
+                        ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 8.0),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -512,11 +511,12 @@ Widget _buildHeaderText({
   required String title,
   required String subtitle,
   bool showLangs = true,
+  bool showInfo = false,
   void Function()? onSettingTap,
 }) {
   final _theme = Theme.of(context);
   final _style =
-      _theme.textTheme.headline4?.copyWith(color: _theme.primaryColor);
+      _theme.textTheme.headline5?.copyWith(color: _theme.primaryColor);
 
   return Container(
     width: double.infinity,
@@ -541,6 +541,87 @@ Widget _buildHeaderText({
             ),
           ],
         ),
+        if (showInfo)
+          Positioned(
+            right: 0,
+            child: VTOnTapEffect(
+              onTap: () {
+                Navigator.of(context).pop();
+                showAboutDialog(
+                  context: context,
+                  applicationName: "Story",
+                  applicationVersion: "v1.0.0+1",
+                  applicationLegalese: tr("info.app_detail"),
+                  children: [
+                    const SizedBox(height: 24.0),
+                    Text(
+                      "Developer & UI Designer:",
+                      style: Theme.of(context).textTheme.caption,
+                    ),
+                    Text(
+                      "Thea Choem",
+                      style: Theme.of(context)
+                          .textTheme
+                          .caption!
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const Divider(),
+                    Text(
+                      "Logo Designer:",
+                      style: Theme.of(context).textTheme.caption,
+                    ),
+                    Text(
+                      "Menglong Srern",
+                      style: Theme.of(context)
+                          .textTheme
+                          .caption!
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 4.0),
+                    RichText(
+                      text: TextSpan(
+                        style: Theme.of(context).textTheme.caption,
+                        children: <TextSpan>[
+                          TextSpan(text: tr("info.about_project") + " "),
+                          TextSpan(
+                            text: 'write_story',
+                            style: Theme.of(context)
+                                .textTheme
+                                .caption!
+                                .copyWith(color: Colors.blueAccent),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                launch(
+                                  "https://github.com/theacheng/write_story",
+                                );
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  applicationIcon: Image.asset(
+                    "assets/icons/app_icon.png",
+                    height: 48,
+                  ),
+                );
+              },
+              child: Container(
+                height: 38,
+                width: 38,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.info,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+            ),
+          ),
         if (showLangs)
           Positioned(
             right: 0,
@@ -569,13 +650,13 @@ Widget _buildHeaderText({
                         height: 38,
                         width: 38,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
+                          color: Theme.of(context).scaffoldBackgroundColor,
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
                         child: Icon(
                           Icons.settings,
-                          color: Theme.of(context).backgroundColor,
+                          color: Theme.of(context).primaryColor,
                         ),
                       ),
                     ),
@@ -635,8 +716,8 @@ Row _buildInfo(BuildContext context, String info) {
     children: [
       Icon(
         Icons.info,
-        size: Theme.of(context).textTheme.bodyText2?.height,
-        color: Theme.of(context).primaryColorDark.withOpacity(0.75),
+        size: 16,
+        color: Theme.of(context).primaryColorDark.withOpacity(0.5),
       ),
       const SizedBox(width: 8.0),
       Container(
@@ -644,8 +725,8 @@ Row _buildInfo(BuildContext context, String info) {
         width: MediaQuery.of(context).size.width - 16 * 2 - 8 - 24,
         child: Text(
           info,
-          style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                color: Theme.of(context).primaryColorDark.withOpacity(0.75),
+          style: Theme.of(context).textTheme.caption?.copyWith(
+                color: Theme.of(context).primaryColorDark.withOpacity(0.5),
               ),
         ),
       ),
@@ -658,6 +739,7 @@ Widget _buildTextField({
   String hintText = "",
   String? initialValue = "",
   required ValueChanged<String> onChanged,
+  bool isPassword = false,
 }) {
   final _theme = Theme.of(context);
   final _textTheme = _theme.textTheme;
@@ -691,5 +773,6 @@ Widget _buildTextField({
     initialValue: initialValue,
     decoration: _decoration,
     onChanged: onChanged,
+    obscureText: isPassword,
   );
 }
