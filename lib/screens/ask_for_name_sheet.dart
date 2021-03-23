@@ -40,7 +40,7 @@ class AskForNameSheet extends HookWidget {
     final _continueButton = _buildContinueButton(
       nameNotEmpty: canContinue,
       context: context,
-      title: tr("common.continute_msg"),
+      title: init ? tr("button.continute") : tr("button.update"),
       onTap: () async {
         final success = await notifier.setUser(
           UserModel(
@@ -87,30 +87,24 @@ class AskForNameSheet extends HookWidget {
                 constrant.maxHeight;
 
             final tab1 = Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeaderText(
-                      context: context,
-                      title: tr("ask_for_name_sheet.hello_msg"),
-                      subtitle: tr("ask_for_name_sheet.msg"),
-                    ),
-                    const SizedBox(height: 24.0),
-                    _buildTextField(
-                      context: context,
-                      hintText: tr("ask_for_name_sheet.hint_text"),
-                      initialValue: notifier.user != null
-                          ? notifier.user?.nickname
-                          : null,
-                      onChanged: (String value) {
-                        notifier.setNickname(value);
-                      },
-                    ),
-                  ],
+                _buildHeaderText(
+                  context: context,
+                  title: tr("title.hello"),
+                  subtitle: tr("subtitle.ask_for_name"),
                 ),
+                const SizedBox(height: 24.0),
+                _buildTextField(
+                  context: context,
+                  hintText: tr("hint_text.nickname"),
+                  initialValue:
+                      notifier.user != null ? notifier.user?.nickname : null,
+                  onChanged: (String value) {
+                    notifier.setNickname(value);
+                  },
+                ),
+                const SizedBox(height: 16.0),
                 _continueButton,
               ],
             );
@@ -184,10 +178,8 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
 
   @override
   Widget build(BuildContext context) {
-    final info =
-        "Email and password are used to identify your database. Please try not to forget it.";
-    final dbInfo =
-        "Data with same export month will be replace with current export data.";
+    final info = tr("info.email_pass");
+    final dbInfo = tr("info.backup");
 
     var loginInfo = _buildInfo(context, info);
     var databaseInfo = _buildInfo(context, dbInfo);
@@ -201,7 +193,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
     }
   }
 
-  Column buildSignInAuth(
+  Widget buildSignInAuth(
     BuildContext context,
     Row loginInfo,
     AuthenticatoinNotifier notifier,
@@ -219,70 +211,73 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
           if (success == true) {
             showSnackBar(
               context: context,
-              title: "Success!",
+              title: tr("msg.login.success"),
             );
           } else {
             showSnackBar(
               context: context,
-              title: "Can not login!",
+              title: tr("msg.login.fail"),
             );
           }
         } else {
           showSnackBar(
             context: context,
-            title: "Email or password can't be empty",
+            title: tr("validate.email_password"),
           );
         }
       },
       context: context,
-      title: "Log into your account",
+      title: tr("button.login"),
     );
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 32),
-            _buildHeaderText(
-              context: context,
-              title: "Setting",
-              subtitle: "Backup or restore your data from cloud.",
-              showLangs: false,
-            ),
-            Column(
-              children: [
-                const SizedBox(height: 24.0),
-                _buildTextField(
-                  context: context,
-                  hintText: "Your email",
-                  onChanged: (String value) {
-                    notifier.setEmail(value);
-                  },
-                ),
-                const SizedBox(height: 12.0),
-                _buildTextField(
-                  context: context,
-                  hintText: "Your password",
-                  onChanged: (String value) {
-                    notifier.setPassword(value);
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-        Column(
-          children: [
-            loginInfo,
-            const SizedBox(height: 16.0),
-            _logButton,
-            const SizedBox(height: 32),
-          ],
-        ),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 32),
+              _buildHeaderText(
+                context: context,
+                title: tr("title.setting"),
+                subtitle: tr("subtitle.backup_restore"),
+                showLangs: false,
+              ),
+              Column(
+                children: [
+                  const SizedBox(height: 24.0),
+                  _buildTextField(
+                    context: context,
+                    hintText: tr("hint_text.email"),
+                    onChanged: (String value) {
+                      notifier.setEmail(value);
+                    },
+                  ),
+                  const SizedBox(height: 12.0),
+                  _buildTextField(
+                    context: context,
+                    hintText: tr("hint_text.password"),
+                    onChanged: (String value) {
+                      notifier.setPassword(value);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Column(
+            children: [
+              const SizedBox(height: 16.0),
+              loginInfo,
+              const SizedBox(height: 16.0),
+              _logButton,
+              const SizedBox(height: 32),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -317,8 +312,8 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
               children: [
                 _buildHeaderText(
                   context: context,
-                  title: "Setting",
-                  subtitle: "Backup or restore your data from cloud.",
+                  title: tr("title.setting"),
+                  subtitle: tr("subtitle.backup_restore"),
                   showLangs: false,
                 ),
                 Consumer(
@@ -342,7 +337,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                                 context.read(remoteDatabaseProvider).reset();
                               },
                               child: Text(
-                                "Sign out",
+                                tr("button.signout"),
                                 style: TextStyle(
                                   color: Theme.of(context).errorColor,
                                 ),
@@ -366,7 +361,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                             alignment: Alignment.centerLeft,
                             color: Theme.of(context).scaffoldBackgroundColor,
                             padding: EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Text("Export current database", maxLines: 1),
+                            child: Text(tr("msg.backup.export"), maxLines: 1),
                           ),
                         ),
                         const SizedBox(height: 8.0),
@@ -409,12 +404,12 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
               await context.read(homeScreenProvider).load();
               showSnackBar(
                 context: context,
-                title: tr("save.success_msg"),
+                title: tr("msg.save.success"),
               );
             } else {
               showSnackBar(
                 context: context,
-                title: tr("save.fail_msg"),
+                title: tr("msg.save.fail"),
               );
             }
           },
@@ -425,10 +420,16 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
             alignment: Alignment.centerLeft,
             color: Theme.of(context).scaffoldBackgroundColor,
             child: Text(
-              "Import last backup: " +
-                  AppHelper.dateFormat(context).format(item.createOn.toDate()) +
-                  ", " +
-                  AppHelper.timeFormat(context).format(item.createOn.toDate()),
+              tr(
+                "msg.backup.import",
+                namedArgs: {
+                  "DATE": AppHelper.dateFormat(context)
+                          .format(item.createOn.toDate()) +
+                      ", " +
+                      AppHelper.timeFormat(context)
+                          .format(item.createOn.toDate())
+                },
+              ),
               maxLines: 1,
             ),
           ),

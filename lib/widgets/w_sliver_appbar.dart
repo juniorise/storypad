@@ -94,7 +94,7 @@ class WSliverAppBar extends HookWidget {
             width: leftSideWidth,
             child: Text(
               tr(
-                "home_screen.hello_name",
+                "title.hello_name",
                 namedArgs: {"USER_NAME": _notifier.user?.nickname ?? ""},
               ),
               maxLines: 1,
@@ -111,7 +111,7 @@ class WSliverAppBar extends HookWidget {
               duration: const Duration(milliseconds: 500),
               width: leftSideWidth,
               child: Text(
-                tr("home_screen.question_msg"),
+                tr("subtitle.ask_for_feeling"),
                 style: _textTheme.bodyText1,
                 overflow: TextOverflow.fade,
                 maxLines: 1,

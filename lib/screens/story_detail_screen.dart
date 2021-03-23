@@ -147,7 +147,7 @@ class StoryDetailScreen extends HookWidget
       onChanged: onChanged,
       keyboardAppearance: Theme.of(context).brightness,
       decoration: InputDecoration(
-        hintText: tr("editing_screen.title.hint_text"),
+        hintText: tr("hint_text.title"),
         border: InputBorder.none,
       ),
     );
@@ -329,13 +329,13 @@ class StoryDetailScreen extends HookWidget
       _aboutDateText = getDateLabel(
             date: story.createOn,
             context: context,
-            labelKey: "story_detail.create_on_msg",
+            labelKey: "msg.date.create_on",
           ) +
           "\n" +
           getDateLabel(
             date: story.forDate,
             context: context,
-            labelKey: "story_detail.for_date_msg",
+            labelKey: "msg.date.for_date",
           );
     }
 
@@ -344,7 +344,7 @@ class StoryDetailScreen extends HookWidget
           getDateLabel(
             date: story.updateOn ?? DateTime.now(),
             context: context,
-            labelKey: "story_detail.update_on_msg",
+            labelKey: "msg.date.update_on",
           );
     }
 

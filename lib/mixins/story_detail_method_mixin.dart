@@ -30,7 +30,7 @@ mixin StoryDetailMethodMixin {
   SnackBar buildSnackBar({
     required String title,
     required BuildContext context,
-    String actionLabel = "Okay",
+    String? actionLabel,
     VoidCallback? onActionPressed,
   }) {
     final style = Theme.of(context)
@@ -40,7 +40,7 @@ mixin StoryDetailMethodMixin {
 
     final actions = onActionPressed != null
         ? SnackBarAction(
-            label: actionLabel,
+            label: actionLabel ?? tr("button.okay"),
             textColor: Theme.of(context).backgroundColor,
             onPressed: () async {
               onActionPressed();
@@ -57,7 +57,7 @@ mixin StoryDetailMethodMixin {
   Future<void> showSnackBar({
     required BuildContext context,
     required String title,
-    String actionLabel = "Okay",
+    String? actionLabel,
     VoidCallback? onActionPressed,
     VoidCallback? onClose,
   }) async {
@@ -66,7 +66,7 @@ mixin StoryDetailMethodMixin {
       final SnackBar snack = buildSnackBar(
         title: title,
         context: context,
-        actionLabel: actionLabel,
+        actionLabel: actionLabel ?? tr("button.okay"),
         onActionPressed: onActionPressed,
       );
 
@@ -90,13 +90,13 @@ mixin StoryDetailMethodMixin {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         CupertinoButton(
-          child: Text('Cancel'),
+          child: Text(tr("button.cancel")),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         CupertinoButton(
-          child: Text('Done'),
+          child: Text(tr("button.done")),
           onPressed: () {
             Navigator.of(context).pop(tempPickedDate);
           },
@@ -192,8 +192,8 @@ mixin StoryDetailMethodMixin {
   }) async {
     await showSnackBar(
       context: context,
-      title: "Are you sure to delete?",
-      actionLabel: "Yes",
+      title: tr("msg.delete.warning"),
+      actionLabel: tr("button.okay"),
       onActionPressed: () async {
         final success = await notifier.removeStoryById(id);
         if (success) {
@@ -206,8 +206,8 @@ mixin StoryDetailMethodMixin {
         } else {
           await showSnackBar(
             context: context,
-            title: "Can not delete!",
-            actionLabel: "Try again",
+            title: tr("msg.delete.fail"),
+            actionLabel: tr("button.try_again"),
             onActionPressed: () async {
               onDelete(
                 context: context,
@@ -232,8 +232,8 @@ mixin StoryDetailMethodMixin {
     if (draftStory.title.trim().isEmpty) {
       await showSnackBar(
         context: context,
-        title: "Title must not empty!",
-        actionLabel: "Yes",
+        title: tr("validate.title"),
+        actionLabel: tr("button.okay"),
         onActionPressed: () {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
         },
@@ -251,12 +251,12 @@ mixin StoryDetailMethodMixin {
       if (success == true) {
         await showSnackBar(
           context: context,
-          title: "Saved",
+          title: tr("msg.save.success"),
         );
       } else {
         await showSnackBar(
           context: context,
-          title: "Can not be saved!",
+          title: tr("msg.save.fail"),
         );
       }
     }

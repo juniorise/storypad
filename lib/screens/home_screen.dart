@@ -61,7 +61,7 @@ class HomeScreen extends HookWidget with HookController {
         TextEditingController().clear();
       },
       child: DefaultTabController(
-        length: 12,
+        length: controller.length,
         child: Scaffold(
           backgroundColor: Colors.transparent,
           extendBodyBehindAppBar: true,
@@ -92,7 +92,7 @@ class HomeScreen extends HookWidget with HookController {
             body: VTTabView(
               controller: controller,
               children: List.generate(
-                12,
+                controller.length,
                 (index) {
                   final int monthID = index + 1;
                   return buildStoryInMonth(
@@ -548,7 +548,7 @@ class HomeScreen extends HookWidget with HookController {
 
       final actions = onActionPressed != null
           ? SnackBarAction(
-              label: actionLabel ?? tr("common.okay_msg"),
+              label: actionLabel ?? tr("button.okay"),
               textColor: Theme.of(context).backgroundColor,
               onPressed: () async {
                 onActionPressed();
