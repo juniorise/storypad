@@ -9,15 +9,15 @@ class RemoteDatabaseNotifier with ChangeNotifier {
   RemoteDatabaseService service = RemoteDatabaseService();
   AuthenticationService auth = AuthenticationService();
 
-  List<DbBackupModel> _backups = [];
+  DbBackupModel? _backup;
 
   UserModel? user;
 
   load() async {
     if (auth.user != null) {
       final result = await service.backupList(auth.user!.uid);
-      if (result != null && result.isNotEmpty) {
-        this._backups = result;
+      if (result != null) {
+        this._backup = result;
       }
     }
     notifyListeners();
@@ -33,10 +33,10 @@ class RemoteDatabaseNotifier with ChangeNotifier {
   }
 
   void reset() {
-    this._backups.clear();
+    this._backup = null;
   }
 
-  List<DbBackupModel> get backups => this._backups;
+  DbBackupModel? get backup => this._backup;
 }
 
 final remoteDatabaseProvider = ChangeNotifierProvider<RemoteDatabaseNotifier>(

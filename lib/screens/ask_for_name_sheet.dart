@@ -17,6 +17,8 @@ import 'package:write_story/screens/home_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
 
+final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
 class AskForNameSheet extends HookWidget {
   const AskForNameSheet({
     Key? key,
@@ -27,7 +29,8 @@ class AskForNameSheet extends HookWidget {
   final double statusBarHeight;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext buildContext) {
+    final context = _scaffoldKey.currentContext ?? buildContext;
     final notifier = useProvider(userModelProvider);
 
     final nameNotEmpty =
@@ -37,6 +40,11 @@ class AskForNameSheet extends HookWidget {
     canContinue = nameNotEmpty && notifier.user?.nickname != notifier.nickname;
 
     final tabController = useTabController(initialLength: init ? 1 : 2);
+
+    tabController.addListener(() {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    });
+
     final _continueButton = _buildContinueButton(
       nameNotEmpty: canContinue,
       context: context,
@@ -70,6 +78,7 @@ class AskForNameSheet extends HookWidget {
         TextEditingController().clear();
       },
       child: Scaffold(
+        key: _scaffoldKey,
         backgroundColor: Colors.transparent,
         resizeToAvoidBottomInset: false,
         extendBody: true,
@@ -346,6 +355,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                           ],
                         ),
                         const Divider(),
+                        const SizedBox(height: 8.0),
                         VTOnTapEffect(
                           onTap: () async {
                             String backup = await database.generateBackup();
@@ -365,11 +375,13 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                           ),
                         ),
                         const SizedBox(height: 8.0),
-                        Column(
-                          children: dbNotifier.backups.map((item) {
-                            return buildBackItem(database, item, context);
-                          }).toList(),
-                        ),
+                        if (dbNotifier.backup != null &&
+                            dbNotifier.backup is DbBackupModel)
+                          buildBackItem(
+                            database,
+                            dbNotifier.backup!,
+                            context,
+                          ),
                       ],
                     );
                   },
@@ -377,13 +389,6 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                 const SizedBox(height: 8.0),
               ],
             ),
-            Column(
-              children: [
-                databaseInfo,
-                const SizedBox(height: 16.0),
-              ],
-            ),
-            const SizedBox(height: 32),
           ],
         ),
       ),
