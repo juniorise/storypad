@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -24,9 +26,11 @@ class AskForNameSheet extends HookWidget {
     Key? key,
     this.init = false,
     required this.statusBarHeight,
+    required this.bottomBarHeight,
   }) : super(key: key);
   final bool init;
   final double statusBarHeight;
+  final double bottomBarHeight;
 
   @override
   Widget build(BuildContext buildContext) {
@@ -102,6 +106,9 @@ class AskForNameSheet extends HookWidget {
                   context: context,
                   title: tr("title.hello"),
                   subtitle: tr("subtitle.ask_for_name"),
+                  onSettingTap: tabController.length == 2
+                      ? () => tabController.animateTo(1)
+                      : null,
                 ),
                 const SizedBox(height: 24.0),
                 _buildTextField(
@@ -129,21 +136,29 @@ class AskForNameSheet extends HookWidget {
                 return Container(
                   height: double.infinity,
                   decoration: buildBoxDecoration(context),
-                  child: VTTabView(
-                    controller: tabController,
+                  child: Stack(
                     children: [
-                      Container(
-                        child: tab1,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 32.0,
-                        ),
+                      VTTabView(
+                        controller: tabController,
+                        children: [
+                          Container(
+                            child: tab1,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 32.0,
+                            ),
+                          ),
+                          if (!init)
+                            Container(
+                              child: tab2,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                              ),
+                            )
+                        ],
                       ),
-                      if (!init)
-                        Container(
-                          child: tab2,
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        )
+                      if (tabController.length == 2)
+                        buildTabIndicator(tabController),
                     ],
                   ),
                 );
@@ -151,6 +166,54 @@ class AskForNameSheet extends HookWidget {
             );
           },
         ),
+      ),
+    );
+  }
+
+  Positioned buildTabIndicator(TabController tabController) {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: bottomBarHeight,
+      child: AnimatedBuilder(
+        animation: tabController.animation!,
+        builder: (context, snapshot) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: List.generate(
+              tabController.length,
+              (index) {
+                double? width = 6.0;
+                if (index == 0) {
+                  width = lerpDouble(
+                    50,
+                    6.0,
+                    tabController.animation!.value,
+                  );
+                }
+
+                if (index == 1) {
+                  width = lerpDouble(
+                    6.0,
+                    50,
+                    tabController.animation!.value,
+                  );
+                }
+
+                return Container(
+                  height: 6.0,
+                  width: width,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6.0),
+                    color: Theme.of(context).disabledColor,
+                  ),
+                  margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }
@@ -450,6 +513,7 @@ Widget _buildHeaderText({
   required String title,
   required String subtitle,
   bool showLangs = true,
+  void Function()? onSettingTap,
 }) {
   final _theme = Theme.of(context);
   final _style =
@@ -498,6 +562,24 @@ Widget _buildHeaderText({
                     },
                     child: Image.asset("assets/flags/en-flag.png"),
                   ),
+                  if (onSettingTap != null) const SizedBox(width: 4.0),
+                  if (onSettingTap != null)
+                    VTOnTapEffect(
+                      onTap: onSettingTap,
+                      child: Container(
+                        height: 38,
+                        width: 38,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.settings,
+                          color: Theme.of(context).backgroundColor,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

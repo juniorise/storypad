@@ -15,6 +15,7 @@ class WrapperScreens extends HookWidget {
     final notifier = useProvider(userModelProvider);
     final controller = useAnimationController();
     final statusBarHeight = MediaQuery.of(context).padding.top;
+    final bottomBarHeight = MediaQuery.of(context).padding.bottom;
 
     final Widget splashScreen = Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
@@ -83,6 +84,7 @@ class WrapperScreens extends HookWidget {
                     return AskForNameSheet(
                       init: true,
                       statusBarHeight: statusBarHeight,
+                      bottomBarHeight: bottomBarHeight,
                     );
                   },
                 );

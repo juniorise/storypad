@@ -17,6 +17,7 @@ class WSliverAppBar extends HookWidget {
   const WSliverAppBar({
     Key? key,
     required this.statusBarHeight,
+    required this.bottomBarHeight,
     required this.isInit,
     this.tabs,
     this.backgroundText,
@@ -24,6 +25,7 @@ class WSliverAppBar extends HookWidget {
   }) : super(key: key);
 
   final double statusBarHeight;
+  final double bottomBarHeight;
   final bool isInit;
   final List<String>? tabs;
   final String? backgroundText;
@@ -161,7 +163,10 @@ class WSliverAppBar extends HookWidget {
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (context) {
-                    return AskForNameSheet(statusBarHeight: statusBarHeight);
+                    return AskForNameSheet(
+                      statusBarHeight: statusBarHeight,
+                      bottomBarHeight: bottomBarHeight,
+                    );
                   },
                 );
               },

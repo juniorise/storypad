@@ -25,6 +25,8 @@ class HomeScreen extends HookWidget with HookController {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final bottomBarHeight = MediaQuery.of(context).padding.bottom;
+
     final _notifier = useProvider(homeScreenProvider);
 
     final controller = useTabController(
@@ -40,6 +42,7 @@ class HomeScreen extends HookWidget with HookController {
       controller: controller,
       statusBarHeight: statusBarHeight,
       tabNotifier: _tabNotifier,
+      bottomBarHeight: bottomBarHeight,
     );
 
     return buildFadeInitAnimationBackground(
@@ -54,6 +57,7 @@ class HomeScreen extends HookWidget with HookController {
     required TabController controller,
     required double statusBarHeight,
     required TabControllerNotifier tabNotifier,
+    required double bottomBarHeight,
   }) {
     return GestureDetector(
       onTap: () {
@@ -87,6 +91,7 @@ class HomeScreen extends HookWidget with HookController {
                 statusBarHeight: statusBarHeight,
                 context: context,
                 notifier: notifier,
+                bottomBarHeight: bottomBarHeight,
               )
             ],
             body: VTTabView(
@@ -131,12 +136,14 @@ class HomeScreen extends HookWidget with HookController {
   Widget buildHeaderAppBar({
     required TabController controller,
     required double statusBarHeight,
+    required double bottomBarHeight,
     required BuildContext context,
     required bool isInit,
     required HomeScreenNotifier notifier,
   }) {
     return WSliverAppBar(
       statusBarHeight: statusBarHeight,
+      bottomBarHeight: bottomBarHeight,
       backgroundText: notifier.currentSelectedYear.toString(),
       tabController: controller,
       isInit: isInit,
