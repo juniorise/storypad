@@ -538,16 +538,16 @@ Widget _buildHeaderText({
                   showAboutDialog(
                     context: context,
                     applicationName: "Story",
-                    applicationVersion: "v1.0.0+1",
+                    applicationVersion: "v1.0.0+3",
                     applicationLegalese: tr("info.app_detail"),
                     children: [
                       const SizedBox(height: 24.0),
                       Text(
-                        "Developer & UI Designer:",
+                        tr("position.thea"),
                         style: Theme.of(context).textTheme.caption,
                       ),
                       Text(
-                        "Thea Choem",
+                        tr("name.thea"),
                         style: Theme.of(context)
                             .textTheme
                             .caption!
@@ -555,11 +555,11 @@ Widget _buildHeaderText({
                       ),
                       const Divider(),
                       Text(
-                        "Logo Designer:",
+                        tr("position.menglong"),
                         style: Theme.of(context).textTheme.caption,
                       ),
                       Text(
-                        "Menglong Srern",
+                        tr("name.menglong"),
                         style: Theme.of(context)
                             .textTheme
                             .caption!
