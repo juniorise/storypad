@@ -142,15 +142,17 @@ class AskForNameSheet extends HookWidget {
                       VTTabView(
                         controller: tabController,
                         children: [
-                          Container(
+                          SingleChildScrollView(
                             child: tab1,
+                            controller: init ? null : controller,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16.0,
                               vertical: 32.0,
                             ),
                           ),
                           if (!init)
-                            Container(
+                            SingleChildScrollView(
+                              controller: controller,
                               child: tab2,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16.0,
@@ -249,15 +251,15 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
   @override
   Widget build(BuildContext context) {
     final info = tr("info.email_pass");
-    final dbInfo = tr("info.backup");
+    // final dbInfo = tr("info.backup");
 
     var loginInfo = _buildInfo(context, info);
-    var databaseInfo = _buildInfo(context, dbInfo);
+    // var databaseInfo = _buildInfo(context, dbInfo);
 
     final notifier = useProvider(authenticatoinProvider);
 
     if (notifier.isAccountSignedIn && notifier.user != null) {
-      return buildBackup(context, databaseInfo, notifier);
+      return buildBackup(context, notifier);
     } else {
       return buildSignInAuth(context, loginInfo, notifier);
     }
@@ -357,104 +359,87 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
 
   Widget buildBackup(
     BuildContext context,
-    Row databaseInfo,
     AuthenticatoinNotifier notifier,
   ) {
-    return ShaderMask(
-      shaderCallback: (Rect rect) {
-        return LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.purple,
-            Colors.transparent,
-            Colors.transparent,
-            Colors.purple
-          ],
-          stops: [0, 0.05, 0.95, 1], // 10% purple, 80% transparent, 10% purple
-        ).createShader(rect);
-      },
-      blendMode: BlendMode.dstOut,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 32),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeaderText(
-                context: context,
-                title: tr("title.setting"),
-                subtitle: tr("subtitle.backup_restore"),
-                showLangs: false,
-                showInfo: true,
-              ),
-              Consumer(
-                builder: (context, watch, child) {
-                  final dbNotifier = watch(remoteDatabaseProvider)..load();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 32),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeaderText(
+              context: context,
+              title: tr("title.setting"),
+              subtitle: tr("subtitle.backup_restore"),
+              showLangs: false,
+              showInfo: true,
+            ),
+            Consumer(
+              builder: (context, watch, child) {
+                final dbNotifier = watch(remoteDatabaseProvider)..load();
 
-                  final WDatabase database = WDatabase.instance;
-                  return Column(
-                    children: [
-                      Divider(),
-                      Row(
-                        children: [
-                          Text(
-                            "${notifier.user?.email}",
-                            style: Theme.of(context).textTheme.bodyText2,
-                          ),
-                          const SizedBox(width: 8.0),
-                          VTOnTapEffect(
-                            onTap: () async {
-                              await notifier.signOut();
-                              context.read(remoteDatabaseProvider).reset();
-                            },
-                            child: Text(
-                              tr("button.signout"),
-                              style: TextStyle(
-                                color: Theme.of(context).errorColor,
-                              ),
+                final WDatabase database = WDatabase.instance;
+                return Column(
+                  children: [
+                    Divider(),
+                    Row(
+                      children: [
+                        Text(
+                          "${notifier.user?.email}",
+                          style: Theme.of(context).textTheme.bodyText2,
+                        ),
+                        const SizedBox(width: 8.0),
+                        VTOnTapEffect(
+                          onTap: () async {
+                            await notifier.signOut();
+                            context.read(remoteDatabaseProvider).reset();
+                          },
+                          child: Text(
+                            tr("button.signout"),
+                            style: TextStyle(
+                              color: Theme.of(context).errorColor,
                             ),
                           ),
-                        ],
-                      ),
-                      const Divider(),
-                      const SizedBox(height: 8.0),
-                      VTOnTapEffect(
-                        onTap: () async {
-                          String backup = await database.generateBackup();
-                          final backupModel = DbBackupModel(
-                            createOn: Timestamp.now(),
-                            db: backup,
-                          );
-                          await dbNotifier.add(backupModel);
-                        },
-                        child: Container(
-                          height: 48,
-                          width: double.infinity,
-                          alignment: Alignment.centerLeft,
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                          padding: EdgeInsets.symmetric(horizontal: 12.0),
-                          child: Text(tr("msg.backup.export"), maxLines: 1),
                         ),
+                      ],
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 8.0),
+                    VTOnTapEffect(
+                      onTap: () async {
+                        String backup = await database.generateBackup();
+                        final backupModel = DbBackupModel(
+                          createOn: Timestamp.now(),
+                          db: backup,
+                        );
+                        await dbNotifier.add(backupModel);
+                      },
+                      child: Container(
+                        height: 48,
+                        width: double.infinity,
+                        alignment: Alignment.centerLeft,
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        padding: EdgeInsets.symmetric(horizontal: 12.0),
+                        child: Text(tr("msg.backup.export"), maxLines: 1),
                       ),
-                      const SizedBox(height: 8.0),
-                      if (dbNotifier.backup != null &&
-                          dbNotifier.backup is DbBackupModel)
-                        buildBackItem(
-                          database,
-                          dbNotifier.backup!,
-                          context,
-                        ),
-                    ],
-                  );
-                },
-              ),
-              const SizedBox(height: 8.0),
-            ],
-          ),
-        ],
-      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    if (dbNotifier.backup != null &&
+                        dbNotifier.backup is DbBackupModel)
+                      buildBackItem(
+                        database,
+                        dbNotifier.backup!,
+                        context,
+                      ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 8.0),
+          ],
+        ),
+      ],
     );
   }
 
@@ -547,67 +532,69 @@ Widget _buildHeaderText({
           Positioned(
             right: 0,
             child: VTOnTapEffect(
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).pop();
-                showAboutDialog(
-                  context: context,
-                  applicationName: "Story",
-                  applicationVersion: "v1.0.0+1",
-                  applicationLegalese: tr("info.app_detail"),
-                  children: [
-                    const SizedBox(height: 24.0),
-                    Text(
-                      "Developer & UI Designer:",
-                      style: Theme.of(context).textTheme.caption,
-                    ),
-                    Text(
-                      "Thea Choem",
-                      style: Theme.of(context)
-                          .textTheme
-                          .caption!
-                          .copyWith(fontWeight: FontWeight.w600),
-                    ),
-                    const Divider(),
-                    Text(
-                      "Logo Designer:",
-                      style: Theme.of(context).textTheme.caption,
-                    ),
-                    Text(
-                      "Menglong Srern",
-                      style: Theme.of(context)
-                          .textTheme
-                          .caption!
-                          .copyWith(fontWeight: FontWeight.w600),
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 4.0),
-                    RichText(
-                      text: TextSpan(
+                await Future.delayed(Duration(milliseconds: 100)).then((value) {
+                  showAboutDialog(
+                    context: context,
+                    applicationName: "Story",
+                    applicationVersion: "v1.0.0+1",
+                    applicationLegalese: tr("info.app_detail"),
+                    children: [
+                      const SizedBox(height: 24.0),
+                      Text(
+                        "Developer & UI Designer:",
                         style: Theme.of(context).textTheme.caption,
-                        children: <TextSpan>[
-                          TextSpan(text: tr("info.about_project") + " "),
-                          TextSpan(
-                            text: 'write_story',
-                            style: Theme.of(context)
-                                .textTheme
-                                .caption!
-                                .copyWith(color: Colors.blueAccent),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                launch(
-                                  "https://github.com/theacheng/write_story",
-                                );
-                              },
-                          ),
-                        ],
                       ),
+                      Text(
+                        "Thea Choem",
+                        style: Theme.of(context)
+                            .textTheme
+                            .caption!
+                            .copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const Divider(),
+                      Text(
+                        "Logo Designer:",
+                        style: Theme.of(context).textTheme.caption,
+                      ),
+                      Text(
+                        "Menglong Srern",
+                        style: Theme.of(context)
+                            .textTheme
+                            .caption!
+                            .copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const Divider(),
+                      const SizedBox(height: 4.0),
+                      RichText(
+                        text: TextSpan(
+                          style: Theme.of(context).textTheme.caption,
+                          children: <TextSpan>[
+                            TextSpan(text: tr("info.about_project") + " "),
+                            TextSpan(
+                              text: 'write_story',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .caption!
+                                  .copyWith(color: Colors.blueAccent),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  launch(
+                                    "https://github.com/theacheng/write_story",
+                                  );
+                                },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    applicationIcon: Image.asset(
+                      "assets/icons/app_icon.png",
+                      height: 48,
                     ),
-                  ],
-                  applicationIcon: Image.asset(
-                    "assets/icons/app_icon.png",
-                    height: 48,
-                  ),
-                );
+                  );
+                });
               },
               child: Container(
                 height: 38,

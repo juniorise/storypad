@@ -154,26 +154,29 @@ class StoryDetailScreen extends HookWidget
     );
   }
 
-  TextFormField buildHeaderTextField({
+  Widget buildHeaderTextField({
     required bool insert,
     required StoryDetailScreenNotifier notifier,
     required BuildContext context,
     required ValueChanged<String> onChanged,
   }) {
     final _theme = Theme.of(context);
-    return TextFormField(
-      textAlign: TextAlign.left,
-      initialValue: notifier.draftStory.title,
-      style: _theme.textTheme.headline6,
-      maxLines: null,
-      onChanged: onChanged,
-      keyboardAppearance: _theme.brightness,
-      decoration: InputDecoration(
-        hintText: tr("hint_text.title"),
-        hintStyle: _theme.textTheme.headline6?.copyWith(
-          color: _theme.primaryColorDark.withOpacity(0.3),
+    return Container(
+      constraints: BoxConstraints(maxHeight: 250),
+      child: TextFormField(
+        textAlign: TextAlign.left,
+        initialValue: notifier.draftStory.title,
+        style: _theme.textTheme.headline6,
+        onChanged: onChanged,
+        maxLines: null,
+        keyboardAppearance: _theme.brightness,
+        decoration: InputDecoration(
+          hintText: tr("hint_text.title"),
+          hintStyle: _theme.textTheme.headline6?.copyWith(
+            color: _theme.primaryColorDark.withOpacity(0.3),
+          ),
+          border: InputBorder.none,
         ),
-        border: InputBorder.none,
       ),
     );
   }
