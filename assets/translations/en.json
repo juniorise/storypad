@@ -36,5 +36,9 @@
   "validate.email_password": "Email or password can't be empty",
   "validate.title": "Title must not be empty!",
   "info.app_detail": "Story is an mobile application that allow user to write stories locally with no ads.",
-  "info.about_project": "This is an open source project which is coded in Dart and Flutter. If you have any problem, please consider open issue here: "
+  "info.about_project": "This is an open source project which is coded in Dart and Flutter. If you have any problem, please consider open issue here: ",
+  "msg.login.user_not_found": "No user found for that email.",
+  "msg.login.wrong_password": "Wrong password provided for that user!",
+  "msg.login.weak_password": "The password provided is too weak.",
+  "msg.login.email_already_in_use": "The account already exists for that email."
 }

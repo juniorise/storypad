@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthenticationService {
@@ -16,12 +17,15 @@ class AuthenticationService {
         email: email,
         password: password,
       );
+      this._errorMessage = null;
       return true;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print('No user found for that email.');
+        this._errorMessage = tr("msg.login.user_not_found");
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
+        this._errorMessage = tr("msg.login.wrong_password");
       }
       return false;
     }
@@ -36,10 +40,12 @@ class AuthenticationService {
         email: email,
         password: password,
       );
+      this._errorMessage = null;
       return true;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');
+        this._errorMessage = tr("msg.login.weak_password");
         return false;
       } else if (e.code == 'email-already-in-use') {
         print('The account already exists for that email.');

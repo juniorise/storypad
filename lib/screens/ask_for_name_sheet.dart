@@ -286,7 +286,9 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
           } else {
             showSnackBar(
               context: context,
-              title: tr("msg.login.fail"),
+              title: notifier.service?.errorMessage != null
+                  ? notifier.service?.errorMessage as String
+                  : tr("msg.login.fail"),
             );
           }
         } else {
