@@ -39,6 +39,8 @@ dependencies:
   csv: ^5.0.0
   dio: ^4.0.0-prev3
 
+  google_sign_in: ^5.0.1
+
   flutter_quill:
     git:
       url: https://github.com/singerdmx/flutter-quill.git

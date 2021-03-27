@@ -121,7 +121,7 @@ class AskForNameSheet extends HookWidget {
                     notifier.setNickname(value);
                   },
                 ),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: 8.0),
                 _continueButton,
               ],
             );
@@ -250,111 +250,8 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
 
   @override
   Widget build(BuildContext context) {
-    final info = tr("info.email_pass");
-    // final dbInfo = tr("info.backup");
-
-    var loginInfo = _buildInfo(context, info);
-    // var databaseInfo = _buildInfo(context, dbInfo);
-
     final notifier = useProvider(authenticatoinProvider);
-
-    if (notifier.isAccountSignedIn && notifier.user != null) {
-      return buildBackup(context, notifier);
-    } else {
-      return buildSignInAuth(context, loginInfo, notifier);
-    }
-  }
-
-  Widget buildSignInAuth(
-    BuildContext context,
-    Row loginInfo,
-    AuthenticatoinNotifier notifier,
-  ) {
-    final _logButton = _buildContinueButton(
-      nameNotEmpty: true,
-      onTap: () async {
-        if (notifier.email.trim().isNotEmpty &&
-            notifier.password.trim().isNotEmpty) {
-          bool success = await notifier.logAccount(
-            notifier.email.trim(),
-            notifier.password.trim(),
-          );
-
-          if (success == true) {
-            showSnackBar(
-              context: context,
-              title: tr("msg.login.success"),
-            );
-          } else {
-            showSnackBar(
-              context: context,
-              title: notifier.service?.errorMessage != null
-                  ? notifier.service?.errorMessage as String
-                  : tr("msg.login.fail"),
-            );
-          }
-        } else {
-          showSnackBar(
-            context: context,
-            title: tr("validate.email_password"),
-          );
-        }
-      },
-      context: context,
-      title: tr("button.login"),
-    );
-
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 32),
-              _buildHeaderText(
-                context: context,
-                title: tr("title.setting"),
-                subtitle: tr("subtitle.backup_restore"),
-                showLangs: false,
-                showInfo: true,
-              ),
-              Column(
-                children: [
-                  const SizedBox(height: 24.0),
-                  _buildTextField(
-                    context: context,
-                    hintText: tr("hint_text.email"),
-                    onChanged: (String value) {
-                      notifier.setEmail(value);
-                    },
-                  ),
-                  const SizedBox(height: 12.0),
-                  _buildTextField(
-                    context: context,
-                    hintText: tr("hint_text.password"),
-                    onChanged: (String value) {
-                      notifier.setPassword(value);
-                    },
-                    isPassword: true,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Column(
-            children: [
-              const SizedBox(height: 16.0),
-              _logButton,
-              const SizedBox(height: 16.0),
-              loginInfo,
-              const SizedBox(height: 32),
-            ],
-          ),
-        ],
-      ),
-    );
+    return buildBackup(context, notifier);
   }
 
   Widget buildBackup(
@@ -383,55 +280,81 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                 return Column(
                   children: [
                     Divider(),
-                    Row(
-                      children: [
-                        Text(
-                          "${notifier.user?.email}",
-                          style: Theme.of(context).textTheme.bodyText2,
+                    Material(
+                      elevation: 0.5,
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: Theme.of(context).primaryColor,
+                      child: SwitchListTile(
+                        value: notifier.isAccountSignedIn,
+                        selected: true,
+                        shape: RoundedRectangleBorder(),
+                        activeColor: Theme.of(context).backgroundColor,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                        title: Text(tr("button.login")),
+                        subtitle: Text(
+                          notifier.isAccountSignedIn
+                              ? "${notifier.user?.email}"
+                              : tr("msg.login.info"),
                         ),
-                        const SizedBox(width: 8.0),
-                        VTOnTapEffect(
-                          onTap: () async {
+                        onChanged: (bool value) async {
+                          if (value == true) {
+                            bool success = await notifier.logAccount();
+                            if (success == true) {
+                              showSnackBar(
+                                context: context,
+                                title: tr("msg.login.success"),
+                              );
+                            } else {
+                              showSnackBar(
+                                context: context,
+                                title: notifier.service?.errorMessage != null
+                                    ? notifier.service?.errorMessage as String
+                                    : tr("msg.login.fail"),
+                              );
+                            }
+                          } else {
                             await notifier.signOut();
                             context.read(remoteDatabaseProvider).reset();
-                          },
-                          child: Text(
-                            tr("button.signout"),
-                            style: TextStyle(
-                              color: Theme.of(context).errorColor,
+                          }
+                        },
+                      ),
+                    ),
+                    if (notifier.isAccountSignedIn)
+                      Column(
+                        children: [
+                          const SizedBox(height: 8.0),
+                          VTOnTapEffect(
+                            onTap: () async {
+                              String backup = await database.generateBackup();
+                              final backupModel = DbBackupModel(
+                                createOn: Timestamp.now(),
+                                db: backup,
+                              );
+                              await dbNotifier.add(backupModel);
+                            },
+                            child: Container(
+                              height: 48,
+                              width: double.infinity,
+                              alignment: Alignment.centerLeft,
+                              padding: EdgeInsets.symmetric(horizontal: 12.0),
+                              decoration: BoxDecoration(
+                                color:
+                                    Theme.of(context).scaffoldBackgroundColor,
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: Text(tr("msg.backup.export"), maxLines: 1),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const Divider(),
-                    const SizedBox(height: 8.0),
-                    VTOnTapEffect(
-                      onTap: () async {
-                        String backup = await database.generateBackup();
-                        final backupModel = DbBackupModel(
-                          createOn: Timestamp.now(),
-                          db: backup,
-                        );
-                        await dbNotifier.add(backupModel);
-                      },
-                      child: Container(
-                        height: 48,
-                        width: double.infinity,
-                        alignment: Alignment.centerLeft,
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        padding: EdgeInsets.symmetric(horizontal: 12.0),
-                        child: Text(tr("msg.backup.export"), maxLines: 1),
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    if (dbNotifier.backup != null &&
-                        dbNotifier.backup is DbBackupModel)
-                      buildBackItem(
-                        database,
-                        dbNotifier.backup!,
-                        context,
-                      ),
+                          const SizedBox(height: 8.0),
+                          if (dbNotifier.backup != null &&
+                              dbNotifier.backup is DbBackupModel)
+                            buildBackItem(
+                              database,
+                              dbNotifier.backup!,
+                              context,
+                            ),
+                        ],
+                      )
                   ],
                 );
               },
@@ -469,9 +392,12 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
           child: Container(
             height: 48,
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 12.0),
             alignment: Alignment.centerLeft,
-            color: Theme.of(context).scaffoldBackgroundColor,
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(10.0),
+            ),
             child: Text(
               tr(
                 "msg.backup.import",
@@ -487,7 +413,6 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
             ),
           ),
         ),
-        const SizedBox(height: 8.0),
       ],
     );
   }
@@ -674,7 +599,7 @@ Widget _buildContinueButton({
   ];
 
   final _decoration = BoxDecoration(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(10.0),
       color:
           nameNotEmpty ? _theme.primaryColor : _theme.scaffoldBackgroundColor);
 
@@ -696,30 +621,6 @@ Widget _buildContinueButton({
         ),
       ),
     ),
-  );
-}
-
-Row _buildInfo(BuildContext context, String info) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Icon(
-        Icons.info,
-        size: 16,
-        color: Theme.of(context).primaryColorDark.withOpacity(0.5),
-      ),
-      const SizedBox(width: 8.0),
-      Container(
-        padding: EdgeInsets.zero,
-        width: MediaQuery.of(context).size.width - 16 * 2 - 8 - 24,
-        child: Text(
-          info,
-          style: Theme.of(context).textTheme.caption?.copyWith(
-                color: Theme.of(context).primaryColorDark.withOpacity(0.5),
-              ),
-        ),
-      ),
-    ],
   );
 }
 
@@ -749,7 +650,7 @@ Widget _buildTextField({
     filled: true,
     border: OutlineInputBorder(
       borderSide: BorderSide.none,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(10.0),
     ),
   );
 

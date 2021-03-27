@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthenticationService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -7,6 +8,50 @@ class AuthenticationService {
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
+
+  Future<bool> signInWithGoogle() async {
+    GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    if (googleUser == null) {
+      this._errorMessage = tr("msg.login.cancel");
+      return false;
+    }
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+
+    // Create a new credential
+    final GoogleAuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    ) as GoogleAuthCredential;
+
+    this._errorMessage = null;
+
+    try {
+      // Once signed in, return the UserCredential
+      final authCredential = await _auth.signInWithCredential(credential);
+      if (authCredential.user?.emailVerified == true) {
+        return true;
+      } else if (authCredential.user?.emailVerified == true) {
+        this._errorMessage = tr("msg.login.email_not_verified");
+        return false;
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'account-exists-with-different-credential') {
+        this._errorMessage =
+            tr("msg.login.account_exists_with_different_credential");
+        return false;
+      } else if (e.code == 'invalid-credential') {
+        this._errorMessage = tr("msg.login.invalid_credential");
+        return false;
+      }
+    }
+
+    this._errorMessage = tr("msg.login.fail");
+    return false;
+  }
 
   Future<bool> _signInWithEmailAndPassword(
     String email,

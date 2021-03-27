@@ -68,7 +68,6 @@ class HomeScreen extends HookWidget with HookController {
         length: controller.length,
         child: Scaffold(
           backgroundColor: Colors.transparent,
-          extendBodyBehindAppBar: true,
           floatingActionButton: buildFAB(
             forDate: DateTime(
               notifier.currentSelectedYear,
