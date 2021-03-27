@@ -39,7 +39,10 @@ dependencies:
   csv: ^5.0.0
   dio: ^4.0.0-prev3
 
-  flutter_quill: ^1.1.0
+  flutter_quill:
+    git:
+      url: https://github.com/singerdmx/flutter-quill.git
+      ref: master
 
   # firebase
   firebase_core: ^1.0.1
