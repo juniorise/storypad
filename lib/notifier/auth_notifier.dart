@@ -8,6 +8,8 @@ class AuthenticatoinNotifier extends ChangeNotifier {
   User? user;
   bool isAccountSignedIn = false;
 
+  bool _loading = false;
+
   load() {
     user = service?.user;
     if (user != null) {
@@ -18,13 +20,21 @@ class AuthenticatoinNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  setLoading(bool value) {
+    this._loading = value;
+    notifyListeners();
+  }
+
   Future<bool> logAccount() async {
+    setLoading(true);
+
     bool? success = await service?.signInWithGoogle();
+    await load();
+
+    setLoading(false);
     if (success == true) {
-      await load();
       return true;
     } else {
-      await load();
       return false;
     }
   }
@@ -33,6 +43,8 @@ class AuthenticatoinNotifier extends ChangeNotifier {
     await service?.signOut();
     load();
   }
+
+  bool get loading => this._loading;
 }
 
 final authenticatoinProvider = ChangeNotifierProvider<AuthenticatoinNotifier>(

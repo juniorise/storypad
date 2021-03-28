@@ -259,144 +259,170 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
     BuildContext context,
     AuthenticatoinNotifier notifier,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
       children: [
-        const SizedBox(height: ConfigConstant.margin2 * 2),
+        AnimatedOpacity(
+          opacity: notifier.loading ? 1 : 0,
+          duration: ConfigConstant.fadeDuration ~/ 2,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4.0),
+            child: Container(
+              height: 4,
+              child: LinearProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Theme.of(context).primaryColor,
+                ),
+              ),
+            ),
+          ),
+        ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeaderText(
-              context: context,
-              title: tr("title.setting"),
-              subtitle: tr("subtitle.backup_restore"),
-              showLangs: false,
-              showInfo: true,
-            ),
-            const SizedBox(height: 24.0),
-            Consumer(
-              builder: (context, watch, child) {
-                RemoteDatabaseNotifier dbNotifier;
-                dbNotifier = watch(remoteDatabaseProvider)..load();
+            const SizedBox(height: ConfigConstant.margin2 * 2),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeaderText(
+                  context: context,
+                  title: tr("title.setting"),
+                  subtitle: tr("subtitle.backup_restore"),
+                  showLangs: false,
+                  showInfo: true,
+                ),
+                const SizedBox(height: 24.0),
+                Consumer(
+                  builder: (context, watch, child) {
+                    RemoteDatabaseNotifier dbNotifier;
+                    dbNotifier = watch(remoteDatabaseProvider)..load();
 
-                final WDatabase database = WDatabase.instance;
-                return Column(
-                  children: [
-                    Material(
-                      elevation: 0.5,
-                      borderRadius: ConfigConstant.circlarRadius2,
-                      color: Theme.of(context).primaryColor,
-                      child: ValueListenableBuilder(
-                          valueListenable: isSwitchNotifier,
-                          builder: (context, bool value, child) {
-                            return SwitchListTile(
-                              value: notifier.isAccountSignedIn ||
-                                  isSwitchNotifier.value,
-                              selected: true,
-                              shape: RoundedRectangleBorder(),
-                              activeColor: Theme.of(context).backgroundColor,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: ConfigConstant.margin2,
-                              ),
-                              title: Text(tr("button.login")),
-                              subtitle: Text(
-                                notifier.isAccountSignedIn
-                                    ? "${notifier.user?.email}"
-                                    : tr("msg.login.info"),
-                              ),
-                              onChanged: (bool value) async {
-                                onTapVibrate();
-                                isSwitchNotifier.value = value;
-                                if (value == true) {
-                                  bool success = await notifier.logAccount();
-                                  if (success == true) {
-                                    showSnackBar(
-                                      context: context,
-                                      title: tr("msg.login.success"),
-                                    );
-                                  } else {
-                                    showSnackBar(
-                                      context: context,
-                                      title:
-                                          notifier.service?.errorMessage != null
+                    final WDatabase database = WDatabase.instance;
+                    return Column(
+                      children: [
+                        Material(
+                          elevation: 0.5,
+                          borderRadius: ConfigConstant.circlarRadius2,
+                          color: Theme.of(context).primaryColor,
+                          child: ValueListenableBuilder(
+                              valueListenable: isSwitchNotifier,
+                              builder: (context, bool value, child) {
+                                return SwitchListTile(
+                                  value: notifier.isAccountSignedIn ||
+                                      isSwitchNotifier.value,
+                                  selected: true,
+                                  shape: RoundedRectangleBorder(),
+                                  activeColor:
+                                      Theme.of(context).backgroundColor,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: ConfigConstant.margin2,
+                                  ),
+                                  title: Text(tr("button.login")),
+                                  subtitle: Text(
+                                    notifier.isAccountSignedIn
+                                        ? "${notifier.user?.email}"
+                                        : tr("msg.login.info"),
+                                  ),
+                                  onChanged: (bool value) async {
+                                    onTapVibrate();
+                                    isSwitchNotifier.value = value;
+                                    if (value == true) {
+                                      bool success =
+                                          await notifier.logAccount();
+                                      if (success == true) {
+                                        showSnackBar(
+                                          context: context,
+                                          title: tr("msg.login.success"),
+                                        );
+                                      } else {
+                                        showSnackBar(
+                                          context: context,
+                                          title: notifier
+                                                      .service?.errorMessage !=
+                                                  null
                                               ? notifier.service?.errorMessage
                                                   as String
                                               : tr("msg.login.fail"),
-                                    );
-                                  }
-                                } else {
-                                  await notifier.signOut();
-                                  context.read(remoteDatabaseProvider).reset();
-                                }
-                                isSwitchNotifier.value =
-                                    notifier.isAccountSignedIn;
-                              },
-                            );
-                          }),
-                    ),
-                    if (notifier.isAccountSignedIn)
-                      Column(
-                        children: [
-                          const SizedBox(height: ConfigConstant.margin1),
-                          VTOnTapEffect(
-                            onTap: () async {
-                              showSnackBar(
-                                context: context,
-                                title: tr("msg.backup.export.warning"),
-                                onActionPressed: () async {
-                                  String backup =
-                                      await database.generateBackup();
-                                  final backupModel = DbBackupModel(
-                                    createOn: Timestamp.now(),
-                                    db: backup,
-                                  );
-                                  final bool success =
-                                      await dbNotifier.replace(backupModel);
+                                        );
+                                      }
+                                    } else {
+                                      await notifier.signOut();
+                                      context
+                                          .read(remoteDatabaseProvider)
+                                          .reset();
+                                    }
+                                    isSwitchNotifier.value =
+                                        notifier.isAccountSignedIn;
+                                  },
+                                );
+                              }),
+                        ),
+                        if (notifier.isAccountSignedIn)
+                          Column(
+                            children: [
+                              const SizedBox(height: ConfigConstant.margin1),
+                              VTOnTapEffect(
+                                onTap: () async {
+                                  showSnackBar(
+                                    context: context,
+                                    title: tr("msg.backup.export.warning"),
+                                    onActionPressed: () async {
+                                      String backup =
+                                          await database.generateBackup();
+                                      final backupModel = DbBackupModel(
+                                        createOn: Timestamp.now(),
+                                        db: backup,
+                                      );
+                                      final bool success =
+                                          await dbNotifier.replace(backupModel);
 
-                                  if (success) {
-                                    showSnackBar(
-                                      context: context,
-                                      title: tr("msg.backup.export.success"),
-                                    );
-                                  } else {
-                                    showSnackBar(
-                                      context: context,
-                                      title: tr("msg.backup.export.fail"),
-                                    );
-                                  }
+                                      if (success) {
+                                        showSnackBar(
+                                          context: context,
+                                          title:
+                                              tr("msg.backup.export.success"),
+                                        );
+                                      } else {
+                                        showSnackBar(
+                                          context: context,
+                                          title: tr("msg.backup.export.fail"),
+                                        );
+                                      }
+                                    },
+                                  );
                                 },
-                              );
-                            },
-                            child: Container(
-                              height: 48,
-                              width: double.infinity,
-                              alignment: Alignment.centerLeft,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12.0,
+                                child: Container(
+                                  height: 48,
+                                  width: double.infinity,
+                                  alignment: Alignment.centerLeft,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .scaffoldBackgroundColor,
+                                    borderRadius: ConfigConstant.circlarRadius2,
+                                  ),
+                                  child: Text(tr("msg.backup.export"),
+                                      maxLines: 1),
+                                ),
                               ),
-                              decoration: BoxDecoration(
-                                color:
-                                    Theme.of(context).scaffoldBackgroundColor,
-                                borderRadius: ConfigConstant.circlarRadius2,
-                              ),
-                              child: Text(tr("msg.backup.export"), maxLines: 1),
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          if (dbNotifier.backup != null &&
-                              dbNotifier.backup is DbBackupModel)
-                            buildBackItem(
-                              database,
-                              dbNotifier.backup!,
-                              context,
-                            ),
-                        ],
-                      )
-                  ],
-                );
-              },
+                              const SizedBox(height: 8.0),
+                              if (dbNotifier.backup != null &&
+                                  dbNotifier.backup is DbBackupModel)
+                                buildBackItem(
+                                  database,
+                                  dbNotifier.backup!,
+                                  context,
+                                ),
+                            ],
+                          )
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 8.0),
+              ],
             ),
-            const SizedBox(height: 8.0),
           ],
         ),
       ],
