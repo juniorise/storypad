@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/home_screen.dart';
 import 'package:write_story/screens/ask_for_name_sheet.dart';
@@ -69,8 +70,7 @@ class WrapperScreens extends HookWidget {
             );
           } else {
             print("2");
-            await Future.delayed(Duration(milliseconds: 350))
-                .then((value) async {
+            await Future.delayed(ConfigConstant.duration).then((value) async {
               if (!notifier.isInit) {
                 notifier.setInit();
                 showModalBottomSheet(

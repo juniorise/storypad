@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:write_story/app_helper/app_helper.dart';
+import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/database/w_database.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
 import 'package:write_story/models/db_backup_model.dart';
@@ -126,14 +127,14 @@ class AskForNameSheet extends HookWidget {
               ],
             );
 
+            final tab2 = WTab2();
+
             return DraggableScrollableSheet(
               initialChildSize: initHeight >= 1 ? 1 : initHeight,
               maxChildSize:
                   1 - statusBarHeight / MediaQuery.of(context).size.height,
               minChildSize: 0.2,
               builder: (context, controller) {
-                final tab2 = WTab2();
-
                 return Container(
                   height: double.infinity,
                   decoration: buildBoxDecoration(context),
@@ -146,8 +147,8 @@ class AskForNameSheet extends HookWidget {
                             child: tab1,
                             controller: init ? null : controller,
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 32.0,
+                              horizontal: ConfigConstant.margin2,
+                              vertical: ConfigConstant.margin2 * 2,
                             ),
                           ),
                           if (!init)
@@ -155,7 +156,7 @@ class AskForNameSheet extends HookWidget {
                               controller: controller,
                               child: tab2,
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
+                                horizontal: ConfigConstant.margin2,
                               ),
                             )
                         ],
@@ -223,9 +224,7 @@ class AskForNameSheet extends HookWidget {
 
   BoxDecoration buildBoxDecoration(BuildContext context) {
     final _theme = Theme.of(context);
-    const borderRadius = const BorderRadius.vertical(
-      top: const Radius.circular(10),
-    );
+    final borderRadius = ConfigConstant.circlarRadiusTop2;
 
     final boxShadow = [
       BoxShadow(
@@ -263,7 +262,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 32),
+        const SizedBox(height: ConfigConstant.margin2 * 2),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -274,17 +273,18 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
               showLangs: false,
               showInfo: true,
             ),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 24.0),
             Consumer(
               builder: (context, watch, child) {
-                final dbNotifier = watch(remoteDatabaseProvider)..load();
+                RemoteDatabaseNotifier dbNotifier;
+                dbNotifier = watch(remoteDatabaseProvider)..load();
 
                 final WDatabase database = WDatabase.instance;
                 return Column(
                   children: [
                     Material(
                       elevation: 0.5,
-                      borderRadius: BorderRadius.circular(10.0),
+                      borderRadius: ConfigConstant.circlarRadius2,
                       color: Theme.of(context).primaryColor,
                       child: ValueListenableBuilder(
                           valueListenable: isSwitchNotifier,
@@ -295,8 +295,9 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                               selected: true,
                               shape: RoundedRectangleBorder(),
                               activeColor: Theme.of(context).backgroundColor,
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 16.0),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: ConfigConstant.margin2,
+                              ),
                               title: Text(tr("button.login")),
                               subtitle: Text(
                                 notifier.isAccountSignedIn
@@ -336,7 +337,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                     if (notifier.isAccountSignedIn)
                       Column(
                         children: [
-                          const SizedBox(height: 8.0),
+                          const SizedBox(height: ConfigConstant.margin1),
                           VTOnTapEffect(
                             onTap: () async {
                               showSnackBar(
@@ -351,6 +352,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                                   );
                                   final bool success =
                                       await dbNotifier.replace(backupModel);
+
                                   if (success) {
                                     showSnackBar(
                                       context: context,
@@ -369,11 +371,13 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                               height: 48,
                               width: double.infinity,
                               alignment: Alignment.centerLeft,
-                              padding: EdgeInsets.symmetric(horizontal: 12.0),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12.0,
+                              ),
                               decoration: BoxDecoration(
                                 color:
                                     Theme.of(context).scaffoldBackgroundColor,
-                                borderRadius: BorderRadius.circular(10.0),
+                                borderRadius: ConfigConstant.circlarRadius2,
                               ),
                               child: Text(tr("msg.backup.export"), maxLines: 1),
                             ),
@@ -423,13 +427,13 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
             }
           },
           child: Container(
-            height: 48,
+            height: ConfigConstant.iconSize3,
             width: double.infinity,
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             decoration: BoxDecoration(
               color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: BorderRadius.circular(10.0),
+              borderRadius: ConfigConstant.circlarRadius2,
             ),
             child: Text(
               tr(
@@ -524,7 +528,7 @@ Widget _buildHeaderText({
                             .copyWith(fontWeight: FontWeight.w600),
                       ),
                       const Divider(),
-                      const SizedBox(height: 4.0),
+                      const SizedBox(height: ConfigConstant.margin0),
                       RichText(
                         text: TextSpan(
                           style: Theme.of(context).textTheme.caption,
@@ -549,7 +553,7 @@ Widget _buildHeaderText({
                     ],
                     applicationIcon: Image.asset(
                       "assets/icons/app_icon.png",
-                      height: 48,
+                      height: ConfigConstant.iconSize3,
                     ),
                   );
                 });
@@ -636,7 +640,7 @@ Widget _buildContinueButton({
   ];
 
   final _decoration = BoxDecoration(
-      borderRadius: BorderRadius.circular(10.0),
+      borderRadius: ConfigConstant.circlarRadius2,
       color:
           nameNotEmpty ? _theme.primaryColor : _theme.scaffoldBackgroundColor);
 
@@ -647,7 +651,7 @@ Widget _buildContinueButton({
       effects: _effects,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        height: 48,
+        height: ConfigConstant.iconSize3,
         decoration: _decoration,
         alignment: Alignment.center,
         child: Text(
@@ -687,7 +691,7 @@ Widget _buildTextField({
     filled: true,
     border: OutlineInputBorder(
       borderSide: BorderSide.none,
-      borderRadius: BorderRadius.circular(10.0),
+      borderRadius: ConfigConstant.circlarRadius2,
     ),
   );
 

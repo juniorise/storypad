@@ -20,13 +20,17 @@ class RemoteDatabaseNotifier with ChangeNotifier {
         this._backup = result;
       }
     }
-    notifyListeners();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      notifyListeners();
+    });
   }
 
   Future<bool> replace(DbBackupModel model) async {
     final result = await service.insertDatabase(auth.user!.uid, model);
     if (result == true) {
       await load();
+      notifyListeners();
       return true;
     } else {
       notifyListeners();

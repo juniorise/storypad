@@ -10,6 +10,7 @@ import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/default_styles.dart';
 import 'package:flutter_quill/widgets/editor.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
 import 'package:write_story/models/story_model.dart';
@@ -68,6 +69,9 @@ class StoryDetailScreen extends HookWidget
       headerPaddingTopNotifier.value = top;
     });
 
+    final titleController =
+        useTextEditingController(text: _notifier.draftStory.title);
+
     final _headerText = buildHeaderTextField(
       insert: insert,
       notifier: _notifier,
@@ -75,6 +79,7 @@ class StoryDetailScreen extends HookWidget
       onChanged: (String value) {
         _notifier.setDraftStory(_notifier.draftStory.copyWith(title: value));
       },
+      titleController: titleController,
     );
 
     final _theme = Theme.of(context);
@@ -99,8 +104,9 @@ class StoryDetailScreen extends HookWidget
             builder: (context, value, child) {
               return Padding(
                 child: _headerText,
-                padding: EdgeInsets.symmetric(horizontal: 16.0)
-                    .copyWith(top: headerPaddingTopNotifier.value),
+                padding:
+                    EdgeInsets.symmetric(horizontal: ConfigConstant.margin2)
+                        .copyWith(top: headerPaddingTopNotifier.value),
               );
             },
           ),
@@ -136,10 +142,8 @@ class StoryDetailScreen extends HookWidget
                   null,
                 ),
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 16.0,
-              ).copyWith(bottom: 48.0 + 16.0),
+              padding: const EdgeInsets.all(ConfigConstant.margin2)
+                  .copyWith(bottom: 48.0 + 16.0),
             ),
           ),
         ],
@@ -159,13 +163,15 @@ class StoryDetailScreen extends HookWidget
     required StoryDetailScreenNotifier notifier,
     required BuildContext context,
     required ValueChanged<String> onChanged,
+    required TextEditingController titleController,
   }) {
     final _theme = Theme.of(context);
     return Container(
       constraints: BoxConstraints(maxHeight: 250),
-      child: TextFormField(
+      child: TextField(
+        controller: titleController,
+        selectionHeightStyle: BoxHeightStyle.max,
         textAlign: TextAlign.left,
-        initialValue: notifier.draftStory.title,
         style: _theme.textTheme.headline6,
         onChanged: onChanged,
         maxLines: null,
@@ -212,7 +218,7 @@ class StoryDetailScreen extends HookWidget
                 padding: MediaQuery.of(context).viewInsets,
                 child: WQuillToolbar.basic(
                   controller: controller,
-                  toolbarIconSize: 24,
+                  toolbarIconSize: ConfigConstant.iconSize2,
                   showLink: false,
                   showHeaderStyle: false,
                   showCodeBlock: false,
@@ -304,10 +310,7 @@ class StoryDetailScreen extends HookWidget
                     context: context,
                     insert: insert,
                   ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0,
-                    vertical: 8.0,
-                  ),
+                  padding: ConfigConstant.layoutPadding,
                 ),
               );
               if (Platform.isIOS) {

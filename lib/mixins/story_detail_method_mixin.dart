@@ -62,7 +62,7 @@ mixin StoryDetailMethodMixin {
     VoidCallback? onActionPressed,
     VoidCallback? onClose,
   }) async {
-    ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
+    ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
     Future.delayed(Duration(microseconds: 0)).then((value) {
       final SnackBar snack = buildSnackBar(
         title: title,

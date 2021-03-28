@@ -7,6 +7,7 @@ import 'package:flutter_quill/models/documents/document.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/colors.dart';
+import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/models/story_list_model.dart';
 import 'package:write_story/models/story_model.dart';
@@ -185,7 +186,7 @@ class HomeScreen extends HookWidget with HookController {
     }
 
     return ListView(
-      padding: padding,
+      padding: ConfigConstant.layoutPadding,
       children: List.generate(
         storiesInMonthIds.length,
         (_dayIndex) {
@@ -275,8 +276,10 @@ class HomeScreen extends HookWidget with HookController {
                   story: story!,
                   notifier: notifier,
                   margin: EdgeInsets.only(
-                    top: _storyIndex == 0 ? 8.0 : 0,
-                    bottom: _storyIndex != childrenId.length - 1 ? 8.0 : 0.0,
+                    top: _storyIndex == 0 ? ConfigConstant.margin1 : 0.0,
+                    bottom: _storyIndex != childrenId.length - 1
+                        ? ConfigConstant.margin1
+                        : 0.0,
                   ),
                 );
               },
@@ -312,7 +315,7 @@ class HomeScreen extends HookWidget with HookController {
         Column(
           children: [
             Container(
-              margin: const EdgeInsets.only(bottom: 4.0),
+              margin: const EdgeInsets.only(bottom: ConfigConstant.margin0),
               child: Text(dayName),
             ),
             Stack(
@@ -350,7 +353,7 @@ class HomeScreen extends HookWidget with HookController {
     required BuildContext context,
     required StoryModel story,
     required HomeScreenNotifier notifier,
-    EdgeInsets margin = const EdgeInsets.only(bottom: 8.0),
+    EdgeInsets margin = const EdgeInsets.only(bottom: ConfigConstant.margin1),
     required ValueChanged<DateTime> onSaved,
   }) {
     /// Title
@@ -427,7 +430,7 @@ class HomeScreen extends HookWidget with HookController {
           child: Stack(
             children: [
               Container(
-                padding: padding,
+                padding: ConfigConstant.layoutPadding,
                 width: double.infinity,
                 child: Wrap(
                   direction: Axis.vertical,
@@ -435,7 +438,7 @@ class HomeScreen extends HookWidget with HookController {
                   crossAxisAlignment: WrapCrossAlignment.start,
                   children: [
                     _titleWidget,
-                    const SizedBox(height: 4.0),
+                    const SizedBox(height: ConfigConstant.margin0),
                     _paragraphWidget,
                   ],
                 ),
@@ -524,13 +527,6 @@ class HomeScreen extends HookWidget with HookController {
           child: child,
         );
       },
-    );
-  }
-
-  EdgeInsets get padding {
-    return const EdgeInsets.symmetric(
-      horizontal: 16.0,
-      vertical: 8.0,
     );
   }
 
