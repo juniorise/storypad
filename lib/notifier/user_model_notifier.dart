@@ -12,6 +12,7 @@ class UserModelNotifier extends ChangeNotifier {
   DateTime? dob;
 
   bool isInit = false;
+  bool loading = true;
 
   setInit() {
     this.isInit = true;
@@ -28,6 +29,7 @@ class UserModelNotifier extends ChangeNotifier {
       alreadyHasUser = false;
     }
 
+    loading = false;
     notifyListeners();
   }
 

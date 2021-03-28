@@ -364,7 +364,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                         if (notifier.isAccountSignedIn)
                           Column(
                             children: [
-                              const SizedBox(height: ConfigConstant.margin1),
+                              const SizedBox(height: ConfigConstant.margin2),
                               VTOnTapEffect(
                                 onTap: () async {
                                   showSnackBar(

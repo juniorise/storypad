@@ -32,8 +32,12 @@ class WMoreFaqButton extends StatelessWidget {
             icon: Icons.more_horiz,
             activeIcon: Icons.more_horiz,
             buttonSize: kToolbarHeight,
+            activeBackgroundColor: Theme.of(context).backgroundColor,
+            activeForegroundColor: Theme.of(context).primaryColor,
             closeManually: true,
             renderOverlay: false,
+            animationSpeed: 150,
+            useRotationAnimation: false,
             curve: Curves.bounceIn,
             overlayOpacity: 0.0,
             openCloseDial: faqNotifier,
@@ -41,7 +45,7 @@ class WMoreFaqButton extends StatelessWidget {
             // heroTag: 'speed-dial-hero-tag',
             backgroundColor: Theme.of(context).primaryColor,
             foregroundColor: Theme.of(context).backgroundColor,
-            elevation: 0.0,
+            elevation: faqNotifier.value ? 2.0 : 0,
             shape: CircleBorder(),
             onClose: () {
               onTapVibrate();
@@ -54,7 +58,7 @@ class WMoreFaqButton extends StatelessWidget {
             children: [
               SpeedDialChild(
                 child: Icon(Icons.settings),
-                backgroundColor: Theme.of(context).primaryColorDark,
+                backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Theme.of(context).backgroundColor,
                 label: tr("title.setting"),
                 elevation: 0.0,
@@ -69,7 +73,7 @@ class WMoreFaqButton extends StatelessWidget {
               ),
               SpeedDialChild(
                 child: Icon(Icons.add),
-                backgroundColor: Theme.of(context).primaryColorDark,
+                backgroundColor: Theme.of(context).primaryColor,
                 foregroundColor: Theme.of(context).backgroundColor,
                 elevation: 0.0,
                 label: tr("button.add_story"),
