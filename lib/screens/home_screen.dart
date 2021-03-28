@@ -13,15 +13,24 @@ import 'package:write_story/models/story_list_model.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/tab_controller_notifier.dart';
+import 'package:write_story/screens/ask_for_name_sheet.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
-import 'package:write_story/widgets/w_add_to_story_fab.dart';
+import 'package:write_story/widgets/w_more_faq_button.dart';
 import 'package:write_story/widgets/w_no_data.dart';
 import 'package:write_story/widgets/w_sliver_appbar.dart';
 
 class HomeScreen extends HookWidget with HookController {
   static final now = DateTime.now();
+
+  final ValueNotifier<bool> faqNotifier = ValueNotifier<bool>(false);
+
+  closeFaq() {
+    if (faqNotifier.value) {
+      faqNotifier.value = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +61,7 @@ class HomeScreen extends HookWidget with HookController {
     );
   }
 
-  GestureDetector buildScaffold({
+  Widget buildScaffold({
     required BuildContext context,
     required HomeScreenNotifier notifier,
     required TabController controller,
@@ -60,59 +69,59 @@ class HomeScreen extends HookWidget with HookController {
     required TabControllerNotifier tabNotifier,
     required double bottomBarHeight,
   }) {
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        TextEditingController().clear();
+    return WillPopScope(
+      onWillPop: () async {
+        return closeFaq();
       },
-      child: DefaultTabController(
-        length: controller.length,
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          floatingActionButton: buildFAB(
-            forDate: DateTime(
-              notifier.currentSelectedYear,
-              tabNotifier.currentIndex + 1,
-              now.day,
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+          TextEditingController().clear();
+          closeFaq();
+        },
+        child: DefaultTabController(
+          length: controller.length,
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            floatingActionButton: buildMoreFaq(
+              statusBarHeight,
+              bottomBarHeight,
+              notifier,
+              tabNotifier,
+              controller,
             ),
-            onSaved: (DateTime? date) async {
-              if (date != null) {
-                notifier.setCurrentSelectedYear(date.year);
-                controller.animateTo(date.month - 1, curve: Curves.easeInQuart);
-              }
-            },
-          ),
-          resizeToAvoidBottomInset: false,
-          body: NestedScrollView(
-            headerSliverBuilder: (context, _) => [
-              buildHeaderAppBar(
-                isInit: notifier.inited,
+            resizeToAvoidBottomInset: false,
+            body: NestedScrollView(
+              headerSliverBuilder: (context, _) => [
+                buildHeaderAppBar(
+                  isInit: notifier.inited,
+                  controller: controller,
+                  statusBarHeight: statusBarHeight,
+                  context: context,
+                  notifier: notifier,
+                  bottomBarHeight: bottomBarHeight,
+                )
+              ],
+              body: VTTabView(
                 controller: controller,
-                statusBarHeight: statusBarHeight,
-                context: context,
-                notifier: notifier,
-                bottomBarHeight: bottomBarHeight,
-              )
-            ],
-            body: VTTabView(
-              controller: controller,
-              children: List.generate(
-                controller.length,
-                (index) {
-                  final int monthID = index + 1;
-                  return buildStoryInMonth(
-                    monthId: monthID,
-                    context: context,
-                    notifier: notifier,
-                    onSaved: (DateTime? date) async {
-                      if (date != null) {
-                        notifier.setCurrentSelectedYear(date.year);
-                        controller.animateTo(date.month - 1,
-                            curve: Curves.easeInQuart);
-                      }
-                    },
-                  );
-                },
+                children: List.generate(
+                  controller.length,
+                  (index) {
+                    final int monthID = index + 1;
+                    return buildStoryInMonth(
+                      monthId: monthID,
+                      context: context,
+                      notifier: notifier,
+                      onSaved: (DateTime? date) async {
+                        if (date != null) {
+                          notifier.setCurrentSelectedYear(date.year);
+                          controller.animateTo(date.month - 1,
+                              curve: Curves.easeInQuart);
+                        }
+                      },
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -121,14 +130,62 @@ class HomeScreen extends HookWidget with HookController {
     );
   }
 
-  Widget buildFAB({
-    required DateTime forDate,
-    required ValueChanged<DateTime> onSaved,
-  }) {
+  Widget buildMoreFaq(
+    double statusBarHeight,
+    double bottomBarHeight,
+    HomeScreenNotifier notifier,
+    TabControllerNotifier tabNotifier,
+    TabController controller,
+  ) {
     return buildFadeInOnInit(
-      child: AddToStoryFAB(
-        forDate: forDate,
-        onSaved: onSaved,
+      child: ValueListenableBuilder(
+        valueListenable: faqNotifier,
+        builder: (context, value, child) {
+          return WMoreFaqButton(
+            faqNotifier: faqNotifier,
+            onSettingPressed: () {
+              closeFaq();
+              showModalBottomSheet(
+                isDismissible: true,
+                context: context,
+                enableDrag: true,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) {
+                  return AskForNameSheet(
+                    statusBarHeight: statusBarHeight,
+                    bottomBarHeight: bottomBarHeight,
+                    intTapIndex: 1,
+                  );
+                },
+              );
+            },
+            onAddStoryPressed: () async {
+              closeFaq();
+              final forDate = DateTime(
+                notifier.currentSelectedYear,
+                tabNotifier.currentIndex + 1,
+                now.day,
+              );
+              final dynamic date =
+                  await Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  builder: (context) {
+                    return StoryDetailScreen(
+                      story: StoryModel.empty.copyWith(forDate: forDate),
+                      insert: true,
+                    );
+                  },
+                ),
+              );
+              if (date != null) {
+                notifier.setCurrentSelectedYear(date.year);
+                controller.animateTo(date.month - 1, curve: Curves.easeInQuart);
+              }
+            },
+          );
+        },
       ),
     );
   }
@@ -408,6 +465,7 @@ class HomeScreen extends HookWidget with HookController {
     return VTOnTapEffect(
       effects: _tileEffects,
       onTap: () async {
+        closeFaq();
         final dynamic selected = await Navigator.of(
           context,
           rootNavigator: true,
@@ -468,11 +526,13 @@ class HomeScreen extends HookWidget with HookController {
       top: 0,
       child: VTOnTapEffect(
         onTap: () async {
+          closeFaq();
           await notifier.toggleFavorite(story.id);
         },
         effects: favoriteButtonEffect,
         child: IconButton(
           onPressed: () async {
+            closeFaq();
             await notifier.toggleFavorite(story.id);
           },
           iconSize: 20,

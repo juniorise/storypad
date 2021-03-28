@@ -29,7 +29,7 @@ class AppLocalization extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EasyLocalization(
-      startLocale: Locale("km"),
+      startLocale: Locale("en"),
       supportedLocales: [
         Locale('en'),
         Locale('km'),

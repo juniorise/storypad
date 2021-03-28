@@ -29,10 +29,12 @@ class AskForNameSheet extends HookWidget {
     this.init = false,
     required this.statusBarHeight,
     required this.bottomBarHeight,
+    this.intTapIndex = 0,
   }) : super(key: key);
   final bool init;
   final double statusBarHeight;
   final double bottomBarHeight;
+  final int intTapIndex;
 
   @override
   Widget build(BuildContext buildContext) {
@@ -45,7 +47,10 @@ class AskForNameSheet extends HookWidget {
     bool canContinue = nameNotEmpty;
     canContinue = nameNotEmpty && notifier.user?.nickname != notifier.nickname;
 
-    final tabController = useTabController(initialLength: init ? 1 : 2);
+    final tabController = useTabController(
+      initialLength: init ? 1 : 2,
+      initialIndex: intTapIndex,
+    );
 
     tabController.addListener(() {
       ScaffoldMessenger.of(context).removeCurrentSnackBar();
