@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_copied_tabbar.dart';
 import 'package:write_story/widgets/w_tab_indicator.dart';
 
@@ -44,7 +45,9 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
           child: WCopiedTabBar(
             controller: tabController,
             isScrollable: true,
-            onTap: (index) {},
+            onTap: (index) {
+              onTapVibrate();
+            },
             unselectedLabelColor: unselectedLabelColor,
             labelColor: isInit ? backgroundColor : unselectedLabelColor,
             labelStyle: Theme.of(context).textTheme.bodyText1,

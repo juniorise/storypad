@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
+import 'package:write_story/widgets/vt_ontap_effect.dart';
 
 mixin StoryDetailMethodMixin {
   String getDateLabel({
@@ -70,6 +71,7 @@ mixin StoryDetailMethodMixin {
         onActionPressed: onActionPressed,
       );
 
+      onTapVibrate();
       ScaffoldMessenger.of(context).showSnackBar(snack).closed.then(
         (value) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();

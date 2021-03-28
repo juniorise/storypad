@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:vibration/vibration.dart';
+
+Future<void> onTapVibrate() async {
+  await Vibration.vibrate(repeat: 0, duration: 50);
+}
 
 enum VTOnTapEffectType {
   touchableOpacity,
@@ -22,6 +27,7 @@ class VTOnTapEffect extends HookWidget {
     required this.child,
     required this.onTap,
     this.duration = const Duration(milliseconds: 150),
+    this.vibrate = false,
     this.effects = const [
       VTOnTapEffectItem(
         effectType: VTOnTapEffectType.touchableOpacity,
@@ -34,6 +40,7 @@ class VTOnTapEffect extends HookWidget {
   final List<VTOnTapEffectItem> effects;
   final VoidCallback onTap;
   final Duration duration;
+  final bool vibrate;
 
   static double _scaleActive = 0.98;
   static double _opacityActive = 0.5;
@@ -73,6 +80,19 @@ class VTOnTapEffect extends HookWidget {
       onTapCancel: () {
         controller.reverse();
       },
+      onLongPress: vibrate
+          ? () async {
+              if (await Vibration.hasVibrator() == true) {
+                onTapVibrate().then((value) {
+                  controller.reverse();
+                  onTap();
+                });
+              } else {
+                controller.reverse();
+                onTap();
+              }
+            }
+          : null,
       child: AnimatedBuilder(
         child: child,
         animation: controller,

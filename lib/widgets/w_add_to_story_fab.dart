@@ -13,6 +13,24 @@ class AddToStoryFAB extends StatelessWidget {
   final DateTime forDate;
   final ValueChanged<DateTime>? onSaved;
 
+  Future<void> onPressed(BuildContext context) async {
+    final dynamic selected =
+        await Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) {
+          return StoryDetailScreen(
+            story: StoryModel.empty.copyWith(forDate: forDate),
+            insert: true,
+          );
+        },
+      ),
+    );
+    if (selected != null && selected is DateTime) {
+      if (this.onSaved != null) onSaved!(selected);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -26,7 +44,8 @@ class AddToStoryFAB extends StatelessWidget {
         ),
       ),
       child: VTOnTapEffect(
-        onTap: () {},
+        vibrate: true,
+        onTap: () async => await onPressed(context),
         effects: [
           VTOnTapEffectItem(
             effectType: VTOnTapEffectType.scaleDown,
@@ -38,23 +57,7 @@ class AddToStoryFAB extends StatelessWidget {
           )
         ],
         child: FloatingActionButton(
-          onPressed: () async {
-            final dynamic selected =
-                await Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                fullscreenDialog: true,
-                builder: (context) {
-                  return StoryDetailScreen(
-                    story: StoryModel.empty.copyWith(forDate: forDate),
-                    insert: true,
-                  );
-                },
-              ),
-            );
-            if (selected != null && selected is DateTime) {
-              if (this.onSaved != null) onSaved!(selected);
-            }
-          },
+          onPressed: () async => await onPressed(context),
           backgroundColor: Theme.of(context).primaryColor,
           foregroundColor: Colors.white,
           child: const Icon(Icons.add),

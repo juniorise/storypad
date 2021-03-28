@@ -297,6 +297,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                               : tr("msg.login.info"),
                         ),
                         onChanged: (bool value) async {
+                          onTapVibrate();
                           if (value == true) {
                             bool success = await notifier.logAccount();
                             if (success == true) {
@@ -544,14 +545,18 @@ Widget _buildHeaderText({
               child: Row(
                 children: [
                   VTOnTapEffect(
+                    vibrate: true,
                     onTap: () {
+                      onTapVibrate();
                       context.setLocale(Locale("km"));
                     },
                     child: Image.asset("assets/flags/km-flag.png"),
                   ),
                   const SizedBox(width: 4.0),
                   VTOnTapEffect(
+                    vibrate: true,
                     onTap: () {
+                      onTapVibrate();
                       context.setLocale(Locale("en"));
                     },
                     child: Image.asset("assets/flags/en-flag.png"),
