@@ -1,13 +1,13 @@
 {
   "str": "km",
   "button.cancel": "បោះបង់",
+  "button.update": "កែប្រែ",
+  "button.signout": "ចាកចេញពីគណនី",
   "button.continute": "បន្ត",
-  "button.done": "រួចរាល់",
+  "button.try_again": "ព្យាយាម​ម្តង​ទៀត!",
   "button.login": "ភ្ជាប់ជាមួយ Google",
   "button.okay": "យល់ព្រម",
-  "button.signout": "ចាកចេញពីគណនី",
-  "button.try_again": "ព្យាយាម​ម្តង​ទៀត!",
-  "button.update": "កែប្រែ",
+  "button.done": "រួចរាល់",
   "hint_text.email": "អ៊ីមែល​របស់​អ្នក",
   "hint_text.nickname": "ឈ្មោះហៅក្រៅរបស់អ្នក ...",
   "hint_text.password": "លេខសំងាត់​របស់​អ្នក",
@@ -48,5 +48,9 @@
   "title.hello": "សួរស្តី!",
   "title.hello_name": "សួរស្តី{USER_NAME}",
   "title.setting": "ការកំណត់",
-  "validate.title": "ចំណងជើងមិនត្រូវទទេឡើយ!"
+  "validate.title": "ចំណងជើងមិនត្រូវទទេឡើយ!",
+  "msg.backup.export.success": "រក្សាទុកទិន្នន័យដោយជោគជ័យ!",
+  "msg.backup.export.fail": "បរាជ័យ!",
+  "msg.backup.import.success": "ទាយយកទិន្នន័យដោយជោគជ័យ!",
+  "msg.backup.import.fail": "បរាជ័យ!"
 }

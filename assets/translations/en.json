@@ -1,13 +1,13 @@
 {
   "str": "en",
   "button.cancel": "Cancel",
+  "button.update": "Update",
+  "button.signout": "Sign out",
   "button.continute": "Continue",
-  "button.done": "Done",
+  "button.try_again": "Try again!",
   "button.login": "Connect with Google",
   "button.okay": "Okay",
-  "button.signout": "Sign out",
-  "button.try_again": "Try again!",
-  "button.update": "Update",
+  "button.done": "Done",
   "hint_text.email": "Your email",
   "hint_text.nickname": "Your nickname...",
   "hint_text.password": "Your password",
@@ -48,5 +48,9 @@
   "title.hello": "Hello!",
   "title.hello_name": "Hello {USER_NAME}",
   "title.setting": "Setting",
-  "validate.title": "Title must not be empty!"
+  "validate.title": "Title must not be empty!",
+  "msg.backup.export.success": "Successfully synced!",
+  "msg.backup.export.fail": "Sync fail!",
+  "msg.backup.import.success": "Successfully import!",
+  "msg.backup.import.fail": "Import fail"
 }

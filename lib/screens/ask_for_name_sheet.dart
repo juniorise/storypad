@@ -274,6 +274,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
               showLangs: false,
               showInfo: true,
             ),
+            const SizedBox(height: 16.0),
             Consumer(
               builder: (context, watch, child) {
                 final dbNotifier = watch(remoteDatabaseProvider)..load();
@@ -281,7 +282,6 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                 final WDatabase database = WDatabase.instance;
                 return Column(
                   children: [
-                    Divider(),
                     Material(
                       elevation: 0.5,
                       borderRadius: BorderRadius.circular(10.0),
@@ -327,7 +327,6 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                                   await notifier.signOut();
                                   context.read(remoteDatabaseProvider).reset();
                                 }
-
                                 isSwitchNotifier.value =
                                     notifier.isAccountSignedIn;
                               },
@@ -350,7 +349,19 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                                     createOn: Timestamp.now(),
                                     db: backup,
                                   );
-                                  await dbNotifier.replace(backupModel);
+                                  final bool success =
+                                      await dbNotifier.replace(backupModel);
+                                  if (success) {
+                                    showSnackBar(
+                                      context: context,
+                                      title: tr("msg.backup.export.success"),
+                                    );
+                                  } else {
+                                    showSnackBar(
+                                      context: context,
+                                      title: tr("msg.backup.export.fail"),
+                                    );
+                                  }
                                 },
                               );
                             },
@@ -402,12 +413,12 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
               await context.read(homeScreenProvider).load();
               showSnackBar(
                 context: context,
-                title: tr("msg.save.success"),
+                title: tr("msg.backup.import.success"),
               );
             } else {
               showSnackBar(
                 context: context,
-                title: tr("msg.save.fail"),
+                title: tr("msg.backup.import.fail"),
               );
             }
           },
