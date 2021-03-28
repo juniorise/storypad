@@ -248,6 +248,8 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
     Key? key,
   }) : super(key: key);
 
+  final ValueNotifier<bool> isSwitchNotifier = ValueNotifier<bool>(false);
+
   @override
   Widget build(BuildContext context) {
     final notifier = useProvider(authenticatoinProvider);
@@ -284,41 +286,53 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                       elevation: 0.5,
                       borderRadius: BorderRadius.circular(10.0),
                       color: Theme.of(context).primaryColor,
-                      child: SwitchListTile(
-                        value: notifier.isAccountSignedIn,
-                        selected: true,
-                        shape: RoundedRectangleBorder(),
-                        activeColor: Theme.of(context).backgroundColor,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-                        title: Text(tr("button.login")),
-                        subtitle: Text(
-                          notifier.isAccountSignedIn
-                              ? "${notifier.user?.email}"
-                              : tr("msg.login.info"),
-                        ),
-                        onChanged: (bool value) async {
-                          onTapVibrate();
-                          if (value == true) {
-                            bool success = await notifier.logAccount();
-                            if (success == true) {
-                              showSnackBar(
-                                context: context,
-                                title: tr("msg.login.success"),
-                              );
-                            } else {
-                              showSnackBar(
-                                context: context,
-                                title: notifier.service?.errorMessage != null
-                                    ? notifier.service?.errorMessage as String
-                                    : tr("msg.login.fail"),
-                              );
-                            }
-                          } else {
-                            await notifier.signOut();
-                            context.read(remoteDatabaseProvider).reset();
-                          }
-                        },
-                      ),
+                      child: ValueListenableBuilder(
+                          valueListenable: isSwitchNotifier,
+                          builder: (context, bool value, child) {
+                            return SwitchListTile(
+                              value: notifier.isAccountSignedIn ||
+                                  isSwitchNotifier.value,
+                              selected: true,
+                              shape: RoundedRectangleBorder(),
+                              activeColor: Theme.of(context).backgroundColor,
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 16.0),
+                              title: Text(tr("button.login")),
+                              subtitle: Text(
+                                notifier.isAccountSignedIn
+                                    ? "${notifier.user?.email}"
+                                    : tr("msg.login.info"),
+                              ),
+                              onChanged: (bool value) async {
+                                onTapVibrate();
+                                isSwitchNotifier.value = value;
+                                if (value == true) {
+                                  bool success = await notifier.logAccount();
+                                  if (success == true) {
+                                    showSnackBar(
+                                      context: context,
+                                      title: tr("msg.login.success"),
+                                    );
+                                  } else {
+                                    showSnackBar(
+                                      context: context,
+                                      title:
+                                          notifier.service?.errorMessage != null
+                                              ? notifier.service?.errorMessage
+                                                  as String
+                                              : tr("msg.login.fail"),
+                                    );
+                                  }
+                                } else {
+                                  await notifier.signOut();
+                                  context.read(remoteDatabaseProvider).reset();
+                                }
+
+                                isSwitchNotifier.value =
+                                    notifier.isAccountSignedIn;
+                              },
+                            );
+                          }),
                     ),
                     if (notifier.isAccountSignedIn)
                       Column(
@@ -326,12 +340,19 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                           const SizedBox(height: 8.0),
                           VTOnTapEffect(
                             onTap: () async {
-                              String backup = await database.generateBackup();
-                              final backupModel = DbBackupModel(
-                                createOn: Timestamp.now(),
-                                db: backup,
+                              showSnackBar(
+                                context: context,
+                                title: tr("msg.backup.export.warning"),
+                                onActionPressed: () async {
+                                  String backup =
+                                      await database.generateBackup();
+                                  final backupModel = DbBackupModel(
+                                    createOn: Timestamp.now(),
+                                    db: backup,
+                                  );
+                                  await dbNotifier.replace(backupModel);
+                                },
                               );
-                              await dbNotifier.add(backupModel);
                             },
                             child: Container(
                               height: 48,

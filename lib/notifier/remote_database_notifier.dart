@@ -23,7 +23,7 @@ class RemoteDatabaseNotifier with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> add(DbBackupModel model) async {
+  Future<void> replace(DbBackupModel model) async {
     final result = await service.insertDatabase(auth.user!.uid, model);
     if (result == true) {
       await load();

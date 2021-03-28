@@ -16,6 +16,7 @@
   "info.about_project": "This is an open source project which is coded in Dart and Flutter. If you have any problem, please consider open issue here: ",
   "info.app_detail": "Story is an mobile application that allow user to write stories locally with no ads.",
   "msg.backup.export": "Sync current data",
+  "msg.backup.export.warning": "This will replace your data on cloud!",
   "msg.backup.import": "Import last backup: {DATE}",
   "msg.date.create_on": "Create on: {DATE}",
   "msg.date.for_date": "For date: {DATE}",

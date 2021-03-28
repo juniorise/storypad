@@ -24,6 +24,7 @@ class AuthenticatoinNotifier extends ChangeNotifier {
       await load();
       return true;
     } else {
+      await load();
       return false;
     }
   }
