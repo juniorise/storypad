@@ -531,7 +531,7 @@ Widget _buildHeaderText({
                   showAboutDialog(
                     context: context,
                     applicationName: "Story",
-                    applicationVersion: "v1.0.0+3",
+                    applicationVersion: "v1.0.0+6",
                     applicationLegalese: tr("info.app_detail"),
                     children: [
                       const SizedBox(height: 24.0),
