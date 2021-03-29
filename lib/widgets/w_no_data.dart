@@ -29,10 +29,9 @@ class WNoData extends StatelessWidget {
               alignment: WrapAlignment.center,
               runAlignment: tablet ? WrapAlignment.start : WrapAlignment.center,
               children: [
-                Image.asset(
-                  "assets/illustrations/thinking-woman.png",
-                  width: imageSize,
-                  height: imageSize,
+                ImageIcon(
+                  AssetImage("assets/illustrations/thinking-woman.png"),
+                  size: imageSize,
                 ),
                 const SizedBox(height: 16.0),
                 Container(

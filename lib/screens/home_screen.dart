@@ -13,10 +13,12 @@ import 'package:write_story/models/story_list_model.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/tab_controller_notifier.dart';
+import 'package:write_story/notifier/theme_notifier.dart';
 import 'package:write_story/screens/ask_for_name_sheet.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
+import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:write_story/widgets/w_more_faq_button.dart';
 import 'package:write_story/widgets/w_no_data.dart';
 import 'package:write_story/widgets/w_sliver_appbar.dart';
@@ -38,6 +40,7 @@ class HomeScreen extends HookWidget with HookController {
     final bottomBarHeight = MediaQuery.of(context).padding.bottom;
 
     final _notifier = useProvider(homeScreenProvider);
+    final _themeNotifier = useProvider(themeProvider);
 
     final controller = useTabController(
       initialLength: 12,
@@ -53,6 +56,7 @@ class HomeScreen extends HookWidget with HookController {
       statusBarHeight: statusBarHeight,
       tabNotifier: _tabNotifier,
       bottomBarHeight: bottomBarHeight,
+      themeNotifier: _themeNotifier,
     );
 
     return buildFadeInitAnimationBackground(
@@ -68,6 +72,7 @@ class HomeScreen extends HookWidget with HookController {
     required double statusBarHeight,
     required TabControllerNotifier tabNotifier,
     required double bottomBarHeight,
+    required ThemeNotifier themeNotifier,
   }) {
     return WillPopScope(
       onWillPop: () async {
@@ -394,7 +399,7 @@ class HomeScreen extends HookWidget with HookController {
                     storyListByDay.forDate.day.toString(),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Theme.of(context).backgroundColor,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -440,7 +445,7 @@ class HomeScreen extends HookWidget with HookController {
         _paragraphText,
         textAlign: TextAlign.start,
         style: TextStyle(
-          color: Theme.of(context).textTheme.subtitle2!.color!.withOpacity(0.6),
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
         ),
       ),
     );
@@ -484,7 +489,7 @@ class HomeScreen extends HookWidget with HookController {
         margin: margin,
         child: Material(
           elevation: 0.5,
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).colorScheme.surface,
           child: Stack(
             children: [
               Container(
@@ -527,23 +532,23 @@ class HomeScreen extends HookWidget with HookController {
       child: VTOnTapEffect(
         onTap: () async {
           closeFaq();
+          onTapVibrate();
           await notifier.toggleFavorite(story.id);
         },
         effects: favoriteButtonEffect,
-        child: IconButton(
+        child: WIconButton(
           onPressed: () async {
             closeFaq();
+            onTapVibrate();
             await notifier.toggleFavorite(story.id);
           },
-          iconSize: 20,
-          icon: Icon(
-            story.isFavorite == true
-                ? Icons.favorite
-                : Icons.favorite_border_rounded,
-            color: story.isFavorite == true
-                ? Theme.of(context).errorColor
-                : Theme.of(context).dividerColor,
-          ),
+          size: 40,
+          iconData: story.isFavorite == true
+              ? Icons.favorite
+              : Icons.favorite_border_rounded,
+          iconColor: story.isFavorite == true
+              ? Theme.of(context).colorScheme.error
+              : Theme.of(context).dividerColor,
         ),
       ),
     );
@@ -557,7 +562,7 @@ class HomeScreen extends HookWidget with HookController {
       children: [
         /// we use this to animation background
         Container(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           width: double.infinity,
           height: double.infinity,
         ),
@@ -565,7 +570,7 @@ class HomeScreen extends HookWidget with HookController {
           child: Container(
             width: double.infinity,
             height: double.infinity,
-            color: Theme.of(context).scaffoldBackgroundColor,
+            color: Theme.of(context).colorScheme.background,
           ),
         ),
         scaffold,
@@ -606,12 +611,12 @@ class HomeScreen extends HookWidget with HookController {
       final style = Theme.of(context)
           .textTheme
           .bodyText1!
-          .copyWith(color: Theme.of(context).backgroundColor);
+          .copyWith(color: Theme.of(context).colorScheme.background);
 
       final actions = onActionPressed != null
           ? SnackBarAction(
               label: actionLabel ?? tr("button.okay"),
-              textColor: Theme.of(context).backgroundColor,
+              textColor: Theme.of(context).colorScheme.background,
               onPressed: () async {
                 onActionPressed();
               },

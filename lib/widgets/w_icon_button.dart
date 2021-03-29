@@ -7,36 +7,53 @@ class WIconButton extends StatelessWidget {
     required this.iconData,
     required this.onPressed,
     this.iconColor,
-  }) : super(key: key);
+    this.filledColor,
+    this.elevation = 0.0,
+    this.size = 48.0,
+  })  : assert(elevation >= 0),
+        assert(size >= 0),
+        super(key: key);
 
+  final double size;
   final IconData iconData;
   final VoidCallback onPressed;
   final Color? iconColor;
+  final Color? filledColor;
+  final double elevation;
 
   @override
   Widget build(BuildContext context) {
     final _theme = Theme.of(context);
     return Center(
-      child: Container(
-        height: 48,
-        width: 48,
-        child: VTOnTapEffect(
-          onTap: onPressed,
-          effects: [
-            VTOnTapEffectItem(
-              effectType: VTOnTapEffectType.scaleDown,
-              active: 0.9,
-            ),
-          ],
-          child: InkWell(
-            highlightColor:
-                Theme.of(context).primaryColorDark.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(48),
+      child: Material(
+        borderRadius: BorderRadius.circular(size / 2),
+        elevation: elevation,
+        color: Colors.transparent,
+        child: Container(
+          height: size,
+          width: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: filledColor,
+          ),
+          child: VTOnTapEffect(
             onTap: onPressed,
-            child: Icon(
-              iconData,
-              color: iconColor ?? _theme.primaryColorDark,
-              size: 24,
+            effects: [
+              VTOnTapEffectItem(
+                effectType: VTOnTapEffectType.scaleDown,
+                active: 0.9,
+              ),
+            ],
+            child: InkWell(
+              highlightColor:
+                  Theme.of(context).colorScheme.primary.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(size),
+              onTap: onPressed,
+              child: Icon(
+                iconData,
+                color: iconColor ?? _theme.colorScheme.onSurface,
+                size: size / 2,
+              ),
             ),
           ),
         ),

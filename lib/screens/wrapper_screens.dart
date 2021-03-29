@@ -25,7 +25,7 @@ class WrapperScreens extends HookWidget {
       });
     }
     final Widget splashScreen = Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: LayoutBuilder(
         builder: (context, constrant) {
           bool tablet = constrant.maxWidth > constrant.maxHeight;
@@ -46,7 +46,7 @@ class WrapperScreens extends HookWidget {
             ),
             margin: _margin,
             width: double.infinity,
-            child: buildLottie(lottieHeight, controller),
+            child: buildLottie(context, lottieHeight, controller),
           );
         },
       ),
@@ -85,7 +85,9 @@ class WrapperScreens extends HookWidget {
                     bottomBarHeight: bottomBarHeight,
                   );
                 },
-              );
+              ).then((value) {
+                ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+              });
             }
           }
         },
@@ -95,11 +97,14 @@ class WrapperScreens extends HookWidget {
   }
 
   LottieBuilder buildLottie(
+    BuildContext context,
     double lottieHeight,
     AnimationController controller,
   ) {
     return LottieBuilder.asset(
-      "assets/animations/45130-book.json",
+      Theme.of(context).colorScheme.brightness == Brightness.dark
+          ? "assets/animations/book_dark.json"
+          : "assets/animations/book_light.json",
       height: lottieHeight,
       controller: controller,
       repeat: true,
