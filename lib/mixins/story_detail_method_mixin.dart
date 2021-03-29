@@ -25,7 +25,6 @@ mixin StoryDetailMethodMixin {
     final draftStoryDate =
         notifier.hasChanged ? notifier.draftStory.forDate : null;
     Navigator.of(context).pop(draftStoryDate);
-    notifier.dispose();
   }
 
   SnackBar buildSnackBar({
@@ -37,12 +36,12 @@ mixin StoryDetailMethodMixin {
     final style = Theme.of(context)
         .textTheme
         .bodyText1!
-        .copyWith(color: Theme.of(context).backgroundColor);
+        .copyWith(color: Theme.of(context).colorScheme.onSecondary);
 
     final actions = onActionPressed != null
         ? SnackBarAction(
             label: actionLabel ?? tr("button.okay"),
-            textColor: Theme.of(context).backgroundColor,
+            textColor: Theme.of(context).colorScheme.onSecondary,
             onPressed: () async {
               onActionPressed();
             },
@@ -52,6 +51,7 @@ mixin StoryDetailMethodMixin {
     return SnackBar(
       content: Text(title, style: style),
       action: actions,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
     );
   }
 

@@ -295,7 +295,7 @@ class _WQuillToolbarState extends State<WQuillToolbar> {
   Widget build(BuildContext context) {
     return Container(
       constraints: BoxConstraints.tightFor(height: widget.preferredSize.height),
-      color: Theme.of(context).canvasColor,
+      color: Theme.of(context).colorScheme.background,
       child: CustomScrollView(
         scrollDirection: Axis.horizontal,
         slivers: [
@@ -331,7 +331,7 @@ class _WClearFormatButtonState extends State<WClearFormatButton> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final iconColor = theme.iconTheme.color;
-    final fillColor = theme.canvasColor;
+    final fillColor = theme.colorScheme.background;
     return toolbar.QuillIconButton(
         highlightElevation: 0,
         hoverElevation: 0,

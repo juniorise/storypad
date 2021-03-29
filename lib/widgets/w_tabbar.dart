@@ -26,7 +26,7 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final tabController = this.controller ?? DefaultTabController.of(context);
-    final unselectedLabelColor = Theme.of(context).primaryColorDark;
+    final unselectedLabelColor = Theme.of(context).colorScheme.secondary;
 
     return Theme(
       data: Theme.of(context),

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:write_story/configs/theme_config.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 
 class WMoreFaqButton extends StatelessWidget {
@@ -17,6 +18,15 @@ class WMoreFaqButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final buttonBackgroundColor = Theme.of(context).colorScheme.primary;
+    final buttonForegroundColor = Theme.of(context).colorScheme.background;
+    final labelBackgroundColor = Theme.of(context).colorScheme.surface;
+
+    final labelStyle = Theme.of(context)
+        .textTheme
+        .bodyText1
+        ?.copyWith(color: ThemeConfig.lightScheme.onSurface);
+
     return VTOnTapEffect(
       onTap: () {},
       effects: [
@@ -32,8 +42,8 @@ class WMoreFaqButton extends StatelessWidget {
             icon: Icons.more_horiz,
             activeIcon: Icons.more_horiz,
             buttonSize: kToolbarHeight,
-            activeBackgroundColor: Theme.of(context).backgroundColor,
-            activeForegroundColor: Theme.of(context).primaryColor,
+            activeBackgroundColor: labelBackgroundColor,
+            activeForegroundColor: buttonBackgroundColor,
             closeManually: true,
             renderOverlay: false,
             animationSpeed: 150,
@@ -43,8 +53,8 @@ class WMoreFaqButton extends StatelessWidget {
             openCloseDial: faqNotifier,
             // tooltip: 'Speed Dial',
             // heroTag: 'speed-dial-hero-tag',
-            backgroundColor: Theme.of(context).primaryColor,
-            foregroundColor: Theme.of(context).backgroundColor,
+            backgroundColor: buttonBackgroundColor,
+            foregroundColor: buttonForegroundColor,
             elevation: faqNotifier.value ? 2.0 : 0,
             shape: CircleBorder(),
             onClose: () {
@@ -58,11 +68,11 @@ class WMoreFaqButton extends StatelessWidget {
             children: [
               SpeedDialChild(
                 child: Icon(Icons.settings),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Theme.of(context).backgroundColor,
+                backgroundColor: buttonBackgroundColor,
+                foregroundColor: buttonForegroundColor,
                 label: tr("title.setting"),
                 elevation: 0.0,
-                labelStyle: Theme.of(context).textTheme.bodyText1,
+                labelStyle: labelStyle,
                 onTap: () {
                   onSettingPressed();
                 },
@@ -73,11 +83,11 @@ class WMoreFaqButton extends StatelessWidget {
               ),
               SpeedDialChild(
                 child: Icon(Icons.add),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Theme.of(context).backgroundColor,
+                backgroundColor: buttonBackgroundColor,
+                foregroundColor: buttonForegroundColor,
                 elevation: 0.0,
                 label: tr("button.add_story"),
-                labelStyle: Theme.of(context).textTheme.bodyText1,
+                labelStyle: labelStyle,
                 onTap: () {
                   onAddStoryPressed();
                 },

@@ -41,7 +41,7 @@ class WSliverAppBar extends HookWidget {
       pinned: true,
       forceElevated: true,
       elevation: isInit ? 0.5 : 0,
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       expandedHeight: kToolbarHeight * 2.8,
       centerTitle: false,
       automaticallyImplyLeading: false,
@@ -53,7 +53,7 @@ class WSliverAppBar extends HookWidget {
           ? WTabBar(
               controller: controller,
               height: 40,
-              backgroundColor: Theme.of(context).backgroundColor,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               tabs: tabs ?? [],
               isInit: isInit,
             )
@@ -101,7 +101,7 @@ class WSliverAppBar extends HookWidget {
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: _headerStyle?.copyWith(color: _theme.primaryColor),
+              style: _headerStyle?.copyWith(color: _theme.colorScheme.primary),
             ),
           ),
           AnimatedOpacity(
@@ -151,8 +151,6 @@ class WSliverAppBar extends HookWidget {
       background: Padding(
         padding: _padding.copyWith(top: 0, bottom: 16),
         child: Stack(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          // crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             VTOnTapEffect(
               onTap: () async {
@@ -168,7 +166,9 @@ class WSliverAppBar extends HookWidget {
                       bottomBarHeight: bottomBarHeight,
                     );
                   },
-                );
+                ).then((value) {
+                  ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+                });
               },
               effects: [
                 VTOnTapEffectItem(
@@ -213,7 +213,6 @@ class WSliverAppBar extends HookWidget {
                 ],
                 child: Container(
                   alignment: Alignment.centerRight,
-                  decoration: BoxDecoration(color: Colors.white),
                   child: _yearText,
                 ),
               ),
@@ -247,7 +246,7 @@ class WSliverAppBar extends HookWidget {
                     },
                     child: Container(
                       color: selected
-                          ? Theme.of(context).backgroundColor
+                          ? Theme.of(context).colorScheme.background
                           : Theme.of(context).scaffoldBackgroundColor,
                       height: 48,
                       alignment: Alignment.center,

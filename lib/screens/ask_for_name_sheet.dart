@@ -16,6 +16,7 @@ import 'package:write_story/models/user_model.dart';
 import 'package:write_story/notifier/auth_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/remote_database_notifier.dart';
+import 'package:write_story/notifier/theme_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/home_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
@@ -113,9 +114,6 @@ class AskForNameSheet extends HookWidget {
                   context: context,
                   title: tr("title.hello"),
                   subtitle: tr("subtitle.ask_for_name"),
-                  onSettingTap: tabController.length == 2
-                      ? () => tabController.animateTo(1)
-                      : null,
                 ),
                 const SizedBox(height: 24.0),
                 _buildTextField(
@@ -240,7 +238,7 @@ class AskForNameSheet extends HookWidget {
     ];
 
     return BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).colorScheme.surface,
       boxShadow: boxShadow,
       borderRadius: borderRadius,
     );
@@ -257,12 +255,15 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
   @override
   Widget build(BuildContext context) {
     final notifier = useProvider(authenticatoinProvider);
-    return buildBackup(context, notifier);
+    final themeNotifier = useProvider(themeProvider);
+
+    return buildBackup(context, notifier, themeNotifier);
   }
 
   Widget buildBackup(
     BuildContext context,
     AuthenticatoinNotifier notifier,
+    ThemeNotifier themeNotifier,
   ) {
     return Stack(
       children: [
@@ -275,7 +276,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
               height: 4,
               child: LinearProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).primaryColor,
+                  Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -305,9 +306,28 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                     return Column(
                       children: [
                         Material(
+                          borderRadius: ConfigConstant.circlarRadius2,
+                          color: Theme.of(context).colorScheme.secondary,
+                          child: SwitchListTile(
+                            value: themeNotifier.isDarkMode,
+                            selected: true,
+                            shape: RoundedRectangleBorder(),
+                            activeColor:
+                                Theme.of(context).colorScheme.onSecondary,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: ConfigConstant.margin2,
+                            ),
+                            title: Text(tr("button.dark_mode")),
+                            onChanged: (bool value) {
+                              themeNotifier.toggleTheme();
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: ConfigConstant.margin1),
+                        Material(
                           elevation: 0.5,
                           borderRadius: ConfigConstant.circlarRadius2,
-                          color: Theme.of(context).primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                           child: ValueListenableBuilder(
                               valueListenable: isSwitchNotifier,
                               builder: (context, bool value, child) {
@@ -315,9 +335,11 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                                   value: notifier.isAccountSignedIn ||
                                       isSwitchNotifier.value,
                                   selected: true,
-                                  shape: RoundedRectangleBorder(),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: ConfigConstant.circlarRadius2,
+                                  ),
                                   activeColor:
-                                      Theme.of(context).backgroundColor,
+                                      Theme.of(context).colorScheme.onSecondary,
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: ConfigConstant.margin2,
                                   ),
@@ -404,7 +426,8 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                                   ),
                                   decoration: BoxDecoration(
                                     color: Theme.of(context)
-                                        .scaffoldBackgroundColor,
+                                        .colorScheme
+                                        .background,
                                     borderRadius: ConfigConstant.circlarRadius2,
                                   ),
                                   child: Text(tr("msg.backup.export"),
@@ -463,7 +486,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
+              color: Theme.of(context).colorScheme.background,
               borderRadius: ConfigConstant.circlarRadius2,
             ),
             child: Text(
@@ -492,11 +515,11 @@ Widget _buildHeaderText({
   required String subtitle,
   bool showLangs = true,
   bool showInfo = false,
-  void Function()? onSettingTap,
 }) {
   final _theme = Theme.of(context);
+  final _textTheme = _theme.textTheme;
   final _style =
-      _theme.textTheme.headline5?.copyWith(color: _theme.primaryColor);
+      _theme.textTheme.headline5?.copyWith(color: _theme.colorScheme.primary);
 
   return Container(
     width: double.infinity,
@@ -517,7 +540,7 @@ Widget _buildHeaderText({
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.left,
-              style: _theme.textTheme.bodyText1,
+              style: _textTheme.bodyText1,
             ),
           ],
         ),
@@ -537,40 +560,35 @@ Widget _buildHeaderText({
                       const SizedBox(height: 24.0),
                       Text(
                         tr("position.thea"),
-                        style: Theme.of(context).textTheme.caption,
+                        style: _textTheme.caption,
                       ),
                       Text(
                         tr("name.thea"),
-                        style: Theme.of(context)
-                            .textTheme
-                            .caption!
+                        style: _textTheme.caption!
                             .copyWith(fontWeight: FontWeight.w600),
                       ),
                       const Divider(),
                       Text(
                         tr("position.menglong"),
-                        style: Theme.of(context).textTheme.caption,
+                        style: _textTheme.caption,
                       ),
                       Text(
                         tr("name.menglong"),
-                        style: Theme.of(context)
-                            .textTheme
-                            .caption!
+                        style: _textTheme.caption!
                             .copyWith(fontWeight: FontWeight.w600),
                       ),
                       const Divider(),
                       const SizedBox(height: ConfigConstant.margin0),
                       RichText(
                         text: TextSpan(
-                          style: Theme.of(context).textTheme.caption,
+                          style: _textTheme.caption,
                           children: <TextSpan>[
                             TextSpan(text: tr("info.about_project") + " "),
                             TextSpan(
-                              text: 'write_story',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .caption!
-                                  .copyWith(color: Colors.blueAccent),
+                              text: tr("button.source_code"),
+                              style: _textTheme.caption!.copyWith(
+                                color: _theme.colorScheme.primary,
+                              ),
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
                                   launch(
@@ -582,9 +600,12 @@ Widget _buildHeaderText({
                         ),
                       ),
                     ],
-                    applicationIcon: Image.asset(
-                      "assets/icons/app_icon.png",
-                      height: ConfigConstant.iconSize3,
+                    applicationIcon: ClipRRect(
+                      borderRadius: ConfigConstant.circlarRadius1,
+                      child: Image.asset(
+                        "assets/icons/app_icon.png",
+                        height: ConfigConstant.iconSize3,
+                      ),
                     ),
                   );
                 });
@@ -593,13 +614,13 @@ Widget _buildHeaderText({
                 height: 38,
                 width: 38,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
+                  color: Theme.of(context).colorScheme.background,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Icon(
                   Icons.info,
-                  color: Theme.of(context).primaryColor,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -628,24 +649,6 @@ Widget _buildHeaderText({
                     },
                     child: Image.asset("assets/flags/en-flag.png"),
                   ),
-                  if (onSettingTap != null) const SizedBox(width: 4.0),
-                  if (onSettingTap != null)
-                    VTOnTapEffect(
-                      onTap: onSettingTap,
-                      child: Container(
-                        height: 38,
-                        width: 38,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.settings,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -671,9 +674,11 @@ Widget _buildContinueButton({
   ];
 
   final _decoration = BoxDecoration(
-      borderRadius: ConfigConstant.circlarRadius2,
-      color:
-          nameNotEmpty ? _theme.primaryColor : _theme.scaffoldBackgroundColor);
+    borderRadius: ConfigConstant.circlarRadius2,
+    color: nameNotEmpty
+        ? _theme.colorScheme.primary
+        : _theme.colorScheme.background,
+  );
 
   return IgnorePointer(
     ignoring: !nameNotEmpty,
@@ -688,7 +693,9 @@ Widget _buildContinueButton({
         child: Text(
           title,
           style: _theme.textTheme.bodyText1?.copyWith(
-            color: nameNotEmpty ? Colors.white : _theme.disabledColor,
+            color: nameNotEmpty
+                ? _theme.colorScheme.onSecondary
+                : _theme.disabledColor,
           ),
         ),
       ),
@@ -711,12 +718,12 @@ Widget _buildTextField({
   );
 
   final _hintStyle = _textTheme.subtitle1?.copyWith(
-    color: _theme.primaryColorDark.withOpacity(0.3),
+    color: _theme.disabledColor,
   );
 
   final _decoration = InputDecoration(
     contentPadding: const EdgeInsets.symmetric(horizontal: 2.0),
-    fillColor: _theme.scaffoldBackgroundColor,
+    fillColor: _theme.colorScheme.background,
     hintText: hintText,
     hintStyle: _hintStyle,
     filled: true,
@@ -728,7 +735,7 @@ Widget _buildTextField({
 
   return TextFormField(
     autocorrect: false,
-    cursorColor: Theme.of(context).primaryColor,
+    cursorColor: Theme.of(context).colorScheme.primary,
     textAlign: TextAlign.center,
     style: _style,
     maxLines: 1,

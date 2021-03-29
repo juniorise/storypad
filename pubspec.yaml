@@ -27,6 +27,7 @@ dependencies:
   
   lottie: ^1.0.1
   page_transition: ^2.0.1-nullsafety.0
+  animated_theme_switcher: ^2.0.0-nullsafety.0
 
   # State management
   flutter_hooks: ^0.16.0
@@ -35,6 +36,7 @@ dependencies:
   sqflite: ^2.0.0+3
   path_provider: ^2.0.1
   encrypt: ^5.0.0-beta.1
+  shared_preferences: ^2.0.5
 
   csv: ^5.0.0
   dio: ^4.0.0-prev3
@@ -85,6 +87,8 @@ flutter:
     
     # Ref: https://iconscout.com/illustration/thinking-woman-1840996
     - assets/illustrations/thinking-woman.png
+
+    # Book Ref: https://assets1.lottiefiles.com/packages/lf20_wh5alaq6.json
     - assets/animations/
 
     - assets/flags/

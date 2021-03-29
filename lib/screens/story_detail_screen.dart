@@ -129,7 +129,7 @@ class StoryDetailScreen extends HookWidget
               customStyles: DefaultStyles(
                 placeHolder: DefaultTextBlockStyle(
                   _theme.textTheme.bodyText1!.copyWith(
-                    color: _theme.primaryColorDark.withOpacity(0.3),
+                    color: _theme.colorScheme.onSurface.withOpacity(0.3),
                   ),
                   Tuple2(0.0, 0.0),
                   Tuple2(0.0, 0.0),
@@ -179,7 +179,7 @@ class StoryDetailScreen extends HookWidget
         decoration: InputDecoration(
           hintText: tr("hint_text.title"),
           hintStyle: _theme.textTheme.headline6?.copyWith(
-            color: _theme.primaryColorDark.withOpacity(0.3),
+            color: _theme.colorScheme.onSurface.withOpacity(0.3),
           ),
           border: InputBorder.none,
         ),
@@ -208,11 +208,11 @@ class StoryDetailScreen extends HookWidget
           TextEditingController().clear();
         },
         child: Scaffold(
-          backgroundColor: _theme.backgroundColor,
+          backgroundColor: _theme.colorScheme.surface,
           body: body,
           extendBody: true,
           bottomNavigationBar: Container(
-            color: _theme.scaffoldBackgroundColor,
+            color: _theme.colorScheme.background,
             child: SafeArea(
               child: Padding(
                 padding: MediaQuery.of(context).viewInsets,
@@ -251,7 +251,7 @@ class StoryDetailScreen extends HookWidget
     final _theme = Theme.of(context);
 
     return SliverAppBar(
-      backgroundColor: _theme.backgroundColor,
+      backgroundColor: _theme.colorScheme.surface,
       centerTitle: false,
       floating: true,
       elevation: 0.5,
@@ -280,7 +280,7 @@ class StoryDetailScreen extends HookWidget
         if (!insert)
           WIconButton(
             iconData: Icons.delete,
-            iconColor: _theme.errorColor,
+            iconColor: _theme.colorScheme.error,
             onPressed: () async => onDelete(
               context: context,
               notifier: notifier,
@@ -290,7 +290,7 @@ class StoryDetailScreen extends HookWidget
           ),
         WIconButton(
           iconData: Icons.save,
-          iconColor: _theme.primaryColor,
+          iconColor: _theme.colorScheme.primary,
           onPressed: () async {
             await onSave(
               notifier: notifier,
