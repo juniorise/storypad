@@ -166,8 +166,9 @@ class WSliverAppBar extends HookWidget {
                       bottomBarHeight: bottomBarHeight,
                     );
                   },
-                ).then((value) {
-                  ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+                ).then((_) {
+                  ScaffoldMessenger.of(askForNameScaffoldKey.currentContext!)
+                      .removeCurrentSnackBar();
                 });
               },
               effects: [

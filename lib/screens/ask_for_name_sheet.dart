@@ -22,7 +22,8 @@ import 'package:write_story/screens/home_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
 
-final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+final GlobalKey<ScaffoldState> askForNameScaffoldKey =
+    GlobalKey<ScaffoldState>();
 
 class AskForNameSheet extends HookWidget {
   const AskForNameSheet({
@@ -39,7 +40,7 @@ class AskForNameSheet extends HookWidget {
 
   @override
   Widget build(BuildContext buildContext) {
-    final context = _scaffoldKey.currentContext ?? buildContext;
+    final context = askForNameScaffoldKey.currentContext ?? buildContext;
     final notifier = useProvider(userModelProvider);
 
     final nameNotEmpty =
@@ -90,7 +91,7 @@ class AskForNameSheet extends HookWidget {
         TextEditingController().clear();
       },
       child: Scaffold(
-        key: _scaffoldKey,
+        key: askForNameScaffoldKey,
         backgroundColor: Colors.transparent,
         resizeToAvoidBottomInset: false,
         extendBody: true,
