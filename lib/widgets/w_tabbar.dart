@@ -50,7 +50,7 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
             },
             unselectedLabelColor: unselectedLabelColor,
             labelColor: isInit ? backgroundColor : unselectedLabelColor,
-            labelStyle: Theme.of(context).textTheme.bodyText1,
+            labelStyle: Theme.of(context).textTheme.bodyText2,
             indicator: WTabIndicator(
               borderSide: BorderSide(
                 width: height,

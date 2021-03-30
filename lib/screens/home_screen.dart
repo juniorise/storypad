@@ -371,16 +371,28 @@ class HomeScreen extends HookWidget with HookController {
       children: [
         /// Since អាទិត្យ is biggest text,
         /// we used it for size other widget
-        const Opacity(
+        Opacity(
           opacity: 0,
-          child: const Text("អាទិត្យ", style: TextStyle(height: 0)),
+          child: Text(
+            "អាទិត្យ",
+            style: Theme.of(context).textTheme.bodyText2?.copyWith(height: 0),
+          ),
         ),
         Column(
           children: [
             Container(
               margin: const EdgeInsets.only(bottom: ConfigConstant.margin0),
-              child: Text(dayName),
+              child: Text(
+                dayName,
+                style: Theme.of(context).textTheme.bodyText2?.copyWith(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onBackground
+                          .withOpacity(0.5),
+                    ),
+              ),
             ),
+            const SizedBox(height: 2.0),
             Stack(
               children: [
                 Container(
@@ -442,6 +454,7 @@ class HomeScreen extends HookWidget with HookController {
       final decode = jsonDecode(story.paragraph!);
       final document = Document.fromJson(decode);
       paragraph = document.toPlainText().trim();
+      print("$paragraph");
     } catch (e) {}
 
     /// Paragraph
@@ -452,7 +465,7 @@ class HomeScreen extends HookWidget with HookController {
         _paragraphText,
         textAlign: TextAlign.start,
         style: _theme.textTheme.bodyText2
-            ?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.6)),
+            ?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.5)),
       ),
     );
 
@@ -494,12 +507,16 @@ class HomeScreen extends HookWidget with HookController {
         width: double.infinity,
         margin: margin,
         child: Material(
-          elevation: 0.5,
+          elevation: 0.2,
           color: _theme.colorScheme.surface,
+          borderRadius: ConfigConstant.circlarRadius2,
           child: Stack(
             children: [
               Container(
-                padding: ConfigConstant.layoutPadding,
+                padding: EdgeInsets.symmetric(
+                  horizontal: ConfigConstant.margin2,
+                  vertical: ConfigConstant.margin1 + 4,
+                ),
                 width: double.infinity,
                 child: Wrap(
                   direction: Axis.vertical,

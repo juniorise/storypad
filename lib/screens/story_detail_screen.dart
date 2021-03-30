@@ -162,7 +162,7 @@ class StoryDetailScreen extends HookWidget
                     ),
                     paragraph: DefaultTextBlockStyle(
                       _theme.textTheme.bodyText1!.copyWith(
-                        color: _theme.colorScheme.onSurface.withOpacity(0.6),
+                        color: _theme.colorScheme.onSurface.withOpacity(0.5),
                       ),
                       Tuple2(0.0, 0.0),
                       Tuple2(0.0, 0.0),
@@ -292,7 +292,7 @@ class StoryDetailScreen extends HookWidget
                   } else {
                     showSnackBar(
                       context: context,
-                      title: "Cancel",
+                      title: "Upload Fail",
                     );
                   }
 
@@ -621,7 +621,7 @@ class StoryDetailScreen extends HookWidget
             _aboutDateText,
             textAlign: TextAlign.start,
             style: TextStyle(
-              color: _theme.textTheme.bodyText2?.color?.withOpacity(0.6),
+              color: _theme.textTheme.bodyText2?.color?.withOpacity(0.5),
             ),
           )
         : const SizedBox();

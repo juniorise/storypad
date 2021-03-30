@@ -27,7 +27,6 @@ dependencies:
   
   lottie: ^1.0.1
   page_transition: ^2.0.1-nullsafety.0
-  animated_theme_switcher: ^2.0.0-nullsafety.0
 
   # State management
   flutter_hooks: ^0.16.0

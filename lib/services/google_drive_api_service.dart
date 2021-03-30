@@ -33,17 +33,40 @@ class GoogleDriveApiService {
 
     String? result = await storage.read();
 
-    final authenticateClient = GoogleAuthClient(
+    GoogleAuthClient authenticateClient = GoogleAuthClient(
       storage.getAuthHeader(result!)!,
     );
-    final driveApi = drive.DriveApi(authenticateClient);
+    drive.DriveApi driveApi = drive.DriveApi(authenticateClient);
 
     String? folderId;
 
-    final folderList = await driveApi.files
-        .list(q: "mimeType = 'application/vnd.google-apps.folder'");
+    drive.FileList? folderList;
 
-    folderList.files!.forEach((e) {
+    try {
+      folderList = await driveApi.files
+          .list(q: "mimeType = 'application/vnd.google-apps.folder'");
+    } catch (e) {
+      final bool success = await auth.signInSilently();
+      if (success) {
+        result = await storage.read();
+      } else {
+        final success = await context.read(authenticationProvider).logAccount();
+        if (!success) return null;
+      }
+
+      authenticateClient = GoogleAuthClient(
+        storage.getAuthHeader(result!)!,
+      );
+      driveApi = drive.DriveApi(authenticateClient);
+      try {
+        folderList = await driveApi.files
+            .list(q: "mimeType = 'application/vnd.google-apps.folder'");
+      } catch (e) {
+        return null;
+      }
+    }
+
+    folderList.files?.forEach((e) {
       if (e.name == "Story") folderId = e.id.toString();
     });
 

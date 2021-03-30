@@ -554,7 +554,7 @@ Widget _buildHeaderText({
                 textAlign: TextAlign.left,
                 style: _style,
               ),
-              const SizedBox(height: ConfigConstant.margin1),
+              const SizedBox(height: ConfigConstant.margin0),
               Text(
                 subtitle,
                 maxLines: 2,
@@ -564,7 +564,7 @@ Widget _buildHeaderText({
                     color: Theme.of(context)
                         .colorScheme
                         .onBackground
-                        .withOpacity(0.6)),
+                        .withOpacity(0.5)),
               ),
             ],
           ),

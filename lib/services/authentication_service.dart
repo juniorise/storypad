@@ -6,17 +6,29 @@ import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:write_story/storages/auth_header_storage.dart';
 
 class AuthenticationService {
+  GoogleSignIn googleSignIn = GoogleSignIn.standard(
+    scopes: [drive.DriveApi.driveFileScope],
+  );
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? get user => _auth.currentUser;
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  Future<bool> signInSilently() async {
+    try {
+      GoogleSignInAccount? googleUser = await googleSignIn.signInSilently();
+      if (googleUser == null) return false;
+      _setAuthHeader(googleUser);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> signInWithGoogle() async {
-    GoogleSignIn? googleSignIn = GoogleSignIn.standard(
-      scopes: [drive.DriveApi.driveFileScope],
-    );
-    if (await googleSignIn.isSignedIn()) googleSignIn.signOut();
+    if (await this.googleSignIn.isSignedIn()) googleSignIn.signOut();
 
     GoogleSignInAccount? googleUser = await googleSignIn.signIn();
     if (googleUser == null) {
@@ -24,9 +36,7 @@ class AuthenticationService {
       return false;
     }
 
-    AuthHeaderStorage storage = AuthHeaderStorage();
-    final authHeaders = await googleUser.authHeaders;
-    await storage.write(jsonEncode(authHeaders));
+    _setAuthHeader(googleUser);
 
     // Obtain the auth details from the request
     final GoogleSignInAuthentication googleAuth =
@@ -62,6 +72,12 @@ class AuthenticationService {
 
     this._errorMessage = tr("msg.login.fail");
     return false;
+  }
+
+  Future<void> _setAuthHeader(GoogleSignInAccount googleUser) async {
+    AuthHeaderStorage storage = AuthHeaderStorage();
+    final authHeaders = await googleUser.authHeaders;
+    await storage.write(jsonEncode(authHeaders));
   }
 
   Future<bool> signOut() async {

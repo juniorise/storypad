@@ -74,10 +74,7 @@ class WSliverAppBar extends HookWidget {
     double offsetX = _inited ? 0.0 : -8.0;
 
     final leftSideWidth = notifier.headlineWidth != 0
-        ? MediaQuery.of(context).size.width -
-            16 * 2 -
-            notifier.headlineWidth -
-            16
+        ? MediaQuery.of(context).size.width - 16 * 2 - notifier.headlineWidth
         : kToolbarHeight * 2;
 
     final _notifier = context.read(userModelProvider);
@@ -105,7 +102,7 @@ class WSliverAppBar extends HookWidget {
               style: _headerStyle?.copyWith(color: _theme.colorScheme.primary),
             ),
           ),
-          const SizedBox(height: ConfigConstant.margin1),
+          const SizedBox(height: ConfigConstant.margin0),
           AnimatedOpacity(
             opacity: _inited ? 1 : 0,
             duration: const Duration(milliseconds: 1000),
@@ -117,7 +114,7 @@ class WSliverAppBar extends HookWidget {
               child: Text(
                 tr("subtitle.ask_for_feeling"),
                 style: _textTheme.bodyText1?.copyWith(
-                  color: _theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: _theme.colorScheme.onSurface.withOpacity(0.5),
                 ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
@@ -153,8 +150,9 @@ class WSliverAppBar extends HookWidget {
 
     return FlexibleSpaceBar(
       background: Padding(
-        padding: _padding.copyWith(top: 0, bottom: 16),
+        padding: _padding.copyWith(top: 0, bottom: 0),
         child: Stack(
+          alignment: Alignment.centerLeft,
           children: [
             VTOnTapEffect(
               onTap: () async {
@@ -186,7 +184,7 @@ class WSliverAppBar extends HookWidget {
             Positioned(
               right: 0,
               top: 0,
-              bottom: 0,
+              bottom: 4.0,
               child: VTOnTapEffect(
                 onTap: () async {
                   final homeNotifier = context.read(homeScreenProvider);
@@ -262,7 +260,7 @@ class WSliverAppBar extends HookWidget {
                                   .textTheme
                                   .bodyText1!
                                   .color!
-                                  .withOpacity(0.6),
+                                  .withOpacity(0.5),
                         ),
                       ),
                     ),

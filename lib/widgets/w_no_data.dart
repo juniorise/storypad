@@ -29,7 +29,7 @@ class WNoData extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .onBackground
-                        .withOpacity(0.6),
+                        .withOpacity(0.5),
                   ),
             ),
           ),

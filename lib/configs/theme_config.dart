@@ -76,7 +76,7 @@ class ThemeConfig {
       style: ButtonStyle(
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
-            borderRadius: ConfigConstant.circlarRadius2,
+            borderRadius: ConfigConstant.circlarRadius1,
           ),
         ),
         overlayColor: MaterialStateProperty.all(Colors.transparent),
