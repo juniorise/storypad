@@ -47,7 +47,7 @@ class AuthenticatoinNotifier extends ChangeNotifier {
   bool get loading => this._loading;
 }
 
-final authenticatoinProvider = ChangeNotifierProvider<AuthenticatoinNotifier>(
+final authenticationProvider = ChangeNotifierProvider<AuthenticatoinNotifier>(
   (ref) {
     return AuthenticatoinNotifier()..load();
   },

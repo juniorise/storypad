@@ -253,7 +253,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
 
   @override
   Widget build(BuildContext context) {
-    final notifier = useProvider(authenticatoinProvider);
+    final notifier = useProvider(authenticationProvider);
     final themeNotifier = useProvider(themeProvider);
 
     return buildBackup(context, notifier, themeNotifier);
@@ -514,8 +514,10 @@ class WLineLoading extends StatelessWidget {
         child: Container(
           height: 4,
           child: LinearProgressIndicator(
+            backgroundColor:
+                Theme.of(context).colorScheme.secondary.withOpacity(0.1),
             valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.secondary,
             ),
           ),
         ),
@@ -540,28 +542,32 @@ Widget _buildHeaderText({
     width: double.infinity,
     child: Stack(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.left,
-              style: _style,
-            ),
-            Text(
-              subtitle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.left,
-              style: _textTheme.bodyText1?.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onBackground
-                      .withOpacity(0.6)),
-            ),
-          ],
+        Container(
+          margin: const EdgeInsets.only(right: 44),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.left,
+                style: _style,
+              ),
+              const SizedBox(height: ConfigConstant.margin1),
+              Text(
+                subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.left,
+                style: _textTheme.bodyText1?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onBackground
+                        .withOpacity(0.6)),
+              ),
+            ],
+          ),
         ),
         if (showInfo)
           Positioned(

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:write_story/storages/secure_preference_storage.dart';
 
 class AuthHeaderStorage extends SecurePreferenceStorage {

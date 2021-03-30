@@ -40,6 +40,8 @@ class StoryDetailScreen extends HookWidget
   final ValueNotifier<double> headerPaddingTopNotifier =
       ValueNotifier<double>(0);
 
+  final ValueNotifier<bool> imageLoadingNotifier = ValueNotifier<bool>(false);
+
   final FocusNode focusNode = FocusNode();
 
   @override
@@ -104,7 +106,6 @@ class StoryDetailScreen extends HookWidget
             notifier: _notifier,
             quillNotifier: quillNotifier,
             readOnlyModeNotifier: readOnlyModeNotifier,
-            statusBarHeight: statusBarHeight,
           ),
         ];
       },
@@ -119,6 +120,12 @@ class StoryDetailScreen extends HookWidget
                     EdgeInsets.symmetric(horizontal: ConfigConstant.margin2)
                         .copyWith(top: headerPaddingTopNotifier.value),
               );
+            },
+          ),
+          ValueListenableBuilder(
+            valueListenable: imageLoadingNotifier,
+            builder: (context, value, child) {
+              return WLineLoading(loading: imageLoadingNotifier.value);
             },
           ),
           Divider(
@@ -179,6 +186,7 @@ class StoryDetailScreen extends HookWidget
       controller: quillController,
       readOnlyModeNotifier: readOnlyModeNotifier,
       bottomHeight: bottomHeight,
+      statusBarHeight: statusBarHeight,
     );
   }
 
@@ -225,6 +233,7 @@ class StoryDetailScreen extends HookWidget
     required QuillController controller,
     required ValueNotifier readOnlyModeNotifier,
     required double bottomHeight,
+    required double statusBarHeight,
   }) {
     final _theme = Theme.of(context);
     return WillPopScope(
@@ -240,12 +249,12 @@ class StoryDetailScreen extends HookWidget
           FocusScope.of(context).unfocus();
           TextEditingController().clear();
         },
-        onDoubleTap: () {
-          if (readOnlyModeNotifier.value) {
-            readOnlyModeNotifier.value = false;
-            focusNode.requestFocus();
-          }
-        },
+        onDoubleTap: readOnlyModeNotifier.value
+            ? () {
+                readOnlyModeNotifier.value = false;
+                focusNode.requestFocus();
+              }
+            : null,
         child: Scaffold(
           backgroundColor: _theme.colorScheme.surface,
           body: body,
@@ -268,10 +277,26 @@ class StoryDetailScreen extends HookWidget
                 showColorButton: false,
                 showBackgroundColorButton: false,
                 onImagePickCallback: (File _pickImage) async {
-                  notifier.setImageLoading(true);
-                  final image = await GoogleDriveApiService.upload(_pickImage);
-                  notifier.setImageLoading(false);
-                  return image;
+                  imageLoadingNotifier.value = true;
+                  final image = await GoogleDriveApiService.upload(
+                    _pickImage,
+                    context,
+                  );
+                  imageLoadingNotifier.value = false;
+
+                  if (image != null) {
+                    showSnackBar(
+                      context: context,
+                      title: "Uploaded to Google Drive",
+                    );
+                  } else {
+                    showSnackBar(
+                      context: context,
+                      title: "Cancel",
+                    );
+                  }
+
+                  return image ?? "";
                 },
               ),
             ),
@@ -299,19 +324,13 @@ class StoryDetailScreen extends HookWidget
     required StoryDetailScreenNotifier notifier,
     required QuillControllerNotifer quillNotifier,
     required ValueNotifier readOnlyModeNotifier,
-    required double statusBarHeight,
   }) {
     final _theme = Theme.of(context);
-
     return SliverAppBar(
       backgroundColor: _theme.colorScheme.surface,
       centerTitle: false,
       floating: true,
       elevation: 0.5,
-      flexibleSpace: Container(
-        margin: EdgeInsets.only(top: statusBarHeight),
-        child: WLineLoading(loading: notifier.imageLoading),
-      ),
       leading: buildAppBarLeadingButton(context: context, notifier: notifier),
       actions: [
         ValueListenableBuilder(

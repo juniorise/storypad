@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/measure_size.dart';
+import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/notifier/appbar_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
@@ -104,6 +105,7 @@ class WSliverAppBar extends HookWidget {
               style: _headerStyle?.copyWith(color: _theme.colorScheme.primary),
             ),
           ),
+          const SizedBox(height: ConfigConstant.margin1),
           AnimatedOpacity(
             opacity: _inited ? 1 : 0,
             duration: const Duration(milliseconds: 1000),
@@ -118,7 +120,7 @@ class WSliverAppBar extends HookWidget {
                   color: _theme.colorScheme.onSurface.withOpacity(0.6),
                 ),
                 overflow: TextOverflow.ellipsis,
-                maxLines: 1,
+                maxLines: 2,
               ),
             ),
           )

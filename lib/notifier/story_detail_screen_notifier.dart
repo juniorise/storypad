@@ -7,9 +7,7 @@ import 'package:write_story/models/story_model.dart';
 class StoryDetailScreenNotifier extends ChangeNotifier {
   final WDatabase wDatabase = WDatabase.instance;
   StoryModel draftStory;
-
   bool hasChanged = false;
-  bool _imageLoading = false;
 
   StoryDetailScreenNotifier(this.draftStory);
 
@@ -40,13 +38,6 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
     }
     return success;
   }
-
-  void setImageLoading(bool value) {
-    _imageLoading = value;
-    notifyListeners();
-  }
-
-  bool get imageLoading => this._imageLoading;
 }
 
 final storydetailScreenNotifier =

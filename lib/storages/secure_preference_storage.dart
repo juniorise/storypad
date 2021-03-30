@@ -11,4 +11,8 @@ abstract class SecurePreferenceStorage {
   Future<void> write(String value) async {
     await storage.write(key: key, value: value);
   }
+
+  Future<void> remove() async {
+    await storage.delete(key: key);
+  }
 }

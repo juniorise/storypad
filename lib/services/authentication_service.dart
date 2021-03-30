@@ -16,9 +16,9 @@ class AuthenticationService {
     GoogleSignIn? googleSignIn = GoogleSignIn.standard(
       scopes: [drive.DriveApi.driveFileScope],
     );
+    if (await googleSignIn.isSignedIn()) googleSignIn.signOut();
 
     GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-
     if (googleUser == null) {
       this._errorMessage = tr("msg.login.cancel");
       return false;
@@ -64,57 +64,12 @@ class AuthenticationService {
     return false;
   }
 
-  Future<bool> _signInWithEmailAndPassword(
-    String email,
-    String password,
-  ) async {
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      this._errorMessage = null;
-      return true;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-        this._errorMessage = tr("msg.login.user_not_found");
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
-        this._errorMessage = tr("msg.login.wrong_password");
-      }
-      return false;
-    }
-  }
-
-  Future<bool> createUserWithEmailAndPassword(
-    String email,
-    String password,
-  ) async {
-    try {
-      await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      this._errorMessage = null;
-      return true;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-        this._errorMessage = tr("msg.login.weak_password");
-        return false;
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-        return await _signInWithEmailAndPassword(email, password);
-      }
-    }
-    return false;
-  }
-
   Future<bool> signOut() async {
     if (user != null) {
       try {
         await _auth.signOut();
+        _auth.currentUser?.delete();
+        await AuthHeaderStorage().remove();
         return true;
       } catch (e) {
         return false;

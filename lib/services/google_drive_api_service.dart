@@ -1,10 +1,13 @@
 import 'dart:io' as io;
+import 'package:flutter/material.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
+import 'package:write_story/notifier/auth_notifier.dart';
 import 'package:write_story/services/authentication_service.dart';
 import 'package:write_story/services/image_compress_service.dart';
 import 'package:write_story/storages/auth_header_storage.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class GoogleAuthClient extends http.BaseClient {
   final Map<String, String> _headers;
@@ -16,16 +19,19 @@ class GoogleAuthClient extends http.BaseClient {
 }
 
 class GoogleDriveApiService {
-  static Future<String> upload(io.File _image) async {
+  static Future<String?> upload(io.File _image, BuildContext context) async {
     final io.File? image = await ImageCompressService(file: _image).exec();
-
     AuthHeaderStorage storage = AuthHeaderStorage();
-    String? result = await storage.read();
 
-    if (result == null) {
-      await AuthenticationService().signInWithGoogle();
-      result = await storage.read();
+    final auth = AuthenticationService();
+    if (auth.user == null) {
+      final result = await context.read(authenticationProvider).logAccount();
+      if (result == false) {
+        return null;
+      }
     }
+
+    String? result = await storage.read();
 
     final authenticateClient = GoogleAuthClient(
       storage.getAuthHeader(result!)!,
@@ -68,6 +74,7 @@ class GoogleDriveApiService {
       response2.id!,
     );
 
+    await image.delete();
     final link =
         'https://drive.google.com/uc?export=download&id=${response2.id}';
     return link;
