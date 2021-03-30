@@ -67,7 +67,7 @@ class WSliverAppBar extends HookWidget {
   }) {
     final _theme = Theme.of(context);
     final _textTheme = _theme.textTheme;
-    final _headerStyle = _textTheme.headline5;
+    final _headerStyle = _textTheme.headline6;
 
     final _inited = notifier.headlineWidth != 0;
     double offsetX = _inited ? 0.0 : -8.0;
@@ -114,8 +114,10 @@ class WSliverAppBar extends HookWidget {
               width: leftSideWidth,
               child: Text(
                 tr("subtitle.ask_for_feeling"),
-                style: _textTheme.bodyText1,
-                overflow: TextOverflow.fade,
+                style: _textTheme.bodyText1?.copyWith(
+                  color: _theme.colorScheme.onSurface.withOpacity(0.6),
+                ),
+                overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
             ),
@@ -185,13 +187,13 @@ class WSliverAppBar extends HookWidget {
               bottom: 0,
               child: VTOnTapEffect(
                 onTap: () async {
+                  final homeNotifier = context.read(homeScreenProvider);
+                  final years = homeNotifier.availableYears..sort();
                   if (Platform.isIOS) {
                     showCupertinoDialog(
                       context: context,
                       barrierDismissible: true,
                       builder: (context) {
-                        final homeNotifier = context.read(homeScreenProvider);
-                        final years = homeNotifier.availableYears;
                         return buildYearChooserDialog(years, context);
                       },
                     );
@@ -199,8 +201,6 @@ class WSliverAppBar extends HookWidget {
                     showDialog(
                       context: context,
                       builder: (context) {
-                        final homeNotifier = context.read(homeScreenProvider);
-                        final years = homeNotifier.availableYears;
                         return buildYearChooserDialog(years, context);
                       },
                     );

@@ -133,44 +133,52 @@ class AskForNameSheet extends HookWidget {
 
             final tab2 = WTab2();
 
-            return DraggableScrollableSheet(
-              initialChildSize: initHeight >= 1 ? 1 : initHeight,
-              maxChildSize:
-                  1 - statusBarHeight / MediaQuery.of(context).size.height,
-              minChildSize: 0.2,
-              builder: (context, controller) {
-                return Container(
-                  height: double.infinity,
-                  decoration: buildBoxDecoration(context),
-                  child: Stack(
-                    children: [
-                      VTTabView(
-                        controller: tabController,
+            return Stack(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(color: Colors.transparent),
+                ),
+                DraggableScrollableSheet(
+                  initialChildSize: initHeight >= 1 ? 1 : initHeight,
+                  maxChildSize:
+                      1 - statusBarHeight / MediaQuery.of(context).size.height,
+                  minChildSize: initHeight - 0.05 > 0 ? initHeight - 0.1 : 0,
+                  builder: (context, controller) {
+                    return Container(
+                      height: double.infinity,
+                      decoration: buildBoxDecoration(context),
+                      child: Stack(
                         children: [
-                          SingleChildScrollView(
-                            child: tab1,
-                            controller: init ? null : controller,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: ConfigConstant.margin2,
-                              vertical: ConfigConstant.margin2 * 2,
-                            ),
-                          ),
-                          if (!init)
-                            SingleChildScrollView(
-                              controller: controller,
-                              child: tab2,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: ConfigConstant.margin2,
+                          VTTabView(
+                            controller: tabController,
+                            children: [
+                              SingleChildScrollView(
+                                child: tab1,
+                                // controller: init ? null : controller,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: ConfigConstant.margin2,
+                                  vertical: ConfigConstant.margin2 * 2,
+                                ),
                               ),
-                            )
+                              if (!init)
+                                SingleChildScrollView(
+                                  // controller: controller,
+                                  child: tab2,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: ConfigConstant.margin2,
+                                  ),
+                                )
+                            ],
+                          ),
+                          if (tabController.length == 2)
+                            buildTabIndicator(tabController),
                         ],
                       ),
-                      if (tabController.length == 2)
-                        buildTabIndicator(tabController),
-                    ],
-                  ),
-                );
-              },
+                    );
+                  },
+                ),
+              ],
             );
           },
         ),
@@ -182,7 +190,7 @@ class AskForNameSheet extends HookWidget {
     return Positioned(
       left: 0,
       right: 0,
-      bottom: bottomBarHeight,
+      bottom: bottomBarHeight + 8.0,
       child: AnimatedBuilder(
         animation: tabController.animation!,
         builder: (context, snapshot) {
@@ -194,19 +202,9 @@ class AskForNameSheet extends HookWidget {
               (index) {
                 double? width = 6.0;
                 if (index == 0) {
-                  width = lerpDouble(
-                    50,
-                    6.0,
-                    tabController.animation!.value,
-                  );
-                }
-
-                if (index == 1) {
-                  width = lerpDouble(
-                    6.0,
-                    50,
-                    tabController.animation!.value,
-                  );
+                  width = lerpDouble(50, 6.0, tabController.animation!.value);
+                } else if (index == 1) {
+                  width = lerpDouble(6.0, 50, tabController.animation!.value);
                 }
 
                 return Container(
@@ -320,6 +318,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                             ),
                             title: Text(tr("button.dark_mode")),
                             onChanged: (bool value) {
+                              onTapVibrate();
                               themeNotifier.toggleTheme();
                             },
                           ),
@@ -340,7 +339,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                                     borderRadius: ConfigConstant.circlarRadius2,
                                   ),
                                   activeColor:
-                                      Theme.of(context).colorScheme.onSecondary,
+                                      Theme.of(context).colorScheme.onPrimary,
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: ConfigConstant.margin2,
                                   ),
@@ -520,7 +519,7 @@ Widget _buildHeaderText({
   final _theme = Theme.of(context);
   final _textTheme = _theme.textTheme;
   final _style =
-      _theme.textTheme.headline5?.copyWith(color: _theme.colorScheme.primary);
+      _theme.textTheme.headline6?.copyWith(color: _theme.colorScheme.primary);
 
   return Container(
     width: double.infinity,
@@ -541,7 +540,11 @@ Widget _buildHeaderText({
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.left,
-              style: _textTheme.bodyText1,
+              style: _textTheme.bodyText1?.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onBackground
+                      .withOpacity(0.6)),
             ),
           ],
         ),
@@ -561,7 +564,9 @@ Widget _buildHeaderText({
                       const SizedBox(height: 24.0),
                       Text(
                         tr("position.thea"),
-                        style: _textTheme.caption,
+                        style: _textTheme.caption?.copyWith(
+                          color: _theme.colorScheme.onSurface.withOpacity(0.8),
+                        ),
                       ),
                       Text(
                         tr("name.thea"),
@@ -571,7 +576,9 @@ Widget _buildHeaderText({
                       const Divider(),
                       Text(
                         tr("position.menglong"),
-                        style: _textTheme.caption,
+                        style: _textTheme.caption?.copyWith(
+                          color: _theme.colorScheme.onSurface.withOpacity(0.8),
+                        ),
                       ),
                       Text(
                         tr("name.menglong"),
@@ -714,11 +721,11 @@ Widget _buildTextField({
   final _theme = Theme.of(context);
   final _textTheme = _theme.textTheme;
 
-  final _style = _textTheme.subtitle1?.copyWith(
+  final _style = _textTheme.bodyText1?.copyWith(
     color: _textTheme.bodyText1?.color?.withOpacity(0.7),
   );
 
-  final _hintStyle = _textTheme.subtitle1?.copyWith(
+  final _hintStyle = _textTheme.bodyText1?.copyWith(
     color: _theme.disabledColor,
   );
 

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:write_story/widgets/w_snack_bar_action.dart' as w;
 
 mixin StoryDetailMethodMixin {
   String getDateLabel({
@@ -32,6 +33,7 @@ mixin StoryDetailMethodMixin {
     required BuildContext context,
     String? actionLabel,
     VoidCallback? onActionPressed,
+    bool warning = false,
   }) {
     final style = Theme.of(context)
         .textTheme
@@ -39,9 +41,9 @@ mixin StoryDetailMethodMixin {
         .copyWith(color: Theme.of(context).colorScheme.onSecondary);
 
     final actions = onActionPressed != null
-        ? SnackBarAction(
+        ? w.WSnackBarAction(
             label: actionLabel ?? tr("button.okay"),
-            textColor: Theme.of(context).colorScheme.onSecondary,
+            warning: warning,
             onPressed: () async {
               onActionPressed();
             },
@@ -61,6 +63,7 @@ mixin StoryDetailMethodMixin {
     String? actionLabel,
     VoidCallback? onActionPressed,
     VoidCallback? onClose,
+    bool warning = false,
   }) async {
     ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
     Future.delayed(Duration(microseconds: 0)).then((value) {
@@ -69,6 +72,7 @@ mixin StoryDetailMethodMixin {
         context: context,
         actionLabel: actionLabel ?? tr("button.okay"),
         onActionPressed: onActionPressed,
+        warning: warning,
       );
 
       onTapVibrate();
@@ -196,6 +200,7 @@ mixin StoryDetailMethodMixin {
       context: context,
       title: tr("msg.delete.warning"),
       actionLabel: tr("button.okay"),
+      warning: true,
       onActionPressed: () async {
         final success = await notifier.removeStoryById(id);
         if (success) {

@@ -9,8 +9,6 @@ class ThemeConfig {
     splashColor: Colors.transparent,
     primaryColor: darkScheme.primary,
     iconTheme: IconThemeData(color: darkScheme.onSurface),
-    dividerColor: darkScheme.onBackground.withOpacity(0.08),
-    dividerTheme: DividerThemeData(thickness: 0.1),
     accentColor: darkScheme.onSurface,
     textTheme: textTheme.apply(
       bodyColor: darkScheme.onSurface,
@@ -26,9 +24,21 @@ class ThemeConfig {
                 states.contains(MaterialState.focused) ||
                 states.contains(MaterialState.hovered) ||
                 states.contains(MaterialState.selected)) {
-              return darkScheme.surface;
+              return darkScheme.primary;
             } else {
               return Colors.transparent;
+            }
+          },
+        ),
+        foregroundColor: MaterialStateProperty.resolveWith(
+          (states) {
+            if (states.contains(MaterialState.pressed) ||
+                states.contains(MaterialState.focused) ||
+                states.contains(MaterialState.hovered) ||
+                states.contains(MaterialState.selected)) {
+              return darkScheme.onPrimary;
+            } else {
+              return darkScheme.primary;
             }
           },
         ),
@@ -45,7 +55,10 @@ class ThemeConfig {
     primaryColor: lightScheme.primary,
     iconTheme: IconThemeData(color: lightScheme.onSurface),
     dividerColor: lightScheme.onBackground.withOpacity(0.08),
-    dividerTheme: DividerThemeData(thickness: 0.1),
+    dividerTheme: DividerThemeData(
+      thickness: 0.1,
+      color: lightScheme.onSurface.withOpacity(0.08),
+    ),
     accentColor: lightScheme.onSurface,
     textTheme: textTheme.apply(
       bodyColor: lightScheme.onSurface,
@@ -61,9 +74,21 @@ class ThemeConfig {
                 states.contains(MaterialState.focused) ||
                 states.contains(MaterialState.hovered) ||
                 states.contains(MaterialState.selected)) {
-              return lightScheme.surface;
+              return lightScheme.primary;
             } else {
               return Colors.transparent;
+            }
+          },
+        ),
+        foregroundColor: MaterialStateProperty.resolveWith(
+          (states) {
+            if (states.contains(MaterialState.pressed) ||
+                states.contains(MaterialState.focused) ||
+                states.contains(MaterialState.hovered) ||
+                states.contains(MaterialState.selected)) {
+              return lightScheme.onPrimary;
+            } else {
+              return lightScheme.primary;
             }
           },
         ),
@@ -71,7 +96,7 @@ class ThemeConfig {
     ),
   );
 
-  static const ColorScheme lightScheme = ColorScheme(
+  static final ColorScheme lightScheme = ColorScheme(
     background: Color(0xFFF6F6F6),
     surface: Color(0xFFFFFFFF),
     primary: Color(0xFF0E4DA4),
@@ -80,31 +105,41 @@ class ThemeConfig {
     onSurface: Color(0xFF1E1E1E),
     onPrimary: Color(0xFFFFFFFF),
     onSecondary: Color(0xFFFFFFFF),
-    primaryVariant: Color(0xFF0E4DA4),
-    secondaryVariant: Color(0xFF1E1E1E),
+    primaryVariant: Color(0xFF002674),
+    secondaryVariant: Color(0xFF000000),
     error: Color(0xFFE74C3C),
     onError: Color(0xFFFFFFFF),
     brightness: Brightness.light,
   );
 
-  static const ColorScheme darkScheme = ColorScheme(
+  static Color lighten(Color color, [double amount = 0.2]) {
+    assert(amount >= 0 && amount <= 1);
+
+    final hsl = HSLColor.fromColor(color);
+    final hslLight =
+        hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
+
+    return hslLight.toColor();
+  }
+
+  static final ColorScheme darkScheme = ColorScheme(
     background: Color(0xFF121212),
     surface: Color(0xFF1E1E1E),
-    primary: Color(0xFFFFFFFF),
+    primary: Color(0xFFE74C3C),
     secondary: Color(0xFFFFFFFF),
     onBackground: Color(0xFFFFFFFF),
     onSurface: Color(0xFFFFFFFF),
     onPrimary: Color(0xFFFFFFFF),
     onSecondary: Color(0xFF1E1E1E),
-    primaryVariant: Color(0xFF0E4DA4),
-    secondaryVariant: Color(0xFF1E1E1E),
+    primaryVariant: Color(0xFFAE0C13),
+    secondaryVariant: Color(0xFFCCCCCC),
     error: Color(0xFFE74C3C),
     onError: Color(0xFFFFFFFF),
     brightness: Brightness.dark,
   );
 
   static TextTheme get textTheme {
-    final fontFamilyFallback = ["Kantumruy", "Quicksand"];
+    final fontFamilyFallback = ["Quicksand", "Kantumruy"];
     return TextTheme(
       headline1: TextStyle(
         fontSize: 98,

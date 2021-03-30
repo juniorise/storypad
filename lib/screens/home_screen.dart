@@ -316,13 +316,14 @@ class HomeScreen extends HookWidget with HookController {
     required HomeScreenNotifier notifier,
     required ValueChanged<DateTime> onSaved,
   }) {
+    final _theme = Theme.of(context);
     return Expanded(
       child: Column(
         children: [
           const SizedBox(height: 4.0),
           Divider(
-            thickness: 1,
-            indent: 4.0,
+            thickness: 0.05,
+            color: _theme.colorScheme.onBackground,
           ),
           Column(
             children: List.generate(
@@ -391,15 +392,19 @@ class HomeScreen extends HookWidget with HookController {
                   ),
                 ),
                 Positioned(
-                  top: 3,
+                  top: 0,
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: Text(
-                    storyListByDay.forDate.day.toString(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
+                  child: Container(
+                    height: 30,
+                    alignment: Alignment.center,
+                    child: Text(
+                      storyListByDay.forDate.day.toString(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -418,13 +423,15 @@ class HomeScreen extends HookWidget with HookController {
     EdgeInsets margin = const EdgeInsets.only(bottom: ConfigConstant.margin1),
     required ValueChanged<DateTime> onSaved,
   }) {
+    final _theme = Theme.of(context);
+
     /// Title
     final _titleWidget = Container(
       padding: const EdgeInsets.only(right: 30),
       width: MediaQuery.of(context).size.width - 16 * 7,
       child: Text(
         story.title,
-        style: Theme.of(context).textTheme.subtitle1,
+        style: _theme.textTheme.subtitle1,
         textAlign: TextAlign.start,
       ),
     );
@@ -444,9 +451,8 @@ class HomeScreen extends HookWidget with HookController {
       child: Text(
         _paragraphText,
         textAlign: TextAlign.start,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-        ),
+        style: _theme.textTheme.bodyText2
+            ?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.6)),
       ),
     );
 
@@ -489,7 +495,7 @@ class HomeScreen extends HookWidget with HookController {
         margin: margin,
         child: Material(
           elevation: 0.5,
-          color: Theme.of(context).colorScheme.surface,
+          color: _theme.colorScheme.surface,
           child: Stack(
             children: [
               Container(

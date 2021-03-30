@@ -39,8 +39,8 @@ class WMoreFaqButton extends StatelessWidget {
         valueListenable: faqNotifier,
         builder: (context, value, reader) {
           return SpeedDial(
-            icon: Icons.more_horiz,
-            activeIcon: Icons.more_horiz,
+            icon: Icons.create,
+            activeIcon: Icons.clear,
             buttonSize: kToolbarHeight,
             activeBackgroundColor: labelBackgroundColor,
             activeForegroundColor: buttonBackgroundColor,
@@ -55,7 +55,7 @@ class WMoreFaqButton extends StatelessWidget {
             // heroTag: 'speed-dial-hero-tag',
             backgroundColor: buttonBackgroundColor,
             foregroundColor: buttonForegroundColor,
-            elevation: faqNotifier.value ? 2.0 : 0,
+            elevation: faqNotifier.value ? 6.0 : 0,
             shape: CircleBorder(),
             onClose: () {
               onTapVibrate();

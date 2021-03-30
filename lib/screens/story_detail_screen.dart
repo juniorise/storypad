@@ -10,6 +10,7 @@ import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/default_styles.dart';
 import 'package:flutter_quill/widgets/editor.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:write_story/configs/theme_config.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
@@ -110,7 +111,11 @@ class StoryDetailScreen extends HookWidget
               );
             },
           ),
-          const Divider(height: 0),
+          Divider(
+            height: 0,
+            thickness: 0.1,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           Expanded(
             child: QuillEditor(
               placeholder: tr("hint_text.story_detail"),
@@ -136,7 +141,9 @@ class StoryDetailScreen extends HookWidget
                   null,
                 ),
                 paragraph: DefaultTextBlockStyle(
-                  Theme.of(context).textTheme.bodyText1!,
+                  _theme.textTheme.bodyText1!.copyWith(
+                    color: _theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
                   Tuple2(0.0, 0.0),
                   Tuple2(0.0, 0.0),
                   null,
@@ -178,7 +185,7 @@ class StoryDetailScreen extends HookWidget
         keyboardAppearance: _theme.brightness,
         decoration: InputDecoration(
           hintText: tr("hint_text.title"),
-          hintStyle: _theme.textTheme.headline6?.copyWith(
+          hintStyle: _theme.textTheme.bodyText1?.copyWith(
             color: _theme.colorScheme.onSurface.withOpacity(0.3),
           ),
           border: InputBorder.none,
@@ -384,7 +391,7 @@ class StoryDetailScreen extends HookWidget
             _aboutDateText,
             textAlign: TextAlign.start,
             style: TextStyle(
-              color: _theme.textTheme.subtitle2?.color?.withOpacity(0.6),
+              color: _theme.textTheme.bodyText2?.color?.withOpacity(0.6),
             ),
           )
         : const SizedBox();

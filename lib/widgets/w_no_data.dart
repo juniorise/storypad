@@ -11,7 +11,7 @@ class WNoData extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
+    final deprecated = LayoutBuilder(
       builder: (context, constrant) {
         bool tablet = constrant.maxWidth > constrant.maxHeight;
 
@@ -47,10 +47,35 @@ class WNoData extends StatelessWidget {
                             .textTheme
                             .bodyText1!
                             .color!
-                            .withOpacity(0.5)),
+                            .withOpacity(0.6)),
                   ),
                 ),
               ],
+            ),
+          ),
+        );
+      },
+    );
+    print(deprecated);
+    return LayoutBuilder(
+      builder: (context, constrant) {
+        bool tablet = constrant.maxWidth > constrant.maxHeight;
+
+        return Center(
+          child: Container(
+            width: constrant.maxWidth / 2,
+            child: Text(
+              tr(
+                "msg.story.empty",
+                namedArgs: {'MONTH_NAME': monthName},
+              ),
+              textAlign: tablet ? TextAlign.start : TextAlign.center,
+              style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onBackground
+                        .withOpacity(0.6),
+                  ),
             ),
           ),
         );
