@@ -9,6 +9,7 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
   StoryModel draftStory;
 
   bool hasChanged = false;
+  bool _imageLoading = false;
 
   StoryDetailScreenNotifier(this.draftStory);
 
@@ -39,6 +40,13 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
     }
     return success;
   }
+
+  void setImageLoading(bool value) {
+    _imageLoading = value;
+    notifyListeners();
+  }
+
+  bool get imageLoading => this._imageLoading;
 }
 
 final storydetailScreenNotifier =
