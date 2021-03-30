@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/drive/v3.dart' as drive;
+import 'package:write_story/storages/auth_header_storage.dart';
 
 class AuthenticationService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -10,12 +13,20 @@ class AuthenticationService {
   String? get errorMessage => _errorMessage;
 
   Future<bool> signInWithGoogle() async {
-    GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    GoogleSignIn? googleSignIn = GoogleSignIn.standard(
+      scopes: [drive.DriveApi.driveFileScope],
+    );
+
+    GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
     if (googleUser == null) {
       this._errorMessage = tr("msg.login.cancel");
       return false;
     }
+
+    AuthHeaderStorage storage = AuthHeaderStorage();
+    final authHeaders = await googleUser.authHeaders;
+    await storage.write(jsonEncode(authHeaders));
 
     // Obtain the auth details from the request
     final GoogleSignInAuthentication googleAuth =

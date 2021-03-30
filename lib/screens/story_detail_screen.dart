@@ -18,6 +18,8 @@ import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/quill_controller_notifier.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
+import 'package:write_story/screens/ask_for_name_sheet.dart';
+import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_history_button.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
@@ -47,6 +49,8 @@ class StoryDetailScreen extends HookWidget
     final readOnlyModeNotifier = useState<bool>(!insert);
 
     final bottomHeight = MediaQuery.of(context).padding.bottom;
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+
     Document? doc;
     try {
       List<dynamic>? json = jsonDecode(_notifier.draftStory.paragraph!);
@@ -100,6 +104,7 @@ class StoryDetailScreen extends HookWidget
             notifier: _notifier,
             quillNotifier: quillNotifier,
             readOnlyModeNotifier: readOnlyModeNotifier,
+            statusBarHeight: statusBarHeight,
           ),
         ];
       },
@@ -213,7 +218,7 @@ class StoryDetailScreen extends HookWidget
     );
   }
 
-  WillPopScope buildDefinedScaffold({
+  Widget buildDefinedScaffold({
     required BuildContext context,
     required StoryDetailScreenNotifier notifier,
     required Widget body,
@@ -262,8 +267,11 @@ class StoryDetailScreen extends HookWidget
                 showClearFormat: true,
                 showColorButton: false,
                 showBackgroundColorButton: false,
-                onImagePickCallback: (File image) async {
-                  return image.path;
+                onImagePickCallback: (File _pickImage) async {
+                  notifier.setImageLoading(true);
+                  final image = await GoogleDriveApiService.upload(_pickImage);
+                  notifier.setImageLoading(false);
+                  return image;
                 },
               ),
             ),
@@ -291,6 +299,7 @@ class StoryDetailScreen extends HookWidget
     required StoryDetailScreenNotifier notifier,
     required QuillControllerNotifer quillNotifier,
     required ValueNotifier readOnlyModeNotifier,
+    required double statusBarHeight,
   }) {
     final _theme = Theme.of(context);
 
@@ -299,6 +308,10 @@ class StoryDetailScreen extends HookWidget
       centerTitle: false,
       floating: true,
       elevation: 0.5,
+      flexibleSpace: Container(
+        margin: EdgeInsets.only(top: statusBarHeight),
+        child: WLineLoading(loading: notifier.imageLoading),
+      ),
       leading: buildAppBarLeadingButton(context: context, notifier: notifier),
       actions: [
         ValueListenableBuilder(
@@ -356,7 +369,7 @@ class StoryDetailScreen extends HookWidget
                       },
                       child: ListTile(
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: ConfigConstant.margin2,
+                          horizontal: ConfigConstant.margin1,
                         ),
                         leading: Icon(
                           Icons.delete,
@@ -379,7 +392,7 @@ class StoryDetailScreen extends HookWidget
                     },
                     child: ListTile(
                       contentPadding: EdgeInsets.symmetric(
-                        horizontal: ConfigConstant.margin2,
+                        horizontal: ConfigConstant.margin1,
                       ),
                       leading: const Icon(Icons.save),
                       title: Text("Save"),
@@ -419,7 +432,7 @@ class StoryDetailScreen extends HookWidget
                       },
                       child: ListTile(
                         contentPadding: EdgeInsets.symmetric(
-                          horizontal: ConfigConstant.margin2,
+                          horizontal: ConfigConstant.margin1,
                         ),
                         leading: Icon(Icons.info),
                         title: Text("Info"),
@@ -441,7 +454,7 @@ class StoryDetailScreen extends HookWidget
                         },
                         child: ListTile(
                           contentPadding: EdgeInsets.symmetric(
-                            horizontal: ConfigConstant.margin2,
+                            horizontal: ConfigConstant.margin1,
                           ),
                           leading: Icon(Icons.nights_stay),
                           title: Text("Dark Mode"),
@@ -484,12 +497,12 @@ class StoryDetailScreen extends HookWidget
                         },
                         child: ListTile(
                           contentPadding: EdgeInsets.symmetric(
-                            horizontal: ConfigConstant.margin2,
+                            horizontal: ConfigConstant.margin1,
                           ),
                           leading: Icon(!readOnlyModeNotifier.value
                               ? Icons.chrome_reader_mode_outlined
                               : Icons.chrome_reader_mode),
-                          title: Text("Read mode"),
+                          title: Text("Read only"),
                           trailing: Switch(
                             value: readOnlyModeNotifier.value,
                             onChanged: (bool value) {

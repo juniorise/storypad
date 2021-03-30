@@ -264,23 +264,10 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
     AuthenticatoinNotifier notifier,
     ThemeNotifier themeNotifier,
   ) {
+    final loading = notifier.loading;
     return Stack(
       children: [
-        AnimatedOpacity(
-          opacity: notifier.loading ? 1 : 0,
-          duration: ConfigConstant.fadeDuration ~/ 2,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(4.0),
-            child: Container(
-              height: 4,
-              child: LinearProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ),
-          ),
-        ),
+        WLineLoading(loading: loading),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -505,6 +492,34 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
           ),
         ),
       ],
+    );
+  }
+}
+
+class WLineLoading extends StatelessWidget {
+  const WLineLoading({
+    Key? key,
+    required this.loading,
+  }) : super(key: key);
+
+  final bool loading;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      opacity: loading ? 1 : 0,
+      duration: ConfigConstant.fadeDuration ~/ 2,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(4.0),
+        child: Container(
+          height: 4,
+          child: LinearProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
