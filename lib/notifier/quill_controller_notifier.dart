@@ -12,14 +12,12 @@ class QuillControllerNotifer with ChangeNotifier {
     final quil = controller.document.toDelta().toJson();
     var json = jsonEncode(quil);
     _draftParagraph = "$json";
-    notifyListeners();
 
     /// set draft data on change
     this.controller.addListener(() {
       final quil = controller.document.toDelta().toJson();
       var json = jsonEncode(quil);
       _draftParagraph = "$json";
-      notifyListeners();
     });
   }
 

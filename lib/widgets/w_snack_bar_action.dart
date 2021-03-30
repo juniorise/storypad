@@ -1,6 +1,7 @@
 // A button for a [SnackBar], known as an "action".
 import 'package:flutter/material.dart';
 import 'package:write_story/configs/theme_config.dart';
+import 'package:write_story/constants/config_constant.dart';
 
 ///
 /// Snack bar actions are always enabled. If you want to disable a snack bar
@@ -65,6 +66,11 @@ class _WSnackBarActionState extends State<WSnackBarAction> {
     return TextButton(
       onPressed: _haveTriggeredAction ? null : _handlePressed,
       style: ButtonStyle(
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: ConfigConstant.circlarRadius1,
+          ),
+        ),
         overlayColor: MaterialStateProperty.all(Colors.transparent),
         foregroundColor: MaterialStateProperty.resolveWith(
           (states) {

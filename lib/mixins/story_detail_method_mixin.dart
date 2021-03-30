@@ -34,6 +34,7 @@ mixin StoryDetailMethodMixin {
     String? actionLabel,
     VoidCallback? onActionPressed,
     bool warning = false,
+    bool floating = false,
   }) {
     final style = Theme.of(context)
         .textTheme
@@ -53,6 +54,7 @@ mixin StoryDetailMethodMixin {
     return SnackBar(
       content: Text(title, style: style),
       action: actions,
+      behavior: floating ? SnackBarBehavior.floating : SnackBarBehavior.fixed,
       backgroundColor: Theme.of(context).colorScheme.secondary,
     );
   }
@@ -64,6 +66,7 @@ mixin StoryDetailMethodMixin {
     VoidCallback? onActionPressed,
     VoidCallback? onClose,
     bool warning = false,
+    bool floating = false,
   }) async {
     ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
     Future.delayed(Duration(microseconds: 0)).then((value) {
@@ -73,6 +76,7 @@ mixin StoryDetailMethodMixin {
         actionLabel: actionLabel ?? tr("button.okay"),
         onActionPressed: onActionPressed,
         warning: warning,
+        floating: floating,
       );
 
       onTapVibrate();
@@ -201,6 +205,7 @@ mixin StoryDetailMethodMixin {
       title: tr("msg.delete.warning"),
       actionLabel: tr("button.okay"),
       warning: true,
+      floating: true,
       onActionPressed: () async {
         final success = await notifier.removeStoryById(id);
         if (success) {
@@ -215,6 +220,7 @@ mixin StoryDetailMethodMixin {
             context: context,
             title: tr("msg.delete.fail"),
             actionLabel: tr("button.try_again"),
+            floating: true,
             onActionPressed: () async {
               onDelete(
                 context: context,
@@ -241,6 +247,7 @@ mixin StoryDetailMethodMixin {
         context: context,
         title: tr("validate.title"),
         actionLabel: tr("button.okay"),
+        floating: true,
         onActionPressed: () {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
         },
@@ -258,11 +265,13 @@ mixin StoryDetailMethodMixin {
       if (success == true) {
         await showSnackBar(
           context: context,
+          floating: true,
           title: tr("msg.save.success"),
         );
       } else {
         await showSnackBar(
           context: context,
+          floating: true,
           title: tr("msg.save.fail"),
         );
       }

@@ -158,6 +158,11 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             childBuilder: defaultToggleStyleButtonBuilder,
           ),
         ),
+        VerticalDivider(
+          indent: 16,
+          endIndent: 16,
+          color: Colors.grey.shade400,
+        ),
         Visibility(
           visible: showCodeBlock,
           child: toolbar.ToggleStyleButton(
@@ -166,22 +171,6 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             icon: Icons.code,
             childBuilder: defaultToggleStyleButtonBuilder,
           ),
-        ),
-        Visibility(
-          visible: !showListNumbers &&
-              !showListBullets &&
-              !showListCheck &&
-              !showCodeBlock,
-          child: VerticalDivider(
-            indent: 16,
-            endIndent: 16,
-            color: Colors.grey.shade400,
-          ),
-        ),
-        VerticalDivider(
-          indent: 16,
-          endIndent: 16,
-          color: Colors.grey.shade400,
         ),
         Visibility(
           visible: showQuote,

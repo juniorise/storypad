@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:write_story/constants/config_constant.dart';
 
 class ThemeConfig {
   static final ThemeData dark = ThemeData(
@@ -10,6 +11,7 @@ class ThemeConfig {
     primaryColor: darkScheme.primary,
     iconTheme: IconThemeData(color: darkScheme.onSurface),
     accentColor: darkScheme.onSurface,
+    toggleableActiveColor: darkScheme.primary,
     textTheme: textTheme.apply(
       bodyColor: darkScheme.onSurface,
       displayColor: darkScheme.onSurface,
@@ -17,6 +19,11 @@ class ThemeConfig {
     ),
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: ConfigConstant.circlarRadius1,
+          ),
+        ),
         overlayColor: MaterialStateProperty.all(Colors.transparent),
         backgroundColor: MaterialStateProperty.resolveWith(
           (states) {
@@ -67,6 +74,11 @@ class ThemeConfig {
     ),
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: ConfigConstant.circlarRadius2,
+          ),
+        ),
         overlayColor: MaterialStateProperty.all(Colors.transparent),
         backgroundColor: MaterialStateProperty.resolveWith(
           (states) {
