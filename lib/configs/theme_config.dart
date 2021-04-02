@@ -61,11 +61,6 @@ class ThemeConfig {
     splashColor: Colors.transparent,
     primaryColor: lightScheme.primary,
     iconTheme: IconThemeData(color: lightScheme.onSurface),
-    dividerColor: lightScheme.onBackground.withOpacity(0.08),
-    dividerTheme: DividerThemeData(
-      thickness: 0.1,
-      color: lightScheme.onSurface.withOpacity(0.08),
-    ),
     accentColor: lightScheme.onSurface,
     textTheme: textTheme.apply(
       bodyColor: lightScheme.onSurface,
