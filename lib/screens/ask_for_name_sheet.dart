@@ -733,7 +733,7 @@ Widget _buildContinueButton({
           title,
           style: _theme.textTheme.bodyText1?.copyWith(
             color: nameNotEmpty
-                ? _theme.colorScheme.onSecondary
+                ? _theme.colorScheme.onPrimary
                 : _theme.disabledColor,
           ),
         ),

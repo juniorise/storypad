@@ -278,6 +278,10 @@ class StoryDetailScreen extends HookWidget
                 showBackgroundColorButton: false,
                 onImagePickCallback: (File _pickImage) async {
                   imageLoadingNotifier.value = true;
+                  showSnackBar(
+                    context: context,
+                    title: tr("msg.drive.loading"),
+                  );
                   final image = await GoogleDriveApiService.upload(
                     _pickImage,
                     context,
@@ -287,12 +291,12 @@ class StoryDetailScreen extends HookWidget
                   if (image != null) {
                     showSnackBar(
                       context: context,
-                      title: "Uploaded to Google Drive",
+                      title: tr("msg.drive.uploaded"),
                     );
                   } else {
                     showSnackBar(
                       context: context,
-                      title: "Upload Fail",
+                      title: tr("msg.drive.fail"),
                     );
                   }
 
@@ -394,7 +398,7 @@ class StoryDetailScreen extends HookWidget
                           Icons.delete,
                           color: _theme.colorScheme.error,
                         ),
-                        title: const Text("Delete"),
+                        title: Text(tr("button.delete")),
                       ),
                     ),
                   ),
@@ -410,12 +414,11 @@ class StoryDetailScreen extends HookWidget
                       );
                     },
                     child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: ConfigConstant.margin1,
-                      ),
-                      leading: const Icon(Icons.save),
-                      title: Text("Save"),
-                    ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: ConfigConstant.margin1,
+                        ),
+                        leading: const Icon(Icons.save),
+                        title: Text(tr("button.save"))),
                   ),
                 ),
                 if (!insert)
@@ -448,12 +451,13 @@ class StoryDetailScreen extends HookWidget
                         }
                       },
                       child: ListTile(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: ConfigConstant.margin1,
-                        ),
-                        leading: Icon(Icons.info),
-                        title: Text("Info"),
-                      ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: ConfigConstant.margin1,
+                          ),
+                          leading: Icon(Icons.info),
+                          title: Text(
+                            tr("button.info"),
+                          )),
                     ),
                   ),
                 PopupMenuItem(
@@ -474,7 +478,7 @@ class StoryDetailScreen extends HookWidget
                             horizontal: ConfigConstant.margin1,
                           ),
                           leading: Icon(Icons.nights_stay),
-                          title: Text("Dark Mode"),
+                          title: Text(tr("button.dark_mode")),
                           trailing: Container(
                             child: Switch(
                               value: notifier.isDarkMode,
@@ -519,7 +523,7 @@ class StoryDetailScreen extends HookWidget
                           leading: Icon(!readOnlyModeNotifier.value
                               ? Icons.chrome_reader_mode_outlined
                               : Icons.chrome_reader_mode),
-                          title: Text("Read only"),
+                          title: Text(tr("button.read_only")),
                           trailing: Switch(
                             value: readOnlyModeNotifier.value,
                             onChanged: (bool value) {
