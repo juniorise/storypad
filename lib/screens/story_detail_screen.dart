@@ -424,12 +424,10 @@ class StoryDetailScreen extends HookWidget
                       onTap: () async {
                         Navigator.of(context).pop();
                         final dialog = Dialog(
-                          child: Container(
-                            child: buildAboutDateText(
-                              context: context,
-                              insert: insert,
-                            ),
-                            padding: ConfigConstant.layoutPadding,
+                          child: buildAboutDateText(
+                            context: context,
+                            insert: insert,
+                            notifier: notifier,
                           ),
                         );
                         if (Platform.isIOS) {
@@ -590,39 +588,68 @@ class StoryDetailScreen extends HookWidget
   Widget buildAboutDateText({
     required BuildContext context,
     required bool insert,
+    required StoryDetailScreenNotifier notifier,
   }) {
     final _theme = Theme.of(context);
-    String _aboutDateText = "";
+    String? _createOn;
+    String? _forDate;
+    String? _updateOn;
+
     if (!insert) {
-      _aboutDateText = getDateLabel(
-            date: story.createOn,
-            context: context,
-            labelKey: "msg.date.create_on",
-          ) +
-          "\n" +
-          getDateLabel(
-            date: story.forDate,
-            context: context,
-            labelKey: "msg.date.for_date",
-          );
+      _createOn = getDateLabel(
+        date: story.createOn,
+        context: context,
+        labelKey: "msg.date.create_on",
+      );
+
+      _forDate = getDateLabel(
+        date: story.forDate,
+        context: context,
+        labelKey: "msg.date.for_date",
+      );
     }
 
     if (!insert && story.updateOn != null) {
-      _aboutDateText += "\n" +
-          getDateLabel(
-            date: story.updateOn ?? DateTime.now(),
-            context: context,
-            labelKey: "msg.date.update_on",
-          );
+      _updateOn = getDateLabel(
+        date: story.updateOn ?? DateTime.now(),
+        context: context,
+        labelKey: "msg.date.update_on",
+      );
     }
 
+    final style = TextStyle(
+      color: _theme.textTheme.bodyText2?.color?.withOpacity(0.5),
+    );
+
     final aboutDate = !insert
-        ? Text(
-            _aboutDateText,
-            textAlign: TextAlign.start,
-            style: TextStyle(
-              color: _theme.textTheme.bodyText2?.color?.withOpacity(0.5),
-            ),
+        ? Wrap(
+            children: [
+              if (_createOn != null)
+                ListTile(
+                  title: Text(tr("msg.date.create_on")),
+                  subtitle: Text(_createOn, style: style),
+                  onTap: () {},
+                ),
+              if (_forDate != null)
+                ListTile(
+                  title: Text(tr("msg.date.for_date")),
+                  subtitle: Text(_forDate, style: style),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onPickDate(
+                      context: context,
+                      date: notifier.draftStory.forDate,
+                      notifier: notifier,
+                    );
+                  },
+                ),
+              if (_updateOn != null)
+                ListTile(
+                  title: Text(tr("msg.date.update_on")),
+                  subtitle: Text(_updateOn, style: style),
+                  onTap: () {},
+                ),
+            ],
           )
         : const SizedBox();
 

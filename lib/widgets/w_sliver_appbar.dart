@@ -232,46 +232,24 @@ class WSliverAppBar extends HookWidget {
   Widget buildYearChooserDialog(List<int> years, BuildContext context) {
     final notifier = context.read(homeScreenProvider);
 
-    return AlertDialog(
-      contentPadding: const EdgeInsets.all(0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(0.0),
-      ),
-      content: SingleChildScrollView(
+    return Dialog(
+      child: SingleChildScrollView(
         child: Wrap(
           children: List.generate(
             years.length,
             (index) {
               final selected = notifier.currentSelectedYear == years[index];
-              return Column(
-                children: [
-                  VTOnTapEffect(
-                    onTap: () async {
-                      notifier.setCurrentSelectedYear(years[index]);
-                      Navigator.of(context).pop();
-                    },
-                    child: Container(
-                      color: selected
-                          ? Theme.of(context).colorScheme.background
-                          : Theme.of(context).scaffoldBackgroundColor,
-                      height: 48,
-                      alignment: Alignment.center,
-                      child: Text(
-                        years[index].toString(),
-                        style: TextStyle(
-                          color: selected
-                              ? Theme.of(context).primaryColor
-                              : Theme.of(context)
-                                  .textTheme
-                                  .bodyText1!
-                                  .color!
-                                  .withOpacity(0.5),
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (index != years.length) const Divider(height: 0.1)
-                ],
+              return ListTile(
+                title: Text(
+                  years[index].toString(),
+                  textAlign: TextAlign.center,
+                ),
+                selected: selected,
+                onTap: () async {
+                  onTapVibrate();
+                  notifier.setCurrentSelectedYear(years[index]);
+                  Navigator.of(context).pop();
+                },
               );
             },
           ),
