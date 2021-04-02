@@ -28,27 +28,40 @@ class AuthenticationService {
   }
 
   Future<bool> signInWithGoogle() async {
-    if (await this.googleSignIn.isSignedIn()) googleSignIn.signOut();
+    this._errorMessage = null;
 
-    GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (await this.googleSignIn.isSignedIn()) googleSignIn.signOut();
+    GoogleSignInAccount? googleUser;
+
+    try {
+      googleUser = await googleSignIn.signIn();
+    } catch (e) {
+      this._errorMessage = tr("msg.login.cancel");
+      return false;
+    }
+
     if (googleUser == null) {
       this._errorMessage = tr("msg.login.cancel");
       return false;
     }
 
-    _setAuthHeader(googleUser);
+    await _setAuthHeader(googleUser);
 
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
+    GoogleSignInAuthentication? googleAuth;
+
+    try {
+      googleAuth = await googleUser.authentication;
+    } catch (e) {
+      this._errorMessage = tr("msg.login.fail");
+      return false;
+    }
 
     // Create a new credential
     final GoogleAuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     ) as GoogleAuthCredential;
-
-    this._errorMessage = null;
 
     try {
       // Once signed in, return the UserCredential

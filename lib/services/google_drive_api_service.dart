@@ -20,31 +20,30 @@ class GoogleAuthClient extends http.BaseClient {
 
 class GoogleDriveApiService {
   static Future<String?> upload(io.File _image, BuildContext context) async {
-    final io.File? image = await ImageCompressService(file: _image).exec();
-    AuthHeaderStorage storage = AuthHeaderStorage();
-
+    /// if no user is logged in,
+    /// then log in
     final auth = AuthenticationService();
     if (auth.user == null) {
       final result = await context.read(authenticationProvider).logAccount();
-      if (result == false) {
-        return null;
-      }
+      if (result == false) return null;
     }
 
+    /// read auth header from secure storage
+    AuthHeaderStorage storage = AuthHeaderStorage();
     String? result = await storage.read();
+    Map<String, String>? authHeader = storage.getAuthHeader(result!);
+    GoogleAuthClient authenticateClient = GoogleAuthClient(authHeader!);
 
-    GoogleAuthClient authenticateClient = GoogleAuthClient(
-      storage.getAuthHeader(result!)!,
-    );
     drive.DriveApi driveApi = drive.DriveApi(authenticateClient);
-
     String? folderId;
-
     drive.FileList? folderList;
 
+    /// try to get list of folder in google drive,
+    /// if fail which mean that auth header is expired,
+    /// then sign in silently again to get new auth header
+    final mimeType = "mimeType = 'application/vnd.google-apps.folder'";
     try {
-      folderList = await driveApi.files
-          .list(q: "mimeType = 'application/vnd.google-apps.folder'");
+      folderList = await driveApi.files.list(q: "$mimeType");
     } catch (e) {
       final bool success = await auth.signInSilently();
       if (success) {
@@ -54,18 +53,18 @@ class GoogleDriveApiService {
         if (!success) return null;
       }
 
-      authenticateClient = GoogleAuthClient(
-        storage.getAuthHeader(result!)!,
-      );
+      authHeader = storage.getAuthHeader(result!);
+      authenticateClient = GoogleAuthClient(authHeader!);
       driveApi = drive.DriveApi(authenticateClient);
       try {
-        folderList = await driveApi.files
-            .list(q: "mimeType = 'application/vnd.google-apps.folder'");
+        folderList = await driveApi.files.list(q: "$mimeType");
       } catch (e) {
         return null;
       }
     }
 
+    /// check if folder "Story" is existed or not,
+    /// if no create new.
     folderList.files?.forEach((e) {
       if (e.name == "Story") folderId = e.id.toString();
     });
@@ -73,31 +72,55 @@ class GoogleDriveApiService {
     if (folderId == null) {
       drive.File folderToCreate = drive.File();
       folderToCreate.name = "Story";
-
-      final response = await driveApi.files.create(
-        folderToCreate..mimeType = "application/vnd.google-apps.folder",
-      );
+      drive.File response;
+      try {
+        response = await driveApi.files.create(
+          folderToCreate..mimeType = "application/vnd.google-apps.folder",
+        );
+      } catch (e) {
+        return null;
+      }
       folderId = response.id;
     }
 
+    /// compress image
+    final io.File? image = await ImageCompressService(file: _image).exec();
+
+    /// config file before upload
     drive.File fileToUpload = drive.File();
     fileToUpload.parents = [folderId.toString()];
     fileToUpload.name = basename(image!.path);
 
-    var response2 = await driveApi.files.create(
-      fileToUpload,
-      uploadMedia: drive.Media(image.openRead(), image.lengthSync()),
-    );
+    /// try create file
+    drive.File response2;
+    try {
+      response2 = await driveApi.files.create(
+        fileToUpload,
+        uploadMedia: drive.Media(image.openRead(), image.lengthSync()),
+      );
+    } catch (e) {
+      return null;
+    }
 
-    await driveApi.permissions.create(
-      drive.Permission.fromJson({
-        "role": "reader",
-        "type": "anyone",
-      }),
-      response2.id!,
-    );
+    if (response2.id == null) return null;
 
+    /// set image permission publish to display on app
+    try {
+      await driveApi.permissions.create(
+        drive.Permission.fromJson({
+          "role": "reader",
+          "type": "anyone",
+        }),
+        response2.id!,
+      );
+    } catch (e) {
+      return null;
+    }
+
+    /// delete compress image from local storage
     await image.delete();
+
+    /// result
     final link =
         'https://drive.google.com/uc?export=download&id=${response2.id}';
     return link;

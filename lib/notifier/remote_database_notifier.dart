@@ -15,15 +15,10 @@ class RemoteDatabaseNotifier with ChangeNotifier {
 
   load() async {
     if (auth.user != null) {
-      final result = await service.backupList(auth.user!.uid);
-      if (result != null) {
-        this._backup = result;
-      }
+      final result = await service.backup(auth.user!.uid);
+      if (result != null) this._backup = result;
     }
-
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
-      notifyListeners();
-    });
+    WidgetsBinding.instance?.addPostFrameCallback((_) => notifyListeners());
   }
 
   Future<bool> replace(DbBackupModel model) async {
@@ -38,10 +33,7 @@ class RemoteDatabaseNotifier with ChangeNotifier {
     }
   }
 
-  void reset() {
-    this._backup = null;
-  }
-
+  void reset() => this._backup = null;
   DbBackupModel? get backup => this._backup;
 }
 

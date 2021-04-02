@@ -5,7 +5,7 @@ class RemoteDatabaseService {
   static FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static CollectionReference _users = _firestore.collection("users");
 
-  Future<DbBackupModel?> backupList(String uid) async {
+  Future<DbBackupModel?> backup(String uid) async {
     DbBackupModel? remoteBackup;
 
     await _users.doc(uid).get().then((e) {
