@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/configs/theme_config.dart';
+import 'package:write_story/storages/list_layout_storage.dart';
 import 'package:write_story/storages/theme_mode_storage.dart';
 
 class ThemeNotifier extends ChangeNotifier {
   ThemeModeStorage storage = ThemeModeStorage();
+  ListLayoutStorage layoutStorage = ListLayoutStorage();
   bool isDarkMode = false;
+  bool isNormalList = false;
 
-  load() async {
+  loadThemeMode() async {
     final result = await storage.getBool();
     if (result != null) {
       isDarkMode = result == true;
@@ -15,9 +18,22 @@ class ThemeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  loadLayoutStorage() async {
+    final result = await layoutStorage.getBool();
+    if (result != null) {
+      isNormalList = result == true;
+    }
+    notifyListeners();
+  }
+
   toggleTheme() async {
     await storage.setBool(value: !isDarkMode);
-    load();
+    loadThemeMode();
+  }
+
+  toggleListLayout() async {
+    await layoutStorage.setBool(value: !isNormalList);
+    loadLayoutStorage();
   }
 
   ThemeData get theme {
@@ -26,5 +42,8 @@ class ThemeNotifier extends ChangeNotifier {
 }
 
 final themeProvider = ChangeNotifierProvider<ThemeNotifier>((ref) {
-  return ThemeNotifier()..load();
+  final notifier = ThemeNotifier();
+  notifier.loadThemeMode();
+  notifier.loadLayoutStorage();
+  return notifier;
 });

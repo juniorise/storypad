@@ -255,15 +255,6 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
   Widget build(BuildContext context) {
     final notifier = useProvider(authenticationProvider);
     final themeNotifier = useProvider(themeProvider);
-
-    return buildBackup(context, notifier, themeNotifier);
-  }
-
-  Widget buildBackup(
-    BuildContext context,
-    AuthenticatoinNotifier notifier,
-    ThemeNotifier themeNotifier,
-  ) {
     final loading = notifier.loading;
     return Stack(
       children: [
@@ -304,9 +295,28 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                               horizontal: ConfigConstant.margin2,
                             ),
                             title: Text(tr("button.dark_mode")),
-                            onChanged: (bool value) {
+                            onChanged: (bool value) async {
                               onTapVibrate();
-                              themeNotifier.toggleTheme();
+                              await themeNotifier.toggleTheme();
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: ConfigConstant.margin1),
+                        Material(
+                          borderRadius: ConfigConstant.circlarRadius2,
+                          color: Color(0xFF4FA237),
+                          child: SwitchListTile(
+                            value: themeNotifier.isNormalList,
+                            selected: true,
+                            shape: RoundedRectangleBorder(),
+                            activeColor: Theme.of(context).colorScheme.onError,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: ConfigConstant.margin2,
+                            ),
+                            title: Text(tr("button.list_layout")),
+                            onChanged: (bool value) async {
+                              onTapVibrate();
+                              await themeNotifier.toggleListLayout();
                             },
                           ),
                         ),

@@ -96,54 +96,168 @@ class HomeScreen extends HookWidget with HookController {
           TextEditingController().clear();
           closeFaq();
         },
-        child: DefaultTabController(
-          length: controller.length,
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            floatingActionButton: buildMoreFaq(
-              statusBarHeight,
-              bottomBarHeight,
-              notifier,
-              tabNotifier,
-              controller,
-            ),
-            resizeToAvoidBottomInset: false,
-            body: NestedScrollView(
-              headerSliverBuilder: (context, _) => [
-                buildHeaderAppBar(
-                  isInit: notifier.inited,
-                  controller: controller,
-                  statusBarHeight: statusBarHeight,
-                  context: context,
-                  notifier: notifier,
-                  bottomBarHeight: bottomBarHeight,
-                )
-              ],
-              body: VTTabView(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          floatingActionButton: buildMoreFaq(
+            statusBarHeight,
+            bottomBarHeight,
+            notifier,
+            tabNotifier,
+            controller,
+          ),
+          resizeToAvoidBottomInset: false,
+          body: NestedScrollView(
+            headerSliverBuilder: (context, _) => [
+              buildHeaderAppBar(
+                isInit: notifier.inited,
                 controller: controller,
-                children: List.generate(
-                  controller.length,
-                  (index) {
-                    final int monthID = index + 1;
-                    return buildStoryInMonth(
-                      monthId: monthID,
-                      context: context,
-                      notifier: notifier,
-                      onSaved: (DateTime? date) async {
-                        if (date != null) {
-                          notifier.setCurrentSelectedYear(date.year);
-                          controller.animateTo(date.month - 1,
-                              curve: Curves.easeInQuart);
-                        }
-                      },
-                    );
-                  },
-                ),
-              ),
+                statusBarHeight: statusBarHeight,
+                context: context,
+                notifier: notifier,
+                bottomBarHeight: bottomBarHeight,
+                themeNotifier: themeNotifier,
+              )
+            ],
+            body: Consumer(
+              builder: (context, _, child) {
+                if (themeNotifier.isNormalList) {
+                  return buildNormalList(controller, notifier, context);
+                } else {
+                  return buildDayList(controller, context, notifier);
+                }
+              },
             ),
           ),
         ),
       ),
+    );
+  }
+
+  VTTabView buildDayList(TabController controller, BuildContext context,
+      HomeScreenNotifier notifier) {
+    return VTTabView(
+      controller: controller,
+      children: List.generate(
+        controller.length,
+        (index) {
+          final int monthID = index + 1;
+          return buildStoryInMonth(
+            monthId: monthID,
+            context: context,
+            notifier: notifier,
+            onSaved: (DateTime? date) async {
+              if (date != null) {
+                notifier.setCurrentSelectedYear(date.year);
+                controller.animateTo(date.month - 1, curve: Curves.easeInQuart);
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  ListView buildNormalList(
+    TabController controller,
+    HomeScreenNotifier notifier,
+    BuildContext context,
+  ) {
+    return ListView(
+      padding: ConfigConstant.layoutPadding.copyWith(top: 0, bottom: 16.0),
+      shrinkWrap: true,
+      children: List.generate(
+        controller.length,
+        (monthIndex) {
+          final int monthId = monthIndex + 1;
+          final storyListByMonthId = notifier.storyListByMonthID;
+          StoryListModel? _storyListModel;
+
+          // fetching data
+          List<int> storiesInMonthIds = [];
+          bool storiesNotNull = storyListByMonthId != null &&
+              storyListByMonthId.containsKey(monthId) &&
+              storyListByMonthId[monthId] != null;
+
+          if (storiesNotNull) {
+            _storyListModel = storyListByMonthId[monthId];
+            storiesInMonthIds = _storyListModel?.childrenId ?? [];
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_storyListModel != null &&
+                  _storyListModel.childrenId.isNotEmpty)
+                buildDateMonthHeader(context, _storyListModel),
+              Column(
+                children: List.generate(
+                  storiesInMonthIds.length,
+                  (storyByDayIndex) {
+                    final int storyByIndex = storiesInMonthIds[storyByDayIndex];
+                    final StoryListModel? storyInMonth =
+                        notifier.storyListByDayId?[storyByIndex];
+                    final List<int> storyInDayIds =
+                        storyInMonth?.childrenId ?? [];
+                    return Column(
+                      children: List.generate(
+                        storyInDayIds.length,
+                        (index) {
+                          final StoryModel story =
+                              notifier.storyById![storyInDayIds[index]]!;
+                          return buildStoryTile(
+                            context: context,
+                            story: story,
+                            notifier: notifier,
+                            onSaved: (DateTime? date) {
+                              if (date != null) {
+                                notifier.setCurrentSelectedYear(date.year);
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Column buildDateMonthHeader(
+      BuildContext context, StoryListModel _storyListModel) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const SizedBox(height: ConfigConstant.margin2),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(child: const Divider(endIndent: 8)),
+            Material(
+              elevation: 0.3,
+              borderRadius: BorderRadius.circular(100),
+              color: Theme.of(context).colorScheme.surface,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: ConfigConstant.margin2,
+                  vertical: ConfigConstant.margin0,
+                ),
+                child: Text(
+                  AppHelper.yM(context).format(_storyListModel.forDate),
+                ),
+              ),
+            ),
+            Expanded(child: const Divider(indent: 8)),
+          ],
+        ),
+        const SizedBox(height: ConfigConstant.margin1),
+      ],
     );
   }
 
@@ -214,6 +328,7 @@ class HomeScreen extends HookWidget with HookController {
     required BuildContext context,
     required bool isInit,
     required HomeScreenNotifier notifier,
+    required ThemeNotifier themeNotifier,
   }) {
     return WSliverAppBar(
       statusBarHeight: statusBarHeight,
@@ -221,14 +336,16 @@ class HomeScreen extends HookWidget with HookController {
       backgroundText: notifier.currentSelectedYear.toString(),
       tabController: controller,
       isInit: isInit,
-      tabs: List.generate(
-        12,
-        (index) {
-          return AppHelper.toNameOfMonth(context).format(
-            DateTime(2020, index + 1),
-          );
-        },
-      ),
+      tabs: themeNotifier.isNormalList
+          ? null
+          : List.generate(
+              12,
+              (index) {
+                return AppHelper.toNameOfMonth(context).format(
+                  DateTime(2020, index + 1),
+                );
+              },
+            ),
     );
   }
 
@@ -245,6 +362,7 @@ class HomeScreen extends HookWidget with HookController {
     bool storiesNotNull = storyListByMonthId != null &&
         storyListByMonthId.containsKey(monthId) &&
         storyListByMonthId[monthId] != null;
+
     if (storiesNotNull) {
       storiesInMonthIds = storyListByMonthId[monthId]?.childrenId;
     }
@@ -260,7 +378,7 @@ class HomeScreen extends HookWidget with HookController {
     }
 
     return ListView(
-      padding: ConfigConstant.layoutPadding,
+      padding: ConfigConstant.layoutPadding.copyWith(bottom: 16.0),
       children: List.generate(
         storiesInMonthIds.length,
         (_dayIndex) {
@@ -506,7 +624,6 @@ class HomeScreen extends HookWidget with HookController {
     try {
       final decode = jsonDecode(story.paragraph!);
       final document = Document.fromJson(decode);
-      // print("$document");
       paragraph = toPlainText(document.root).trim();
     } catch (e) {}
 
@@ -517,6 +634,8 @@ class HomeScreen extends HookWidget with HookController {
       child: Text(
         _paragraphText,
         textAlign: TextAlign.start,
+        maxLines: 4,
+        overflow: TextOverflow.ellipsis,
         style: _theme.textTheme.bodyText2
             ?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.5)),
       ),

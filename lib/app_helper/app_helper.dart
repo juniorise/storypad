@@ -29,6 +29,10 @@ class AppHelper {
     return DateFormat.yMd(context.locale.languageCode);
   }
 
+  static DateFormat yM(BuildContext context) {
+    return DateFormat.yMMMM(context.locale.languageCode);
+  }
+
   static DateFormat timeFormat(BuildContext context) {
     return DateFormat.jm(context.locale.languageCode);
   }
