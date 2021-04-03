@@ -29,7 +29,7 @@ class StoryModel {
     );
   }
 
-  copyWith({
+  StoryModel copyWith({
     int? id,
     String? title,
     String? paragraph,

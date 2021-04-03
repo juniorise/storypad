@@ -115,10 +115,14 @@ class WDatabase {
       updateOn = DateTime.now();
     }
 
+    final paragraph = story.paragraph != null
+        ? story.paragraph?.replaceAll("'", "\u{39}")
+        : null;
+
     String query = '''
     UPDATE story 
     SET title = '${story.title}', 
-        paragraph = '${story.paragraph}',
+        paragraph = '$paragraph',
         for_date = ${story.forDate.millisecondsSinceEpoch},
         update_on = ${updateOn!.millisecondsSinceEpoch},
         is_favorite = ${story.isFavorite == true ? 1 : 0}
@@ -136,6 +140,10 @@ class WDatabase {
   Future<bool> addStory({
     required StoryModel story,
   }) async {
+    final paragraph = story.paragraph != null
+        ? story.paragraph?.replaceAll("'", "\u{39}")
+        : null;
+
     String query = '''
     INSERT or REPLACE INTO "story" (
       id,
@@ -149,7 +157,7 @@ class WDatabase {
     VALUES (
         ${story.id},
         '${story.title}', 
-        '${story.paragraph}', 
+        '$paragraph', 
         ${story.createOn.millisecondsSinceEpoch}, 
         ${story.forDate.millisecondsSinceEpoch}, 
         ${story.updateOn != null ? story.updateOn?.millisecondsSinceEpoch : story.createOn.millisecondsSinceEpoch}, 
@@ -183,7 +191,10 @@ class WDatabase {
     final map = Map.fromIterable(maps, key: (e) {
       return int.parse("${e['id']}");
     }, value: (e) {
-      return StoryModel.fromJson(e);
+      final String? _paragraph = e['paragraph'];
+      String? result =
+          _paragraph != null ? _paragraph.replaceAll("\u{39}", "'") : null;
+      return StoryModel.fromJson(e).copyWith(paragraph: result);
     });
 
     return map;

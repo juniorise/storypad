@@ -41,6 +41,7 @@ class AuthenticatoinNotifier extends ChangeNotifier {
 
   Future<void> signOut() async {
     await service?.signOut();
+    setLoading(false);
     load();
   }
 

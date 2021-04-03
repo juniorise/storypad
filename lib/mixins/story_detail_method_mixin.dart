@@ -11,11 +11,10 @@ mixin StoryDetailMethodMixin {
   String getDateLabel({
     required DateTime date,
     required BuildContext context,
-    required String labelKey,
   }) {
     final _date = AppHelper.dateFormat(context).format(date);
     final _time = AppHelper.timeFormat(context).format(date);
-    return tr(labelKey, namedArgs: {"DATE": _date + ", " + _time});
+    return _date + ", " + _time;
   }
 
   void onPopNavigator({
