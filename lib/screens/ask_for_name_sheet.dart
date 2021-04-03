@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/database/w_database.dart';
@@ -102,11 +101,13 @@ class AskForNameSheet extends HookWidget {
             final lottieHeight =
                 tablet ? constrant.maxHeight / 2 : constrant.maxWidth / 2;
 
-            final initHeight = (constrant.maxHeight -
+            double initHeight = (constrant.maxHeight -
                     lottieHeight -
                     statusBarHeight -
                     kToolbarHeight) /
                 constrant.maxHeight;
+
+            if (!init) initHeight += 0.1;
 
             final tab1 = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +156,7 @@ class AskForNameSheet extends HookWidget {
                             children: [
                               SingleChildScrollView(
                                 child: tab1,
-                                // controller: init ? null : controller,
+                                controller: init ? null : controller,
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: ConfigConstant.margin2,
                                   vertical: ConfigConstant.margin2 * 2,
@@ -163,7 +164,7 @@ class AskForNameSheet extends HookWidget {
                               ),
                               if (!init)
                                 SingleChildScrollView(
-                                  // controller: controller,
+                                  controller: controller,
                                   child: tab2,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: ConfigConstant.margin2,
@@ -589,7 +590,7 @@ Widget _buildHeaderText({
                   showAboutDialog(
                     context: context,
                     applicationName: "Story",
-                    applicationVersion: "v1.0.0+6",
+                    applicationVersion: "v1.0.0+7",
                     applicationLegalese: tr("info.app_detail"),
                     children: [
                       const SizedBox(height: 24.0),
@@ -616,28 +617,28 @@ Widget _buildHeaderText({
                         style: _textTheme.caption!
                             .copyWith(fontWeight: FontWeight.w600),
                       ),
-                      const Divider(),
-                      const SizedBox(height: ConfigConstant.margin0),
-                      RichText(
-                        text: TextSpan(
-                          style: _textTheme.caption,
-                          children: <TextSpan>[
-                            TextSpan(text: tr("info.about_project") + " "),
-                            TextSpan(
-                              text: tr("button.source_code"),
-                              style: _textTheme.caption!.copyWith(
-                                color: _theme.colorScheme.primary,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () {
-                                  launch(
-                                    "https://github.com/theacheng/write_story",
-                                  );
-                                },
-                            ),
-                          ],
-                        ),
-                      ),
+                      // const Divider(),
+                      // const SizedBox(height: ConfigConstant.margin0),
+                      // RichText(
+                      //   text: TextSpan(
+                      //     style: _textTheme.caption,
+                      //     children: <TextSpan>[
+                      //       TextSpan(text: tr("info.about_project") + " "),
+                      //       TextSpan(
+                      //         text: tr("button.source_code"),
+                      //         style: _textTheme.caption!.copyWith(
+                      //           color: _theme.colorScheme.primary,
+                      //         ),
+                      //         recognizer: TapGestureRecognizer()
+                      //           ..onTap = () {
+                      //             launch(
+                      //               "https://github.com/theacheng/write_story",
+                      //             );
+                      //           },
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                     ],
                     applicationIcon: ClipRRect(
                       borderRadius: ConfigConstant.circlarRadius1,

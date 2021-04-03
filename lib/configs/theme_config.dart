@@ -12,6 +12,7 @@ class ThemeConfig {
     iconTheme: IconThemeData(color: darkScheme.onSurface),
     accentColor: darkScheme.onSurface,
     toggleableActiveColor: darkScheme.primary,
+    canvasColor: darkScheme.background,
     textTheme: textTheme.apply(
       bodyColor: darkScheme.onSurface,
       displayColor: darkScheme.onSurface,
@@ -31,24 +32,13 @@ class ThemeConfig {
                 states.contains(MaterialState.focused) ||
                 states.contains(MaterialState.hovered) ||
                 states.contains(MaterialState.selected)) {
-              return darkScheme.primary;
+              return darkScheme.primary.withOpacity(0.1);
             } else {
               return Colors.transparent;
             }
           },
         ),
-        foregroundColor: MaterialStateProperty.resolveWith(
-          (states) {
-            if (states.contains(MaterialState.pressed) ||
-                states.contains(MaterialState.focused) ||
-                states.contains(MaterialState.hovered) ||
-                states.contains(MaterialState.selected)) {
-              return darkScheme.onPrimary;
-            } else {
-              return darkScheme.primary;
-            }
-          },
-        ),
+        foregroundColor: MaterialStateProperty.all(darkScheme.primary),
       ),
     ),
   );
@@ -62,6 +52,7 @@ class ThemeConfig {
     primaryColor: lightScheme.primary,
     iconTheme: IconThemeData(color: lightScheme.onSurface),
     accentColor: lightScheme.onSurface,
+    canvasColor: lightScheme.background,
     textTheme: textTheme.apply(
       bodyColor: lightScheme.onSurface,
       displayColor: lightScheme.onSurface,
@@ -81,24 +72,13 @@ class ThemeConfig {
                 states.contains(MaterialState.focused) ||
                 states.contains(MaterialState.hovered) ||
                 states.contains(MaterialState.selected)) {
-              return lightScheme.primary;
+              return lightScheme.primary.withOpacity(0.1);
             } else {
               return Colors.transparent;
             }
           },
         ),
-        foregroundColor: MaterialStateProperty.resolveWith(
-          (states) {
-            if (states.contains(MaterialState.pressed) ||
-                states.contains(MaterialState.focused) ||
-                states.contains(MaterialState.hovered) ||
-                states.contains(MaterialState.selected)) {
-              return lightScheme.onPrimary;
-            } else {
-              return lightScheme.primary;
-            }
-          },
-        ),
+        foregroundColor: MaterialStateProperty.all(lightScheme.primary),
       ),
     ),
   );

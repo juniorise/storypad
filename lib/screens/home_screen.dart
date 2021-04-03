@@ -133,8 +133,11 @@ class HomeScreen extends HookWidget with HookController {
     );
   }
 
-  VTTabView buildDayList(TabController controller, BuildContext context,
-      HomeScreenNotifier notifier) {
+  VTTabView buildDayList(
+    TabController controller,
+    BuildContext context,
+    HomeScreenNotifier notifier,
+  ) {
     return VTTabView(
       controller: controller,
       children: List.generate(
@@ -157,74 +160,81 @@ class HomeScreen extends HookWidget with HookController {
     );
   }
 
-  ListView buildNormalList(
+  Widget buildNormalList(
     TabController controller,
     HomeScreenNotifier notifier,
     BuildContext context,
   ) {
-    return ListView(
-      padding: ConfigConstant.layoutPadding.copyWith(top: 0, bottom: 16.0),
-      shrinkWrap: true,
-      children: List.generate(
-        controller.length,
-        (monthIndex) {
-          final int monthId = monthIndex + 1;
-          final storyListByMonthId = notifier.storyListByMonthID;
-          StoryListModel? _storyListModel;
+    return notifier.storyByIdAsList!.length > 0
+        ? ListView(
+            padding:
+                ConfigConstant.layoutPadding.copyWith(top: 0, bottom: 16.0),
+            children: List.generate(
+              controller.length,
+              (monthIndex) {
+                final int monthId = monthIndex + 1;
+                final storyListByMonthId = notifier.storyListByMonthID;
+                StoryListModel? _storyListModel;
 
-          // fetching data
-          List<int> storiesInMonthIds = [];
-          bool storiesNotNull = storyListByMonthId != null &&
-              storyListByMonthId.containsKey(monthId) &&
-              storyListByMonthId[monthId] != null;
+                // fetching data
+                List<int> storiesInMonthIds = [];
+                bool storiesNotNull = storyListByMonthId != null &&
+                    storyListByMonthId.containsKey(monthId) &&
+                    storyListByMonthId[monthId] != null;
 
-          if (storiesNotNull) {
-            _storyListModel = storyListByMonthId[monthId];
-            storiesInMonthIds = _storyListModel?.childrenId ?? [];
-          }
+                if (storiesNotNull) {
+                  _storyListModel = storyListByMonthId[monthId];
+                  storiesInMonthIds = _storyListModel?.childrenId ?? [];
+                }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_storyListModel != null &&
-                  _storyListModel.childrenId.isNotEmpty)
-                buildDateMonthHeader(context, _storyListModel),
-              Column(
-                children: List.generate(
-                  storiesInMonthIds.length,
-                  (storyByDayIndex) {
-                    final int storyByIndex = storiesInMonthIds[storyByDayIndex];
-                    final StoryListModel? storyInMonth =
-                        notifier.storyListByDayId?[storyByIndex];
-                    final List<int> storyInDayIds =
-                        storyInMonth?.childrenId ?? [];
-                    return Column(
-                      children: List.generate(
-                        storyInDayIds.length,
-                        (index) {
-                          final StoryModel story =
-                              notifier.storyById![storyInDayIds[index]]!;
-                          return buildStoryTile(
-                            context: context,
-                            story: story,
-                            notifier: notifier,
-                            onSaved: (DateTime? date) {
-                              if (date != null) {
-                                notifier.setCurrentSelectedYear(date.year);
-                              }
-                            },
-                          );
-                        },
+                return buildFadeInOnInit(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_storyListModel != null &&
+                          _storyListModel.childrenId.isNotEmpty)
+                        buildDateMonthHeader(context, _storyListModel),
+                      Column(
+                        children: List.generate(
+                          storiesInMonthIds.length,
+                          (storyByDayIndex) {
+                            final int storyByIndex =
+                                storiesInMonthIds[storyByDayIndex];
+                            final StoryListModel? storyInMonth =
+                                notifier.storyListByDayId?[storyByIndex];
+                            final List<int> storyInDayIds =
+                                storyInMonth?.childrenId ?? [];
+                            return Column(
+                              children: List.generate(
+                                storyInDayIds.length,
+                                (index) {
+                                  final StoryModel story = notifier
+                                      .storyById![storyInDayIds[index]]!;
+                                  return buildStoryTile(
+                                    context: context,
+                                    story: story,
+                                    notifier: notifier,
+                                    onSaved: (DateTime? date) async {
+                                      if (date != null) {
+                                        await notifier.setCurrentSelectedYear(
+                                          date.year,
+                                        );
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+                    ],
+                  ),
+                );
+              },
+            ),
+          )
+        : WNoData();
   }
 
   Column buildDateMonthHeader(
@@ -249,7 +259,8 @@ class HomeScreen extends HookWidget with HookController {
                   vertical: ConfigConstant.margin0,
                 ),
                 child: Text(
-                  AppHelper.yM(context).format(_storyListModel.forDate),
+                  AppHelper.toFullNameOfMonth(context)
+                      .format(_storyListModel.forDate),
                 ),
               ),
             ),
@@ -578,9 +589,9 @@ class HomeScreen extends HookWidget with HookController {
                   result += '︳' + entry.toPlainText();
                 } else {
                   if (att?.value == "checked") {
-                    result += "☒.\t" + entry.toPlainText();
+                    result += "☒\t" + entry.toPlainText();
                   } else if (att?.value == "unchecked") {
-                    result += "☐.\t" + entry.toPlainText();
+                    result += "☐\t" + entry.toPlainText();
                   } else if (att?.value == "ordered") {
                     index++;
                     result += "$index.\t" + entry.toPlainText();
@@ -628,14 +639,17 @@ class HomeScreen extends HookWidget with HookController {
     } catch (e) {}
 
     /// Paragraph
-    final String _paragraphText = paragraph ?? "${story.paragraph}";
+    String _paragraphText = paragraph ?? "${story.paragraph}";
+    String _displayParagraph = _paragraphText.characters.take(150).toString();
+    if (_paragraphText.length > 150) {
+      _displayParagraph = _displayParagraph + " ...";
+    }
+
     final _paragraphChild = Container(
       width: MediaQuery.of(context).size.width - 16 * 7,
       child: Text(
-        _paragraphText,
+        _displayParagraph,
         textAlign: TextAlign.start,
-        maxLines: 4,
-        overflow: TextOverflow.ellipsis,
         style: _theme.textTheme.bodyText2
             ?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.5)),
       ),

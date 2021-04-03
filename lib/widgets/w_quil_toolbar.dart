@@ -137,7 +137,24 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             attribute: Attribute.ol,
             controller: controller,
             icon: Icons.format_list_numbered,
-            childBuilder: defaultToggleStyleButtonBuilder,
+            childBuilder: (
+              BuildContext context,
+              Attribute attribute,
+              IconData icon,
+              bool? isToggled,
+              VoidCallback? onPressed,
+            ) {
+              final _attributes = controller.getSelectionStyle().attributes;
+              final bool hasBlockList = _attributes.containsKey("blockquote");
+              final _onPressed = hasBlockList ? null : onPressed;
+              return defaultToggleStyleButtonBuilder(
+                context,
+                attribute,
+                icon,
+                isToggled,
+                _onPressed,
+              );
+            },
           ),
         ),
         Visibility(
@@ -146,7 +163,24 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             attribute: Attribute.ul,
             controller: controller,
             icon: Icons.format_list_bulleted,
-            childBuilder: defaultToggleStyleButtonBuilder,
+            childBuilder: (
+              BuildContext context,
+              Attribute attribute,
+              IconData icon,
+              bool? isToggled,
+              VoidCallback? onPressed,
+            ) {
+              final _attributes = controller.getSelectionStyle().attributes;
+              final bool hasBlockList = _attributes.containsKey("blockquote");
+              final _onPressed = hasBlockList ? null : onPressed;
+              return defaultToggleStyleButtonBuilder(
+                context,
+                attribute,
+                icon,
+                isToggled,
+                _onPressed,
+              );
+            },
           ),
         ),
         Visibility(
@@ -155,7 +189,24 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             attribute: Attribute.unchecked,
             controller: controller,
             icon: Icons.check_box,
-            childBuilder: defaultToggleStyleButtonBuilder,
+            childBuilder: (
+              BuildContext context,
+              Attribute attribute,
+              IconData icon,
+              bool? isToggled,
+              VoidCallback? onPressed,
+            ) {
+              final _attributes = controller.getSelectionStyle().attributes;
+              final bool hasBlockList = _attributes.containsKey("blockquote");
+              final _onPressed = hasBlockList ? null : onPressed;
+              return defaultToggleStyleButtonBuilder(
+                context,
+                attribute,
+                icon,
+                isToggled,
+                _onPressed,
+              );
+            },
           ),
         ),
         VerticalDivider(
@@ -169,7 +220,27 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             attribute: Attribute.codeBlock,
             controller: controller,
             icon: Icons.code,
-            childBuilder: defaultToggleStyleButtonBuilder,
+            childBuilder: (
+              BuildContext context,
+              Attribute attribute,
+              IconData icon,
+              bool? isToggled,
+              VoidCallback? onPressed,
+            ) {
+              // print(controller.getSelectionStyle());
+              final _attributes = controller.getSelectionStyle().attributes;
+              final bool hasBlockQuote = _attributes.containsKey("blockquote");
+              final bool hasBlockList = _attributes.containsKey("list");
+              final _onPressed =
+                  hasBlockQuote || hasBlockList ? null : onPressed;
+              return defaultToggleStyleButtonBuilder(
+                context,
+                attribute,
+                icon,
+                isToggled,
+                _onPressed,
+              );
+            },
           ),
         ),
         Visibility(
@@ -178,7 +249,24 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             attribute: Attribute.blockQuote,
             controller: controller,
             icon: Icons.format_quote,
-            childBuilder: defaultToggleStyleButtonBuilder,
+            childBuilder: (
+              BuildContext context,
+              Attribute attribute,
+              IconData icon,
+              bool? isToggled,
+              VoidCallback? onPressed,
+            ) {
+              final _attributes = controller.getSelectionStyle().attributes;
+              final bool hasBlockList = _attributes.containsKey("list");
+              final _onPressed = hasBlockList ? null : onPressed;
+              return defaultToggleStyleButtonBuilder(
+                context,
+                attribute,
+                icon,
+                isToggled,
+                _onPressed,
+              );
+            },
           ),
         ),
         Visibility(
@@ -249,8 +337,9 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
     final iconColor = isEnabled ? theme.iconTheme.color : theme.disabledColor;
     final fillColor =
         isToggled == true ? theme.dividerColor : Colors.transparent;
+
     return VTOnTapEffect(
-      onTap: () => onPressed!(),
+      onTap: onPressed != null ? onPressed : () {},
       effects: [
         VTOnTapEffectItem(
           effectType: VTOnTapEffectType.scaleDown,

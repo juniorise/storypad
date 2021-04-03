@@ -212,6 +212,24 @@ class HomeScreenNotifier extends ChangeNotifier {
   /// ```
   Map<int, StoryModel>? get storyById => this._storyById;
 
+  List<StoryModel>? get storyByIdAsList {
+    List<StoryModel> _storyList = [];
+
+    this._storyById?.entries.forEach((e) {
+      if (e.value.forDate.year == currentSelectedYear) {
+        _storyList.add(e.value);
+      }
+    });
+
+    _storyList.sort(
+      (a, b) {
+        return (b.isFavorite ? 1 : 0).compareTo((a.isFavorite ? 1 : 0));
+      },
+    );
+
+    return _storyList;
+  }
+
   /// ```
   /// {
   ///   1: StoryListModel(

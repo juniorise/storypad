@@ -39,17 +39,19 @@ class WSliverAppBar extends HookWidget {
 
     final bool hasBottom = tabs != null && tabs!.isNotEmpty;
     return SliverAppBar(
-      floating: hasBottom ? true : false,
+      floating: true,
       pinned: hasBottom ? true : false,
       forceElevated: true,
       elevation: isInit ? 0.5 : 0,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      expandedHeight: hasBottom ? kToolbarHeight * 2.8 : kToolbarHeight * 2,
+      expandedHeight: hasBottom
+          ? kToolbarHeight * 2.8
+          : kToolbarHeight * 2.8 - kToolbarHeight + 32,
       centerTitle: false,
       automaticallyImplyLeading: false,
       flexibleSpace: AnimatedContainer(
         duration: ConfigConstant.fadeDuration,
-        transform: Matrix4.identity()..translate(0.0, hasBottom ? 0.0 : 23.0),
+        margin: EdgeInsets.only(top: hasBottom ? 0.0 : 12.0),
         child: buildFlexibleSpaceBar(
           context: context,
           notifier: notifier,

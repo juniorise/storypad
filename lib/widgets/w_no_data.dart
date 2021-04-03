@@ -5,10 +5,10 @@ import 'package:write_story/constants/config_constant.dart';
 class WNoData extends StatelessWidget {
   const WNoData({
     Key? key,
-    required this.monthName,
+    this.monthName,
   }) : super(key: key);
 
-  final String monthName;
+  final String? monthName;
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +20,12 @@ class WNoData extends StatelessWidget {
             width: constrant.maxWidth / 2,
             margin: EdgeInsets.only(bottom: ConfigConstant.margin2),
             child: Text(
-              tr(
-                "msg.story.empty",
-                namedArgs: {'MONTH_NAME': monthName},
-              ),
+              monthName != null
+                  ? tr(
+                      "msg.story.empty",
+                      namedArgs: {'MONTH_NAME': monthName!},
+                    )
+                  : tr("msg.story.empty_normal"),
               textAlign: tablet ? TextAlign.start : TextAlign.center,
               style: Theme.of(context).textTheme.bodyText1?.copyWith(
                     color: Theme.of(context)

@@ -10,6 +10,11 @@ class AppHelper {
     return format;
   }
 
+  static DateFormat toFullNameOfMonth(BuildContext context) {
+    final DateFormat format = DateFormat.MMMM(context.locale.languageCode);
+    return format;
+  }
+
   static DateFormat toYear(BuildContext context) {
     final DateFormat format = DateFormat.y(context.locale.languageCode);
     return format;

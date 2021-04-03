@@ -603,13 +603,11 @@ class StoryDetailScreen extends HookWidget
       _createOn = getDateLabel(
         date: story.createOn,
         context: context,
-        labelKey: "msg.date.create_on",
       );
 
       _forDate = getDateLabel(
         date: story.forDate,
         context: context,
-        labelKey: "msg.date.for_date",
       );
     }
 
@@ -617,7 +615,6 @@ class StoryDetailScreen extends HookWidget
       _updateOn = getDateLabel(
         date: story.updateOn ?? DateTime.now(),
         context: context,
-        labelKey: "msg.date.update_on",
       );
     }
 

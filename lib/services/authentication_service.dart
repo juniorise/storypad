@@ -30,15 +30,10 @@ class AuthenticationService {
   Future<bool> signInWithGoogle() async {
     this._errorMessage = null;
 
-    if (await this.googleSignIn.isSignedIn()) googleSignIn.signOut();
+    if (await this.googleSignIn.isSignedIn()) await googleSignIn.signOut();
     GoogleSignInAccount? googleUser;
 
-    try {
-      googleUser = await googleSignIn.signIn();
-    } catch (e) {
-      this._errorMessage = tr("msg.login.cancel");
-      return false;
-    }
+    googleUser = await googleSignIn.signIn();
 
     if (googleUser == null) {
       this._errorMessage = tr("msg.login.cancel");

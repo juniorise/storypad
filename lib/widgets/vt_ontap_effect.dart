@@ -25,7 +25,7 @@ class VTOnTapEffect extends HookWidget {
   VTOnTapEffect({
     Key? key,
     required this.child,
-    required this.onTap,
+    this.onTap,
     this.duration = const Duration(milliseconds: 150),
     this.vibrate = false,
     this.effects = const [
@@ -38,7 +38,7 @@ class VTOnTapEffect extends HookWidget {
 
   final Widget child;
   final List<VTOnTapEffectItem> effects;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Duration duration;
   final bool vibrate;
 
@@ -70,26 +70,24 @@ class VTOnTapEffect extends HookWidget {
 
     setActiveValue();
     return GestureDetector(
-      onTapDown: (_) {
-        controller.forward();
-      },
-      onTapUp: (_) {
-        controller.reverse();
-        onTap();
-      },
-      onTapCancel: () {
-        controller.reverse();
-      },
-      onLongPress: vibrate
+      onTapDown: onTap != null ? (_) => controller.forward() : null,
+      onTapUp: onTap != null
+          ? (_) {
+              controller.reverse();
+              onTap!();
+            }
+          : null,
+      onTapCancel: onTap != null ? () => controller.reverse() : null,
+      onLongPress: onTap != null && vibrate
           ? () async {
               if (await Vibration.hasVibrator() == true) {
                 onTapVibrate().then((value) {
                   controller.reverse();
-                  onTap();
+                  if (onTap != null) onTap!();
                 });
               } else {
                 controller.reverse();
-                onTap();
+                if (onTap != null) onTap!();
               }
             }
           : null,
