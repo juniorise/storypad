@@ -9,7 +9,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/database/w_database.dart';
-import 'package:write_story/mixins/story_detail_method_mixin.dart';
+import 'package:write_story/mixins/snakbar_mixin.dart';
 import 'package:write_story/models/db_backup_model.dart';
 import 'package:write_story/models/user_model.dart';
 import 'package:write_story/notifier/auth_notifier.dart';
@@ -245,7 +245,7 @@ class AskForNameSheet extends HookWidget {
   }
 }
 
-class WTab2 extends HookWidget with StoryDetailMethodMixin {
+class WTab2 extends HookWidget with WSnackBar {
   WTab2({
     Key? key,
   }) : super(key: key);
@@ -287,7 +287,7 @@ class WTab2 extends HookWidget with StoryDetailMethodMixin {
                           borderRadius: ConfigConstant.circlarRadius2,
                           color: Theme.of(context).colorScheme.secondary,
                           child: SwitchListTile(
-                            value: themeNotifier.isDarkMode,
+                            value: themeNotifier.isDarkMode == true,
                             selected: true,
                             shape: RoundedRectangleBorder(),
                             activeColor:

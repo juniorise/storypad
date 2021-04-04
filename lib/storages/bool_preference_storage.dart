@@ -14,6 +14,11 @@ abstract class BoolPreferenceStorage {
     await _instance.setBool(key, value);
   }
 
+  Future<void> clear() async {
+    SharedPreferences _instance = await SharedPreferences.getInstance();
+    await _instance.remove(key);
+  }
+
   Future<bool?> getBool() async {
     SharedPreferences _instance = await SharedPreferences.getInstance();
     return _instance.getBool(key);
