@@ -5,6 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:share/share.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/database/w_database.dart';
@@ -35,7 +36,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
       extendBody: true,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        elevation: 0.5,
+        elevation: 1,
         backgroundColor: Theme.of(context).colorScheme.surface,
         textTheme: Theme.of(context).textTheme,
         title: Text(
@@ -350,8 +351,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
             "$originalPieceOfUrl",
             "$newPieceOfUrlToAdd",
           );
-
-          print("$imageUrl");
         }
 
         return Column(
@@ -576,7 +575,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         iconColor: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      launch(
+                        "https://drive.google.com/drive/folders/1p72Qw9kFDZ81wPQl1MK6usRWRt4IDle0?usp=sharing",
+                      );
+                    },
                   ),
                 ),
               ],
