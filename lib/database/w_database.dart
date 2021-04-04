@@ -16,6 +16,7 @@ class WDatabase {
 
   static Database? _database;
   static String deviceId = "os";
+  static String singleQuote = "▘";
 
   Future<Database?> get database async {
     if (_database != null) return _database;
@@ -116,7 +117,7 @@ class WDatabase {
     }
 
     final paragraph = story.paragraph != null
-        ? story.paragraph?.replaceAll("'", "\u{39}")
+        ? story.paragraph?.replaceAll("'", "$singleQuote")
         : null;
 
     String query = '''
@@ -141,7 +142,7 @@ class WDatabase {
     required StoryModel story,
   }) async {
     final paragraph = story.paragraph != null
-        ? story.paragraph?.replaceAll("'", "\u{39}")
+        ? story.paragraph?.replaceAll("'", "$singleQuote")
         : null;
 
     String query = '''
@@ -192,8 +193,9 @@ class WDatabase {
       return int.parse("${e['id']}");
     }, value: (e) {
       final String? _paragraph = e['paragraph'];
-      String? result =
-          _paragraph != null ? _paragraph.replaceAll("\u{39}", "'") : null;
+      String? result = _paragraph != null
+          ? _paragraph.replaceAll("$singleQuote", "'")
+          : null;
       return StoryModel.fromJson(e).copyWith(paragraph: result);
     });
 

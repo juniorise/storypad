@@ -23,8 +23,13 @@ class GoogleDriveApiService {
     /// then log in
     final auth = AuthenticationService();
     if (auth.user == null) {
-      final result = await context.read(authenticationProvider).logAccount();
-      if (result == false) return null;
+      final success = await context.read(authenticationProvider).logAccount();
+      if (success == false) return null;
+    } else {
+      final success = await auth.signInSilently();
+      if (success == false) {
+        await context.read(authenticationProvider).logAccount();
+      }
     }
 
     /// read auth header from secure storage
@@ -37,31 +42,9 @@ class GoogleDriveApiService {
     String? folderId;
     drive.FileList? folderList;
 
-    /// try to get list of folder in google drive,
-    /// if fail which mean that auth header is expired,
-    /// then sign in silently again to get new auth header
+    /// try to get list of folder in google drive
     final mimeType = "mimeType = 'application/vnd.google-apps.folder'";
-    try {
-      folderList = await driveApi.files.list(q: "$mimeType");
-    } catch (e) {
-      final bool success = await auth.signInSilently();
-      if (success) {
-        result = await storage.read();
-      } else {
-        final success = await context.read(authenticationProvider).logAccount();
-        if (!success) return null;
-      }
-
-      authHeader = storage.getAuthHeader(result!);
-      authenticateClient = GoogleAuthClient(authHeader!);
-      driveApi = drive.DriveApi(authenticateClient);
-
-      try {
-        folderList = await driveApi.files.list(q: "$mimeType");
-      } catch (e) {
-        return null;
-      }
-    }
+    folderList = await driveApi.files.list(q: "$mimeType");
 
     /// check if folder "Story" is existed or not,
     /// if no create new.

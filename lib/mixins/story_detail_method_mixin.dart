@@ -269,12 +269,13 @@ mixin StoryDetailMethodMixin {
 
       int i = 0;
       String? _tmpParagraph = paragraph;
+
       for (var e in imagesPath) {
         final image = await GoogleDriveApiService.upload(File(e), context);
         if (image != null) {
           i++;
-          _tmpParagraph = _tmpParagraph?.replaceAll(e, image);
-        } else {}
+          _tmpParagraph = _tmpParagraph?.replaceAll("$e", image);
+        }
       }
       draftStory = notifier.draftStory.copyWith(paragraph: _tmpParagraph);
 
