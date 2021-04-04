@@ -45,7 +45,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
           ),
         ),
         leading: WIconButton(
-          iconData: Icons.clear,
+          iconData: Icons.arrow_back,
           onPressed: () {
             Navigator.of(context).pop();
           },

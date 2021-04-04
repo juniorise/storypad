@@ -289,26 +289,11 @@ class HomeScreen extends HookWidget with HookController {
               closeFaq();
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  fullscreenDialog: true,
                   builder: (context) {
                     return SettingScreen();
                   },
                 ),
               );
-              // showModalBottomSheet(
-              //   isDismissible: true,
-              //   context: context,
-              //   enableDrag: true,
-              //   isScrollControlled: true,
-              //   backgroundColor: Colors.transparent,
-              //   builder: (context) {
-              //     return AskForNameSheet(
-              //       statusBarHeight: statusBarHeight,
-              //       bottomBarHeight: bottomBarHeight,
-              //       intTapIndex: 1,
-              //     );
-              //   },
-              // );
             },
             onAddStoryPressed: () async {
               closeFaq();
