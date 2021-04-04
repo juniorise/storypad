@@ -4,7 +4,13 @@ import 'package:path_provider/path_provider.dart' as path;
 
 class ImageCompressService {
   final File file;
-  ImageCompressService({required this.file});
+  final String? name;
+  final bool compress;
+  ImageCompressService({
+    required this.file,
+    this.name,
+    this.compress = true,
+  });
 
   Future<File?> exec() async {
     return await _getFileImage(this.file);
@@ -17,10 +23,14 @@ class ImageCompressService {
     final dir = await path.getTemporaryDirectory();
 
     // image path
-    final targetPath = dir.absolute.path + "/" + _timestamp() + ".jpg";
-    final imgFile = await _compressAndGetFile(file, targetPath);
+    final targetPath =
+        dir.absolute.path + "/" + (this.name ?? _timestamp()) + ".jpg";
 
-    return imgFile;
+    if (this.compress) {
+      return await _compressAndGetFile(file, targetPath);
+    } else {
+      return await file.copy(targetPath);
+    }
   }
 
   Future<File?> _compressAndGetFile(File file, String targetPath) async {
@@ -31,6 +41,11 @@ class ImageCompressService {
       minHeight: 600,
       quality: 50,
     );
-    return result;
+
+    final length = await result?.length();
+
+    final image = await result?.copy(result.parent.path + "/" + "$length.jpg");
+    await result?.delete();
+    return image;
   }
 }

@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:write_story/notifier/auth_notifier.dart';
 import 'package:write_story/services/authentication_service.dart';
-import 'package:write_story/services/image_compress_service.dart';
 import 'package:write_story/storages/auth_header_storage.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -19,7 +18,7 @@ class GoogleAuthClient extends http.BaseClient {
 }
 
 class GoogleDriveApiService {
-  static Future<String?> upload(io.File _image, BuildContext context) async {
+  static Future<String?> upload(io.File image, BuildContext context) async {
     /// if no user is logged in,
     /// then log in
     final auth = AuthenticationService();
@@ -56,6 +55,7 @@ class GoogleDriveApiService {
       authHeader = storage.getAuthHeader(result!);
       authenticateClient = GoogleAuthClient(authHeader!);
       driveApi = drive.DriveApi(authenticateClient);
+
       try {
         folderList = await driveApi.files.list(q: "$mimeType");
       } catch (e) {
@@ -83,13 +83,21 @@ class GoogleDriveApiService {
       folderId = response.id;
     }
 
-    /// compress image
-    final io.File? image = await ImageCompressService(file: _image).exec();
+    var q = "mimeType='image/jpeg'";
+    final fileList = await driveApi.files.list(q: q);
+    final imagePath = basename(image.absolute.path);
+
+    for (var e in fileList.files ?? []) {
+      if ("${e.name}" == "$imagePath") {
+        final link = 'https://drive.google.com/uc?export=download&id=${e.id}';
+        return link;
+      }
+    }
 
     /// config file before upload
     drive.File fileToUpload = drive.File();
     fileToUpload.parents = [folderId.toString()];
-    fileToUpload.name = basename(image!.path);
+    fileToUpload.name = basename(image.path);
 
     /// try create file
     drive.File response2;
