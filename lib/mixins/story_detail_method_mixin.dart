@@ -3,7 +3,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:write_story/app_helper/app_helper.dart';
+import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
+import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_snack_bar_action.dart' as w;
 
@@ -235,12 +237,13 @@ mixin StoryDetailMethodMixin {
   }
 
   Future<void> onSave({
+    required ValueNotifier imageLoadingNotifier,
     required StoryDetailScreenNotifier notifier,
     required BuildContext context,
     required String paragraph,
     required bool insert,
   }) async {
-    final draftStory = notifier.draftStory.copyWith(paragraph: paragraph);
+    StoryModel draftStory = notifier.draftStory.copyWith(paragraph: paragraph);
     if (draftStory.title.trim().isEmpty) {
       await showSnackBar(
         context: context,
@@ -252,6 +255,45 @@ mixin StoryDetailMethodMixin {
         },
       );
     } else {
+      List<String> imagesPath = [];
+      notifier.tmpImagePath.forEach((e) {
+        if (paragraph.contains(e)) {
+          imagesPath.add(e);
+        }
+      });
+      imageLoadingNotifier.value = true;
+      showSnackBar(
+        context: context,
+        title: tr("msg.drive.loading"),
+      );
+
+      int i = 0;
+      String? _tmpParagraph = paragraph;
+      for (var e in imagesPath) {
+        final image = await GoogleDriveApiService.upload(File(e), context);
+        if (image != null) {
+          i++;
+          _tmpParagraph = _tmpParagraph?.replaceAll(e, image);
+        } else {}
+      }
+      draftStory = notifier.draftStory.copyWith(paragraph: _tmpParagraph);
+
+      print("i $i & imagesPath ${imagesPath.length}");
+      print("$_tmpParagraph");
+      if (i == imagesPath.length) {
+        showSnackBar(
+          context: context,
+          title: tr("msg.drive.uploaded"),
+        );
+      } else {
+        showSnackBar(
+          context: context,
+          title: tr("msg.drive.fail"),
+        );
+      }
+      imageLoadingNotifier.value = false;
+
+      ///Insert to database
       bool success;
       if (insert) {
         success = await notifier.addStory(draftStory);

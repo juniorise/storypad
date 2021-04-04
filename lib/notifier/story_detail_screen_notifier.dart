@@ -9,7 +9,16 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
   StoryModel draftStory;
   bool hasChanged = false;
 
-  StoryDetailScreenNotifier(this.draftStory);
+  StoryDetailScreenNotifier(this.draftStory) {
+    print(this.draftStory.paragraph);
+  }
+
+  final List<String> tmpImagePath = [];
+  void addImagePath(String? path) {
+    if (path != null && !this.tmpImagePath.contains(path)) {
+      this.tmpImagePath.add(path);
+    }
+  }
 
   Future<bool> updateStory(StoryModel story) async {
     final success = await wDatabase.updateStory(story: story);

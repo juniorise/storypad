@@ -43,6 +43,7 @@ dependencies:
   googleapis: ^2.0.0
   http: ^0.13.1
   flutter_image_compress: ^1.0.0
+  flutter_cache_manager: ^3.0.1
 
   google_sign_in: ^5.0.1
 

@@ -19,7 +19,7 @@ import 'package:write_story/notifier/quill_controller_notifier.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
 import 'package:write_story/screens/ask_for_name_sheet.dart';
-import 'package:write_story/services/google_drive_api_service.dart';
+import 'package:write_story/services/image_compress_service.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_history_button.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
@@ -277,30 +277,73 @@ class StoryDetailScreen extends HookWidget
                 showColorButton: false,
                 showBackgroundColorButton: false,
                 onImagePickCallback: (File _pickImage) async {
-                  imageLoadingNotifier.value = true;
-                  showSnackBar(
-                    context: context,
-                    title: tr("msg.drive.loading"),
+                  bool? compress;
+                  final Widget dialog = Dialog(
+                    child: Wrap(
+                      children: [
+                        ListTile(
+                          leading: AspectRatio(
+                            aspectRatio: 1.5 / 2,
+                            child: Container(
+                              height: double.infinity,
+                              child: Icon(Icons.compress),
+                            ),
+                          ),
+                          title: Text(tr("button.compress.yes")),
+                          subtitle: Text(tr("msg.compress.yes")),
+                          onTap: () {
+                            compress = true;
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        ListTile(
+                          leading: AspectRatio(
+                            aspectRatio: 1.5 / 2,
+                            child: Container(
+                              height: double.infinity,
+                              child: Icon(Icons.crop_original),
+                            ),
+                          ),
+                          title: Text(tr("button.compress.no")),
+                          subtitle: Text(tr("msg.compress.no")),
+                          onTap: () {
+                            compress = false;
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    ),
                   );
-                  final image = await GoogleDriveApiService.upload(
-                    _pickImage,
-                    context,
-                  );
-                  imageLoadingNotifier.value = false;
 
-                  if (image != null) {
-                    showSnackBar(
+                  if (Platform.isIOS) {
+                    await showCupertinoDialog(
+                      barrierDismissible: true,
                       context: context,
-                      title: tr("msg.drive.uploaded"),
+                      builder: (context) {
+                        return dialog;
+                      },
                     );
                   } else {
-                    showSnackBar(
+                    await showDialog(
                       context: context,
-                      title: tr("msg.drive.fail"),
+                      builder: (context) {
+                        return dialog;
+                      },
                     );
                   }
 
-                  return image ?? "";
+                  final imageName = await _pickImage.length();
+
+                  final File? image = await ImageCompressService(
+                    file: _pickImage,
+                    name: imageName.toString(),
+                    compress: compress == true,
+                  ).exec();
+
+                  if (image?.path.isNotEmpty == true) {
+                    notifier.addImagePath(image?.absolute.path);
+                  }
+                  return image?.path ?? "";
                 },
               ),
             ),
@@ -407,6 +450,7 @@ class StoryDetailScreen extends HookWidget
                     onTap: () async {
                       Navigator.of(context).pop();
                       await onSave(
+                        imageLoadingNotifier: imageLoadingNotifier,
                         notifier: notifier,
                         context: context,
                         insert: insert,
