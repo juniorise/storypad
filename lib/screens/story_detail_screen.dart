@@ -169,8 +169,11 @@ class StoryDetailScreen extends HookWidget
                       null,
                     ),
                   ),
-                  padding: const EdgeInsets.all(ConfigConstant.margin2)
-                      .copyWith(bottom: 48.0 + 16.0),
+                  padding: const EdgeInsets.all(
+                    ConfigConstant.margin2,
+                  ).copyWith(
+                    bottom: kToolbarHeight,
+                  ),
                 );
               },
             ),
