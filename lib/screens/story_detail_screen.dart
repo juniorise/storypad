@@ -301,6 +301,7 @@ class StoryDetailScreen extends HookWidget
                             Navigator.of(context).pop();
                           },
                         ),
+                        const Divider(height: 0),
                         ListTile(
                           leading: AspectRatio(
                             aspectRatio: 1.5 / 2,
@@ -675,23 +676,33 @@ class StoryDetailScreen extends HookWidget
         ? Wrap(
             children: [
               if (_createOn != null)
-                ListTile(
-                  title: Text(tr("msg.date.create_on")),
-                  subtitle: Text(_createOn, style: style),
-                  onTap: () {},
+                Column(
+                  children: [
+                    ListTile(
+                      title: Text(tr("msg.date.create_on")),
+                      subtitle: Text(_createOn, style: style),
+                      onTap: () {},
+                    ),
+                    const Divider(height: 0),
+                  ],
                 ),
               if (_forDate != null)
-                ListTile(
-                  title: Text(tr("msg.date.for_date")),
-                  subtitle: Text(_forDate, style: style),
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    onPickDate(
-                      context: context,
-                      date: notifier.draftStory.forDate,
-                      notifier: notifier,
-                    );
-                  },
+                Column(
+                  children: [
+                    ListTile(
+                      title: Text(tr("msg.date.for_date")),
+                      subtitle: Text(_forDate, style: style),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        onPickDate(
+                          context: context,
+                          date: notifier.draftStory.forDate,
+                          notifier: notifier,
+                        );
+                      },
+                    ),
+                    const Divider(height: 0),
+                  ],
                 ),
               if (_updateOn != null)
                 ListTile(
@@ -782,7 +793,7 @@ class StoryDetailScreen extends HookWidget
       String? _tmpParagraph = paragraph;
 
       for (var e in imagesPath) {
-        final image = await GoogleDriveApiService.upload(File(e), context);
+        final image = await GoogleDriveApiService.upload(File(e));
         if (image != null) {
           i++;
           _tmpParagraph = _tmpParagraph?.replaceAll("$e", image);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/database/w_database.dart';
 import 'package:write_story/models/user_model.dart';
+import 'package:write_story/services/authentication_service.dart';
 
 class UserModelNotifier extends ChangeNotifier {
   final WDatabase wDatabase = WDatabase.instance;
@@ -29,6 +30,12 @@ class UserModelNotifier extends ChangeNotifier {
       alreadyHasUser = false;
     }
 
+    final auth = AuthenticationService();
+    try {
+      if (await auth.googleSignIn.isSignedIn()) {
+        auth.signInSilently();
+      }
+    } catch (e) {}
     loading = false;
     notifyListeners();
   }

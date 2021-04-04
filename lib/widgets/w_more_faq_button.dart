@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:write_story/configs/theme_config.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 
 class WMoreFaqButton extends StatelessWidget {
@@ -25,7 +24,7 @@ class WMoreFaqButton extends StatelessWidget {
     final labelStyle = Theme.of(context)
         .textTheme
         .bodyText1
-        ?.copyWith(color: ThemeConfig.lightScheme.onSurface);
+        ?.copyWith(color: Theme.of(context).colorScheme.onSurface);
 
     return VTOnTapEffect(
       onTap: () {},
@@ -68,6 +67,7 @@ class WMoreFaqButton extends StatelessWidget {
             children: [
               SpeedDialChild(
                 child: Icon(Icons.settings),
+                labelBackgroundColor: Theme.of(context).colorScheme.surface,
                 backgroundColor: buttonBackgroundColor,
                 foregroundColor: buttonForegroundColor,
                 label: tr("title.setting"),
@@ -83,6 +83,7 @@ class WMoreFaqButton extends StatelessWidget {
               ),
               SpeedDialChild(
                 child: Icon(Icons.add),
+                labelBackgroundColor: Theme.of(context).colorScheme.surface,
                 backgroundColor: buttonBackgroundColor,
                 foregroundColor: buttonForegroundColor,
                 elevation: 0.0,

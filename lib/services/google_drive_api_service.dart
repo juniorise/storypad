@@ -1,12 +1,10 @@
 import 'dart:io' as io;
-import 'package:flutter/material.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
-import 'package:write_story/notifier/auth_notifier.dart';
 import 'package:write_story/services/authentication_service.dart';
 import 'package:write_story/storages/auth_header_storage.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:write_story/storages/story_folder_storage.dart';
 
 class GoogleAuthClient extends http.BaseClient {
   final Map<String, String> _headers;
@@ -18,33 +16,53 @@ class GoogleAuthClient extends http.BaseClient {
 }
 
 class GoogleDriveApiService {
-  static Future<String?> upload(io.File image, BuildContext context) async {
+  static Future<void> setAuthHeader() async {
     /// if no user is logged in,
     /// then log in
     final auth = AuthenticationService();
     if (auth.user == null) {
-      final success = await context.read(authenticationProvider).logAccount();
+      final success = await auth.signInWithGoogle();
       if (success == false) return null;
     } else {
       final success = await auth.signInSilently();
       if (success == false) {
-        await context.read(authenticationProvider).logAccount();
+        await auth.signInWithGoogle();
       }
     }
+  }
+
+  static Future<String?> getStoryFolderId() async {
+    final StoryFolderStorage storage = StoryFolderStorage();
+    final String? id = await storage.read();
+    if (id != null) {
+      return id;
+    } else {
+      drive.DriveApi driveApi = await getDriveApi();
+      setFolderId(driveApi);
+      return await storage.read();
+    }
+  }
+
+  static Future<drive.DriveApi> getDriveApi() async {
+    await setAuthHeader();
 
     /// read auth header from secure storage
     AuthHeaderStorage storage = AuthHeaderStorage();
     String? result = await storage.read();
     Map<String, String>? authHeader = storage.getAuthHeader(result!);
     GoogleAuthClient authenticateClient = GoogleAuthClient(authHeader!);
+    return drive.DriveApi(authenticateClient);
+  }
 
-    drive.DriveApi driveApi = drive.DriveApi(authenticateClient);
+  static Future<void> setFolderId(drive.DriveApi driveApi) async {
     String? folderId;
     drive.FileList? folderList;
 
     /// try to get list of folder in google drive
     final mimeType = "mimeType = 'application/vnd.google-apps.folder'";
     folderList = await driveApi.files.list(q: "$mimeType");
+
+    final folderStorage = StoryFolderStorage();
 
     /// check if folder "Story" is existed or not,
     /// if no create new.
@@ -73,6 +91,15 @@ class GoogleDriveApiService {
       }
       folderId = response.id;
     }
+    await folderStorage.write(folderId ?? "");
+  }
+
+  static Future<String?> upload(io.File image) async {
+    drive.DriveApi driveApi = await getDriveApi();
+    await setFolderId(driveApi);
+
+    final folderStorage = StoryFolderStorage();
+    final String? folderId = await folderStorage.read();
 
     var q = "mimeType='image/jpeg'";
     final fileList = await driveApi.files.list(q: q);

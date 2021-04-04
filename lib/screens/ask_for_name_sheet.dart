@@ -1,25 +1,15 @@
 import 'dart:ui';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/constants/config_constant.dart';
-import 'package:write_story/database/w_database.dart';
-import 'package:write_story/mixins/snakbar_mixin.dart';
-import 'package:write_story/models/db_backup_model.dart';
 import 'package:write_story/models/user_model.dart';
-import 'package:write_story/notifier/auth_notifier.dart';
-import 'package:write_story/notifier/home_screen_notifier.dart';
-import 'package:write_story/notifier/remote_database_notifier.dart';
-import 'package:write_story/notifier/theme_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/home_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
-import 'package:write_story/widgets/vt_tab_view.dart';
 
 final GlobalKey<ScaffoldState> askForNameScaffoldKey =
     GlobalKey<ScaffoldState>();
@@ -107,9 +97,7 @@ class AskForNameSheet extends HookWidget {
                     kToolbarHeight) /
                 constrant.maxHeight;
 
-            if (!init) initHeight += 0.1;
-
-            final tab1 = Column(
+            final body = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeaderText(
@@ -132,8 +120,6 @@ class AskForNameSheet extends HookWidget {
               ],
             );
 
-            final tab2 = WTab2();
-
             return Stack(
               children: [
                 GestureDetector(
@@ -147,34 +133,13 @@ class AskForNameSheet extends HookWidget {
                   minChildSize: initHeight - 0.05 > 0 ? initHeight - 0.1 : 0,
                   builder: (context, controller) {
                     return Container(
-                      height: double.infinity,
                       decoration: buildBoxDecoration(context),
-                      child: Stack(
-                        children: [
-                          VTTabView(
-                            controller: tabController,
-                            children: [
-                              SingleChildScrollView(
-                                child: tab1,
-                                controller: init ? null : controller,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: ConfigConstant.margin2,
-                                  vertical: ConfigConstant.margin2 * 2,
-                                ),
-                              ),
-                              if (!init)
-                                SingleChildScrollView(
-                                  controller: controller,
-                                  child: tab2,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: ConfigConstant.margin2,
-                                  ),
-                                )
-                            ],
-                          ),
-                          if (tabController.length == 2)
-                            buildTabIndicator(tabController),
-                        ],
+                      child: SingleChildScrollView(
+                        child: body,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: ConfigConstant.margin2,
+                          vertical: ConfigConstant.margin2 * 2,
+                        ),
                       ),
                     );
                   },
@@ -245,268 +210,6 @@ class AskForNameSheet extends HookWidget {
   }
 }
 
-class WTab2 extends HookWidget with WSnackBar {
-  WTab2({
-    Key? key,
-  }) : super(key: key);
-
-  final ValueNotifier<bool> isSwitchNotifier = ValueNotifier<bool>(false);
-
-  @override
-  Widget build(BuildContext context) {
-    final notifier = useProvider(authenticationProvider);
-    final themeNotifier = useProvider(themeProvider);
-    final loading = notifier.loading;
-    return Stack(
-      children: [
-        WLineLoading(loading: loading),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: ConfigConstant.margin2 * 2),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeaderText(
-                  context: context,
-                  title: tr("title.setting"),
-                  subtitle: tr("subtitle.backup_restore"),
-                  showLangs: false,
-                  showInfo: true,
-                ),
-                const SizedBox(height: 24.0),
-                Consumer(
-                  builder: (context, watch, child) {
-                    RemoteDatabaseNotifier dbNotifier;
-                    dbNotifier = watch(remoteDatabaseProvider)..load();
-
-                    final WDatabase database = WDatabase.instance;
-                    return Column(
-                      children: [
-                        Material(
-                          borderRadius: ConfigConstant.circlarRadius2,
-                          color: Theme.of(context).colorScheme.secondary,
-                          child: SwitchListTile(
-                            value: themeNotifier.isDarkMode == true,
-                            selected: true,
-                            shape: RoundedRectangleBorder(),
-                            activeColor:
-                                Theme.of(context).colorScheme.onSecondary,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: ConfigConstant.margin2,
-                            ),
-                            title: Text(tr("button.dark_mode")),
-                            onChanged: (bool value) async {
-                              onTapVibrate();
-                              await themeNotifier.toggleTheme();
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: ConfigConstant.margin1),
-                        Material(
-                          borderRadius: ConfigConstant.circlarRadius2,
-                          color: Color(0xFF4FA237),
-                          child: SwitchListTile(
-                            value: themeNotifier.isNormalList,
-                            selected: true,
-                            shape: RoundedRectangleBorder(),
-                            activeColor: Theme.of(context).colorScheme.onError,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: ConfigConstant.margin2,
-                            ),
-                            title: Text(tr("button.list_layout")),
-                            onChanged: (bool value) async {
-                              onTapVibrate();
-                              await themeNotifier.toggleListLayout();
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: ConfigConstant.margin1),
-                        Material(
-                          elevation: 0.5,
-                          borderRadius: ConfigConstant.circlarRadius2,
-                          color: Theme.of(context).colorScheme.primary,
-                          child: ValueListenableBuilder(
-                              valueListenable: isSwitchNotifier,
-                              builder: (context, bool value, child) {
-                                return SwitchListTile(
-                                  value: notifier.isAccountSignedIn ||
-                                      isSwitchNotifier.value,
-                                  selected: true,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: ConfigConstant.circlarRadius2,
-                                  ),
-                                  activeColor:
-                                      Theme.of(context).colorScheme.onPrimary,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: ConfigConstant.margin2,
-                                  ),
-                                  title: Text(tr("button.login")),
-                                  subtitle: Text(
-                                    notifier.isAccountSignedIn
-                                        ? "${notifier.user?.email}"
-                                        : tr("msg.login.info"),
-                                  ),
-                                  onChanged: (bool value) async {
-                                    onTapVibrate();
-                                    isSwitchNotifier.value = value;
-                                    if (value == true) {
-                                      bool success =
-                                          await notifier.logAccount();
-                                      if (success == true) {
-                                        showSnackBar(
-                                          context: context,
-                                          title: tr("msg.login.success"),
-                                        );
-                                      } else {
-                                        showSnackBar(
-                                          context: context,
-                                          title: notifier
-                                                      .service?.errorMessage !=
-                                                  null
-                                              ? notifier.service?.errorMessage
-                                                  as String
-                                              : tr("msg.login.fail"),
-                                        );
-                                      }
-                                    } else {
-                                      await notifier.signOut();
-                                      context
-                                          .read(remoteDatabaseProvider)
-                                          .reset();
-                                    }
-                                    isSwitchNotifier.value =
-                                        notifier.isAccountSignedIn;
-                                  },
-                                );
-                              }),
-                        ),
-                        if (notifier.isAccountSignedIn)
-                          Column(
-                            children: [
-                              const SizedBox(height: ConfigConstant.margin2),
-                              VTOnTapEffect(
-                                onTap: () async {
-                                  showSnackBar(
-                                    context: context,
-                                    title: tr("msg.backup.export.warning"),
-                                    onActionPressed: () async {
-                                      String backup =
-                                          await database.generateBackup();
-                                      final backupModel = DbBackupModel(
-                                        createOn: Timestamp.now(),
-                                        db: backup,
-                                      );
-                                      final bool success =
-                                          await dbNotifier.replace(backupModel);
-
-                                      if (success) {
-                                        showSnackBar(
-                                          context: context,
-                                          title:
-                                              tr("msg.backup.export.success"),
-                                        );
-                                      } else {
-                                        showSnackBar(
-                                          context: context,
-                                          title: tr("msg.backup.export.fail"),
-                                        );
-                                      }
-                                    },
-                                  );
-                                },
-                                child: Container(
-                                  height: 48,
-                                  width: double.infinity,
-                                  alignment: Alignment.centerLeft,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12.0,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .background,
-                                    borderRadius: ConfigConstant.circlarRadius2,
-                                  ),
-                                  child: Text(tr("msg.backup.export"),
-                                      maxLines: 1),
-                                ),
-                              ),
-                              const SizedBox(height: 8.0),
-                              if (dbNotifier.backup != null &&
-                                  dbNotifier.backup is DbBackupModel)
-                                buildBackItem(
-                                  database,
-                                  dbNotifier.backup!,
-                                  context,
-                                ),
-                            ],
-                          )
-                      ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 8.0),
-              ],
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget buildBackItem(
-    WDatabase database,
-    DbBackupModel item,
-    BuildContext context,
-  ) {
-    return Column(
-      children: [
-        VTOnTapEffect(
-          onTap: () async {
-            final bool success = await database.restoreBackup(item.db);
-            if (success) {
-              await context.read(homeScreenProvider).load();
-              showSnackBar(
-                context: context,
-                title: tr("msg.backup.import.success"),
-              );
-            } else {
-              showSnackBar(
-                context: context,
-                title: tr("msg.backup.import.fail"),
-              );
-            }
-          },
-          child: Container(
-            height: ConfigConstant.iconSize3,
-            width: double.infinity,
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
-              borderRadius: ConfigConstant.circlarRadius2,
-            ),
-            child: Text(
-              tr(
-                "msg.backup.import",
-                namedArgs: {
-                  "DATE": AppHelper.dateFormat(context)
-                          .format(item.createOn.toDate()) +
-                      ", " +
-                      AppHelper.timeFormat(context)
-                          .format(item.createOn.toDate())
-                },
-              ),
-              maxLines: 1,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class WLineLoading extends StatelessWidget {
   const WLineLoading({
     Key? key,
@@ -541,8 +244,6 @@ Widget _buildHeaderText({
   required BuildContext context,
   required String title,
   required String subtitle,
-  bool showLangs = true,
-  bool showInfo = false,
 }) {
   final _theme = Theme.of(context);
   final _textTheme = _theme.textTheme;
@@ -580,119 +281,6 @@ Widget _buildHeaderText({
             ],
           ),
         ),
-        if (showInfo)
-          Positioned(
-            right: 0,
-            child: VTOnTapEffect(
-              onTap: () async {
-                Navigator.of(context).pop();
-                await Future.delayed(Duration(milliseconds: 100)).then((value) {
-                  showAboutDialog(
-                    context: context,
-                    applicationName: "Story",
-                    applicationVersion: "v1.0.0+7",
-                    applicationLegalese: tr("info.app_detail"),
-                    children: [
-                      const SizedBox(height: 24.0),
-                      Text(
-                        tr("position.thea"),
-                        style: _textTheme.caption?.copyWith(
-                          color: _theme.colorScheme.onSurface.withOpacity(0.8),
-                        ),
-                      ),
-                      Text(
-                        tr("name.thea"),
-                        style: _textTheme.caption!
-                            .copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      const Divider(),
-                      Text(
-                        tr("position.menglong"),
-                        style: _textTheme.caption?.copyWith(
-                          color: _theme.colorScheme.onSurface.withOpacity(0.8),
-                        ),
-                      ),
-                      Text(
-                        tr("name.menglong"),
-                        style: _textTheme.caption!
-                            .copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      // const Divider(),
-                      // const SizedBox(height: ConfigConstant.margin0),
-                      // RichText(
-                      //   text: TextSpan(
-                      //     style: _textTheme.caption,
-                      //     children: <TextSpan>[
-                      //       TextSpan(text: tr("info.about_project") + " "),
-                      //       TextSpan(
-                      //         text: tr("button.source_code"),
-                      //         style: _textTheme.caption!.copyWith(
-                      //           color: _theme.colorScheme.primary,
-                      //         ),
-                      //         recognizer: TapGestureRecognizer()
-                      //           ..onTap = () {
-                      //             launch(
-                      //               "https://github.com/theacheng/write_story",
-                      //             );
-                      //           },
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                    ],
-                    applicationIcon: ClipRRect(
-                      borderRadius: ConfigConstant.circlarRadius1,
-                      child: Image.asset(
-                        "assets/icons/app_icon.png",
-                        height: ConfigConstant.iconSize3,
-                      ),
-                    ),
-                  );
-                });
-              },
-              child: Container(
-                height: 38,
-                width: 38,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
-                  shape: BoxShape.circle,
-                ),
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.info,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-            ),
-          ),
-        if (showLangs)
-          Positioned(
-            right: 0,
-            child: Container(
-              height: 38.0,
-              child: Row(
-                children: [
-                  VTOnTapEffect(
-                    vibrate: true,
-                    onTap: () {
-                      onTapVibrate();
-                      context.setLocale(Locale("km"));
-                    },
-                    child: Image.asset("assets/flags/km-flag.png"),
-                  ),
-                  const SizedBox(width: 4.0),
-                  VTOnTapEffect(
-                    vibrate: true,
-                    onTap: () {
-                      onTapVibrate();
-                      context.setLocale(Locale("en"));
-                    },
-                    child: Image.asset("assets/flags/en-flag.png"),
-                  ),
-                ],
-              ),
-            ),
-          )
       ],
     ),
   );

@@ -241,17 +241,22 @@ class WSliverAppBar extends HookWidget {
             years.length,
             (index) {
               final selected = notifier.currentSelectedYear == years[index];
-              return ListTile(
-                title: Text(
-                  years[index].toString(),
-                  textAlign: TextAlign.center,
-                ),
-                selected: selected,
-                onTap: () async {
-                  onTapVibrate();
-                  notifier.setCurrentSelectedYear(years[index]);
-                  Navigator.of(context).pop();
-                },
+              return Column(
+                children: [
+                  ListTile(
+                    title: Text(
+                      years[index].toString(),
+                      textAlign: TextAlign.center,
+                    ),
+                    selected: selected,
+                    onTap: () async {
+                      onTapVibrate();
+                      notifier.setCurrentSelectedYear(years[index]);
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  if (index != years.length - 1) const Divider(height: 0),
+                ],
               );
             },
           ),
