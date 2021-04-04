@@ -13,12 +13,14 @@ import 'package:flutter_quill/widgets/editor.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/hook_controller.dart';
+import 'package:write_story/mixins/snakbar_mixin.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/quill_controller_notifier.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
 import 'package:write_story/screens/ask_for_name_sheet.dart';
+import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/services/image_compress_service.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_history_button.dart';
@@ -27,7 +29,7 @@ import 'package:write_story/widgets/w_quil_toolbar.dart';
 import 'package:tuple/tuple.dart';
 
 class StoryDetailScreen extends HookWidget
-    with StoryDetailMethodMixin, HookController {
+    with StoryDetailMethodMixin, HookController, WSnackBar {
   StoryDetailScreen({
     Key? key,
     required this.story,
@@ -528,7 +530,7 @@ class StoryDetailScreen extends HookWidget
                           title: Text(tr("button.dark_mode")),
                           trailing: Container(
                             child: Switch(
-                              value: notifier.isDarkMode,
+                              value: notifier.isDarkMode == true,
                               onChanged: (bool value) {
                                 Navigator.of(context).pop();
                                 Future.delayed(ConfigConstant.duration).then(
@@ -702,5 +704,130 @@ class StoryDetailScreen extends HookWidget
         : const SizedBox();
 
     return aboutDate;
+  }
+
+  Future<void> onDelete({
+    required BuildContext context,
+    required StoryDetailScreenNotifier notifier,
+    required bool insert,
+    required int id,
+  }) async {
+    await showSnackBar(
+      context: context,
+      title: tr("msg.delete.warning"),
+      actionLabel: tr("button.okay"),
+      warning: true,
+      floating: true,
+      onActionPressed: () async {
+        final success = await notifier.removeStoryById(id);
+        if (success) {
+          await Future.delayed(Duration(milliseconds: 350)).then((value) {
+            onPopNavigator(
+              context: context,
+              notifier: notifier,
+            );
+          });
+        } else {
+          await showSnackBar(
+            context: context,
+            title: tr("msg.delete.fail"),
+            actionLabel: tr("button.try_again"),
+            floating: true,
+            onActionPressed: () async {
+              onDelete(
+                context: context,
+                notifier: notifier,
+                insert: insert,
+                id: id,
+              );
+            },
+          );
+        }
+      },
+    );
+  }
+
+  Future<void> onSave({
+    required ValueNotifier imageLoadingNotifier,
+    required StoryDetailScreenNotifier notifier,
+    required BuildContext context,
+    required String paragraph,
+    required bool insert,
+  }) async {
+    StoryModel draftStory = notifier.draftStory.copyWith(paragraph: paragraph);
+    if (draftStory.title.trim().isEmpty) {
+      await showSnackBar(
+        context: context,
+        title: tr("validate.title"),
+        actionLabel: tr("button.okay"),
+        floating: true,
+        onActionPressed: () {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        },
+      );
+    } else {
+      List<String> imagesPath = [];
+      notifier.tmpImagePath.forEach((e) {
+        if (paragraph.contains(e)) {
+          imagesPath.add(e);
+        }
+      });
+      imageLoadingNotifier.value = true;
+      showSnackBar(
+        context: context,
+        title: tr("msg.drive.loading"),
+      );
+
+      int i = 0;
+      String? _tmpParagraph = paragraph;
+
+      for (var e in imagesPath) {
+        final image = await GoogleDriveApiService.upload(File(e), context);
+        if (image != null) {
+          i++;
+          _tmpParagraph = _tmpParagraph?.replaceAll("$e", image);
+        }
+      }
+      draftStory = notifier.draftStory.copyWith(paragraph: _tmpParagraph);
+
+      print("i $i & imagesPath ${imagesPath.length}");
+      print("$_tmpParagraph");
+      if (i == imagesPath.length) {
+        showSnackBar(
+          context: context,
+          title: tr("msg.drive.uploaded"),
+        );
+      } else {
+        showSnackBar(
+          context: context,
+          title: tr("msg.drive.fail"),
+        );
+      }
+      imageLoadingNotifier.value = false;
+
+      ///Insert to database
+      bool success;
+      if (insert) {
+        success = await notifier.addStory(draftStory);
+      } else {
+        success = await notifier.updateStory(
+          draftStory.copyWith(updateOn: DateTime.now()),
+        );
+      }
+
+      if (success == true) {
+        await showSnackBar(
+          context: context,
+          floating: true,
+          title: tr("msg.save.success"),
+        );
+      } else {
+        await showSnackBar(
+          context: context,
+          floating: true,
+          title: tr("msg.save.fail"),
+        );
+      }
+    }
   }
 }

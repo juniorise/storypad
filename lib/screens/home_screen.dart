@@ -19,7 +19,7 @@ import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/tab_controller_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
-import 'package:write_story/screens/ask_for_name_sheet.dart';
+import 'package:write_story/screens/setting_screen.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
@@ -287,20 +287,28 @@ class HomeScreen extends HookWidget with HookController {
             faqNotifier: faqNotifier,
             onSettingPressed: () {
               closeFaq();
-              showModalBottomSheet(
-                isDismissible: true,
-                context: context,
-                enableDrag: true,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (context) {
-                  return AskForNameSheet(
-                    statusBarHeight: statusBarHeight,
-                    bottomBarHeight: bottomBarHeight,
-                    intTapIndex: 1,
-                  );
-                },
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  builder: (context) {
+                    return SettingScreen();
+                  },
+                ),
               );
+              // showModalBottomSheet(
+              //   isDismissible: true,
+              //   context: context,
+              //   enableDrag: true,
+              //   isScrollControlled: true,
+              //   backgroundColor: Colors.transparent,
+              //   builder: (context) {
+              //     return AskForNameSheet(
+              //       statusBarHeight: statusBarHeight,
+              //       bottomBarHeight: bottomBarHeight,
+              //       intTapIndex: 1,
+              //     );
+              //   },
+              // );
             },
             onAddStoryPressed: () async {
               closeFaq();

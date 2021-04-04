@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/configs/theme_config.dart';
 import 'package:write_story/storages/list_layout_storage.dart';
 import 'package:write_story/storages/theme_mode_storage.dart';
 
 class ThemeNotifier extends ChangeNotifier {
   ThemeModeStorage storage = ThemeModeStorage();
   ListLayoutStorage layoutStorage = ListLayoutStorage();
-  bool isDarkMode = false;
+  bool? isDarkMode;
   bool isNormalList = false;
+
+  ThemeMode get themeMode {
+    if (this.isDarkMode == null) {
+      return ThemeMode.system;
+    } else if (this.isDarkMode == true) {
+      return ThemeMode.dark;
+    } else {
+      return ThemeMode.light;
+    }
+  }
 
   loadThemeMode() async {
     final result = await storage.getBool();
-    if (result != null) {
-      isDarkMode = result == true;
-    }
+    isDarkMode = result;
     notifyListeners();
   }
 
@@ -26,18 +33,30 @@ class ThemeNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  toggleTheme() async {
-    await storage.setBool(value: !isDarkMode);
+  setDarkMode(bool? value) async {
+    if (value != null) {
+      await storage.setBool(value: value);
+    } else {
+      await storage.clear();
+    }
     loadThemeMode();
+  }
+
+  toggleTheme() async {
+    if (isDarkMode != null) {
+      await storage.setBool(value: !(isDarkMode == true));
+      loadThemeMode();
+    }
+  }
+
+  setListLayout(bool value) async {
+    await layoutStorage.setBool(value: value);
+    loadLayoutStorage();
   }
 
   toggleListLayout() async {
     await layoutStorage.setBool(value: !isNormalList);
     loadLayoutStorage();
-  }
-
-  ThemeData get theme {
-    return isDarkMode ? ThemeConfig.dark : ThemeConfig.light;
   }
 }
 
