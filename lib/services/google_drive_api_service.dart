@@ -53,12 +53,20 @@ class GoogleDriveApiService {
     });
 
     if (folderId == null) {
+      /// set folder permission to publish to display on app
       drive.File folderToCreate = drive.File();
       folderToCreate.name = "Story";
       drive.File response;
       try {
         response = await driveApi.files.create(
           folderToCreate..mimeType = "application/vnd.google-apps.folder",
+        );
+        await driveApi.permissions.create(
+          drive.Permission.fromJson({
+            "role": "reader",
+            "type": "anyone",
+          }),
+          response.id!,
         );
       } catch (e) {
         return null;
@@ -94,19 +102,6 @@ class GoogleDriveApiService {
     }
 
     if (response2.id == null) return null;
-
-    /// set image permission publish to display on app
-    try {
-      await driveApi.permissions.create(
-        drive.Permission.fromJson({
-          "role": "reader",
-          "type": "anyone",
-        }),
-        response2.id!,
-      );
-    } catch (e) {
-      return null;
-    }
 
     /// delete compress image from local storage
     await image.delete();
