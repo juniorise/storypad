@@ -41,7 +41,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
         backgroundColor: Theme.of(context).colorScheme.surface,
         textTheme: Theme.of(context).textTheme,
         title: Text(
-          "Setting",
+          tr("title.setting"),
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
           ),
@@ -81,7 +81,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
   Widget buildAboutUs(BuildContext context) {
     return WListTile(
       iconData: Icons.info,
-      titleText: "About us",
+      titleText: tr("button.about"),
       onTap: () {
         final _theme = Theme.of(context);
         final _textTheme = Theme.of(context).textTheme;
@@ -129,7 +129,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
   Widget buildRate() {
     return WListTile(
       iconData: Icons.rate_review,
-      titleText: "Rate us",
+      titleText: tr("button.rate"),
       onTap: () async {
         onTapVibrate();
         await LaunchReview.launch();
@@ -140,7 +140,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
   Widget buildShareApp() {
     return WListTile(
       iconData: Icons.share,
-      titleText: "Share",
+      titleText: tr("button.share"),
       onTap: () async {
         onTapVibrate();
         await Share.share(
@@ -155,7 +155,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
       builder: (context, reader, child) {
         return WListTile(
           iconData: Icons.language,
-          titleText: "Language",
+          titleText: tr("button.language"),
           subtitleText:
               context.locale.languageCode == "km" ? "ខ្មែរ" : "English",
           onTap: () {
@@ -197,19 +197,19 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
           children: [
             WListTile(
               iconData: Icons.nightlight_round,
-              titleText: "Theme",
+              titleText: tr("button.theme"),
               subtitleText: notifier.isDarkMode == null
-                  ? "System"
+                  ? tr("button.theme.system")
                   : notifier.isDarkMode == true
-                      ? "Dark"
-                      : "Light",
+                      ? tr("button.theme.dark")
+                      : tr("button.theme.light"),
               onTap: () {
                 final dialog = Dialog(
                   child: Wrap(
                     children: [
                       ListTile(
                         title: Text(
-                          "Dark",
+                          tr("button.theme.dark"),
                           textAlign: TextAlign.center,
                         ),
                         onTap: () {
@@ -221,7 +221,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       const Divider(height: 0),
                       ListTile(
                         title: Text(
-                          "Light",
+                          tr("button.theme.light"),
                           textAlign: TextAlign.center,
                         ),
                         onTap: () {
@@ -233,7 +233,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       const Divider(height: 0),
                       ListTile(
                         title: Text(
-                          "System",
+                          tr("button.theme.system"),
                           textAlign: TextAlign.center,
                         ),
                         onTap: () {
@@ -250,16 +250,18 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
             ),
             WListTile(
               iconData: Icons.list_alt,
-              titleText: "Layout",
-              subtitleText: notifier.isNormalList ? "Normal" : "Tab",
+              titleText: tr("button.layout"),
+              subtitleText: notifier.isNormalList
+                  ? tr("button.layout.normal")
+                  : tr("button.layout.tab"),
               onTap: () {
                 final dialog = Dialog(
                   child: Wrap(
                     children: [
                       ListTile(
-                        title: Text("Normal"),
+                        title: Text(tr("button.layout.normal")),
                         subtitle: Text(
-                          "Display all stories as a list view",
+                          tr("button.layout.normal.info"),
                         ),
                         onTap: () {
                           onTapVibrate();
@@ -269,9 +271,9 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       ),
                       const Divider(height: 0),
                       ListTile(
-                        title: Text("Tab"),
+                        title: Text(tr("button.layout.tab")),
                         subtitle: Text(
-                          "Display all stories by divide them by month",
+                          tr("button.layout.tab.info"),
                         ),
                         onTap: () {
                           onTapVibrate();
@@ -328,7 +330,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                   child: Icon(Icons.person),
                 ),
               ),
-              title: Text("Google Account"),
+              title: Text(tr("title.google_acc")),
               subtitle: Text(
                 userNotifier.isAccountSignedIn
                     ? "${userNotifier.user?.email}"
@@ -340,49 +342,13 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         .withOpacity(0.5)),
               ),
               children: [
-                if (userNotifier.isAccountSignedIn)
-                  VTOnTapEffect(
-                    onTap: () {},
-                    child: WListTile(
-                      iconData: Icons.backup,
-                      titleText: "Sync data",
-                      subtitleText: tr("msg.backup.export"),
-                      onTap: () {
-                        onTapVibrate();
-                        showSnackBar(
-                          context: context,
-                          title: tr("msg.backup.export.warning"),
-                          onActionPressed: () async {
-                            String backup = await database.generateBackup();
-                            final backupModel = DbBackupModel(
-                              createOn: Timestamp.now(),
-                              db: backup,
-                            );
-                            final bool success =
-                                await dbNotifier.replace(backupModel);
-                            if (success) {
-                              showSnackBar(
-                                context: context,
-                                title: tr("msg.backup.export.success"),
-                              );
-                            } else {
-                              showSnackBar(
-                                context: context,
-                                title: tr("msg.backup.export.fail"),
-                              );
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  ),
                 if (userNotifier.isAccountSignedIn && dbNotifier.backup != null)
                   VTOnTapEffect(
                     onTap: () {},
                     child: WListTile(
                       tileColor: Theme.of(context).colorScheme.surface,
                       iconData: Icons.restore,
-                      titleText: "Restore",
+                      titleText: tr("button.backup.import"),
                       subtitleText: tr(
                         "msg.backup.import",
                         namedArgs: {
@@ -414,6 +380,73 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       },
                     ),
                   ),
+                if (userNotifier.isAccountSignedIn)
+                  ListTile(
+                    leading: SizedBox(),
+                    title: Container(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: () async {
+                          onTapVibrate();
+                          await showSnackBar(
+                            context: context,
+                            title: tr("msg.backup.export.warning"),
+                            onActionPressed: () async {
+                              String backup = await database.generateBackup();
+                              final backupModel = DbBackupModel(
+                                createOn: Timestamp.now(),
+                                db: backup,
+                              );
+                              final bool success =
+                                  await dbNotifier.replace(backupModel);
+                              if (success) {
+                                showSnackBar(
+                                  context: context,
+                                  title: tr("msg.backup.export.success"),
+                                );
+                              } else {
+                                showSnackBar(
+                                  context: context,
+                                  title: tr("msg.backup.export.fail"),
+                                );
+                              }
+                            },
+                          );
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.resolveWith(
+                            (states) {
+                              if (states.contains(MaterialState.pressed) ||
+                                  states.contains(MaterialState.focused) ||
+                                  states.contains(MaterialState.hovered) ||
+                                  states.contains(MaterialState.selected)) {
+                                return Theme.of(context)
+                                    .colorScheme
+                                    .secondaryVariant;
+                              } else {
+                                return Theme.of(context).colorScheme.secondary;
+                              }
+                            },
+                          ),
+                          foregroundColor: MaterialStateProperty.resolveWith(
+                            (states) {
+                              if (states.contains(MaterialState.pressed) ||
+                                  states.contains(MaterialState.focused) ||
+                                  states.contains(MaterialState.hovered) ||
+                                  states.contains(MaterialState.selected)) {
+                                return Theme.of(context).colorScheme.onPrimary;
+                              } else {
+                                return Theme.of(context)
+                                    .colorScheme
+                                    .onSecondary;
+                              }
+                            },
+                          ),
+                        ),
+                        child: Text(tr("button.backup.export")),
+                      ),
+                    ),
+                  ),
                 VTOnTapEffect(
                   onTap: () {},
                   child: WListTile(
@@ -421,8 +454,9 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                     iconData: userNotifier.isAccountSignedIn
                         ? Icons.logout
                         : Icons.login,
-                    titleText:
-                        userNotifier.isAccountSignedIn ? "Sign out" : "Connect",
+                    titleText: userNotifier.isAccountSignedIn
+                        ? tr("button.signout")
+                        : tr("button.connect"),
                     onTap: () async {
                       onTapVibrate();
                       if (userNotifier.isAccountSignedIn) {
@@ -519,8 +553,8 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                     ),
                     subtitle: Text(
                       isCollapse
-                          ? "Check all images that you've uploaded"
-                          : "Check all images",
+                          ? tr("msg.drive.info.long")
+                          : tr("msg.drive.info.short"),
                       maxLines: 1,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimary,
@@ -545,7 +579,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       } else {
                         showSnackBar(
                           context: context,
-                          title: "No folder id found",
+                          title: tr("msg.drive.folder.fail"),
                         );
                       }
                     },
