@@ -16,6 +16,7 @@ import 'package:write_story/notifier/auth_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/remote_database_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
+import 'package:write_story/screens/ask_for_name_sheet.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
@@ -46,6 +47,16 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
+        flexibleSpace: Consumer(
+          builder: (context, reader, child) {
+            final userNotifier = reader(authenticationProvider);
+            return SafeArea(
+              child: WLineLoading(
+                loading: userNotifier.loading,
+              ),
+            );
+          },
+        ),
         leading: WIconButton(
           iconData: Icons.arrow_back,
           onPressed: () {
@@ -57,9 +68,12 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
         controller: scrollController,
         children: [
           buildRelateToAccount(),
+          const SizedBox(height: 8.0),
+
           buildRelateToTheme(),
           buildRelateToLanguage(),
           // buildFontStyle(),
+          const SizedBox(height: 8.0),
           buildRate(),
           buildAboutUs(context),
           buildShareApp(),
@@ -88,19 +102,36 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
         showAboutDialog(
           context: context,
           applicationName: "Story",
-          applicationVersion: "v1.0.0+7",
+          applicationVersion: "v1.0.0+8",
           applicationLegalese: tr("info.app_detail"),
           children: [
             const SizedBox(height: 24.0),
-            Text(
-              tr("position.thea"),
-              style: _textTheme.caption?.copyWith(
-                color: _theme.colorScheme.onSurface.withOpacity(0.8),
+            VTOnTapEffect(
+              onTap: () {
+                launch("http://www.theachoem.com");
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    child: Text(
+                      tr("position.thea"),
+                      style: _textTheme.caption?.copyWith(
+                        color: _theme.colorScheme.onSurface.withOpacity(0.8),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    child: Text(
+                      tr("name.thea"),
+                      style: _textTheme.caption!
+                          .copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            Text(
-              tr("name.thea"),
-              style: _textTheme.caption!.copyWith(fontWeight: FontWeight.w600),
             ),
             const Divider(),
             Text(
@@ -319,171 +350,181 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
         return Column(
           children: [
             if (imageNotNull) buildProfile(context, imageUrl!),
-            ExpansionTile(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              collapsedBackgroundColor: Theme.of(context).colorScheme.surface,
-              initiallyExpanded: true,
-              leading: AspectRatio(
-                aspectRatio: 1.5 / 2,
-                child: Container(
-                  height: double.infinity,
-                  child: Icon(Icons.person),
+            Theme(
+              data: Theme.of(context).copyWith(
+                dividerColor: Colors.transparent,
+              ),
+              child: ExpansionTile(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                collapsedBackgroundColor: Theme.of(context).colorScheme.surface,
+                initiallyExpanded: true,
+                leading: AspectRatio(
+                  aspectRatio: 1.5 / 2,
+                  child: Container(
+                    height: double.infinity,
+                    child: Icon(Icons.person),
+                  ),
                 ),
-              ),
-              title: Text(tr("title.google_acc")),
-              subtitle: Text(
-                userNotifier.isAccountSignedIn
-                    ? "${userNotifier.user?.email}"
-                    : tr("msg.login.info"),
-                style: TextStyle(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.5)),
-              ),
-              children: [
-                if (userNotifier.isAccountSignedIn && dbNotifier.backup != null)
+                title: Text(tr("title.google_acc")),
+                subtitle: Text(
+                  userNotifier.isAccountSignedIn
+                      ? "${userNotifier.user?.email}"
+                      : tr("msg.login.info"),
+                  style: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.5)),
+                ),
+                children: [
+                  if (userNotifier.isAccountSignedIn &&
+                      dbNotifier.backup != null)
+                    VTOnTapEffect(
+                      onTap: () {},
+                      child: WListTile(
+                        tileColor: Theme.of(context).colorScheme.surface,
+                        iconData: Icons.restore,
+                        titleText: tr("button.backup.import"),
+                        subtitleText: tr(
+                          "msg.backup.import",
+                          namedArgs: {
+                            "DATE": AppHelper.dateFormat(context).format(
+                                    dbNotifier.backup!.createOn.toDate()) +
+                                ", " +
+                                AppHelper.timeFormat(context).format(
+                                    dbNotifier.backup!.createOn.toDate())
+                          },
+                        ),
+                        onTap: () async {
+                          onTapVibrate();
+                          final bool success = await database
+                              .restoreBackup(dbNotifier.backup!.db);
+                          if (success) {
+                            await context.read(homeScreenProvider).load();
+                            onTapVibrate();
+                            showSnackBar(
+                              context: context,
+                              title: tr("msg.backup.import.success"),
+                            );
+                          } else {
+                            onTapVibrate();
+                            showSnackBar(
+                              context: context,
+                              title: tr("msg.backup.import.fail"),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  if (userNotifier.isAccountSignedIn)
+                    ListTile(
+                      leading: SizedBox(),
+                      title: Container(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () async {
+                            onTapVibrate();
+                            await showSnackBar(
+                              context: context,
+                              title: tr("msg.backup.export.warning"),
+                              onActionPressed: () async {
+                                String backup = await database.generateBackup();
+                                final backupModel = DbBackupModel(
+                                  createOn: Timestamp.now(),
+                                  db: backup,
+                                );
+                                final bool success =
+                                    await dbNotifier.replace(backupModel);
+                                if (success) {
+                                  showSnackBar(
+                                    context: context,
+                                    title: tr("msg.backup.export.success"),
+                                  );
+                                } else {
+                                  showSnackBar(
+                                    context: context,
+                                    title: tr("msg.backup.export.fail"),
+                                  );
+                                }
+                              },
+                            );
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.resolveWith(
+                              (states) {
+                                if (states.contains(MaterialState.pressed) ||
+                                    states.contains(MaterialState.focused) ||
+                                    states.contains(MaterialState.hovered) ||
+                                    states.contains(MaterialState.selected)) {
+                                  return Theme.of(context)
+                                      .colorScheme
+                                      .secondaryVariant;
+                                } else {
+                                  return Theme.of(context)
+                                      .colorScheme
+                                      .secondary;
+                                }
+                              },
+                            ),
+                            foregroundColor: MaterialStateProperty.resolveWith(
+                              (states) {
+                                if (states.contains(MaterialState.pressed) ||
+                                    states.contains(MaterialState.focused) ||
+                                    states.contains(MaterialState.hovered) ||
+                                    states.contains(MaterialState.selected)) {
+                                  return Theme.of(context)
+                                      .colorScheme
+                                      .onPrimary;
+                                } else {
+                                  return Theme.of(context)
+                                      .colorScheme
+                                      .onSecondary;
+                                }
+                              },
+                            ),
+                          ),
+                          child: Text(tr("button.backup.export")),
+                        ),
+                      ),
+                    ),
                   VTOnTapEffect(
                     onTap: () {},
                     child: WListTile(
                       tileColor: Theme.of(context).colorScheme.surface,
-                      iconData: Icons.restore,
-                      titleText: tr("button.backup.import"),
-                      subtitleText: tr(
-                        "msg.backup.import",
-                        namedArgs: {
-                          "DATE": AppHelper.dateFormat(context).format(
-                                  dbNotifier.backup!.createOn.toDate()) +
-                              ", " +
-                              AppHelper.timeFormat(context)
-                                  .format(dbNotifier.backup!.createOn.toDate())
-                        },
-                      ),
+                      iconData: userNotifier.isAccountSignedIn
+                          ? Icons.logout
+                          : Icons.login,
+                      titleText: userNotifier.isAccountSignedIn
+                          ? tr("button.signout")
+                          : tr("button.connect"),
                       onTap: () async {
                         onTapVibrate();
-                        final bool success =
-                            await database.restoreBackup(dbNotifier.backup!.db);
-                        if (success) {
-                          await context.read(homeScreenProvider).load();
-                          onTapVibrate();
-                          showSnackBar(
-                            context: context,
-                            title: tr("msg.backup.import.success"),
-                          );
+                        if (userNotifier.isAccountSignedIn) {
+                          await userNotifier.signOut();
+                          context.read(remoteDatabaseProvider).reset();
                         } else {
-                          onTapVibrate();
-                          showSnackBar(
-                            context: context,
-                            title: tr("msg.backup.import.fail"),
-                          );
+                          bool success = await userNotifier.logAccount();
+                          if (success == true) {
+                            onTapVibrate();
+                            showSnackBar(
+                              context: context,
+                              title: tr("msg.login.success"),
+                            );
+                          } else {
+                            onTapVibrate();
+                            showSnackBar(
+                              context: context,
+                              title: userNotifier.service?.errorMessage != null
+                                  ? userNotifier.service?.errorMessage as String
+                                  : tr("msg.login.fail"),
+                            );
+                          }
                         }
                       },
                     ),
                   ),
-                if (userNotifier.isAccountSignedIn)
-                  ListTile(
-                    leading: SizedBox(),
-                    title: Container(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton(
-                        onPressed: () async {
-                          onTapVibrate();
-                          await showSnackBar(
-                            context: context,
-                            title: tr("msg.backup.export.warning"),
-                            onActionPressed: () async {
-                              String backup = await database.generateBackup();
-                              final backupModel = DbBackupModel(
-                                createOn: Timestamp.now(),
-                                db: backup,
-                              );
-                              final bool success =
-                                  await dbNotifier.replace(backupModel);
-                              if (success) {
-                                showSnackBar(
-                                  context: context,
-                                  title: tr("msg.backup.export.success"),
-                                );
-                              } else {
-                                showSnackBar(
-                                  context: context,
-                                  title: tr("msg.backup.export.fail"),
-                                );
-                              }
-                            },
-                          );
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.resolveWith(
-                            (states) {
-                              if (states.contains(MaterialState.pressed) ||
-                                  states.contains(MaterialState.focused) ||
-                                  states.contains(MaterialState.hovered) ||
-                                  states.contains(MaterialState.selected)) {
-                                return Theme.of(context)
-                                    .colorScheme
-                                    .secondaryVariant;
-                              } else {
-                                return Theme.of(context).colorScheme.secondary;
-                              }
-                            },
-                          ),
-                          foregroundColor: MaterialStateProperty.resolveWith(
-                            (states) {
-                              if (states.contains(MaterialState.pressed) ||
-                                  states.contains(MaterialState.focused) ||
-                                  states.contains(MaterialState.hovered) ||
-                                  states.contains(MaterialState.selected)) {
-                                return Theme.of(context).colorScheme.onPrimary;
-                              } else {
-                                return Theme.of(context)
-                                    .colorScheme
-                                    .onSecondary;
-                              }
-                            },
-                          ),
-                        ),
-                        child: Text(tr("button.backup.export")),
-                      ),
-                    ),
-                  ),
-                VTOnTapEffect(
-                  onTap: () {},
-                  child: WListTile(
-                    tileColor: Theme.of(context).colorScheme.surface,
-                    iconData: userNotifier.isAccountSignedIn
-                        ? Icons.logout
-                        : Icons.login,
-                    titleText: userNotifier.isAccountSignedIn
-                        ? tr("button.signout")
-                        : tr("button.connect"),
-                    onTap: () async {
-                      onTapVibrate();
-                      if (userNotifier.isAccountSignedIn) {
-                        await userNotifier.signOut();
-                        context.read(remoteDatabaseProvider).reset();
-                      } else {
-                        bool success = await userNotifier.logAccount();
-                        if (success == true) {
-                          onTapVibrate();
-                          showSnackBar(
-                            context: context,
-                            title: tr("msg.login.success"),
-                          );
-                        } else {
-                          onTapVibrate();
-                          showSnackBar(
-                            context: context,
-                            title: userNotifier.service?.errorMessage != null
-                                ? userNotifier.service?.errorMessage as String
-                                : tr("msg.login.fail"),
-                          );
-                        }
-                      }
-                    },
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         );
@@ -612,26 +653,31 @@ class WListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      tileColor: tileColor,
-      leading: AspectRatio(
-        aspectRatio: 1.5 / 2,
-        child: Container(
-          height: double.infinity,
-          child: Icon(iconData),
+    return VTOnTapEffect(
+      onTap: () {},
+      child: ListTile(
+        tileColor: tileColor ?? Theme.of(context).colorScheme.surface,
+        leading: AspectRatio(
+          aspectRatio: 1.5 / 2,
+          child: Container(
+            height: double.infinity,
+            child: Icon(iconData),
+          ),
         ),
+        title: Text(titleText),
+        subtitle: subtitleText != null
+            ? Text(
+                subtitleText!,
+                style: TextStyle(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onBackground
+                      .withOpacity(0.5),
+                ),
+              )
+            : null,
+        onTap: onTap,
       ),
-      title: Text(titleText),
-      subtitle: subtitleText != null
-          ? Text(
-              subtitleText!,
-              style: TextStyle(
-                color:
-                    Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-              ),
-            )
-          : null,
-      onTap: onTap,
     );
   }
 }

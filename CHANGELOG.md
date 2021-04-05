@@ -1,3 +1,9 @@
+## 1.0.0+8
+- able to keep original image when upload
+- upload when save instead of while editing
+- add better setting UI
+- fixed bugs
+
 ## 1.0.0+7
 - release complete version
 - improve quill editor
