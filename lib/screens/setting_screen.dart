@@ -396,12 +396,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                           },
                         ),
                         onTap: () async {
-                          onTapVibrate();
                           final bool success = await database
                               .restoreBackup(dbNotifier.backup!.db);
                           if (success) {
-                            await context.read(homeScreenProvider).load();
                             onTapVibrate();
+                            await context.read(homeScreenProvider).load();
                             showSnackBar(
                               context: context,
                               title: tr("msg.backup.import.success"),
@@ -436,11 +435,13 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                                 final bool success =
                                     await dbNotifier.replace(backupModel);
                                 if (success) {
+                                  onTapVibrate();
                                   showSnackBar(
                                     context: context,
                                     title: tr("msg.backup.export.success"),
                                   );
                                 } else {
+                                  onTapVibrate();
                                   showSnackBar(
                                     context: context,
                                     title: tr("msg.backup.export.fail"),

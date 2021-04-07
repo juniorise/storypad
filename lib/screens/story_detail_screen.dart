@@ -11,6 +11,8 @@ import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/default_styles.dart';
 import 'package:flutter_quill/widgets/editor.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:share/share.dart';
+import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/mixins/snakbar_mixin.dart';
@@ -511,6 +513,24 @@ class StoryDetailScreen extends HookWidget
                     ),
                   ),
                 PopupMenuItem(
+                  child: VTOnTapEffect(
+                    onTap: () async {
+                      Navigator.of(context).pop();
+                      final title = notifier.draftStory.title;
+                      final root = quillNotifier.controller.document.root;
+                      final shareText = QuillHelper.toPlainText(root);
+                      await Share.share(title + "\n$shareText");
+                    },
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: ConfigConstant.margin1,
+                      ),
+                      leading: Icon(Icons.share),
+                      title: Text(tr("button.share")),
+                    ),
+                  ),
+                ),
+                PopupMenuItem(
                   child: Consumer(
                     builder: (context, watch, child) {
                       final notifier = watch(themeProvider);
@@ -519,6 +539,7 @@ class StoryDetailScreen extends HookWidget
                           Navigator.of(context).pop();
                           Future.delayed(ConfigConstant.duration).then(
                             (value) {
+                              onTapVibrate();
                               notifier.toggleTheme();
                             },
                           );
@@ -536,6 +557,7 @@ class StoryDetailScreen extends HookWidget
                                 Navigator.of(context).pop();
                                 Future.delayed(ConfigConstant.duration).then(
                                   (value) {
+                                    onTapVibrate();
                                     notifier.toggleTheme();
                                   },
                                 );

@@ -1,6 +1,3 @@
-import 'package:flutter_quill/models/documents/attribute.dart' as attribute;
-import 'package:flutter_quill/models/documents/nodes/block.dart' as block;
-import 'package:flutter_quill/models/documents/nodes/node.dart' as node;
 import 'dart:convert';
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
@@ -11,6 +8,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/app_helper.dart';
+import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/colors.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/hook_controller.dart';
@@ -562,47 +560,6 @@ class HomeScreen extends HookWidget with HookController {
     );
   }
 
-  String toPlainText(node.Root root) {
-    return root.children
-        .map((node.Node e) {
-          final atts = e.style.attributes;
-          attribute.Attribute? att =
-              atts['list'] ?? atts['blockquote'] ?? atts['code-block'];
-
-          if (e is block.Block) {
-            int index = 0;
-            String result = "";
-            e.children.forEach(
-              (entry) {
-                if (att?.key == "blockquote") {
-                  String text = entry.toPlainText();
-                  text = text.replaceFirst(RegExp('\n'), '', text.length - 1);
-                  result += "\n︳" + text;
-                } else if (att?.key == "code-block") {
-                  result += '︳' + entry.toPlainText();
-                } else {
-                  if (att?.value == "checked") {
-                    result += "☒\t" + entry.toPlainText();
-                  } else if (att?.value == "unchecked") {
-                    result += "☐\t" + entry.toPlainText();
-                  } else if (att?.value == "ordered") {
-                    index++;
-                    result += "$index.\t" + entry.toPlainText();
-                  } else if (att?.value == "bullet") {
-                    result += "•\t" + entry.toPlainText();
-                  }
-                }
-              },
-            );
-            return result;
-          } else {
-            return e.toPlainText();
-          }
-        })
-        .join()
-        .replaceAll("\uFFFC", "🄹🄿🄶‌");
-  }
-
   Widget buildStoryTile({
     required BuildContext context,
     required StoryModel story,
@@ -628,7 +585,7 @@ class HomeScreen extends HookWidget with HookController {
     try {
       final decode = jsonDecode(story.paragraph!);
       final document = Document.fromJson(decode);
-      paragraph = toPlainText(document.root).trim();
+      paragraph = QuillHelper.toPlainText(document.root).trim();
     } catch (e) {}
 
     /// Paragraph
