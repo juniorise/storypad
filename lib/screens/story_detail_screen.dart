@@ -221,6 +221,9 @@ class StoryDetailScreen extends HookWidget
     required EdgeInsets screenPadding,
     required ValueNotifier readOnlyModeNotifier,
   }) {
+    bool isDarkMode =
+        Theme.of(context).colorScheme.brightness == Brightness.dark;
+
     assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
     switch (node.value.type) {
       case 'image':
@@ -235,22 +238,27 @@ class StoryDetailScreen extends HookWidget
               return VTOnTapEffect(
                 onTap: () {},
                 child: Container(
-                  color: Theme.of(context).colorScheme.background,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.background,
+                  ),
                   alignment: Alignment.center,
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Container(
                     width: 150,
                     child: Column(
                       children: [
                         Image.asset(
-                          "assets/illustrations/error-cloud.png",
+                          isDarkMode
+                              ? "assets/illustrations/error-cloud.png"
+                              : "assets/illustrations/error-cloud-light.png",
                           width: 100,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 8),
                         Text(
                           "Image may be deleted or marked as private",
                           textAlign: TextAlign.center,
-                        )
+                        ),
+                        const SizedBox(height: 8),
                       ],
                     ),
                   ),
