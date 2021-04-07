@@ -52,13 +52,15 @@ class StoryDetailScreen extends HookWidget
       ValueNotifier<double>(0);
 
   final ValueNotifier<bool> imageLoadingNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> imageRetryingNotifier = ValueNotifier<bool>(false);
+
   final FocusNode focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
-    final readOnlyModeNotifier = useState<bool>(!insert);
-
     print("build detail");
+
+    final readOnlyModeNotifier = useState<bool>(!insert);
     final _notifier = useProvider(storydetailScreenNotifier(story));
 
     final screenPadding = MediaQuery.of(context).padding;
@@ -137,7 +139,15 @@ class StoryDetailScreen extends HookWidget
           ValueListenableBuilder(
             valueListenable: imageLoadingNotifier,
             builder: (context, value, child) {
-              return WLineLoading(loading: imageLoadingNotifier.value);
+              return ValueListenableBuilder(
+                valueListenable: imageRetryingNotifier,
+                builder: (context, value, child) {
+                  return WLineLoading(
+                    loading: imageLoadingNotifier.value ||
+                        imageRetryingNotifier.value,
+                  );
+                },
+              );
             },
           ),
           Divider(
@@ -231,39 +241,46 @@ class StoryDetailScreen extends HookWidget
         Widget imageChild;
         String imageUrl = _standardizeImageUrl(node.value.data);
         if (imageUrl.startsWith('http')) {
-          imageChild = CachedNetworkImage(
-            imageUrl: imageUrl,
-            errorWidget: (context, _, __) {
-              error = true;
-              return VTOnTapEffect(
-                onTap: () {},
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
-                  ),
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Container(
-                    width: 150,
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          isDarkMode
-                              ? "assets/illustrations/error-cloud.png"
-                              : "assets/illustrations/error-cloud-light.png",
-                          width: 100,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Image may be deleted or marked as private",
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                      ],
+          imageChild = ValueListenableBuilder(
+            valueListenable: imageRetryingNotifier,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+              ),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Container(
+                width: 150,
+                child: Column(
+                  children: [
+                    Image.asset(
+                      isDarkMode
+                          ? "assets/illustrations/error-cloud.png"
+                          : "assets/illustrations/error-cloud-light.png",
+                      width: 100,
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Image may be deleted or marked as private",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                 ),
-              );
+              ),
+            ),
+            builder: (context, value, errorBuilder) {
+              return imageRetryingNotifier.value &&
+                      notifier.loadingUrl == imageUrl
+                  ? errorBuilder ?? SizedBox()
+                  : CachedNetworkImage(
+                      key: UniqueKey(),
+                      imageUrl: imageUrl,
+                      errorWidget: (context, _, __) {
+                        error = true;
+                        return errorBuilder ?? SizedBox();
+                      },
+                    );
             },
           );
         } else if (isBase64(imageUrl)) {
@@ -277,7 +294,7 @@ class StoryDetailScreen extends HookWidget
             child: imageChild,
           ),
           vibrate: !error,
-          onTap: () {
+          onTap: () async {
             if (!error && readOnlyModeNotifier.value) {
               showImageViewerSheet(
                 context,
@@ -285,6 +302,13 @@ class StoryDetailScreen extends HookWidget
                 screenPadding,
                 imageUrl,
               );
+            } else {
+              imageRetryingNotifier.value = true;
+              notifier.setLoadingUrl(imageUrl);
+              await _clearCache(imageUrl);
+              await notifier.retryLoadImage();
+              await notifier.retryLoadImage();
+              imageRetryingNotifier.value = false;
             }
           },
         );
@@ -361,6 +385,10 @@ class StoryDetailScreen extends HookWidget
   Future<File> _findPath(String imageUrl) async {
     final cache = DefaultCacheManager();
     return await cache.getSingleFile(imageUrl);
+  }
+
+  Future<void> _clearCache(String imageUrl) async {
+    await CachedNetworkImage.evictFromCache(imageUrl);
   }
 
   Widget buildHeaderTextField({

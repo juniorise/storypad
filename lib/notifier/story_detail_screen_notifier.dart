@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/database/w_database.dart';
 import 'package:write_story/models/story_model.dart';
+import 'package:write_story/services/google_drive_api_service.dart';
 
 class StoryDetailScreenNotifier extends ChangeNotifier {
   final WDatabase wDatabase = WDatabase.instance;
@@ -11,8 +12,17 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
   bool hasChanged = false;
   int? imageLength;
 
+  String? _loadingUrl;
+  String? get loadingUrl => this._loadingUrl;
+
+  setLoadingUrl(String imageUrl) {
+    this._loadingUrl = imageUrl;
+    notifyListeners();
+  }
+
   StoryDetailScreenNotifier(this.draftStory) {
     imageLength = QuillHelper.getImageLength(this.draftStory.paragraph ?? "");
+    print(imageLength);
   }
 
   final List<String> tmpImagePath = [];
@@ -48,6 +58,12 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
       this.hasChanged = true;
     }
     return success;
+  }
+
+  retryLoadImage() async {
+    final driveApi = await GoogleDriveApiService.getDriveApi();
+    await GoogleDriveApiService.setFolderId(driveApi, grentPermission: false);
+    notifyListeners();
   }
 }
 

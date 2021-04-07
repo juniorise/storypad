@@ -116,10 +116,12 @@ class ImageViewer extends HookWidget with WSnackBar {
                   minScale: 0.99,
                   maxScale: 1.99,
                   child: Container(
-                    color: Colors.transparent,
-                    height: double.infinity,
-                    width: double.infinity,
-                    child: imageChild,
+                    height: MediaQuery.of(context).size.height,
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [imageChild],
+                    ),
                   ),
                 ),
               ),

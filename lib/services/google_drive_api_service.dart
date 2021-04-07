@@ -38,7 +38,7 @@ class GoogleDriveApiService {
       return id;
     } else {
       drive.DriveApi driveApi = await getDriveApi();
-      setFolderId(driveApi);
+      await setFolderId(driveApi);
       return await storage.read();
     }
   }
@@ -54,7 +54,8 @@ class GoogleDriveApiService {
     return drive.DriveApi(authenticateClient);
   }
 
-  static Future<void> setFolderId(drive.DriveApi driveApi) async {
+  static Future<void> setFolderId(drive.DriveApi driveApi,
+      {bool grentPermission = true}) async {
     String? folderId;
     drive.FileList? folderList;
 
@@ -79,17 +80,19 @@ class GoogleDriveApiService {
         response = await driveApi.files.create(
           folderToCreate..mimeType = "application/vnd.google-apps.folder",
         );
-        await driveApi.permissions.create(
-          drive.Permission.fromJson({
-            "role": "reader",
-            "type": "anyone",
-          }),
-          response.id!,
-        );
       } catch (e) {
         return null;
       }
       folderId = response.id;
+    }
+
+    if (grentPermission) {
+      try {
+        await driveApi.permissions.create(
+          drive.Permission.fromJson({"role": "reader", "type": "anyone"}),
+          folderId!,
+        );
+      } catch (e) {}
     }
     await folderStorage.write(folderId ?? "");
   }
