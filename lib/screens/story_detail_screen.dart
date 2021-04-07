@@ -14,9 +14,9 @@ import 'package:flutter_quill/models/documents/nodes/leaf.dart' as leaf;
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/default_styles.dart';
 import 'package:flutter_quill/widgets/editor.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share/share.dart';
 import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/constants/config_constant.dart';
@@ -61,8 +61,9 @@ class StoryDetailScreen extends HookWidget
     print("build detail");
     final _notifier = useProvider(storydetailScreenNotifier(story));
 
-    final bottomHeight = MediaQuery.of(context).padding.bottom;
-    final statusBarHeight = MediaQuery.of(context).padding.top;
+    final screenPadding = MediaQuery.of(context).padding;
+    final bottomHeight = screenPadding.bottom;
+    final statusBarHeight = screenPadding.top;
 
     Document? doc;
     try {
@@ -166,7 +167,8 @@ class StoryDetailScreen extends HookWidget
                       context: context,
                       node: node,
                       notifier: _notifier,
-                      statusBarHeight: statusBarHeight,
+                      screenPadding: screenPadding,
+                      readOnlyModeNotifier: readOnlyModeNotifier,
                     );
                   },
                   textCapitalization: TextCapitalization.sentences,
@@ -216,7 +218,8 @@ class StoryDetailScreen extends HookWidget
     required BuildContext context,
     required leaf.Embed node,
     required StoryDetailScreenNotifier notifier,
-    required double statusBarHeight,
+    required EdgeInsets screenPadding,
+    required ValueNotifier readOnlyModeNotifier,
   }) {
     assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
     switch (node.value.type) {
@@ -245,7 +248,7 @@ class StoryDetailScreen extends HookWidget
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          "Image may be delete or mark as private",
+                          "Image may be deleted or marked as private",
                           textAlign: TextAlign.center,
                         )
                       ],
@@ -267,11 +270,11 @@ class StoryDetailScreen extends HookWidget
           ),
           vibrate: !error,
           onTap: () {
-            if (!error) {
+            if (!error && readOnlyModeNotifier.value) {
               showImageViewerSheet(
                 context,
                 imageChild,
-                statusBarHeight,
+                screenPadding,
                 imageUrl,
               );
             }
@@ -288,22 +291,31 @@ class StoryDetailScreen extends HookWidget
   showImageViewerSheet(
     BuildContext context,
     Widget imageChild,
-    double statusBarHeight,
+    EdgeInsets screenPadding,
     String imageUrl,
   ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.black.withOpacity(0),
       isScrollControlled: true,
+      useRootNavigator: true,
       builder: (_) {
         return ImageViewer(
           imageChild: imageChild,
-          statusBarHeight: statusBarHeight,
+          screenPadding: screenPadding,
           onSaveImage: () async {
+            var status = Permission.storage;
+            if (await status.isDenied) {
+              await status.request();
+            }
+
             dynamic result;
             if (imageUrl.startsWith('http')) {
               final file = await _findPath(imageUrl);
-              result = await ImageGallerySaver.saveFile(file.path);
+              result = await ImageGallerySaver.saveFile(
+                file.path,
+                isReturnPathOfIOS: true,
+              );
             } else if (isBase64(imageUrl)) {
               result = await ImageGallerySaver.saveImage(
                 base64.decode(imageUrl),
@@ -315,18 +327,27 @@ class StoryDetailScreen extends HookWidget
                 isReturnPathOfIOS: true,
               );
             }
-            if (result != null) {
-              onTapVibrate();
+            print("$result");
+            if (result['isSuccess'] == true) {
               showSnackBar(
-                floating: true,
                 context: context,
                 title: tr("msg.save.success"),
               );
+              onTapVibrate();
+            } else {
+              if (result['errorMessage'] != null) {
+                showSnackBar(
+                  context: context,
+                  title: result['errorMessage'],
+                );
+              }
             }
           },
         );
       },
-    );
+    ).then((value) {
+      ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+    });
   }
 
   Future<File> _findPath(String imageUrl) async {

@@ -11,15 +11,16 @@ class ImageViewer extends HookWidget with WSnackBar {
     Key? key,
     required this.imageChild,
     required this.onSaveImage,
-    required this.statusBarHeight,
+    required this.screenPadding,
   }) : super(key: key);
 
   final Widget imageChild;
-  final double statusBarHeight;
+  final EdgeInsets screenPadding;
   final Future<void> Function() onSaveImage;
 
   @override
   Widget build(BuildContext context) {
+    final statusBarHeight = screenPadding.top;
     final animationController = useAnimationController(
       duration: ConfigConstant.duration * 3,
     )..drive(CurveTween(curve: Curves.bounceIn));
@@ -42,6 +43,68 @@ class ImageViewer extends HookWidget with WSnackBar {
           ),
           extendBodyBehindAppBar: true,
           backgroundColor: Colors.transparent,
+          floatingActionButton: GestureDetector(
+            onTapDown: (_) async {
+              animationController.forward().then((value) async {
+                onTapVibrate();
+                animationController.reset();
+                await onSaveImage();
+              });
+            },
+            onTapUp: (_) {
+              animationController.reset();
+            },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                AnimatedBuilder(
+                  animation: animationController,
+                  builder: (context, child) {
+                    return AnimatedOpacity(
+                      opacity: animationController.isAnimating ? 1 : 0,
+                      duration: ConfigConstant.fadeDuration,
+                      child: Text("Saving image..."),
+                    );
+                  },
+                ),
+                const SizedBox(width: ConfigConstant.margin2),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    AnimatedBuilder(
+                      animation: animationController,
+                      builder: (context, child) {
+                        return AnimatedOpacity(
+                          opacity: animationController.isAnimating ? 1 : 0,
+                          duration: ConfigConstant.fadeDuration,
+                          child: Container(
+                            height: kToolbarHeight,
+                            width: kToolbarHeight,
+                            child: CircularProgressIndicator(
+                              value: animationController.value,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    Container(
+                      height: kToolbarHeight,
+                      width: kToolbarHeight,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Theme.of(context).colorScheme.surface,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.get_app,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
           body: Stack(
             children: [
               GestureDetector(
@@ -60,55 +123,6 @@ class ImageViewer extends HookWidget with WSnackBar {
                   ),
                 ),
               ),
-              Positioned(
-                bottom: kToolbarHeight,
-                right: kToolbarHeight / 2,
-                child: GestureDetector(
-                  onTapDown: (_) async {
-                    animationController.forward().then((value) async {
-                      onTapVibrate();
-                      animationController.reset();
-                      await onSaveImage();
-                    });
-                  },
-                  onTapUp: (_) {
-                    animationController.reset();
-                  },
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      AnimatedBuilder(
-                        animation: animationController,
-                        builder: (context, child) {
-                          return AnimatedOpacity(
-                            opacity: animationController.isAnimating ? 1 : 0,
-                            duration: ConfigConstant.fadeDuration,
-                            child: Container(
-                              height: kToolbarHeight,
-                              width: kToolbarHeight,
-                              child: CircularProgressIndicator(
-                                value: animationController.value,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      Container(
-                        height: kToolbarHeight,
-                        width: kToolbarHeight,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context).colorScheme.surface,
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          Icons.get_app,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
             ],
           ),
         );
