@@ -5,20 +5,10 @@ import 'package:write_story/services/authentication_service.dart';
 
 class AuthenticatoinNotifier extends ChangeNotifier {
   AuthenticationService? service = AuthenticationService();
-  User? user;
-  bool isAccountSignedIn = false;
+  User? get user => service?.user;
+  bool get isAccountSignedIn => user != null;
 
   bool _loading = false;
-
-  load() {
-    user = service?.user;
-    if (user != null) {
-      isAccountSignedIn = true;
-    } else {
-      isAccountSignedIn = false;
-    }
-    notifyListeners();
-  }
 
   setLoading(bool value) {
     this._loading = value;
@@ -27,10 +17,7 @@ class AuthenticatoinNotifier extends ChangeNotifier {
 
   Future<bool> logAccount() async {
     setLoading(true);
-
     bool? success = await service?.signInWithGoogle();
-    await load();
-
     setLoading(false);
     if (success == true) {
       return true;
@@ -42,7 +29,6 @@ class AuthenticatoinNotifier extends ChangeNotifier {
   Future<void> signOut() async {
     await service?.signOut();
     setLoading(false);
-    load();
   }
 
   bool get loading => this._loading;
@@ -50,6 +36,6 @@ class AuthenticatoinNotifier extends ChangeNotifier {
 
 final authenticationProvider = ChangeNotifierProvider<AuthenticatoinNotifier>(
   (ref) {
-    return AuthenticatoinNotifier()..load();
+    return AuthenticatoinNotifier();
   },
 );
