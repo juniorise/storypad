@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/storages/list_layout_storage.dart';
 import 'package:write_story/storages/theme_mode_storage.dart';
@@ -45,8 +46,12 @@ class ThemeNotifier extends ChangeNotifier {
   toggleTheme() async {
     if (isDarkMode != null) {
       await storage.setBool(value: !(isDarkMode == true));
-      loadThemeMode();
+    } else {
+      var brightness = SchedulerBinding.instance?.window.platformBrightness;
+      bool _isDarkMode = brightness == Brightness.dark;
+      await storage.setBool(value: !(_isDarkMode == true));
     }
+    loadThemeMode();
   }
 
   setListLayout(bool value) async {
