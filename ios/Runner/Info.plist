@@ -68,7 +68,9 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Can I use the mic please?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Can I pick image from please?</string>
+	<string>Can I pick image from your gallery please?</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Can I save image to your gallery please?</string>
 
 	<key>NSAppTransportSecurity</key>
 	<dict>

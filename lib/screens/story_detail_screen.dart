@@ -1,16 +1,22 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/models/documents/document.dart';
+import 'package:flutter_quill/models/documents/nodes/leaf.dart' as leaf;
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/default_styles.dart';
 import 'package:flutter_quill/widgets/editor.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:share/share.dart';
 import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/constants/config_constant.dart';
@@ -22,6 +28,7 @@ import 'package:write_story/notifier/quill_controller_notifier.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
 import 'package:write_story/screens/ask_for_name_sheet.dart';
+import 'package:write_story/screens/image_viewer_sheet.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/services/image_compress_service.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
@@ -45,14 +52,14 @@ class StoryDetailScreen extends HookWidget
       ValueNotifier<double>(0);
 
   final ValueNotifier<bool> imageLoadingNotifier = ValueNotifier<bool>(false);
-
   final FocusNode focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
+    final readOnlyModeNotifier = useState<bool>(!insert);
+
     print("build detail");
     final _notifier = useProvider(storydetailScreenNotifier(story));
-    final readOnlyModeNotifier = useState<bool>(!insert);
 
     final bottomHeight = MediaQuery.of(context).padding.bottom;
     final statusBarHeight = MediaQuery.of(context).padding.top;
@@ -154,6 +161,14 @@ class StoryDetailScreen extends HookWidget
                   keyboardAppearance: _theme.brightness,
                   enableInteractiveSelection: true,
                   expands: false,
+                  embedBuilder: (BuildContext context, leaf.Embed node) {
+                    return _embedBuilder(
+                      context: context,
+                      node: node,
+                      notifier: _notifier,
+                      statusBarHeight: statusBarHeight,
+                    );
+                  },
                   textCapitalization: TextCapitalization.sentences,
                   customStyles: DefaultStyles(
                     placeHolder: DefaultTextBlockStyle(
@@ -197,6 +212,128 @@ class StoryDetailScreen extends HookWidget
     );
   }
 
+  Widget _embedBuilder({
+    required BuildContext context,
+    required leaf.Embed node,
+    required StoryDetailScreenNotifier notifier,
+    required double statusBarHeight,
+  }) {
+    assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
+    switch (node.value.type) {
+      case 'image':
+        bool error = false;
+        Widget imageChild;
+        String imageUrl = _standardizeImageUrl(node.value.data);
+        if (imageUrl.startsWith('http')) {
+          imageChild = CachedNetworkImage(
+            imageUrl: imageUrl,
+            errorWidget: (context, _, __) {
+              error = true;
+              return VTOnTapEffect(
+                onTap: () {},
+                child: Container(
+                  color: Theme.of(context).colorScheme.background,
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Container(
+                    width: 150,
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          "assets/illustrations/error-cloud.png",
+                          width: 100,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          "Image may be delete or mark as private",
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        } else if (isBase64(imageUrl)) {
+          imageChild = Image.memory(base64.decode(imageUrl));
+        } else {
+          imageChild = Image.file(File(imageUrl));
+        }
+        return VTOnTapEffect(
+          child: ClipRRect(
+            borderRadius: ConfigConstant.circlarRadius1,
+            child: imageChild,
+          ),
+          vibrate: !error,
+          onTap: () {
+            if (!error) {
+              showImageViewerSheet(
+                context,
+                imageChild,
+                statusBarHeight,
+                imageUrl,
+              );
+            }
+          },
+        );
+      default:
+        throw UnimplementedError(
+            'Embeddable type "${node.value.type}" is not supported by default embed '
+            'builder of QuillEditor. You must pass your own builder function to '
+            'embedBuilder property of QuillEditor or QuillField widgets.');
+    }
+  }
+
+  showImageViewerSheet(
+    BuildContext context,
+    Widget imageChild,
+    double statusBarHeight,
+    String imageUrl,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.black.withOpacity(0),
+      isScrollControlled: true,
+      builder: (_) {
+        return ImageViewer(
+          imageChild: imageChild,
+          statusBarHeight: statusBarHeight,
+          onSaveImage: () async {
+            dynamic result;
+            if (imageUrl.startsWith('http')) {
+              final file = await _findPath(imageUrl);
+              result = await ImageGallerySaver.saveFile(file.path);
+            } else if (isBase64(imageUrl)) {
+              result = await ImageGallerySaver.saveImage(
+                base64.decode(imageUrl),
+                isReturnImagePathOfIOS: true,
+              );
+            } else {
+              result = await ImageGallerySaver.saveFile(
+                File(imageUrl).path,
+                isReturnPathOfIOS: true,
+              );
+            }
+            if (result != null) {
+              onTapVibrate();
+              showSnackBar(
+                floating: true,
+                context: context,
+                title: tr("msg.save.success"),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Future<File> _findPath(String imageUrl) async {
+    final cache = DefaultCacheManager();
+    return await cache.getSingleFile(imageUrl);
+  }
+
   Widget buildHeaderTextField({
     required bool insert,
     required StoryDetailScreenNotifier notifier,
@@ -212,11 +349,11 @@ class StoryDetailScreen extends HookWidget
         valueListenable: readOnlyModeNotifier,
         builder: (context, value, child) {
           return TextField(
+            readOnly: readOnlyModeNotifier.value,
             controller: titleController,
             selectionHeightStyle: BoxHeightStyle.max,
             textAlign: TextAlign.left,
             style: _theme.textTheme.headline6,
-            readOnly: readOnlyModeNotifier.value,
             onChanged: onChanged,
             maxLines: null,
             keyboardAppearance: _theme.brightness,
@@ -863,4 +1000,18 @@ class StoryDetailScreen extends HookWidget
       }
     }
   }
+}
+
+/// check if a string is base64 encoded
+bool isBase64(String str) {
+  RegExp _base64 = RegExp(
+      r'^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$');
+  return _base64.hasMatch(str);
+}
+
+String _standardizeImageUrl(String url) {
+  if (url.contains('base64')) {
+    return url.split(',')[1];
+  }
+  return url;
 }

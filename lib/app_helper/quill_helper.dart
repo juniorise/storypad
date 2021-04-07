@@ -1,8 +1,27 @@
+import 'dart:convert';
 import 'package:flutter_quill/models/documents/attribute.dart' as attribute;
 import 'package:flutter_quill/models/documents/nodes/block.dart' as block;
 import 'package:flutter_quill/models/documents/nodes/node.dart' as node;
 
 class QuillHelper {
+  static int getImageLength(String paragraph) {
+    int i = 0;
+    try {
+      final List<dynamic> decode = jsonDecode(paragraph);
+      decode.forEach((e) {
+        final insert = e['insert'];
+        if (insert is Map) {
+          insert.entries.forEach((e) {
+            if (e.value != null && e.value.isNotEmpty) {
+              i++; //e.value is link
+            }
+          });
+        }
+      });
+    } catch (e) {}
+    return i;
+  }
+
   static String toPlainText(node.Root root) {
     return root.children
         .map((node.Node e) {

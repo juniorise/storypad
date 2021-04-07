@@ -46,6 +46,14 @@ dependencies:
   http: ^0.13.1
   flutter_image_compress: ^1.0.0
   flutter_cache_manager: ^3.0.1
+  cached_network_image: ^3.0.0
+  photo_view: ^0.11.1
+  flutter_spinkit: ^5.0.0
+  
+  image_gallery_saver:
+    git:
+      url: git@github.com:theacheng/image_gallery_saver.git
+      ref: master
 
   google_sign_in: ^5.0.1
 
@@ -96,6 +104,7 @@ flutter:
     
     # Ref: https://iconscout.com/illustration/thinking-woman-1840996
     - assets/illustrations/thinking-woman.png
+    - assets/illustrations/
 
     # Book Ref: https://assets1.lottiefiles.com/packages/lf20_wh5alaq6.json
     - assets/animations/
