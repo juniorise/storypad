@@ -194,6 +194,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
               child: Wrap(
                 children: [
                   ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(ConfigConstant.radius1),
+                      ),
+                    ),
                     title: Text("ខ្មែរ", textAlign: TextAlign.center),
                     onTap: () {
                       onTapVibrate();
@@ -203,6 +208,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                   ),
                   const Divider(height: 0),
                   ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        bottom: Radius.circular(ConfigConstant.radius1),
+                      ),
+                    ),
                     title: Text("English", textAlign: TextAlign.center),
                     onTap: () {
                       onTapVibrate();
@@ -239,6 +249,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                   child: Wrap(
                     children: [
                       ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(ConfigConstant.radius1),
+                          ),
+                        ),
                         title: Text(
                           tr("button.theme.dark"),
                           textAlign: TextAlign.center,
@@ -263,6 +278,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       ),
                       const Divider(height: 0),
                       ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            bottom: Radius.circular(ConfigConstant.radius1),
+                          ),
+                        ),
                         title: Text(
                           tr("button.theme.system"),
                           textAlign: TextAlign.center,
@@ -290,6 +310,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                   child: Wrap(
                     children: [
                       ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(ConfigConstant.radius1),
+                          ),
+                        ),
                         title: Text(tr("button.layout.normal")),
                         subtitle: Text(
                           tr("button.layout.normal.info"),
@@ -302,6 +327,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       ),
                       const Divider(height: 0),
                       ListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            bottom: Radius.circular(ConfigConstant.radius1),
+                          ),
+                        ),
                         title: Text(tr("button.layout.tab")),
                         subtitle: Text(
                           tr("button.layout.tab.info"),

@@ -7,6 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/measure_size.dart';
 import 'package:write_story/constants/config_constant.dart';
+import 'package:write_story/mixins/dialog_mixin.dart';
 import 'package:write_story/notifier/appbar_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
@@ -14,7 +15,7 @@ import 'package:write_story/screens/ask_for_name_sheet.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_tabbar.dart';
 
-class WSliverAppBar extends HookWidget {
+class WSliverAppBar extends HookWidget with DialogMixin {
   const WSliverAppBar({
     Key? key,
     required this.statusBarHeight,
@@ -196,22 +197,10 @@ class WSliverAppBar extends HookWidget {
                 onTap: () async {
                   final homeNotifier = context.read(homeScreenProvider);
                   final years = homeNotifier.availableYears..sort();
-                  if (Platform.isIOS) {
-                    showCupertinoDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      builder: (context) {
-                        return buildYearChooserDialog(years, context);
-                      },
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return buildYearChooserDialog(years, context);
-                      },
-                    );
-                  }
+                  showWDialog(
+                    context: context,
+                    child: buildYearChooserDialog(years, context),
+                  );
                 },
                 effects: [
                   VTOnTapEffectItem(
@@ -244,6 +233,18 @@ class WSliverAppBar extends HookWidget {
               return Column(
                 children: [
                   ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(
+                          index == 0 ? ConfigConstant.radius1 : 0,
+                        ),
+                        bottom: Radius.circular(
+                          index == years.length - 1
+                              ? ConfigConstant.radius1
+                              : 0,
+                        ),
+                      ),
+                    ),
                     title: Text(
                       years[index].toString(),
                       textAlign: TextAlign.center,

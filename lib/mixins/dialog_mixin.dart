@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:write_story/constants/config_constant.dart';
 
 mixin DialogMixin {
   showWDialog({required BuildContext context, required Widget child}) {
@@ -9,7 +10,10 @@ mixin DialogMixin {
         context: context,
         barrierDismissible: true,
         builder: (context) {
-          return child;
+          return ClipRRect(
+            borderRadius: ConfigConstant.circlarRadius2,
+            child: child,
+          );
         },
       );
     } else {
@@ -17,7 +21,10 @@ mixin DialogMixin {
         context: context,
         barrierDismissible: true,
         builder: (context) {
-          return child;
+          return ClipRRect(
+            borderRadius: ConfigConstant.circlarRadius2,
+            child: child,
+          );
         },
       );
     }
