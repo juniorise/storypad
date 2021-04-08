@@ -971,7 +971,6 @@ class StoryDetailScreen extends HookWidget
       title: tr("msg.delete.warning"),
       actionLabel: tr("button.okay"),
       warning: true,
-      floating: true,
       onActionPressed: () async {
         final success = await notifier.removeStoryById(id);
         if (success) {
@@ -986,7 +985,6 @@ class StoryDetailScreen extends HookWidget
             context: context,
             title: tr("msg.delete.fail"),
             actionLabel: tr("button.try_again"),
-            floating: true,
             onActionPressed: () async {
               onDelete(
                 context: context,
@@ -1023,7 +1021,6 @@ class StoryDetailScreen extends HookWidget
         context: context,
         title: tr("validate.title"),
         actionLabel: tr("button.okay"),
-        floating: true,
         onActionPressed: () {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
         },
@@ -1081,13 +1078,11 @@ class StoryDetailScreen extends HookWidget
       if (success == true) {
         await showSnackBar(
           context: context,
-          floating: true,
           title: tr("msg.save.success"),
         );
       } else {
         await showSnackBar(
           context: context,
-          floating: true,
           title: tr("msg.save.fail"),
         );
       }

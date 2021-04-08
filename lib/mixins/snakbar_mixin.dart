@@ -10,7 +10,6 @@ mixin WSnackBar {
     String? actionLabel,
     VoidCallback? onActionPressed,
     bool warning = false,
-    bool floating = false,
   }) {
     final style = Theme.of(context)
         .textTheme
@@ -30,7 +29,6 @@ mixin WSnackBar {
     return SnackBar(
       content: Text(title, style: style),
       action: actions,
-      behavior: floating ? SnackBarBehavior.floating : SnackBarBehavior.fixed,
       backgroundColor: Theme.of(context).colorScheme.secondary,
     );
   }
@@ -42,7 +40,6 @@ mixin WSnackBar {
     VoidCallback? onActionPressed,
     VoidCallback? onClose,
     bool warning = false,
-    bool floating = false,
   }) async {
     ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
     Future.delayed(Duration(microseconds: 0)).then((value) {
@@ -52,7 +49,6 @@ mixin WSnackBar {
         actionLabel: actionLabel ?? tr("button.okay"),
         onActionPressed: onActionPressed,
         warning: warning,
-        floating: floating,
       );
 
       onTapVibrate();
