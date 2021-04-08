@@ -7,13 +7,23 @@ import 'package:write_story/storages/theme_mode_storage.dart';
 class ThemeNotifier extends ChangeNotifier {
   ThemeModeStorage storage = ThemeModeStorage();
   ListLayoutStorage layoutStorage = ListLayoutStorage();
-  bool? isDarkMode;
+  bool? _isDarkMode;
   bool isNormalList = false;
 
+  bool get isDarkMode {
+    if (this._isDarkMode == null) {
+      var brightness = SchedulerBinding.instance?.window.platformBrightness;
+      bool _isDarkMode = brightness == Brightness.dark;
+      return _isDarkMode;
+    } else {
+      return this._isDarkMode == true;
+    }
+  }
+
   ThemeMode get themeMode {
-    if (this.isDarkMode == null) {
+    if (this._isDarkMode == null) {
       return ThemeMode.system;
-    } else if (this.isDarkMode == true) {
+    } else if (this._isDarkMode == true) {
       return ThemeMode.dark;
     } else {
       return ThemeMode.light;
@@ -22,7 +32,7 @@ class ThemeNotifier extends ChangeNotifier {
 
   loadThemeMode() async {
     final result = await storage.getBool();
-    isDarkMode = result;
+    _isDarkMode = result;
     notifyListeners();
   }
 
@@ -44,13 +54,7 @@ class ThemeNotifier extends ChangeNotifier {
   }
 
   toggleTheme() async {
-    if (isDarkMode != null) {
-      await storage.setBool(value: !(isDarkMode == true));
-    } else {
-      var brightness = SchedulerBinding.instance?.window.platformBrightness;
-      bool _isDarkMode = brightness == Brightness.dark;
-      await storage.setBool(value: !(_isDarkMode == true));
-    }
+    await storage.setBool(value: !this.isDarkMode);
     loadThemeMode();
   }
 
