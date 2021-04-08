@@ -302,7 +302,29 @@ class StoryDetailScreen extends HookWidget
         return VTOnTapEffect(
           child: ClipRRect(
             borderRadius: ConfigConstant.circlarRadius1,
-            child: imageChild,
+            child: Stack(
+              children: [
+                imageChild,
+                if (readOnlyModeNotifier.value == false)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: WIconButton(
+                      iconData: Icons.delete,
+                      size: 38,
+                      iconColor: Theme.of(context).colorScheme.error,
+                      filledColor: Theme.of(context)
+                          .colorScheme
+                          .surface
+                          .withOpacity(0.25),
+                      onPressed: () {
+                        node.unlink();
+                        notifier.setLoadingUrl("");
+                      },
+                    ),
+                  ),
+              ],
+            ),
           ),
           vibrate: !error,
           onTap: () async {
@@ -538,6 +560,7 @@ class StoryDetailScreen extends HookWidget
                     );
                   }
 
+                  if (compress == null) return "";
                   final imageName = await _pickImage.length();
 
                   final File? image = await ImageCompressService(
