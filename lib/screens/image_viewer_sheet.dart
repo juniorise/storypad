@@ -64,43 +64,51 @@ class ImageViewer extends HookWidget with WSnackBar {
                     return AnimatedOpacity(
                       opacity: animationController.isAnimating ? 1 : 0,
                       duration: ConfigConstant.fadeDuration,
-                      child: Text("Saving image..."),
+                      child: Material(
+                        elevation: 0.5,
+                        borderRadius: BorderRadius.circular(2.0),
+                        child: Text("  Saving image...  "),
+                      ),
                     );
                   },
                 ),
                 const SizedBox(width: ConfigConstant.margin2),
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    AnimatedBuilder(
-                      animation: animationController,
-                      builder: (context, child) {
-                        return AnimatedOpacity(
-                          opacity: animationController.isAnimating ? 1 : 0,
-                          duration: ConfigConstant.fadeDuration,
-                          child: Container(
-                            height: kToolbarHeight,
-                            width: kToolbarHeight,
-                            child: CircularProgressIndicator(
-                              value: animationController.value,
+                Material(
+                  borderRadius: BorderRadius.circular(kToolbarHeight),
+                  elevation: 6.0,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      AnimatedBuilder(
+                        animation: animationController,
+                        builder: (context, child) {
+                          return AnimatedOpacity(
+                            opacity: animationController.isAnimating ? 1 : 0,
+                            duration: ConfigConstant.fadeDuration,
+                            child: Container(
+                              height: kToolbarHeight,
+                              width: kToolbarHeight,
+                              child: CircularProgressIndicator(
+                                value: animationController.value,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                    Container(
-                      height: kToolbarHeight,
-                      width: kToolbarHeight,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).colorScheme.surface,
+                          );
+                        },
                       ),
-                      alignment: Alignment.center,
-                      child: Icon(
-                        Icons.get_app,
+                      Container(
+                        height: kToolbarHeight,
+                        width: kToolbarHeight,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Theme.of(context).colorScheme.surface,
+                        ),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          Icons.get_app,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -117,11 +125,7 @@ class ImageViewer extends HookWidget with WSnackBar {
                   maxScale: 1.99,
                   child: Container(
                     height: MediaQuery.of(context).size.height,
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [imageChild],
-                    ),
+                    child: imageChild,
                   ),
                 ),
               ),

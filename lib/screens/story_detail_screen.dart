@@ -265,6 +265,17 @@ class StoryDetailScreen extends HookWidget
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
+                    TextButton(
+                      child: Text("Retry"),
+                      onPressed: () async {
+                        imageRetryingNotifier.value = true;
+                        notifier.setLoadingUrl(imageUrl);
+                        await _clearCache(imageUrl);
+                        await notifier.retryLoadImage();
+                        await notifier.retryLoadImage();
+                        imageRetryingNotifier.value = false;
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -302,13 +313,6 @@ class StoryDetailScreen extends HookWidget
                 screenPadding,
                 imageUrl,
               );
-            } else {
-              imageRetryingNotifier.value = true;
-              notifier.setLoadingUrl(imageUrl);
-              await _clearCache(imageUrl);
-              await notifier.retryLoadImage();
-              await notifier.retryLoadImage();
-              imageRetryingNotifier.value = false;
             }
           },
         );
