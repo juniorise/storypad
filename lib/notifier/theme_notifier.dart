@@ -10,6 +10,7 @@ class ThemeNotifier extends ChangeNotifier {
   bool? _isDarkMode;
   bool isNormalList = false;
 
+  bool? get isDarkModeSystem => this._isDarkMode;
   bool get isDarkMode {
     if (this._isDarkMode == null) {
       var brightness = SchedulerBinding.instance?.window.platformBrightness;

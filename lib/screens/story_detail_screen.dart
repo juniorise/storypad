@@ -1009,7 +1009,16 @@ class StoryDetailScreen extends HookWidget
     required bool insert,
   }) async {
     StoryModel draftStory = notifier.draftStory.copyWith(paragraph: paragraph);
-    if (draftStory.title.trim().isEmpty) {
+    final bool titleEmpty = draftStory.title.trim().isEmpty;
+
+    String _paragraph = "";
+    final root = QuillHelper.getRoot(paragraph);
+    if (root != null) {
+      _paragraph = QuillHelper.toPlainText(root).trim();
+    }
+
+    final bool paragraphEmpty = _paragraph.trim().isEmpty;
+    if (titleEmpty && paragraphEmpty) {
       await showSnackBar(
         context: context,
         title: tr("validate.title"),

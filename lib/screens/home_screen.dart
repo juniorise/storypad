@@ -165,8 +165,10 @@ class HomeScreen extends HookWidget with HookController {
   ) {
     return notifier.storyByIdAsList!.length > 0
         ? ListView(
-            padding:
-                ConfigConstant.layoutPadding.copyWith(top: 0, bottom: 16.0),
+            padding: ConfigConstant.layoutPadding.copyWith(
+              top: 0,
+              bottom: kToolbarHeight * 2,
+            ),
             children: List.generate(
               controller.length,
               (monthIndex) {
@@ -380,7 +382,9 @@ class HomeScreen extends HookWidget with HookController {
     }
 
     return ListView(
-      padding: ConfigConstant.layoutPadding.copyWith(bottom: 16.0),
+      padding: ConfigConstant.layoutPadding.copyWith(
+        bottom: kToolbarHeight * 2,
+      ),
       children: List.generate(
         storiesInMonthIds.length,
         (_dayIndex) {
@@ -570,15 +574,17 @@ class HomeScreen extends HookWidget with HookController {
     final _theme = Theme.of(context);
 
     /// Title
-    final _titleWidget = Container(
-      padding: const EdgeInsets.only(right: 30),
-      width: MediaQuery.of(context).size.width - 16 * 7,
-      child: Text(
-        story.title,
-        style: _theme.textTheme.subtitle1,
-        textAlign: TextAlign.start,
-      ),
-    );
+    final _titleWidget = story.title.isNotEmpty
+        ? Container(
+            padding: const EdgeInsets.only(right: 30),
+            width: MediaQuery.of(context).size.width - 16 * 7,
+            child: Text(
+              story.title,
+              style: _theme.textTheme.subtitle1,
+              textAlign: TextAlign.start,
+            ),
+          )
+        : const SizedBox();
 
     String? paragraph;
 
@@ -660,7 +666,8 @@ class HomeScreen extends HookWidget with HookController {
                   crossAxisAlignment: WrapCrossAlignment.start,
                   children: [
                     _titleWidget,
-                    const SizedBox(height: ConfigConstant.margin0),
+                    if (story.title.isNotEmpty)
+                      const SizedBox(height: ConfigConstant.margin0),
                     _paragraphWidget,
                   ],
                 ),

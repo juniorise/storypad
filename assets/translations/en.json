@@ -88,5 +88,5 @@
   "title.hello": "Hello!",
   "title.hello_name": "Hello {USER_NAME}",
   "title.setting": "Setting",
-  "validate.title": "Title must not be empty!"
+  "validate.title": "Must not be empty!"
 }

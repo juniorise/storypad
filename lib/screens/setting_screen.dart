@@ -239,9 +239,9 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
             WListTile(
               iconData: Icons.nightlight_round,
               titleText: tr("button.theme"),
-              subtitleText: notifier.isDarkMode == null
+              subtitleText: notifier.isDarkModeSystem == null
                   ? tr("button.theme.system")
-                  : notifier.isDarkMode == true
+                  : notifier.isDarkModeSystem == true
                       ? tr("button.theme.dark")
                       : tr("button.theme.light"),
               onTap: () {

@@ -1,9 +1,18 @@
 import 'dart:convert';
 import 'package:flutter_quill/models/documents/attribute.dart' as attribute;
+import 'package:flutter_quill/models/documents/document.dart';
 import 'package:flutter_quill/models/documents/nodes/block.dart' as block;
 import 'package:flutter_quill/models/documents/nodes/node.dart' as node;
 
 class QuillHelper {
+  static node.Root? getRoot(String paragraph) {
+    try {
+      final decode = jsonDecode(paragraph);
+      final document = Document.fromJson(decode);
+      return document.root;
+    } catch (e) {}
+  }
+
   static int getImageLength(String paragraph) {
     int i = 0;
     try {
