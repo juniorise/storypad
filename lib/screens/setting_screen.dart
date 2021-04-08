@@ -427,6 +427,51 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                           },
                         ),
                         onTap: () async {
+                          bool? hasClick;
+                          final dialog = Dialog(
+                            child: Wrap(
+                              children: [
+                                ListTile(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(
+                                          ConfigConstant.radius1),
+                                    ),
+                                  ),
+                                  title: Text(
+                                    tr("msg.backup.import.replace"),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  onTap: () async {
+                                    hasClick = true;
+                                    await database.clearAllStories();
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                const Divider(height: 0),
+                                ListTile(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      bottom: Radius.circular(
+                                          ConfigConstant.radius1),
+                                    ),
+                                  ),
+                                  title: Text(
+                                    tr("msg.backup.import.no_replace"),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  onTap: () {
+                                    hasClick = true;
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+
+                          await showWDialog(context: context, child: dialog);
+                          if (hasClick == null) return;
+
                           final bool success = await database
                               .restoreBackup(dbNotifier.backup!.db);
                           if (success) {

@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:write_story/constants/config_constant.dart';
 
 mixin DialogMixin {
-  showWDialog({required BuildContext context, required Widget child}) {
+  Future<dynamic> showWDialog({
+    required BuildContext context,
+    required Widget child,
+  }) async {
     if (Platform.isIOS) {
-      showCupertinoDialog(
+      return await showCupertinoDialog(
         context: context,
         barrierDismissible: true,
         builder: (context) {
@@ -17,7 +20,7 @@ mixin DialogMixin {
         },
       );
     } else {
-      showDialog(
+      return await showDialog(
         context: context,
         barrierDismissible: true,
         builder: (context) {
