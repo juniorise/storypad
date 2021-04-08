@@ -171,7 +171,7 @@ class StoryDetailScreen extends HookWidget
                   showCursor: !readOnlyModeNotifier.value,
                   keyboardAppearance: _theme.brightness,
                   enableInteractiveSelection: true,
-                  expands: false,
+                  expands: true,
                   embedBuilder: (BuildContext context, leaf.Embed node) {
                     return _embedBuilder(
                       context: context,
@@ -493,16 +493,22 @@ class StoryDetailScreen extends HookWidget
               child: WQuillToolbar.basic(
                 controller: controller,
                 toolbarIconSize: ConfigConstant.iconSize2,
-                showLink: false,
+                showLink: true,
                 showHeaderStyle: false,
                 showCodeBlock: true,
+                showBoldButton: true,
+                showItalicButton: true,
+                showListBullets: true,
+                showListCheck: true,
+                showListNumbers: true,
+                showQuote: true,
                 showUnderLineButton: true,
                 showHorizontalRule: false,
-                showStrikeThrough: false,
+                showStrikeThrough: true,
                 showIndent: false,
                 showClearFormat: true,
-                showColorButton: false,
-                showBackgroundColorButton: false,
+                showColorButton: true,
+                showBackgroundColorButton: true,
                 onImagePickCallback: (File _pickImage) async {
                   bool? compress;
                   final Widget dialog = Dialog(
@@ -513,7 +519,7 @@ class StoryDetailScreen extends HookWidget
                             aspectRatio: 1.5 / 2,
                             child: Container(
                               height: double.infinity,
-                              child: Icon(Icons.compress),
+                              child: const Icon(Icons.compress),
                             ),
                           ),
                           title: Text(tr("button.compress.yes")),
@@ -529,7 +535,7 @@ class StoryDetailScreen extends HookWidget
                             aspectRatio: 1.5 / 2,
                             child: Container(
                               height: double.infinity,
-                              child: Icon(Icons.crop_original),
+                              child: const Icon(Icons.crop_original),
                             ),
                           ),
                           title: Text(tr("button.compress.no")),
