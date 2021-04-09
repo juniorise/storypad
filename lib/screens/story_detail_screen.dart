@@ -361,6 +361,11 @@ class StoryDetailScreen extends HookWidget
         return ImageViewer(
           imageChild: imageChild,
           screenPadding: screenPadding,
+          onShareImage: () async {
+            onTapVibrate();
+            final file = await _findPath(imageUrl);
+            await Share.shareFiles([file.path]);
+          },
           onSaveImage: () async {
             var status = Permission.storage;
             if (await status.isDenied) {
