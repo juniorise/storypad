@@ -171,7 +171,7 @@ class StoryDetailScreen extends HookWidget
                   showCursor: !readOnlyModeNotifier.value,
                   keyboardAppearance: _theme.brightness,
                   enableInteractiveSelection: true,
-                  expands: true,
+                  expands: false,
                   embedBuilder: (BuildContext context, leaf.Embed node) {
                     return _embedBuilder(
                       context: context,
