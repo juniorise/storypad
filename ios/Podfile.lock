@@ -4,7 +4,7 @@ PODS:
     - AppAuth/ExternalUserAgent (= 1.4.0)
   - AppAuth/Core (1.4.0)
   - AppAuth/ExternalUserAgent (1.4.0)
-  - cloud_firestore (1.0.3):
+  - cloud_firestore (1.0.4):
     - Firebase/Firestore (= 7.3.0)
     - firebase_core
     - Flutter
@@ -50,11 +50,11 @@ PODS:
   - Firebase/Firestore (7.3.0):
     - Firebase/CoreOnly
     - FirebaseFirestore (~> 7.3.0)
-  - firebase_auth (1.0.1):
+  - firebase_auth (1.0.3):
     - Firebase/Auth (= 7.3.0)
     - firebase_core
     - Flutter
-  - firebase_core (1.0.2):
+  - firebase_core (1.0.3):
     - Firebase/CoreOnly (= 7.3.0)
     - Flutter
   - FirebaseAuth (7.3.0):
@@ -260,13 +260,13 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   AppAuth: 31bcec809a638d7bd2f86ea8a52bd45f6e81e7c7
-  cloud_firestore: abe0e10141b0f61377340dcb308d8fa7a7910a10
+  cloud_firestore: d5902cdb3c48c2e8c73cd093fc9471ebe7f44a4c
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
   Firebase: 26223c695fe322633274198cb19dca8cb7e54416
-  firebase_auth: 9f6491ea8e44570323361ae713a2ae3175b3f21a
-  firebase_core: e6cbb0d1f7091edfcae31559e58224bfc1e455dc
+  firebase_auth: c2c27e1081671b02f90981e70dad54722198491f
+  firebase_core: b5d81dfd4fb2d6f700e67de34d9a633ae325c4e9
   FirebaseAuth: c224a0cf1afa0949bd5c7bfcf154b4f5ce8ddef2
   FirebaseCore: 4d3c72622ce0e2106aaa07bb4b2935ba2c370972
   FirebaseCoreDiagnostics: 3d36e05da74cb8b7ce30e6594a8f201b982c725c

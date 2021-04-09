@@ -32,43 +32,74 @@ class QuillHelper {
   }
 
   static String toPlainText(node.Root root) {
-    return root.children
-        .map((node.Node e) {
-          final atts = e.style.attributes;
-          attribute.Attribute? att =
-              atts['list'] ?? atts['blockquote'] ?? atts['code-block'];
+    final plainText = root.children.map((node.Node e) {
+      final atts = e.style.attributes;
+      attribute.Attribute? att =
+          atts['list'] ?? atts['blockquote'] ?? atts['code-block'];
 
-          if (e is block.Block) {
-            int index = 0;
-            String result = "";
-            e.children.forEach(
-              (entry) {
-                if (att?.key == "blockquote") {
-                  String text = entry.toPlainText();
-                  text = text.replaceFirst(RegExp('\n'), '', text.length - 1);
-                  result += "\n︳" + text;
-                } else if (att?.key == "code-block") {
-                  result += '︳' + entry.toPlainText();
-                } else {
-                  if (att?.value == "checked") {
-                    result += "☒\t" + entry.toPlainText();
-                  } else if (att?.value == "unchecked") {
-                    result += "☐\t" + entry.toPlainText();
-                  } else if (att?.value == "ordered") {
-                    index++;
-                    result += "$index.\t" + entry.toPlainText();
-                  } else if (att?.value == "bullet") {
-                    result += "•\t" + entry.toPlainText();
-                  }
-                }
-              },
-            );
-            return result;
-          } else {
-            return e.toPlainText();
-          }
-        })
-        .join()
-        .replaceAll("\uFFFC", "🄹🄿🄶‌");
+      if (e is block.Block) {
+        int index = 0;
+        String result = "";
+        e.children.forEach(
+          (entry) {
+            if (att?.key == "blockquote") {
+              String text = entry.toPlainText();
+              text = text.replaceFirst(RegExp('\n'), '', text.length - 1);
+              result += "\n︳" + text;
+            } else if (att?.key == "code-block") {
+              result += '︳' + entry.toPlainText();
+            } else {
+              if (att?.value == "checked") {
+                result += "☒\t" + entry.toPlainText();
+              } else if (att?.value == "unchecked") {
+                result += "☐\t" + entry.toPlainText();
+              } else if (att?.value == "ordered") {
+                index++;
+                result += "$index.\t" + entry.toPlainText();
+              } else if (att?.value == "bullet") {
+                result += "•\t" + entry.toPlainText();
+              }
+            }
+          },
+        );
+        return result;
+      } else {
+        return e.toPlainText();
+      }
+    }).join();
+
+    // final index = plainText.contains("\uFFFC");
+    int index = countOccurences(plainText, "\uFFFC");
+    String result = numberToStyle("$index");
+
+    if (index == 0) {
+      return plainText;
+    } else {
+      return "x" + result + " images\n" + plainText.replaceAll("\uFFFC", "");
+    }
+  }
+
+  ///font ref: https://coolsymbol.com/cool-fancy-text-generator.html
+  ///name: `Small caps Font`
+  static String numberToStyle(String number) {
+    var _styles = ["𝟶", "𝟷", "𝟸", "𝟹", "𝟺", "𝟻", "𝟼", "𝟽", "𝟾", "𝟿"];
+    var _numbers = ['0', "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+    for (int i = 0; i < _styles.length; i++) {
+      number = number.replaceAll(_numbers[i], _styles[i]);
+    }
+    return number;
+  }
+
+  static int countOccurences(String str, String word) {
+    // split the string by spaces in a
+    List<String> a = str.split("");
+    // search for pattern in a
+    int count = 0;
+    for (int i = 0; i < a.length; i++) {
+      // if match found increase count
+      if (word == a[i]) count++;
+    }
+    return count;
   }
 }
