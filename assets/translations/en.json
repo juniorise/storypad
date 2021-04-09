@@ -5,6 +5,7 @@
   "button.backup.export": "Backup now",
   "button.backup.import": "Restore",
   "button.cancel": "Cancel",
+  "button.check_for_update": "Check for update",
   "button.compress.no": "Keep Original",
   "button.compress.yes": "Compress (Default)",
   "button.connect": "Connect",

@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:in_app_update/in_app_update.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -75,9 +78,25 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
           buildRelateToLanguage(),
           // buildFontStyle(),
           const SizedBox(height: 8.0),
+          if (Platform.isAndroid)
+            WListTile(
+              iconData: Icons.system_update_alt,
+              titleText: tr("button.check_for_update"),
+              onTap: () async {
+                onTapVibrate();
+                final info = await InAppUpdate.checkForUpdate();
+                print("${info.toString()}");
+                if (info.flexibleUpdateAllowed) {
+                  await InAppUpdate.startFlexibleUpdate();
+                } else if (info.immediateUpdateAllowed) {
+                  await InAppUpdate.performImmediateUpdate();
+                }
+              },
+            ),
           buildRate(),
-          buildAboutUs(context),
           buildShareApp(),
+          buildAboutUs(context),
+
           const SizedBox(height: 120),
         ],
       ),
