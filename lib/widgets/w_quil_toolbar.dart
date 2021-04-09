@@ -4,6 +4,7 @@ import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
 import 'package:image_picker/image_picker.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:write_story/widgets/w_color_button.dart';
 
 class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget> children;
@@ -82,7 +83,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
         spaceBetween,
         Visibility(
           visible: showColorButton,
-          child: toolbar.ColorButton(
+          child: WColorButton(
             icon: Icons.color_lens,
             controller: controller,
             background: false,
@@ -91,7 +92,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
         spaceBetween,
         Visibility(
           visible: showBackgroundColorButton,
-          child: toolbar.ColorButton(
+          child: WColorButton(
             icon: Icons.format_color_fill,
             controller: controller,
             background: true,

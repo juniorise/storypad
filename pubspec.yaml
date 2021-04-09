@@ -75,6 +75,7 @@ dependencies:
   launch_review: ^3.0.1
   share: ^2.0.1
   flutter_staggered_grid_view: ^0.4.0-nullsafety.3
+  animated_clipper: ^0.2.0
   
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
