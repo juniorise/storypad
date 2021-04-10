@@ -121,7 +121,7 @@ List<String> _feelingEmojiTypeList = [
   "serious", //symbols_on_mouth
   "really_funny",
   "cuteness", //tongue
-  "loss_for_words", //no_mouth
+  "speechlessness", //no_mouth
   "fearful",
   "flushed",
   "nervousness", //grimacing

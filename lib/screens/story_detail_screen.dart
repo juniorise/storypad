@@ -639,16 +639,6 @@ class StoryDetailScreen extends HookWidget
                 controller: quillNotifier.controller,
                 undo: false,
               ),
-              WIconButton(
-                iconData: Icons.date_range_rounded,
-                onPressed: () async {
-                  onPickDate(
-                    context: context,
-                    date: notifier.draftStory.forDate,
-                    notifier: notifier,
-                  );
-                },
-              ),
             ],
           ),
           builder: (context, value, child) {
@@ -656,6 +646,16 @@ class StoryDetailScreen extends HookWidget
               duration: ConfigConstant.fadeDuration,
               opacity: !readOnlyModeNotifier.value ? 1 : 0,
               child: child,
+            );
+          },
+        ),
+        WIconButton(
+          iconData: Icons.date_range_rounded,
+          onPressed: () async {
+            onPickDate(
+              context: context,
+              date: notifier.draftStory.forDate,
+              notifier: notifier,
             );
           },
         ),

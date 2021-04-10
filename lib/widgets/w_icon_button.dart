@@ -10,6 +10,7 @@ class WIconButton extends StatelessWidget {
     this.filledColor,
     this.elevation = 0.0,
     this.size = 48.0,
+    this.iconSize = 24.0,
     this.iconImage,
   })  : assert(elevation >= 0),
         assert(size >= 0),
@@ -19,6 +20,7 @@ class WIconButton extends StatelessWidget {
         ),
         super(key: key);
 
+  final double iconSize;
   final double size;
   final IconData? iconData;
   final VoidCallback? onPressed;
@@ -59,14 +61,14 @@ class WIconButton extends StatelessWidget {
                   ? Icon(
                       iconData,
                       color: iconColor ?? _theme.colorScheme.onSurface,
-                      size: size / 2,
+                      size: iconSize,
                     )
                   : AspectRatio(
                       aspectRatio: 1,
                       child: Center(
                         child: Image.asset(
                           iconImage!,
-                          width: size / 2,
+                          width: iconSize,
                         ),
                       ),
                     ),

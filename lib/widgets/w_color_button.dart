@@ -7,6 +7,7 @@ import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
 import 'package:write_story/app_helper/measure_size.dart';
 import 'package:write_story/constants/config_constant.dart';
+import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_color_picker.dart';
 
 /// Controls color styles.
@@ -116,27 +117,33 @@ class _WColorButtonState extends State<WColorButton>
             ? stringToColor(_selectionStyle.attributes['background']!.value)
             : theme.iconTheme.color;
 
-    Color fillColor = _isToggledColor && !widget.background && _isWhite
-        ? stringToColor('#ffffff')
-        : theme.canvasColor;
-    Color fillColorBackground =
-        _isToggledBackground && widget.background && _isWhitebackground
-            ? stringToColor('#ffffff')
-            : theme.canvasColor;
+    final void Function()? onPressed = () => _showColorPicker(
+          currentColor: widget.background ? iconColorBackground : iconColor,
+        );
 
-    return toolbar.QuillIconButton(
-      key: floatingKey,
-      highlightElevation: 0,
-      hoverElevation: 0,
-      size: toolbar.iconSize * 1.77,
-      fillColor: widget.background ? fillColorBackground : fillColor,
-      icon: Icon(
-        widget.icon,
-        size: toolbar.iconSize,
-        color: widget.background ? iconColorBackground : iconColor,
-      ),
-      onPressed: () => _showColorPicker(
-        currentColor: widget.background ? iconColorBackground : iconColor,
+    return VTOnTapEffect(
+      onTap: onPressed != null ? onPressed : () {},
+      effects: [
+        VTOnTapEffectItem(
+          effectType: VTOnTapEffectType.scaleDown,
+          active: 0.95,
+        ),
+        VTOnTapEffectItem(
+          effectType: VTOnTapEffectType.touchableOpacity,
+          active: 0.5,
+        ),
+      ],
+      child: toolbar.QuillIconButton(
+        key: floatingKey,
+        highlightElevation: 0,
+        hoverElevation: 0,
+        size: toolbar.iconSize * 1.77,
+        icon: Icon(
+          widget.icon,
+          size: toolbar.iconSize,
+          color: widget.background ? iconColorBackground : iconColor,
+        ),
+        onPressed: onPressed,
       ),
     );
   }
