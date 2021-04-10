@@ -3,10 +3,11 @@ import 'package:write_story/colors/colors.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 
+/// value 2 at end is border width `all(1)`
 const double onPickingSwatchHeight =
-    34 * 4 + ConfigConstant.margin2 * 2 + ConfigConstant.margin1 * 4;
+    34 * 4 + ConfigConstant.margin2 * 2 + ConfigConstant.margin1 * 4 + 2;
 const double onPickingColorHeight =
-    34 * 2 + ConfigConstant.margin2 * 2 + ConfigConstant.margin1 * 2 - 4;
+    34 * 2 + ConfigConstant.margin2 * 2 + ConfigConstant.margin1 * 2 - 4 + 2;
 
 class WColorPicker extends StatefulWidget {
   const WColorPicker({
@@ -41,10 +42,14 @@ class _WColorPickerState extends State<WColorPicker> {
     _colorsSwatch.add(widget.blackWhite);
     _colorsMap = getColorMap(_colorsSwatch);
 
-    materialColors.forEach((e) {
-      if (_getMaterialColorShades(e).contains(widget.currentColor)) {
-        currentSelectedColorsSwatch = e;
-      }
+    Future.delayed(ConfigConstant.fadeDuration).then((value) {
+      materialColors.forEach((e) {
+        if (_getMaterialColorShades(e).contains(widget.currentColor)) {
+          setState(() {
+            currentSelectedColorsSwatch = e;
+          });
+        }
+      });
     });
   }
 
@@ -104,12 +109,10 @@ class _WColorPickerState extends State<WColorPicker> {
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.background,
           borderRadius: ConfigConstant.circlarRadius2,
-          boxShadow: [
-            BoxShadow(
-              color:
-                  Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-            )
-          ],
+          border: Border.all(
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+            width: 1,
+          ),
         ),
         child: buildColorListing(context),
       ),
@@ -134,7 +137,7 @@ class _WColorPickerState extends State<WColorPicker> {
                   ? _colorNormal[index]
                   : _colorsSwatch[index];
 
-              final bool isSelected = widget.currentColor == color ||
+              final bool isSelected = currentSelectedColor == color ||
                   currentSelectedColorsSwatch == color;
               return AnimatedContainer(
                 duration: ConfigConstant.fadeDuration,
@@ -149,22 +152,33 @@ class _WColorPickerState extends State<WColorPicker> {
                         .withOpacity(isSelected ? 1 : 0),
                   ),
                 ),
-                child: WIconButton(
-                  size: 32,
-                  iconData: Icons.color_lens,
-                  iconColor: color,
-                  filledColor: color,
-                  onPressed: () {
-                    if (isColorChildPicking == false) {
-                      setState(() {
-                        isColorChildPicking = true;
-                        _colorNormal = _getMaterialColorShades(color!);
-                        _colorsMap = getColorMap(_colorNormal);
-                      });
-                    } else {
-                      widget.onPickedColor(color);
-                    }
-                  },
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: WIconButton(
+                    size: 30,
+                    iconData: Icons.color_lens,
+                    iconColor: color,
+                    filledColor: color,
+                    onPressed: () {
+                      if (isColorChildPicking == false) {
+                        setState(() {
+                          isColorChildPicking = true;
+                          _colorNormal = _getMaterialColorShades(color!);
+                          _colorsMap = getColorMap(_colorNormal);
+                        });
+                        Future.delayed(ConfigConstant.duration).then((value) {
+                          if (widget.currentColor != null &&
+                              _colorNormal.contains(widget.currentColor)) {
+                            setState(() {
+                              currentSelectedColor = widget.currentColor;
+                            });
+                          }
+                        });
+                      } else {
+                        widget.onPickedColor(color);
+                      }
+                    },
+                  ),
                 ),
               );
             },

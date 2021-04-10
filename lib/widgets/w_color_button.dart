@@ -5,6 +5,7 @@ import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter_quill/utils/color.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
+import 'package:write_story/app_helper/measure_size.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/widgets/w_color_picker.dart';
 
@@ -35,6 +36,7 @@ class _WColorButtonState extends State<WColorButton>
   OverlayEntry? floating;
 
   AnimationController? animationController;
+  Size? _colorPickerSize;
 
   late bool _isToggledColor;
   late bool _isToggledBackground;
@@ -171,6 +173,31 @@ class _WColorButtonState extends State<WColorButton>
     RenderBox renderBox =
         floatingKey.currentContext?.findRenderObject() as RenderBox;
     Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    double _width = MediaQuery.of(context).size.width;
+    double _tmpColorPickerWidth =
+        30.0 * 5 + ConfigConstant.margin1 * 4 + ConfigConstant.margin2 * 2;
+    double _colorPickerWidth =
+        (this._colorPickerSize?.width ?? _tmpColorPickerWidth) - 36;
+
+    double _left = offset.dx - _colorPickerWidth / 2;
+    double? left = _left < 10 ? 10 : _left;
+    double? _right = _width - left - _colorPickerWidth;
+    double? right = _right < 10 ? 10 : _right;
+
+    if (offset.dx >= _width / 2) {
+      left = null;
+    } else {
+      right = null;
+    }
+
+    bool isDarkMode =
+        Theme.of(context).colorScheme.brightness == Brightness.dark;
+    final blackWhiteColor = ColorSwatch(isDarkMode ? 0xFFFFFFFF : 0xFF000000, {
+      50: Colors.white,
+      100: Colors.black,
+    });
+
     return OverlayEntry(
       builder: (context) {
         return GestureDetector(
@@ -186,24 +213,41 @@ class _WColorButtonState extends State<WColorButton>
           child: Stack(
             children: [
               Positioned(
-                left: offset.dx / 2 < 10 ? 10 : offset.dx / 2,
+                left: left,
+                right: right,
                 top: offset.dy - (onPickingColorHeight * 2 - 8),
-                child: AnimatedClipReveal(
-                  revealFirstChild: isFloatingOpen,
-                  pathBuilder: isFloatingOpen
-                      ? PathBuilders.circleOut
-                      : PathBuilders.circleIn,
+                child: MeasureSize(
+                  onChange: (Size size) {
+                    setState(() {
+                      this._colorPickerSize = size;
+                    });
+                  },
                   child: AnimatedBuilder(
+                    child: AnimatedClipReveal(
+                      revealFirstChild: true,
+                      duration: Duration(
+                        milliseconds:
+                            ConfigConstant.fadeDuration.inMilliseconds - 50,
+                      ),
+                      pathBuilder: PathBuilders.circleOut,
+                      child: WColorPicker(
+                        blackWhite: blackWhiteColor,
+                        currentColor: currentColor,
+                        onPickedColor: (Color color) {
+                          if (animationController?.isAnimating == false) {
+                            _changeColor(color);
+                            animationController?.reverse().then((value) {
+                              floating?.remove();
+                              setState(() {
+                                isFloatingOpen = false;
+                              });
+                            });
+                          }
+                        },
+                      ),
+                    ),
                     animation: animationController!,
-                    builder: (context, snapshot) {
-                      bool isDarkMode =
-                          Theme.of(context).colorScheme.brightness ==
-                              Brightness.dark;
-                      final blackWhiteColor =
-                          ColorSwatch(isDarkMode ? 0xFFFFFFFF : 0xFF000000, {
-                        50: Colors.white,
-                        100: Colors.black,
-                      });
+                    builder: (context, child) {
                       return Transform.translate(
                         offset: Offset(
                           0.0,
@@ -211,21 +255,7 @@ class _WColorButtonState extends State<WColorButton>
                         ),
                         child: Opacity(
                           opacity: animationController!.value,
-                          child: WColorPicker(
-                            blackWhite: blackWhiteColor,
-                            currentColor: currentColor,
-                            onPickedColor: (Color color) {
-                              if (animationController?.isAnimating == false) {
-                                _changeColor(color);
-                                animationController?.reverse().then((value) {
-                                  floating?.remove();
-                                  setState(() {
-                                    isFloatingOpen = false;
-                                  });
-                                });
-                              }
-                            },
-                          ),
+                          child: child,
                         ),
                       );
                     },
