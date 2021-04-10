@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/database/w_database.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
@@ -12,6 +11,8 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
   bool hasChanged = false;
   int? imageLength;
 
+  OverlayEntry? floating;
+
   String? _loadingUrl;
   String? get loadingUrl => this._loadingUrl;
 
@@ -20,10 +21,7 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  StoryDetailScreenNotifier(this.draftStory) {
-    imageLength = QuillHelper.getImageLength(this.draftStory.paragraph ?? "");
-    print(imageLength);
-  }
+  StoryDetailScreenNotifier(this.draftStory);
 
   final List<String> tmpImagePath = [];
   void addImagePath(String? path) {

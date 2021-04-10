@@ -23,6 +23,7 @@ import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/mixins/snakbar_mixin.dart';
 import 'package:write_story/mixins/story_detail_method_mixin.dart';
+import 'package:write_story/models/feeling_emoji_model.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/quill_controller_notifier.dart';
 import 'package:write_story/notifier/story_detail_screen_notifier.dart';
@@ -32,6 +33,7 @@ import 'package:write_story/screens/image_viewer_sheet.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/services/image_compress_service.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:write_story/widgets/w_emoji_picker_button.dart';
 import 'package:write_story/widgets/w_history_button.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:write_story/widgets/w_quil_toolbar.dart';
@@ -613,6 +615,9 @@ class StoryDetailScreen extends HookWidget
     required ValueNotifier readOnlyModeNotifier,
   }) {
     final _theme = Theme.of(context);
+    final String? currentFeeling = notifier.draftStory.feeling;
+    final FeelingEmojiModel? currentFeelingModel =
+        currentFeeling != null ? FeelingEmojiModel(type: currentFeeling) : null;
     return SliverAppBar(
       backgroundColor: _theme.colorScheme.surface,
       centerTitle: false,
@@ -652,6 +657,24 @@ class StoryDetailScreen extends HookWidget
               opacity: !readOnlyModeNotifier.value ? 1 : 0,
               child: child,
             );
+          },
+        ),
+        EmojiPickerButton(
+          currentFeelingModel: currentFeelingModel,
+          onPickedEmoji: (String? emojiType) {
+            notifier.setDraftStory(
+              StoryModel(
+                title: notifier.draftStory.title,
+                paragraph: notifier.draftStory.paragraph,
+                createOn: notifier.draftStory.createOn,
+                id: notifier.draftStory.id,
+                updateOn: notifier.draftStory.updateOn,
+                forDate: notifier.draftStory.forDate,
+                isFavorite: notifier.draftStory.isFavorite,
+                feeling: emojiType?.isEmpty == true ? null : emojiType,
+              ),
+            );
+            notifier.setLoadingUrl("");
           },
         ),
         WIconButton(

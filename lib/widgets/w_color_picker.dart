@@ -3,6 +3,30 @@ import 'package:write_story/colors/colors.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 
+/// final map = {
+///   0: [0, 1, 2, 3],
+///   1: [4, 5, 6, 7],
+///   2: [8, 9, 10, 11],
+///   3: [12, 13, 14, 15],
+///   4: [16, 17, 18, 19],
+///   5: [20]
+/// };
+///
+Map<int, List<int>> listToTreeMap(List<dynamic> _list, {int rowLength = 5}) {
+  Map<int, List<int>> map = {};
+  for (int c = 0; c <= _list.length ~/ rowLength; c++) {
+    List<int> children = [];
+    for (int r = c; r < c + rowLength; r++) {
+      int index = c * (rowLength - 1) + r;
+      if (index <= _list.length - 1) children.add(index);
+    }
+    map[c] = children;
+  }
+
+  map.removeWhere((key, value) => value.length == 0);
+  return map;
+}
+
 /// value 2 at end is border width `all(1)`
 const double onPickingSwatchHeight =
     34 * 4 + ConfigConstant.margin2 * 2 + ConfigConstant.margin1 * 4 + 2;
@@ -40,7 +64,7 @@ class _WColorPickerState extends State<WColorPicker> {
     super.initState();
     _colorsSwatch.addAll(materialColors);
     _colorsSwatch.add(widget.blackWhite);
-    _colorsMap = getColorMap(_colorsSwatch);
+    _colorsMap = listToTreeMap(_colorsSwatch);
 
     Future.delayed(ConfigConstant.fadeDuration).then((value) {
       materialColors.forEach((e) {
@@ -66,29 +90,6 @@ class _WColorPickerState extends State<WColorPicker> {
       if (color[800] != null) color[800],
       if (color[900] != null) color[900],
     ];
-  }
-
-  Map<int, List<int>> getColorMap(List<dynamic> _colors) {
-    /// final colorsMap = {
-    ///   0: [0, 1, 2, 3],
-    ///   1: [4, 5, 6, 7],
-    ///   2: [8, 9, 10, 11],
-    ///   3: [12, 13, 14, 15],
-    ///   4: [16, 17, 18, 19],
-    ///   5: [20]
-    /// };
-    ///
-    Map<int, List<int>> colorsMap = {};
-    final rowLength = 5;
-    for (int c = 0; c <= _colors.length ~/ rowLength; c++) {
-      List<int> children = [];
-      for (int r = c; r < c + rowLength; r++) {
-        int index = c * (rowLength - 1) + r;
-        if (index <= _colors.length - 1) children.add(index);
-      }
-      colorsMap[c] = children;
-    }
-    return colorsMap;
   }
 
   @override
@@ -164,7 +165,7 @@ class _WColorPickerState extends State<WColorPicker> {
                         setState(() {
                           isColorChildPicking = true;
                           _colorNormal = _getMaterialColorShades(color!);
-                          _colorsMap = getColorMap(_colorNormal);
+                          _colorsMap = listToTreeMap(_colorNormal);
                         });
                         Future.delayed(ConfigConstant.duration).then((value) {
                           if (widget.currentColor != null &&

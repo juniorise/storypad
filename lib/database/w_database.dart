@@ -45,7 +45,19 @@ class WDatabase {
       await File(dbPath).writeAsBytes(bytes, flush: true);
     }
 
-    return await openDatabase(dbPath);
+    return await openDatabase(
+      dbPath,
+      onOpen: (database) async {
+        /// add new feeling column if not existed
+        try {
+          await database.rawQuery("SELECT feeling from story;");
+        } catch (e) {
+          await database
+              .execute("ALTER TABLE story ADD COLUMN feeling char(50);");
+        }
+      },
+      version: 3,
+    );
   }
 
   Future<String> generateBackup({bool isEncrypted = true}) async {
@@ -126,7 +138,8 @@ class WDatabase {
         paragraph = '$paragraph',
         for_date = ${story.forDate.millisecondsSinceEpoch},
         update_on = ${updateOn!.millisecondsSinceEpoch},
-        is_favorite = ${story.isFavorite == true ? 1 : 0}
+        is_favorite = ${story.isFavorite == true ? 1 : 0},
+        feeling = '${story.feeling}'
     WHERE id = ${story.id}
     ''';
 
@@ -153,7 +166,8 @@ class WDatabase {
       create_on, 
       for_date,
       update_on, 
-      is_favorite
+      is_favorite,
+      feeling
     )
     VALUES (
         ${story.id},
@@ -162,7 +176,8 @@ class WDatabase {
         ${story.createOn.millisecondsSinceEpoch}, 
         ${story.forDate.millisecondsSinceEpoch}, 
         ${story.updateOn != null ? story.updateOn?.millisecondsSinceEpoch : story.createOn.millisecondsSinceEpoch}, 
-        ${story.isFavorite ? 1 : 0}
+        ${story.isFavorite ? 1 : 0},
+        '${story.feeling}'
     )
     ''';
 
@@ -186,6 +201,7 @@ class WDatabase {
         "update_on",
         "is_favorite",
         "for_date",
+        "feeling",
       ],
     );
 
