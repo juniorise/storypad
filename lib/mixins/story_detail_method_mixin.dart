@@ -106,7 +106,7 @@ mixin StoryDetailMethodMixin {
         context: context,
         initialDate: notifier.draftStory.forDate,
         firstDate: firstDate,
-        initialDatePickerMode: DatePickerMode.year,
+        initialDatePickerMode: DatePickerMode.day,
         lastDate: lastDate,
         builder: (BuildContext context, Widget? child) {
           return Theme(

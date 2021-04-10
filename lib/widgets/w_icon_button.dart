@@ -4,22 +4,28 @@ import 'package:write_story/widgets/vt_ontap_effect.dart';
 class WIconButton extends StatelessWidget {
   const WIconButton({
     Key? key,
-    required this.iconData,
-    required this.onPressed,
+    this.onPressed,
+    this.iconData,
     this.iconColor,
     this.filledColor,
     this.elevation = 0.0,
     this.size = 48.0,
+    this.iconImage,
   })  : assert(elevation >= 0),
         assert(size >= 0),
+        assert(
+          iconData != null && iconImage == null ||
+              iconData == null && iconImage != null,
+        ),
         super(key: key);
 
   final double size;
-  final IconData iconData;
-  final VoidCallback onPressed;
+  final IconData? iconData;
+  final VoidCallback? onPressed;
   final Color? iconColor;
   final Color? filledColor;
   final double elevation;
+  final String? iconImage;
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +55,21 @@ class WIconButton extends StatelessWidget {
                   Theme.of(context).colorScheme.primary.withOpacity(0.05),
               borderRadius: BorderRadius.circular(size),
               onTap: onPressed,
-              child: Icon(
-                iconData,
-                color: iconColor ?? _theme.colorScheme.onSurface,
-                size: size / 2,
-              ),
+              child: iconImage == null
+                  ? Icon(
+                      iconData,
+                      color: iconColor ?? _theme.colorScheme.onSurface,
+                      size: size / 2,
+                    )
+                  : AspectRatio(
+                      aspectRatio: 1,
+                      child: Center(
+                        child: Image.asset(
+                          iconImage!,
+                          width: size / 2,
+                        ),
+                      ),
+                    ),
             ),
           ),
         ),

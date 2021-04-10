@@ -8,6 +8,7 @@ class StoryModel {
   final DateTime? updateOn;
   final DateTime forDate;
   final bool isFavorite;
+  final String? feeling;
 
   const StoryModel({
     required this.id,
@@ -15,6 +16,7 @@ class StoryModel {
     required this.paragraph,
     required this.createOn,
     required this.forDate,
+    this.feeling,
     this.updateOn,
     this.isFavorite = false,
   });
@@ -26,6 +28,7 @@ class StoryModel {
       paragraph: "",
       createOn: DateTime.now(),
       forDate: DateTime.now(),
+      feeling: null,
     );
   }
 
@@ -37,6 +40,7 @@ class StoryModel {
     DateTime? updateOn,
     DateTime? forDate,
     bool? isFavorite,
+    String? feeling,
   }) {
     return StoryModel(
       id: id ?? this.id,
@@ -46,6 +50,7 @@ class StoryModel {
       forDate: forDate ?? this.forDate,
       updateOn: updateOn ?? this.updateOn,
       isFavorite: isFavorite ?? this.isFavorite,
+      feeling: feeling ?? this.feeling,
     );
   }
 
@@ -78,6 +83,7 @@ class StoryModel {
       createOn: createOn,
       forDate: forDate,
       isFavorite: isFavorite,
+      feeling: json["feeling"],
     );
   }
 
@@ -90,6 +96,7 @@ class StoryModel {
       "create_on": createOn.millisecondsSinceEpoch,
       "for_date": forDate.millisecondsSinceEpoch,
       "update_on": updateOn != null ? updateOn!.millisecondsSinceEpoch : null,
+      "feeling": feeling,
     };
   }
 }
