@@ -758,13 +758,14 @@ class StoryDetailScreen extends HookWidget
                         }
                       },
                       child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: ConfigConstant.margin1,
-                          ),
-                          leading: Icon(Icons.info),
-                          title: Text(
-                            tr("button.info"),
-                          )),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: ConfigConstant.margin1,
+                        ),
+                        leading: Icon(Icons.info),
+                        title: Text(
+                          tr("button.info"),
+                        ),
+                      ),
                     ),
                   ),
                 PopupMenuItem(

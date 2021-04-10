@@ -9,6 +9,7 @@ import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/models/feeling_emoji_model.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:write_story/widgets/w_behavior.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:write_story/widgets/w_overlay_entry_button.dart';
 
@@ -30,12 +31,7 @@ class EmojiPickerButton extends HookWidget with HookController {
     final _scrollController = useAutoScrollController();
     final rowLength = 3;
     final _map = FeelingEmojiModel.getIndexMap(rowLength);
-    final List<FeelingEmojiModel> _emojies = List.generate(
-      feelingEmojiPath.length,
-      (index) {
-        return FeelingEmojiModel(type: feelingEmojiTypeStrings[index]);
-      },
-    );
+    final List<FeelingEmojiModel> _emojies = feelingEmojiList;
 
     return WOverlayEntryButton(
       floatingBuilder: (context, callback) {
@@ -52,85 +48,79 @@ class EmojiPickerButton extends HookWidget with HookController {
               ),
             ),
             constraints: BoxConstraints(maxHeight: 300),
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(
-                  _map.length,
-                  (c) {
-                    final List<int> childIndex = _map[c] ?? [];
-                    return AutoScrollTag(
-                      index: c,
-                      controller: _scrollController,
-                      key: ValueKey(c),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          childIndex.length,
-                          (r) {
-                            final FeelingEmojiModel? emoji;
-                            emoji = _emojies[childIndex[r]];
+            child: ScrollConfiguration(
+              behavior: WBehavior(),
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(
+                    _map.length,
+                    (c) {
+                      final List<int> childIndex = _map[c] ?? [];
+                      return AutoScrollTag(
+                        index: c,
+                        controller: _scrollController,
+                        key: ValueKey(c),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            childIndex.length,
+                            (r) {
+                              final FeelingEmojiModel? emoji;
+                              emoji = _emojies[childIndex[r]];
 
-                            final isSelected =
-                                currentFeelingModel?.type == emoji.type;
+                              final isSelected =
+                                  currentFeelingModel?.type == emoji.type;
 
-                            return VTOnTapEffect(
-                              onTap: () {
-                                callback();
+                              return VTOnTapEffect(
+                                onTap: () {
+                                  callback();
 
-                                /// if path is empty, use default icon
-                                /// which mean it is reseted
-                                /// last index is reset emoji button
-                                onPickedEmoji(
-                                  childIndex[r] == _emojies.length - 1
-                                      ? null
-                                      : emoji?.type,
-                                );
-                              },
-                              child: Container(
-                                width: kToolbarHeight * 1.8,
-                                color: isSelected
-                                    ? Theme.of(context).colorScheme.surface
-                                    : Colors.transparent,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16.0,
-                                  horizontal: 8.0,
+                                  /// if path is empty, use default icon
+                                  /// which mean it is reseted
+                                  /// last index is reset emoji button
+                                  onPickedEmoji(
+                                    isSelected ? null : emoji?.type,
+                                  );
+                                },
+                                child: Container(
+                                  width: kToolbarHeight * 1.8,
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.surface
+                                      : Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16.0,
+                                    horizontal: 8.0,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        emoji.localPath!,
+                                        height: 32,
+                                      ),
+                                      const SizedBox(height: 8.0),
+                                      Text(
+                                        emoji.type!.replaceAll("_", "\n"),
+                                        textAlign: TextAlign.center,
+                                        softWrap: false,
+                                        maxLines: 2,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                alignment: Alignment.center,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    childIndex[r] != _emojies.length - 1
-                                        ? Image.asset(
-                                            emoji.localPath!,
-                                            height: 32,
-                                          )
-                                        : Icon(
-                                            Icons.tag_faces_sharp,
-                                            size: 32,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onBackground
-                                                .withOpacity(0.5),
-                                          ),
-                                    const SizedBox(height: 8.0),
-                                    Text(
-                                      emoji.type!.replaceAll("_", " "),
-                                      textAlign: TextAlign.center,
-                                      maxLines: 2,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -138,39 +128,49 @@ class EmojiPickerButton extends HookWidget with HookController {
         );
       },
       childBuilder: (context, key, callback) {
-        print(currentFeelingModel?.localPath);
-        return WIconButton(
-          key: key,
-          iconImage: currentFeelingModel?.localPath != null
-              ? currentFeelingModel?.localPath
-              : null,
-          iconData: currentFeelingModel?.localPath != null
-              ? null
-              : Icons.tag_faces_sharp,
-          onPressed: () {
-            callback();
+        return Container(
+          height: 48,
+          width: 48,
+          alignment: Alignment.center,
+          child: Container(
+            padding: EdgeInsets.all(4),
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
+              shape: BoxShape.circle,
+            ),
+            child: WIconButton(
+              key: key,
+              size: 44,
+              iconImage: currentFeelingModel?.localPath != null
+                  ? currentFeelingModel?.localPath
+                  : null,
+              iconData: currentFeelingModel?.localPath != null
+                  ? null
+                  : Icons.tag_faces_sharp,
+              onPressed: () {
+                /// find column index to scroll to
+                int index = 0;
+                for (int i = 0; i < _emojies.length; i++) {
+                  if (_emojies[i].type == currentFeelingModel?.type) {
+                    index = i;
+                    break;
+                  }
+                }
 
-            /// find column index to scroll to
-            int index = 0;
-            for (int i = 0; i < _emojies.length; i++) {
-              if (_emojies[i].type == currentFeelingModel?.type) {
-                index = i;
-                break;
-              }
-            }
+                for (int i = 0; i < _map.length; i++) {
+                  if (_map[i]?.contains(index) == true) {
+                    index = i;
+                    break;
+                  }
+                }
 
-            for (int i = 0; i < _map.length; i++) {
-              if (_map[i]?.contains(index) == true) {
-                index = i;
-                break;
-              }
-            }
-
-            Future.delayed(ConfigConstant.duration).then((value) {
-              print(index);
-              _scrollController.scrollToIndex(index);
-            });
-          },
+                callback();
+                if (index != 0) _scrollController.scrollToIndex(index);
+              },
+            ),
+          ),
         );
       },
     );

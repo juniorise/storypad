@@ -1,4 +1,3 @@
-import 'package:animated_clipper/animated_clipper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -135,17 +134,9 @@ class WOverlayEntryButton extends HookWidget {
                     notifier.setFloatingChildSize(size);
                   },
                   child: AnimatedBuilder(
-                    child: AnimatedClipReveal(
-                      revealFirstChild: true,
-                      duration: Duration(
-                        milliseconds:
-                            ConfigConstant.fadeDuration.inMilliseconds - 50,
-                      ),
-                      pathBuilder: PathBuilders.circleOut,
-                      child: this.floatingBuilder(context, () {
-                        close(controller, notifier);
-                      }),
-                    ),
+                    child: this.floatingBuilder(context, () {
+                      close(controller, notifier);
+                    }),
                     animation: controller,
                     builder: (context, child) {
                       double dy = 0;

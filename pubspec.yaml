@@ -115,8 +115,7 @@ flutter:
 
     - assets/flags/
     - assets/icons/
-    - assets/emojis/emoji-46/
-    - assets/emojis/emoji-all/
+    - assets/emoji-64/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
