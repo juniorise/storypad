@@ -126,7 +126,10 @@ class _WColorButtonState extends State<WColorButton>
         displayIconColor = theme.iconTheme.color;
       }
     } else if (fillColor == Colors.white) {
-      if (!isDarkMode) {
+      if (isDarkMode) {
+        fillColor = iconColor;
+        displayIconColor = theme.iconTheme.color;
+      } else {
         fillColor = Colors.transparent;
         displayIconColor = iconColor;
       }
@@ -141,7 +144,10 @@ class _WColorButtonState extends State<WColorButton>
         displayiconColorBackground = theme.iconTheme.color;
       }
     } else if (fillColorBackground == Colors.white) {
-      if (!isDarkMode) {
+      if (isDarkMode) {
+        fillColorBackground = iconColorBackground;
+        displayiconColorBackground = theme.iconTheme.color;
+      } else {
         fillColorBackground = Colors.transparent;
         displayiconColorBackground = iconColorBackground;
       }
