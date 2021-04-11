@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:get_version/get_version.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:launch_review/launch_review.dart';
@@ -17,6 +16,7 @@ import 'package:write_story/mixins/dialog_mixin.dart';
 import 'package:write_story/mixins/snakbar_mixin.dart';
 import 'package:write_story/models/db_backup_model.dart';
 import 'package:write_story/notifier/auth_notifier.dart';
+import 'package:write_story/notifier/check_for_update_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/remote_database_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
@@ -29,76 +29,195 @@ import 'package:easy_localization/easy_localization.dart';
 class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
   final double avatarSize = 72;
   final ValueNotifier<double> scrollOffsetNotifier = ValueNotifier<double>(0);
+
   @override
   Widget build(BuildContext context) {
     final scrollController = useScrollController();
+    final CheckForUpdateNotifier updateNotifier =
+        useProvider(checkForUpdateProvider);
 
     scrollController.addListener(() {
       scrollOffsetNotifier.value = scrollController.offset;
     });
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      extendBody: true,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        elevation: 1,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        textTheme: Theme.of(context).textTheme,
-        title: Text(
-          tr("title.setting"),
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
+    return WillPopScope(
+      onWillPop: () async {
+        ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+        Navigator.of(context).pop();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          elevation: 1,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          textTheme: Theme.of(context).textTheme,
+          title: Text(
+            tr("title.setting"),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          flexibleSpace: Consumer(
+            builder: (context, reader, child) {
+              final userNotifier = reader(authenticationProvider);
+              return SafeArea(
+                child: WLineLoading(
+                  loading: userNotifier.loading,
+                ),
+              );
+            },
+          ),
+          leading: WIconButton(
+            iconData: Icons.arrow_back,
+            onPressed: () {
+              ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+              Navigator.of(context).pop();
+            },
           ),
         ),
-        flexibleSpace: Consumer(
-          builder: (context, reader, child) {
-            final userNotifier = reader(authenticationProvider);
-            return SafeArea(
-              child: WLineLoading(
-                loading: userNotifier.loading,
+        body: Stack(
+          children: [
+            ListView(
+              controller: scrollController,
+              children: [
+                buildUpdateSpacer(updateNotifier),
+                buildRelateToAccount(),
+                const SizedBox(height: 8.0),
+
+                buildRelateToTheme(),
+                buildRelateToLanguage(),
+                // buildFontStyle(),
+                const SizedBox(height: 8.0),
+                // if (Platform.isAndroid)
+                buildUpdateButton(updateNotifier, context),
+                buildRate(),
+                buildShareApp(),
+                buildAboutUs(context),
+
+                const SizedBox(height: 120),
+              ],
+            ),
+            buildUpdateStatus(context, updateNotifier),
+          ],
+        ),
+      ),
+    );
+  }
+
+  WListTile buildUpdateButton(
+    CheckForUpdateNotifier updateNotifier,
+    BuildContext context,
+  ) {
+    return WListTile(
+      iconData: Icons.system_update_alt,
+      titleText: tr("button.check_for_update"),
+      onTap: () async {
+        await updateNotifier.load();
+        if (!updateNotifier.isUpdateAvailable) {
+          showSnackBar(
+            context: context,
+            title: "Update is unavailable!",
+          );
+        }
+      },
+    );
+  }
+
+  ValueListenableBuilder<double> buildUpdateSpacer(
+      CheckForUpdateNotifier updateNotifier) {
+    return ValueListenableBuilder(
+      valueListenable: scrollOffsetNotifier,
+      builder: (context, value, child) {
+        final bool isCollapse = scrollOffsetNotifier.value < 200;
+        return AnimatedContainer(
+          duration: ConfigConstant.fadeDuration ~/ 3,
+          height: updateNotifier.isUpdateAvailable && isCollapse
+              ? kToolbarHeight
+              : 0,
+        );
+      },
+    );
+  }
+
+  Widget buildUpdateStatus(
+    BuildContext context,
+    CheckForUpdateNotifier notifier,
+  ) {
+    return IgnorePointer(
+      ignoring: !notifier.isUpdateAvailable,
+      child: AnimatedOpacity(
+        duration: ConfigConstant.fadeDuration,
+        opacity: notifier.isUpdateAvailable == true ? 1 : 0,
+        child: ValueListenableBuilder(
+          valueListenable: scrollOffsetNotifier,
+          child: Wrap(
+            children: [
+              Material(
+                elevation: 1.0,
+                child: WListTile(
+                  iconData: Icons.system_update_alt_rounded,
+                  titleText: "New version is available!",
+                  subtitleText: "Click to upgrade",
+                  tileColor: Theme.of(context).colorScheme.error,
+                  forgroundColor: Theme.of(context).colorScheme.onError,
+                  onTap: () {
+                    final dialog = Dialog(
+                      child: Wrap(
+                        children: [
+                          if (notifier.flexibleUpdateAllowed)
+                            ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(ConfigConstant.radius1),
+                                ),
+                              ),
+                              title: Text(
+                                "Update in background",
+                                textAlign: TextAlign.center,
+                              ),
+                              onTap: () async {
+                                Navigator.of(context).pop();
+                                InAppUpdate.startFlexibleUpdate();
+                              },
+                            ),
+                          if (notifier.flexibleUpdateAllowed)
+                            const Divider(height: 0),
+                          if (notifier.immediateUpdateAllowed)
+                            ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  bottom:
+                                      Radius.circular(ConfigConstant.radius1),
+                                ),
+                              ),
+                              title: Text("Update and install",
+                                  textAlign: TextAlign.center),
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                InAppUpdate.performImmediateUpdate();
+                              },
+                            ),
+                        ],
+                      ),
+                    );
+                    showWDialog(context: context, child: dialog);
+                  },
+                ),
               ),
+            ],
+          ),
+          builder: (context, value, child) {
+            final bool isCollapse = scrollOffsetNotifier.value < 200;
+
+            return AnimatedContainer(
+              duration: ConfigConstant.fadeDuration,
+              transform: Matrix4.identity()
+                ..translate(0.0, !isCollapse ? -100.0 : 0.0),
+              child: child,
             );
           },
         ),
-        leading: WIconButton(
-          iconData: Icons.arrow_back,
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: ListView(
-        controller: scrollController,
-        children: [
-          buildRelateToAccount(),
-          const SizedBox(height: 8.0),
-
-          buildRelateToTheme(),
-          buildRelateToLanguage(),
-          // buildFontStyle(),
-          const SizedBox(height: 8.0),
-          if (Platform.isAndroid)
-            WListTile(
-              iconData: Icons.system_update_alt,
-              titleText: tr("button.check_for_update"),
-              onTap: () async {
-                onTapVibrate();
-                final info = await InAppUpdate.checkForUpdate();
-                print("${info.toString()}");
-                if (info.flexibleUpdateAllowed) {
-                  await InAppUpdate.startFlexibleUpdate();
-                } else if (info.immediateUpdateAllowed) {
-                  await InAppUpdate.performImmediateUpdate();
-                }
-              },
-            ),
-          buildRate(),
-          buildShareApp(),
-          buildAboutUs(context),
-
-          const SizedBox(height: 120),
-        ],
       ),
     );
   }
@@ -116,13 +235,16 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
     return WListTile(
       iconData: Icons.info,
       titleText: tr("button.about"),
-      onTap: () {
+      onTap: () async {
         final _theme = Theme.of(context);
         final _textTheme = Theme.of(context).textTheme;
+        final _version = await GetVersion.projectVersion;
+        final _code = await GetVersion.projectCode;
+
         showAboutDialog(
           context: context,
           applicationName: "Story",
-          applicationVersion: "v1.0.0+8",
+          applicationVersion: "v$_version+$_code",
           applicationLegalese: tr("info.app_detail"),
           children: [
             const SizedBox(height: 24.0),
@@ -739,12 +861,14 @@ class WListTile extends StatelessWidget {
     required this.onTap,
     this.subtitleText,
     this.tileColor,
+    this.forgroundColor,
   }) : super(key: key);
 
   final Color? tileColor;
   final IconData iconData;
   final String titleText;
   final String? subtitleText;
+  final Color? forgroundColor;
   final void Function() onTap;
 
   @override
@@ -757,18 +881,25 @@ class WListTile extends StatelessWidget {
           aspectRatio: 1.5 / 2,
           child: Container(
             height: double.infinity,
-            child: Icon(iconData),
+            child: Icon(
+              iconData,
+              color: forgroundColor,
+            ),
           ),
         ),
-        title: Text(titleText),
+        title: Text(
+          titleText,
+          style: TextStyle(color: forgroundColor),
+        ),
         subtitle: subtitleText != null
             ? Text(
                 subtitleText!,
                 style: TextStyle(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onBackground
-                      .withOpacity(0.5),
+                  color: forgroundColor ??
+                      Theme.of(context)
+                          .colorScheme
+                          .onBackground
+                          .withOpacity(0.5),
                 ),
               )
             : null,
