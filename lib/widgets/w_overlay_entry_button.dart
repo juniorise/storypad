@@ -38,8 +38,9 @@ class WOverlayEntryButton extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final notifier = useProvider(wOverlayEntryButtonProvider);
     final controller = useAnimationController(duration: this.duration);
+    final notifier = useProvider(wOverlayEntryButtonProvider(controller));
+
     return childBuilder(
       context,
       floatingKey,
@@ -62,18 +63,6 @@ class WOverlayEntryButton extends HookWidget {
     Overlay.of(context)?.insert(notifier.floating!);
     controller.forward();
     notifier.setIsFloatingOpen(true);
-  }
-
-  void close(
-    AnimationController controller,
-    WOverlayEntryButtonNotifier notifier,
-  ) {
-    if (controller.isAnimating == false) {
-      controller.reverse().then((value) {
-        notifier.floating?.remove();
-      });
-      notifier.setIsFloatingOpen(false);
-    }
   }
 
   OverlayEntry? createFloating({
@@ -115,13 +104,8 @@ class WOverlayEntryButton extends HookWidget {
       builder: (context) {
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: () {
-            if (notifier.isFloatingOpen) {
-              controller.reverse().then((value) {
-                notifier.floating?.remove();
-              });
-              notifier.setIsFloatingOpen(false);
-            }
+          onTap: () async {
+            notifier.close();
           },
           child: Stack(
             children: [
@@ -135,7 +119,7 @@ class WOverlayEntryButton extends HookWidget {
                   },
                   child: AnimatedBuilder(
                     child: this.floatingBuilder(context, () {
-                      close(controller, notifier);
+                      notifier.close();
                     }),
                     animation: controller,
                     builder: (context, child) {
@@ -173,6 +157,19 @@ class WOverlayEntryButtonNotifier extends ChangeNotifier {
   bool _isFloatingOpen = false;
   Size? _floatingChildSize;
 
+  final AnimationController controller;
+  WOverlayEntryButtonNotifier(this.controller);
+
+  Future<void> close() async {
+    if (controller.isAnimating == false && isFloatingOpen) {
+      try {
+        await controller.reverse();
+      } catch (e) {}
+      floating?.remove();
+      setIsFloatingOpen(false);
+    }
+  }
+
   setIsFloatingOpen(bool value) {
     this._isFloatingOpen = value;
     notifyListeners();
@@ -183,11 +180,17 @@ class WOverlayEntryButtonNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  @mustCallSuper
+  void dispose() async {
+    if (_isFloatingOpen) floating?.remove();
+    super.dispose();
+  }
+
   bool get isFloatingOpen => this._isFloatingOpen;
   Size get floatingChildSize => this._floatingChildSize ?? const Size(0, 0);
 }
 
-final wOverlayEntryButtonProvider =
-    ChangeNotifierProvider<WOverlayEntryButtonNotifier>((_) {
-  return WOverlayEntryButtonNotifier();
+final wOverlayEntryButtonProvider = ChangeNotifierProvider.autoDispose
+    .family<WOverlayEntryButtonNotifier, AnimationController>((_, controller) {
+  return WOverlayEntryButtonNotifier(controller);
 });

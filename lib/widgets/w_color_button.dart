@@ -87,6 +87,8 @@ class _WColorButtonState extends State<WColorButton>
 
   @override
   void dispose() {
+    if (isFloatingOpen) floating?.remove();
+    animationController?.dispose();
     widget.controller.removeListener(_didChangeEditingValue);
     super.dispose();
   }

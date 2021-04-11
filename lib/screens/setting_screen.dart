@@ -90,7 +90,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                 // buildFontStyle(),
                 const SizedBox(height: 8.0),
                 // if (Platform.isAndroid)
-                buildUpdateButton(updateNotifier, context),
                 buildRate(),
                 buildShareApp(),
                 buildAboutUs(context),
@@ -102,25 +101,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
           ],
         ),
       ),
-    );
-  }
-
-  WListTile buildUpdateButton(
-    CheckForUpdateNotifier updateNotifier,
-    BuildContext context,
-  ) {
-    return WListTile(
-      iconData: Icons.system_update_alt,
-      titleText: tr("button.check_for_update"),
-      onTap: () async {
-        await updateNotifier.load();
-        if (!updateNotifier.isUpdateAvailable) {
-          showSnackBar(
-            context: context,
-            title: "Update is unavailable!",
-          );
-        }
-      },
     );
   }
 
