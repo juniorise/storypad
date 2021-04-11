@@ -65,8 +65,8 @@ class StoryDetailScreenNotifier extends ChangeNotifier {
   }
 }
 
-final storydetailScreenNotifier =
-    ChangeNotifierProvider.family<StoryDetailScreenNotifier, StoryModel>(
+final storydetailScreenNotifier = ChangeNotifierProvider.family
+    .autoDispose<StoryDetailScreenNotifier, StoryModel>(
   (ref, story) {
     return StoryDetailScreenNotifier(story);
   },

@@ -23,7 +23,6 @@ mixin StoryDetailMethodMixin {
     final draftStoryDate =
         notifier.hasChanged ? notifier.draftStory.forDate : null;
     Navigator.of(context).pop(draftStoryDate);
-    notifier.dispose();
   }
 
   Container buildIosDatePicker({
