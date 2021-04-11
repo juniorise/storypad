@@ -10,7 +10,7 @@ import 'package:write_story/mixins/dialog_mixin.dart';
 import 'package:write_story/notifier/appbar_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
-import 'package:write_story/screens/ask_for_name_sheet.dart';
+import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_tabbar.dart';
 

@@ -9,7 +9,7 @@ import 'package:flutter_quill/models/documents/document.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/app_helper/quill_helper.dart';
-import 'package:write_story/colors.dart';
+import 'package:write_story/colors/colors.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/models/story_list_model.dart';

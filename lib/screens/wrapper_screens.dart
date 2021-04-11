@@ -5,7 +5,7 @@ import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/home_screen.dart';
-import 'package:write_story/screens/ask_for_name_sheet.dart';
+import 'package:write_story/sheets/ask_for_name_sheet.dart';
 
 class WrapperScreens extends HookWidget {
   WrapperScreens({Key? key}) : super(key: key);

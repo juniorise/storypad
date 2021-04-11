@@ -14,7 +14,7 @@ typedef WOverlayBuilder = Widget Function(
   VoidCallback callback,
 );
 
-typedef WOverlayBuilder2 = Widget Function(
+typedef WOverlayWithKeyBuilder = Widget Function(
   BuildContext context,
   GlobalKey buttonKey,
   VoidCallback callback,
@@ -26,7 +26,7 @@ class WOverlayEntryButton extends HookWidget {
   static GlobalKey floatingKey = LabeledGlobalKey("Floating");
   final WOverlayFloatingType type;
   final WOverlayBuilder floatingBuilder;
-  final WOverlayBuilder2 childBuilder;
+  final WOverlayWithKeyBuilder childBuilder;
 
   WOverlayEntryButton({
     this.key,
