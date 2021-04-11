@@ -75,7 +75,7 @@ class _WColorPickerState extends State<WColorPicker> {
     _colorsSwatch.add(widget.blackWhite);
     _colorsMap = listToTreeMap(_colorsSwatch);
 
-    Future.delayed(ConfigConstant.fadeDuration).then((value) {
+    Future.delayed(Duration(milliseconds: 1)).then((value) {
       _colorsSwatch.forEach((e) {
         final _colorSwatches = _getMaterialColorShades(e);
         if (_colorSwatches.contains(widget.currentColor)) {
@@ -177,7 +177,8 @@ class _WColorPickerState extends State<WColorPicker> {
                           _colorNormal = _getMaterialColorShades(color!);
                           _colorsMap = listToTreeMap(_colorNormal);
                         });
-                        Future.delayed(ConfigConstant.duration).then((value) {
+                        Future.delayed(Duration(milliseconds: 100))
+                            .then((value) {
                           if (widget.currentColor != null &&
                               _colorNormal.contains(widget.currentColor)) {
                             setState(() {
