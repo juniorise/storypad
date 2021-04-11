@@ -25,68 +25,69 @@ dependencies:
     sdk: flutter
   easy_localization: ^3.0.0
   
-  lottie: ^1.0.1
-  page_transition: ^2.0.1-nullsafety.0
-  settings_ui: ^1.0.0-nullsafety.2
-  sticky_headers: ^0.2.0
-
-  # State management
-  flutter_hooks: ^0.16.0
-  hooks_riverpod: ^0.13.1
-
-  sqflite: ^2.0.0+3
-  path_provider: ^2.0.1
-  encrypt: ^5.0.0-beta.1
-  shared_preferences: ^2.0.5
-  flutter_secure_storage: ^4.1.0
-
-  csv: ^5.0.0
-  dio: ^4.0.0-prev3
-  googleapis: ^2.0.0
-  http: ^0.13.1
-  flutter_image_compress: ^1.0.0
-  flutter_cache_manager: ^3.0.1
-  cached_network_image: ^3.0.0
-  photo_view: ^0.11.1
-  flutter_spinkit: ^5.0.0
-  permission_handler: ^6.1.1
-  
-  image_gallery_saver:
-    git:
-      url: git@github.com:theacheng/image_gallery_saver.git
-      ref: master
-
-  google_sign_in: ^5.0.1
-
+  # main package
   flutter_quill:
     git:
       url: https://github.com/singerdmx/flutter-quill.git
       # url: git@github.com:theacheng/flutter-quill.git
       ref: master
 
-  # firebase
+  # ui
+  lottie: ^1.0.1
+  page_transition: ^2.0.1-nullsafety.0
+  photo_view: ^0.11.1
+  animated_clipper: ^0.2.0
+  flutter_speed_dial: ^3.0.5
+
+  # State management
+  flutter_hooks: ^0.16.0
+  hooks_riverpod: ^0.13.1
+
+  # local storage
+  sqflite: ^2.0.0+3
+  path_provider: ^2.0.1
+  shared_preferences: ^2.0.5
+  flutter_secure_storage: ^4.1.0
+  encrypt: ^5.0.0-beta.1
+
+  # network
+  csv: ^5.0.0
+  dio: ^4.0.0-prev3
+  googleapis: ^2.0.0
+  http: ^0.13.1
+
+  flutter_image_compress: ^1.0.0
+  flutter_cache_manager: ^3.0.1
+  cached_network_image: ^3.0.0
+  permission_handler: ^6.1.1
+
+  # google services
   firebase_core: ^1.0.1
   firebase_auth: ^1.0.1
   cloud_firestore: ^1.0.1
+  google_sign_in: ^5.0.1
+
+  # functionalities
+  in_app_update: ^2.0.0
+  url_launcher: ^6.0.2
+  vibration: ^1.7.4-nullsafety.0
+  launch_review: ^3.0.1
+  share: ^2.0.1
+  scroll_to_index: ^2.0.0
 
   get_version:
     git:
       url: git@github.com:theacheng/get_version.git
       ref: master
 
-  url_launcher: ^6.0.2
-  vibration: ^1.7.4-nullsafety.0
-  flutter_speed_dial: ^3.0.5
-  launch_review: ^3.0.1
-  share: ^2.0.1
-  flutter_staggered_grid_view: ^0.4.0-nullsafety.3
-  animated_clipper: ^0.2.0
+  image_gallery_saver:
+    git:
+      url: git@github.com:theacheng/image_gallery_saver.git
+      ref: master
   
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  in_app_update: ^2.0.0
-  scroll_to_index: ^2.0.0
 
 dev_dependencies:
   flutter_test:
