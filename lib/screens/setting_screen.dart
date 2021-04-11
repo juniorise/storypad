@@ -157,8 +157,8 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                 elevation: 1.0,
                 child: WListTile(
                   iconData: Icons.system_update_alt_rounded,
-                  titleText: "New version is available!",
-                  subtitleText: "Click to upgrade",
+                  titleText: tr("title.update_available"),
+                  subtitleText: tr("subtitle.click_to_update"),
                   tileColor: Theme.of(context).colorScheme.error,
                   forgroundColor: Theme.of(context).colorScheme.onError,
                   onTap: () {
@@ -173,7 +173,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                                 ),
                               ),
                               title: Text(
-                                "Update in background",
+                                tr("button.update.flexible"),
                                 textAlign: TextAlign.center,
                               ),
                               onTap: () async {
@@ -191,8 +191,10 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                                       Radius.circular(ConfigConstant.radius1),
                                 ),
                               ),
-                              title: Text("Update and install",
-                                  textAlign: TextAlign.center),
+                              title: Text(
+                                tr("button.update.immediate"),
+                                textAlign: TextAlign.center,
+                              ),
                               onTap: () {
                                 Navigator.of(context).pop();
                                 InAppUpdate.performImmediateUpdate();
@@ -243,7 +245,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
 
         showAboutDialog(
           context: context,
-          applicationName: "Story",
+          applicationName: "StoryPad",
           applicationVersion: "v$_version+$_code",
           applicationLegalese: tr("info.app_detail"),
           children: [

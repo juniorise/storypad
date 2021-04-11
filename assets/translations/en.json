@@ -35,6 +35,8 @@
   "button.theme.system": "System",
   "button.try_again": "Try again!",
   "button.update": "Update",
+  "button.update.flexible": "Update in background",
+  "button.update.immediate": "Update and install",
   "hint_text.email": "Your email",
   "hint_text.nickname": "Your nickname...",
   "hint_text.password": "Your password",
@@ -87,9 +89,11 @@
   "subtitle.ask_for_feeling": "What did you have in mind?",
   "subtitle.ask_for_name": "What should I call you?",
   "subtitle.backup_restore": "Backup and restore your data via cloud",
+  "subtitle.click_to_update": "Click to upgrade",
   "title.google_acc": "Google Account",
   "title.hello": "Hello!",
   "title.hello_name": "Hello {USER_NAME}",
   "title.setting": "Setting",
+  "title.update_available": "New version is available!",
   "validate.title": "Must not be empty!"
 }
