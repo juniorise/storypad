@@ -3,6 +3,15 @@ import 'package:write_story/colors/colors.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 
+getBlackWhite(BuildContext context) {
+  bool isDarkMode = Theme.of(context).colorScheme.brightness == Brightness.dark;
+  final ColorSwatch blackWhiteColor = ColorSwatch(
+    isDarkMode ? 0xFFFFFFFF : 0xFF000000,
+    {50: Color(0xff000000), 100: Color(0xffffffff)},
+  );
+  return blackWhiteColor;
+}
+
 /// final map = {
 ///   0: [0, 1, 2, 3],
 ///   1: [4, 5, 6, 7],
@@ -67,8 +76,9 @@ class _WColorPickerState extends State<WColorPicker> {
     _colorsMap = listToTreeMap(_colorsSwatch);
 
     Future.delayed(ConfigConstant.fadeDuration).then((value) {
-      materialColors.forEach((e) {
-        if (_getMaterialColorShades(e).contains(widget.currentColor)) {
+      _colorsSwatch.forEach((e) {
+        final _colorSwatches = _getMaterialColorShades(e);
+        if (_colorSwatches.contains(widget.currentColor)) {
           setState(() {
             currentSelectedColorsSwatch = e;
           });
