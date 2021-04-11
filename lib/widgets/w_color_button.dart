@@ -41,8 +41,6 @@ class _WColorButtonState extends State<WColorButton>
 
   late bool _isToggledColor;
   late bool _isToggledBackground;
-  late bool _isWhite;
-  late bool _isWhitebackground;
 
   Style get _selectionStyle => widget.controller.getSelectionStyle();
 
@@ -52,10 +50,6 @@ class _WColorButtonState extends State<WColorButton>
           _getIsToggledColor(widget.controller.getSelectionStyle().attributes);
       _isToggledBackground = _getIsToggledBackground(
           widget.controller.getSelectionStyle().attributes);
-      _isWhite = _isToggledColor &&
-          _selectionStyle.attributes['color']!.value == '#ffffff';
-      _isWhitebackground = _isToggledBackground &&
-          _selectionStyle.attributes['background']!.value == '#ffffff';
     });
   }
 
@@ -68,10 +62,6 @@ class _WColorButtonState extends State<WColorButton>
     );
     _isToggledColor = _getIsToggledColor(_selectionStyle.attributes);
     _isToggledBackground = _getIsToggledBackground(_selectionStyle.attributes);
-    _isWhite = _isToggledColor &&
-        _selectionStyle.attributes['color']!.value == '#ffffff';
-    _isWhitebackground = _isToggledBackground &&
-        _selectionStyle.attributes['background']!.value == '#ffffff';
     widget.controller.addListener(_didChangeEditingValue);
   }
 
@@ -92,10 +82,6 @@ class _WColorButtonState extends State<WColorButton>
       _isToggledColor = _getIsToggledColor(_selectionStyle.attributes);
       _isToggledBackground =
           _getIsToggledBackground(_selectionStyle.attributes);
-      _isWhite = _isToggledColor &&
-          _selectionStyle.attributes['color']!.value == '#ffffff';
-      _isWhitebackground = _isToggledBackground &&
-          _selectionStyle.attributes['background']!.value == '#ffffff';
     }
   }
 
@@ -105,21 +91,67 @@ class _WColorButtonState extends State<WColorButton>
     super.dispose();
   }
 
+  Color _textColorForBackground(Color backgroundColor) {
+    if (ThemeData.estimateBrightnessForColor(backgroundColor) ==
+        Brightness.dark) {
+      return Colors.white;
+    }
+    return Colors.black;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    Color? iconColor = _isToggledColor && !widget.background && !_isWhite
+    Color? iconColor = _isToggledColor && !widget.background
         ? stringToColor(_selectionStyle.attributes['color']!.value)
         : theme.iconTheme.color;
 
-    var iconColorBackground =
-        _isToggledBackground && widget.background && !_isWhitebackground
-            ? stringToColor(_selectionStyle.attributes['background']!.value)
-            : theme.iconTheme.color;
+    Color? iconColorBackground = _isToggledBackground && widget.background
+        ? stringToColor(_selectionStyle.attributes['background']!.value)
+        : theme.iconTheme.color;
 
-    final void Function()? onPressed = () => _showColorPicker(
-          currentColor: widget.background ? iconColorBackground : iconColor,
-        );
+    bool isDarkMode = theme.colorScheme.brightness == Brightness.dark;
+    Color? fillColor = _textColorForBackground(iconColor!);
+    Color fillColorBackground = _textColorForBackground(iconColorBackground!);
+
+    Color? displayIconColor;
+    Color? displayiconColorBackground;
+
+    if (fillColor == Colors.black) {
+      if (isDarkMode) {
+        fillColor = Colors.transparent;
+        displayIconColor = iconColor;
+      } else {
+        fillColor = iconColor;
+        displayIconColor = theme.iconTheme.color;
+      }
+    } else if (fillColor == Colors.white) {
+      if (!isDarkMode) {
+        fillColor = Colors.transparent;
+        displayIconColor = iconColor;
+      }
+    }
+
+    if (fillColorBackground == Colors.black) {
+      if (isDarkMode) {
+        fillColorBackground = Colors.transparent;
+        displayiconColorBackground = iconColorBackground;
+      } else {
+        fillColorBackground = iconColorBackground;
+        displayiconColorBackground = theme.iconTheme.color;
+      }
+    } else if (fillColorBackground == Colors.white) {
+      if (!isDarkMode) {
+        fillColorBackground = Colors.transparent;
+        displayiconColorBackground = iconColorBackground;
+      }
+    }
+
+    final void Function()? onPressed = () {
+      return _showColorPicker(
+        currentColor: widget.background ? iconColorBackground : iconColor,
+      );
+    };
 
     return VTOnTapEffect(
       onTap: onPressed != null ? onPressed : () {},
@@ -138,10 +170,12 @@ class _WColorButtonState extends State<WColorButton>
         highlightElevation: 0,
         hoverElevation: 0,
         size: toolbar.iconSize * 1.77,
+        fillColor: widget.background ? fillColorBackground : fillColor,
         icon: Icon(
           widget.icon,
           size: toolbar.iconSize,
-          color: widget.background ? iconColorBackground : iconColor,
+          color:
+              widget.background ? displayiconColorBackground : displayIconColor,
         ),
         onPressed: onPressed,
       ),
@@ -160,6 +194,7 @@ class _WColorButtonState extends State<WColorButton>
   }
 
   void _showColorPicker({Color? currentColor}) {
+    print(currentColor);
     if (animationController?.isAnimating == false) {
       setState(() {
         if (isFloatingOpen) {
@@ -198,13 +233,7 @@ class _WColorButtonState extends State<WColorButton>
       right = null;
     }
 
-    bool isDarkMode =
-        Theme.of(context).colorScheme.brightness == Brightness.dark;
-    final blackWhiteColor = ColorSwatch(isDarkMode ? 0xFFFFFFFF : 0xFF000000, {
-      50: Colors.white,
-      100: Colors.black,
-    });
-
+    final blackWhiteSwatch = getBlackWhite(context);
     return OverlayEntry(
       builder: (context) {
         return GestureDetector(
@@ -238,7 +267,7 @@ class _WColorButtonState extends State<WColorButton>
                       ),
                       pathBuilder: PathBuilders.circleOut,
                       child: WColorPicker(
-                        blackWhite: blackWhiteColor,
+                        blackWhite: blackWhiteSwatch,
                         currentColor: currentColor,
                         onPickedColor: (Color color) {
                           if (animationController?.isAnimating == false) {
