@@ -1,3 +1,10 @@
+## 1.0.1+19
+- add feeling emoji
+- add in app update
+- add new color picker UI
+- add ability to share image to other app
+- fixed bugs and improvements
+
 ## 1.0.0+8
 - able to keep original image when upload
 - upload when save instead of while editing
