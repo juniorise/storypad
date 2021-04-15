@@ -279,7 +279,25 @@ class _WColorButtonState extends State<WColorButton>
                         currentColor: currentColor,
                         onPickedColor: (Color color) {
                           if (animationController?.isAnimating == false) {
-                            _changeColor(color);
+                            /// reset it when click on selected color
+                            if (currentColor != color) {
+                              _changeColor(color);
+                            } else {
+                              for (Attribute k in widget.controller
+                                  .getSelectionStyle()
+                                  .attributes
+                                  .values) {
+                                bool isBackground =
+                                    widget.background && k.key == "background";
+                                bool isColor =
+                                    !widget.background && k.key == "color";
+                                if (isBackground || isColor) {
+                                  widget.controller.formatSelection(
+                                    Attribute.clone(k, null),
+                                  );
+                                }
+                              }
+                            }
                             animationController?.reverse().then((value) {
                               floating?.remove();
                               setState(() {
