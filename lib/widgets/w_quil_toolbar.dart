@@ -143,6 +143,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               BuildContext context,
               Attribute attribute,
               IconData icon,
+              Color? fillColor,
               bool? isToggled,
               VoidCallback? onPressed,
             ) {
@@ -153,6 +154,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
                 context,
                 attribute,
                 icon,
+                fillColor,
                 isToggled,
                 _onPressed,
               );
@@ -169,6 +171,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               BuildContext context,
               Attribute attribute,
               IconData icon,
+              Color? fillColor,
               bool? isToggled,
               VoidCallback? onPressed,
             ) {
@@ -179,6 +182,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
                 context,
                 attribute,
                 icon,
+                fillColor,
                 isToggled,
                 _onPressed,
               );
@@ -195,6 +199,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               BuildContext context,
               Attribute attribute,
               IconData icon,
+              Color? fillColor,
               bool? isToggled,
               VoidCallback? onPressed,
             ) {
@@ -205,6 +210,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
                 context,
                 attribute,
                 icon,
+                fillColor,
                 isToggled,
                 _onPressed,
               );
@@ -226,6 +232,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               BuildContext context,
               Attribute attribute,
               IconData icon,
+              Color? fillColor,
               bool? isToggled,
               VoidCallback? onPressed,
             ) {
@@ -239,6 +246,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
                 context,
                 attribute,
                 icon,
+                fillColor,
                 isToggled,
                 _onPressed,
               );
@@ -255,6 +263,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               BuildContext context,
               Attribute attribute,
               IconData icon,
+              Color? fillColor,
               bool? isToggled,
               VoidCallback? onPressed,
             ) {
@@ -265,6 +274,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
                 context,
                 attribute,
                 icon,
+                fillColor,
                 isToggled,
                 _onPressed,
               );
@@ -331,6 +341,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
     BuildContext context,
     Attribute attribute,
     IconData icon,
+    Color? fillColor,
     bool? isToggled,
     VoidCallback? onPressed,
   ) {
