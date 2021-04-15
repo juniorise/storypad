@@ -125,8 +125,10 @@ class ThemeConfig {
     brightness: Brightness.dark,
   );
 
+  static const List<String> fontFamilyFallback = ["Quicksand", "Kantumruy"];
+  static const List<String> fontFamilyFallbackExample = ["Hello", "សួរស្តី"];
+
   static TextTheme get textTheme {
-    final fontFamilyFallback = ["Quicksand", "Kantumruy"];
     return TextTheme(
       headline1: TextStyle(
         fontSize: 98,
