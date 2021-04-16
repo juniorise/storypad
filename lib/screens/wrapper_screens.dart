@@ -3,8 +3,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:write_story/notifier/lock_screen_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/home_screen.dart';
+import 'package:write_story/screens/lock_screen.dart';
 import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/storages/vibrate_toggle_storage.dart';
 
@@ -14,6 +16,7 @@ class WrapperScreens extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final notifier = useProvider(userModelProvider);
+    final lockScreenNotifier = useProvider(lockScreenProvider);
     final controller = useAnimationController();
     final statusBarHeight = MediaQuery.of(context).padding.top;
     final bottomBarHeight = MediaQuery.of(context).padding.bottom;
@@ -63,7 +66,9 @@ class WrapperScreens extends HookWidget {
             print("1");
             Navigator.of(context).pushReplacement(
               PageTransition(
-                child: HomeScreen(),
+                child: lockScreenNotifier.storageLockNumberMap != null
+                    ? LockScreenWrapper(LockScreenFlowType.UNLOCK)
+                    : HomeScreen(),
                 type: PageTransitionType.fade,
                 duration: const Duration(milliseconds: 1000),
               ),
