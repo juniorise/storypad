@@ -5,8 +5,11 @@ import 'package:intl/intl.dart';
 class AppHelper {
   static const DAY = const ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  static DateFormat toNameOfMonth(BuildContext context) {
-    final DateFormat format = DateFormat.MMM(context.locale.languageCode);
+  static DateFormat toNameOfMonth(BuildContext context,
+      {bool fullName = false}) {
+    final DateFormat format = fullName
+        ? DateFormat.MMMM(context.locale.languageCode)
+        : DateFormat.MMM(context.locale.languageCode);
     return format;
   }
 

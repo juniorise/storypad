@@ -374,7 +374,7 @@ class HomeScreen extends HookWidget with HookController {
     // showing if data is empty
     bool noData = storiesInMonthIds == null || (storiesInMonthIds.length == 0);
     if (noData) {
-      final monthName = AppHelper.toNameOfMonth(context)
+      final monthName = AppHelper.toNameOfMonth(context, fullName: true)
           .format(DateTime(DateTime.now().year, monthId));
       return buildFadeInOnInit(
         child: WNoData(monthName: monthName),
