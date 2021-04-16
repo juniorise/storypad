@@ -21,6 +21,7 @@ import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/remote_database_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
 import 'package:write_story/screens/font_manager_screen.dart';
+import 'package:write_story/screens/lock_setting_screen.dart';
 import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/storages/vibrate_toggle_storage.dart';
@@ -31,6 +32,9 @@ import 'package:easy_localization/easy_localization.dart';
 class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
   final double avatarSize = 72;
   final ValueNotifier<double> scrollOffsetNotifier = ValueNotifier<double>(0);
+  final bool locked;
+  SettingScreen({this.locked = false});
+
   @override
   Widget build(BuildContext context) {
     final scrollController = useScrollController();
@@ -93,12 +97,28 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                 buildRelateToTheme(),
                 buildRelateToLanguage(),
                 buildFontStyle(context),
+                const SizedBox(height: 8.0),
+                WListTile(
+                  iconData: Icons.lock,
+                  titleText: tr("title.lock"),
+                  onTap: () {
+                    if (locked) {
+                      showSnackBar(context: context, title: tr("msg.locked"));
+                      return;
+                    }
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) {
+                        return LockSettingScreen();
+                      }),
+                    );
+                  },
+                ),
                 ValueListenableBuilder(
                   valueListenable: vibrationNotifier,
                   builder: (context, value, child) {
                     return WListTile(
                       iconData: Icons.vibration,
-                      titleText: "Vibration",
+                      titleText: tr("title.vibration"),
                       trailing: Switch(
                         onChanged: (bool value) async {
                           await VibrateToggleStorage()
@@ -573,7 +593,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       onTap: () {},
                       child: WListTile(
                         tileColor: Theme.of(context).colorScheme.surface,
-                        iconData: Icons.restore,
+                        iconData: locked ? Icons.lock : Icons.restore,
                         titleText: tr("button.backup.import"),
                         subtitleText: tr(
                           "msg.backup.import",
@@ -586,6 +606,12 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                           },
                         ),
                         onTap: () async {
+                          if (locked) {
+                            showSnackBar(
+                                context: context, title: tr("msg.locked"));
+                            return;
+                          }
+
                           bool? hasClick;
                           final dialog = Dialog(
                             child: Wrap(
@@ -727,13 +753,20 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                     onTap: () {},
                     child: WListTile(
                       tileColor: Theme.of(context).colorScheme.surface,
-                      iconData: userNotifier.isAccountSignedIn
-                          ? Icons.logout
-                          : Icons.login,
+                      iconData: locked
+                          ? Icons.lock
+                          : userNotifier.isAccountSignedIn
+                              ? Icons.logout
+                              : Icons.login,
                       titleText: userNotifier.isAccountSignedIn
                           ? tr("button.signout")
                           : tr("button.connect"),
                       onTap: () async {
+                        if (locked) {
+                          showSnackBar(
+                              context: context, title: tr("msg.locked"));
+                          return;
+                        }
                         onTapVibrate();
                         if (userNotifier.isAccountSignedIn) {
                           await userNotifier.signOut();
@@ -847,6 +880,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                     ),
                     onTap: () async {
                       onTapVibrate();
+                      if (locked) {
+                        showSnackBar(context: context, title: tr("msg.locked"));
+                        return;
+                      }
+
                       final String? id =
                           await GoogleDriveApiService.getStoryFolderId();
                       if (id != null) {

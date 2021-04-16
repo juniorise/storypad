@@ -11,6 +11,7 @@ import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/colors/colors.dart';
 import 'package:write_story/constants/config_constant.dart';
+import 'package:write_story/mixins/dialog_mixin.dart';
 import 'package:write_story/mixins/hook_controller.dart';
 import 'package:write_story/models/story_list_model.dart';
 import 'package:write_story/models/story_model.dart';
@@ -26,7 +27,7 @@ import 'package:write_story/widgets/w_more_faq_button.dart';
 import 'package:write_story/widgets/w_no_data.dart';
 import 'package:write_story/widgets/w_sliver_appbar.dart';
 
-class HomeScreen extends HookWidget with HookController {
+class HomeScreen extends HookWidget with HookController, DialogMixin {
   static final now = DateTime.now();
 
   final ValueNotifier<bool> faqNotifier = ValueNotifier<bool>(false);
