@@ -45,8 +45,8 @@ class FontModel {
       familyName: "Quicksand",
       locale: Locale("en"),
     ),
-    "PlayfairDisplay": FontModel(
-      familyName: "PlayfairDisplay",
+    "Lora": FontModel(
+      familyName: "Lora",
       locale: Locale("en"),
     ),
     "OpenSans": FontModel(

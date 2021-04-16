@@ -149,20 +149,16 @@ flutter:
         - asset: assets/fonts/Quicksand/Quicksand-Light.ttf
         - asset: assets/fonts/Quicksand/Quicksand-Regular.ttf
         - asset: assets/fonts/Quicksand/Quicksand-Bold.ttf
-    - family: PlayfairDisplay
+    - family: Lora
       fonts:
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-Black.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-BlackItalic.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-Bold.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-BoldItalic.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-ExtraBold.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-ExtraBoldItalic.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-Italic.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-Medium.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-MediumItalic.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-Regular.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-SemiBold.ttf
-        - asset: assets/fonts/PlayfairDisplay/PlayfairDisplay-SemiBoldItalic.ttf
+        - asset: assets/fonts/Lora/Lora-Bold.ttf
+        - asset: assets/fonts/Lora/Lora-BoldItalic.ttf
+        - asset: assets/fonts/Lora/Lora-Italic.ttf
+        - asset: assets/fonts/Lora/Lora-Medium.ttf
+        - asset: assets/fonts/Lora/Lora-MediumItalic.ttf
+        - asset: assets/fonts/Lora/Lora-Regular.ttf
+        - asset: assets/fonts/Lora/Lora-SemiBold.ttf
+        - asset: assets/fonts/Lora/Lora-SemiBoldItalic.ttf
     - family: OpenSans
       fonts:
         - asset: assets/fonts/OpenSans/OpenSans-Bold.ttf

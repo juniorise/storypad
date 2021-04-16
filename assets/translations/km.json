@@ -83,6 +83,8 @@
   "msg.save.success": "រក្សាទុកដោយជោគជ័យ!",
   "msg.story.empty": "សូមចុចលើ + ដើម្បីបន្ថែមរឿងទៅ {MONTH_NAME}",
   "msg.story.empty_normal": "សូមចុចលើ + ដើម្បីបន្ថែមរឿង",
+  "msg.update.fail": "ធ្វើឱ្យទាន់សម័យបរាជ័យ",
+  "msg.update.success": "ធ្វើឱ្យទាន់សម័យដោយជោគជ័យ",
   "name.menglong": "ស្រឿន ម៉េងឡុង",
   "name.thea": "ជឹម ធា",
   "position.menglong": "អ្នករចនារូបសញ្ញា",
@@ -91,11 +93,11 @@
   "subtitle.ask_for_name": "តើខ្ញុំគួរហៅអ្នកដូចម្តេចដែរ?",
   "subtitle.backup_restore": "រក្សាទុកនិងទាញយកទិន្នន័យរបស់អ្នកតាមរយៈ Cloud",
   "subtitle.click_to_update": "ចុចដើម្បីធ្វើឱ្យប្រសើរឡើង",
+  "title.font_style": "រចនាប័ទ្មពុម្ពអក្សរ",
   "title.google_acc": "គណនី Google",
   "title.hello": "សួរស្តី!",
   "title.hello_name": "សួរស្តី{USER_NAME}",
   "title.setting": "ការកំណត់",
   "title.update_available": "កំណែថ្មីគឺអាចប្រើបាន!",
-  "validate.title": "មិនត្រូវទទេឡើយ!",
-  "title.font_style": "រចនាប័ទ្មពុម្ពអក្សរ"
+  "validate.title": "មិនត្រូវទទេឡើយ!"
 }

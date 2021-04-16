@@ -73,15 +73,31 @@ class FontManagerScreen extends HookWidget with WSnackBar {
                         subtitleMaxLines: 1,
                         onTap: () async {
                           onTapVibrate();
+                          ScaffoldMessenger.maybeOf(context)!
+                              .removeCurrentSnackBar();
                           if (!notifier.fontFamilyFallback
                               .contains(font.familyName)) {
-                            final success = await notifier.replaceFontInMap(
+                            await notifier
+                                .replaceFontInMap(
                               font.familyName,
                               font.locale,
-                            );
-                            showSnackBar(
-                              context: context,
-                              title: success ? "Success" : "Error",
+                            )
+                                .then(
+                              (success) {
+                                Future.delayed(ConfigConstant.fadeDuration)
+                                    .then(
+                                  (value) {
+                                    showSnackBar(
+                                      context: context,
+                                      title: success
+                                          ? tr("msg.update.success")
+                                          : tr(
+                                              "msg.update.fail",
+                                            ),
+                                    );
+                                  },
+                                );
+                              },
                             );
                           }
                         },
@@ -108,7 +124,7 @@ class FontManagerScreen extends HookWidget with WSnackBar {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(child: const Divider(endIndent: 8)),
+            Expanded(child: const Divider(endIndent: 8, indent: 16.0)),
             Material(
               elevation: 0.3,
               borderRadius: BorderRadius.circular(100),
@@ -121,7 +137,7 @@ class FontManagerScreen extends HookWidget with WSnackBar {
                 child: Text(title),
               ),
             ),
-            Expanded(child: const Divider(indent: 8)),
+            Expanded(child: const Divider(indent: 8, endIndent: 16.0)),
           ],
         ),
         const SizedBox(height: ConfigConstant.margin1),

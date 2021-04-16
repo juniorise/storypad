@@ -83,6 +83,8 @@
   "msg.save.success": "Save successfully!",
   "msg.story.empty": "Please click on + to add story to {MONTH_NAME}",
   "msg.story.empty_normal": "Please click on + to add story",
+  "msg.update.fail": "Update fail",
+  "msg.update.success": "Update successfully",
   "name.menglong": "Menglong Srern",
   "name.thea": "Thea Choem",
   "position.menglong": "Logo Designer",
@@ -91,11 +93,11 @@
   "subtitle.ask_for_name": "What should I call you?",
   "subtitle.backup_restore": "Backup and restore your data via cloud",
   "subtitle.click_to_update": "Click to upgrade",
+  "title.font_style": "Font Style",
   "title.google_acc": "Google Account",
   "title.hello": "Hello!",
   "title.hello_name": "Hello {USER_NAME}",
   "title.setting": "Setting",
   "title.update_available": "New version is available!",
-  "validate.title": "Must not be empty!",
-  "title.font_style": "Font Style"
+  "validate.title": "Must not be empty!"
 }

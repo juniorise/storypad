@@ -51,7 +51,7 @@ class WSliverAppBar extends HookWidget with DialogMixin {
       automaticallyImplyLeading: false,
       flexibleSpace: AnimatedContainer(
         duration: ConfigConstant.fadeDuration,
-        margin: EdgeInsets.only(top: hasBottom ? 0.0 : 12.0),
+        margin: EdgeInsets.only(top: hasBottom ? 0.0 : 16.0),
         child: buildFlexibleSpaceBar(
           context: context,
           notifier: notifier,
@@ -81,70 +81,88 @@ class WSliverAppBar extends HookWidget with DialogMixin {
     double offsetX = _inited ? 0.0 : -8.0;
 
     final leftSideWidth = notifier.headlineWidth != 0
-        ? MediaQuery.of(context).size.width - 16 * 2 - notifier.headlineWidth
+        ? MediaQuery.of(context).size.width -
+            16 * 2 -
+            notifier.headlineWidth -
+            8
         : kToolbarHeight * 2;
 
     final _notifier = context.read(userModelProvider);
 
-    final _headerTexts = AnimatedOpacity(
-      opacity: _inited ? 1 : 0,
-      curve: Curves.easeInOutQuad,
-      duration: const Duration(milliseconds: 1000),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedContainer(
-            curve: Curves.easeInOutQuad,
-            transform: Matrix4.identity()..translate(offsetX, 0.0),
-            duration: const Duration(milliseconds: 650),
-            width: leftSideWidth,
-            child: Text(
-              tr(
-                "title.hello_name",
-                namedArgs: {"USER_NAME": _notifier.user?.nickname ?? ""},
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: _headerStyle?.copyWith(color: _theme.colorScheme.primary),
-            ),
-          ),
-          const SizedBox(height: ConfigConstant.margin0),
-          AnimatedOpacity(
-            opacity: _inited ? 1 : 0,
-            duration: const Duration(milliseconds: 1000),
-            curve: Curves.easeInQuad,
-            child: AnimatedContainer(
+    final _headerTexts = Container(
+      alignment: Alignment.centerLeft,
+      margin: EdgeInsets.only(
+        top: statusBarHeight >= 20 ? statusBarHeight - 20 : 0,
+        bottom: 15,
+      ),
+      child: AnimatedOpacity(
+        opacity: _inited ? 1 : 0,
+        curve: Curves.easeInOutQuad,
+        duration: const Duration(milliseconds: 1000),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedContainer(
               curve: Curves.easeInOutQuad,
-              duration: const Duration(milliseconds: 500),
+              transform: Matrix4.identity()..translate(offsetX, 0.0),
+              duration: const Duration(milliseconds: 650),
               width: leftSideWidth,
               child: Text(
-                tr("subtitle.ask_for_feeling"),
-                style: _textTheme.bodyText1?.copyWith(
-                  color: _theme.colorScheme.onSurface.withOpacity(0.5),
+                tr(
+                  "title.hello_name",
+                  namedArgs: {"USER_NAME": _notifier.user?.nickname ?? ""},
                 ),
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                maxLines: 2,
+                style:
+                    _headerStyle?.copyWith(color: _theme.colorScheme.primary),
               ),
             ),
-          )
-        ],
+            const SizedBox(height: ConfigConstant.margin0),
+            AnimatedOpacity(
+              opacity: _inited ? 1 : 0,
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeInQuad,
+              child: AnimatedContainer(
+                curve: Curves.easeInOutQuad,
+                duration: const Duration(milliseconds: 500),
+                width: leftSideWidth,
+                child: Text(
+                  tr("subtitle.ask_for_feeling"),
+                  style: _textTheme.bodyText1?.copyWith(
+                    color: _theme.colorScheme.onSurface.withOpacity(0.5),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 2,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
 
     final _yearText = this.backgroundText != null
-        ? AnimatedOpacity(
-            duration: Duration(milliseconds: 1000),
-            curve: Curves.easeInQuad,
-            opacity: _inited ? 1 : 0,
-            child: MeasureSize(
-              onChange: (Size size) {
-                notifier.setHeadlineWidth(size.width);
-              },
-              child: Text(
-                this.backgroundText!,
-                style:
-                    _textTheme.headline2?.copyWith(color: _theme.disabledColor),
+        ? Container(
+            alignment: Alignment.centerRight,
+            margin: EdgeInsets.only(
+              top: statusBarHeight >= 15 ? statusBarHeight - 20 : 0,
+              bottom: 15,
+            ),
+            child: AnimatedOpacity(
+              duration: Duration(milliseconds: 1000),
+              curve: Curves.easeInQuad,
+              opacity: _inited ? 1 : 0,
+              child: MeasureSize(
+                onChange: (Size size) {
+                  notifier.setHeadlineWidth(size.width);
+                },
+                child: Text(
+                  this.backgroundText!,
+                  style: _textTheme.headline2
+                      ?.copyWith(color: _theme.disabledColor),
+                ),
               ),
             ),
           )
@@ -188,30 +206,22 @@ class WSliverAppBar extends HookWidget with DialogMixin {
               ],
               child: _headerTexts,
             ),
-            Positioned(
-              right: 0,
-              top: 0,
-              bottom: 4.0,
-              child: VTOnTapEffect(
-                onTap: () async {
-                  final homeNotifier = context.read(homeScreenProvider);
-                  final years = homeNotifier.availableYears..sort();
-                  showWDialog(
-                    context: context,
-                    child: buildYearChooserDialog(years, context),
-                  );
-                },
-                effects: [
-                  VTOnTapEffectItem(
-                    effectType: VTOnTapEffectType.touchableOpacity,
-                    active: 0.5,
-                  )
-                ],
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  child: _yearText,
-                ),
-              ),
+            VTOnTapEffect(
+              onTap: () async {
+                final homeNotifier = context.read(homeScreenProvider);
+                final years = homeNotifier.availableYears..sort();
+                showWDialog(
+                  context: context,
+                  child: buildYearChooserDialog(years, context),
+                );
+              },
+              effects: [
+                VTOnTapEffectItem(
+                  effectType: VTOnTapEffectType.touchableOpacity,
+                  active: 0.5,
+                )
+              ],
+              child: _yearText,
             ),
           ],
         ),

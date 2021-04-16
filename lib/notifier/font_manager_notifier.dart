@@ -12,7 +12,7 @@ class FontManagerNotifier extends ChangeNotifier {
   FontManagerStorage storage = FontManagerStorage();
 
   bool _loading = true;
-  List<String>? _fontFamilyFallback;
+  List<String?>? _fontFamilyFallback;
 
   setLoading(bool value) {
     this._loading = value;
@@ -26,7 +26,7 @@ class FontManagerNotifier extends ChangeNotifier {
       final code = locale.languageCode;
       return result[code];
     }).toList();
-    _fontFamilyFallback = families as List<String>;
+    _fontFamilyFallback = families;
     setLoading(false);
   }
 
@@ -37,8 +37,7 @@ class FontManagerNotifier extends ChangeNotifier {
     try {
       final storage = FontManagerStorage();
       Map<String, dynamic>? result = await storage.readAsMap();
-
-      if (!(result != null && result.isNotEmpty)) {
+      if (result == null) {
         result = fontFamilyFallbackDefault;
       }
 
@@ -54,6 +53,7 @@ class FontManagerNotifier extends ChangeNotifier {
           }
         },
       );
+
       await storage.writeMap(map);
       await load();
       return true;
@@ -63,9 +63,13 @@ class FontManagerNotifier extends ChangeNotifier {
   }
 
   List<String> get fontFamilyFallback {
-    if (_fontFamilyFallback == null)
+    if (_fontFamilyFallback == null) {
       _fontFamilyFallback = ["Quicksand", "Kantumruy"];
-    return _fontFamilyFallback!;
+    } else {
+      _fontFamilyFallback?.removeWhere((e) => e == null);
+    }
+    return _fontFamilyFallback?.map((e) => "$e").toList() ??
+        ["Quicksand", "Kantumruy"];
   }
 
   bool get loading => _loading;
