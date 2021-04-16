@@ -3,11 +3,13 @@ import 'package:write_story/configs/theme_config.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
 class TextHelper {
+  static final List<String> fontFamilyFallback = ["Quicksand", "Kantumruy"];
+
   static double getMaxHeight(BuildContext context) {
     /// get text max height
     final TextStyle? body1 = Theme.of(context).textTheme.bodyText1;
     List<double> heights = [];
-    for (var i = 0; i < ThemeConfig.fontFamilyFallback.length; i++) {
+    for (var i = 0; i < fontFamilyFallback.length; i++) {
       final String example = ThemeConfig.fontFamilyFallbackExample[i];
       heights.add(TextHelper.calculateTextHeight(
         example,

@@ -3,8 +3,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:write_story/notifier/font_manager_notifier.dart';
 import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/screens/home_screen.dart';
+import 'package:write_story/services/font_manager_service.dart';
 import 'package:write_story/sheets/ask_for_name_sheet.dart';
 
 class WrapperScreens extends HookWidget {
@@ -55,11 +57,10 @@ class WrapperScreens extends HookWidget {
     if (notifier.alreadyHasUser == null) {
       return splashScreen;
     } else {
-      WidgetsBinding.instance!.addPostFrameCallback(
-        (_) {
+      FontManagerService().loadStorageFont().then(
+        (value) {
           if (notifier.alreadyHasUser == true &&
               notifier.user?.nickname != null) {
-            print("1");
             Navigator.of(context).pushReplacement(
               PageTransition(
                 child: HomeScreen(),
@@ -93,6 +94,7 @@ class WrapperScreens extends HookWidget {
           }
         },
       );
+
       return splashScreen;
     }
   }

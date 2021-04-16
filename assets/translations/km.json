@@ -67,6 +67,7 @@
   "msg.drive.info.short": "សូមពិនិត្យមើលរូបភាពទាំងអស់",
   "msg.drive.loading": "កំពុងបញ្ជូនរូបភាពទៅ Drive របស់អ្នក",
   "msg.drive.uploaded": "បានផ្ទុកក្នុងថតឯកសារ \"Story\" របស់ Google Drive",
+  "msg.example_font": "ខ្ញុំបានមើលព្យុះ ដែលមានភាពស្រស់ស្អាតណាស់ ប៉ុន្តែគួរឲ្យខ្លាច",
   "msg.login.account_exists_with_different_credential": "គណនីមានរួចហើយសម្រាប់ Credential នេះ",
   "msg.login.cancel": "បោះបង់",
   "msg.login.email_already_in_use": "គណនីមានរួចហើយសម្រាប់អ៊ីម៉ែលនេះ។",

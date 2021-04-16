@@ -422,7 +422,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "63c2ef9d0e2211a7ef2eefe940111d7ae02df71c"
+      resolved-ref: "14817ec752f530cafcd12c10827bfb8142ea6bbe"
       url: "https://github.com/singerdmx/flutter-quill.git"
     source: git
     version: "1.2.0"

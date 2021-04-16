@@ -20,6 +20,7 @@ import 'package:write_story/notifier/check_for_update_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/remote_database_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
+import 'package:write_story/screens/font_manager_screen.dart';
 import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
@@ -87,7 +88,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
 
                 buildRelateToTheme(),
                 buildRelateToLanguage(),
-                // buildFontStyle(),
+                buildFontStyle(context),
                 const SizedBox(height: 8.0),
                 // if (Platform.isAndroid)
                 buildRate(),
@@ -204,12 +205,17 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
     );
   }
 
-  Widget buildFontStyle() {
+  Widget buildFontStyle(BuildContext context) {
     return WListTile(
       iconData: Icons.font_download_sharp,
       titleText: "Font Style",
-      subtitleText: "Quicksand",
-      onTap: () {},
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) {
+            return FontManagerScreen();
+          }),
+        );
+      },
     );
   }
 
@@ -844,6 +850,8 @@ class WListTile extends StatelessWidget {
     this.subtitleText,
     this.tileColor,
     this.forgroundColor,
+    this.subtitleMaxLines,
+    this.titleFontFamily,
   }) : super(key: key);
 
   final Color? tileColor;
@@ -852,6 +860,8 @@ class WListTile extends StatelessWidget {
   final String? subtitleText;
   final Color? forgroundColor;
   final void Function() onTap;
+  final int? subtitleMaxLines;
+  final String? titleFontFamily;
 
   @override
   Widget build(BuildContext context) {
@@ -871,11 +881,13 @@ class WListTile extends StatelessWidget {
         ),
         title: Text(
           titleText,
-          style: TextStyle(color: forgroundColor),
+          style: TextStyle(color: forgroundColor, fontFamily: titleFontFamily),
         ),
         subtitle: subtitleText != null
             ? Text(
                 subtitleText!,
+                maxLines: subtitleMaxLines,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: forgroundColor ??
                       Theme.of(context)

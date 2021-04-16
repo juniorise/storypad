@@ -6,6 +6,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app.dart';
 import 'package:write_story/database/w_database.dart';
 
+const initSupportedLocales = [
+  Locale('en'),
+  Locale('km'),
+];
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
@@ -30,10 +34,7 @@ class AppLocalization extends StatelessWidget {
   Widget build(BuildContext context) {
     return EasyLocalization(
       startLocale: Locale("en"),
-      supportedLocales: [
-        Locale('en'),
-        Locale('km'),
-      ],
+      supportedLocales: initSupportedLocales,
       path: "assets/translations",
       useOnlyLangCode: true,
       fallbackLocale: Locale('en'),
