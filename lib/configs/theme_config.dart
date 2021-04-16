@@ -2,86 +2,93 @@ import 'package:flutter/material.dart';
 import 'package:write_story/constants/config_constant.dart';
 
 class ThemeConfig {
-  static final ThemeData dark = ThemeData(
-    visualDensity: VisualDensity.adaptivePlatformDensity,
-    colorScheme: darkScheme,
-    scaffoldBackgroundColor: darkScheme.background,
-    disabledColor: darkScheme.onSurface.withOpacity(0.2),
-    splashColor: Colors.transparent,
-    primaryColor: darkScheme.primary,
-    iconTheme: IconThemeData(color: darkScheme.onSurface),
-    accentColor: darkScheme.onSurface,
-    toggleableActiveColor: darkScheme.primary,
-    canvasColor: darkScheme.background,
-    textTheme: textTheme.apply(
-      bodyColor: darkScheme.onSurface,
-      displayColor: darkScheme.onSurface,
-      decorationColor: darkScheme.onSurface,
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: ButtonStyle(
-        shape: MaterialStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: ConfigConstant.circlarRadius1,
-          ),
-        ),
-        overlayColor: MaterialStateProperty.all(Colors.transparent),
-        backgroundColor: MaterialStateProperty.resolveWith(
-          (states) {
-            if (states.contains(MaterialState.pressed) ||
-                states.contains(MaterialState.focused) ||
-                states.contains(MaterialState.hovered) ||
-                states.contains(MaterialState.selected)) {
-              return darkScheme.primary.withOpacity(0.1);
-            } else {
-              return Colors.transparent;
-            }
-          },
-        ),
-        foregroundColor: MaterialStateProperty.all(darkScheme.primary),
-      ),
-    ),
-  );
+  List<String> fontFamilyFallback;
+  ThemeConfig(this.fontFamilyFallback);
 
-  static final ThemeData light = ThemeData(
-    visualDensity: VisualDensity.adaptivePlatformDensity,
-    colorScheme: lightScheme,
-    scaffoldBackgroundColor: lightScheme.background,
-    disabledColor: lightScheme.onSurface.withOpacity(0.2),
-    splashColor: Colors.transparent,
-    primaryColor: lightScheme.primary,
-    iconTheme: IconThemeData(color: lightScheme.onSurface),
-    accentColor: lightScheme.onSurface,
-    canvasColor: lightScheme.background,
-    textTheme: textTheme.apply(
-      bodyColor: lightScheme.onSurface,
-      displayColor: lightScheme.onSurface,
-      decorationColor: lightScheme.onSurface,
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: ButtonStyle(
-        shape: MaterialStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: ConfigConstant.circlarRadius1,
-          ),
-        ),
-        overlayColor: MaterialStateProperty.all(Colors.transparent),
-        backgroundColor: MaterialStateProperty.resolveWith(
-          (states) {
-            if (states.contains(MaterialState.pressed) ||
-                states.contains(MaterialState.focused) ||
-                states.contains(MaterialState.hovered) ||
-                states.contains(MaterialState.selected)) {
-              return lightScheme.primary.withOpacity(0.1);
-            } else {
-              return Colors.transparent;
-            }
-          },
-        ),
-        foregroundColor: MaterialStateProperty.all(lightScheme.primary),
+  ThemeData get dark {
+    return ThemeData(
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+      colorScheme: darkScheme,
+      scaffoldBackgroundColor: darkScheme.background,
+      disabledColor: darkScheme.onSurface.withOpacity(0.2),
+      splashColor: Colors.transparent,
+      primaryColor: darkScheme.primary,
+      iconTheme: IconThemeData(color: darkScheme.onSurface),
+      accentColor: darkScheme.onSurface,
+      toggleableActiveColor: darkScheme.primary,
+      canvasColor: darkScheme.background,
+      textTheme: textTheme.apply(
+        bodyColor: darkScheme.onSurface,
+        displayColor: darkScheme.onSurface,
+        decorationColor: darkScheme.onSurface,
       ),
-    ),
-  );
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: ConfigConstant.circlarRadius1,
+            ),
+          ),
+          overlayColor: MaterialStateProperty.all(Colors.transparent),
+          backgroundColor: MaterialStateProperty.resolveWith(
+            (states) {
+              if (states.contains(MaterialState.pressed) ||
+                  states.contains(MaterialState.focused) ||
+                  states.contains(MaterialState.hovered) ||
+                  states.contains(MaterialState.selected)) {
+                return darkScheme.primary.withOpacity(0.1);
+              } else {
+                return Colors.transparent;
+              }
+            },
+          ),
+          foregroundColor: MaterialStateProperty.all(darkScheme.primary),
+        ),
+      ),
+    );
+  }
+
+  ThemeData get light {
+    return ThemeData(
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+      colorScheme: lightScheme,
+      scaffoldBackgroundColor: lightScheme.background,
+      disabledColor: lightScheme.onSurface.withOpacity(0.2),
+      splashColor: Colors.transparent,
+      primaryColor: lightScheme.primary,
+      iconTheme: IconThemeData(color: lightScheme.onSurface),
+      accentColor: lightScheme.onSurface,
+      canvasColor: lightScheme.background,
+      textTheme: textTheme.apply(
+        bodyColor: lightScheme.onSurface,
+        displayColor: lightScheme.onSurface,
+        decorationColor: lightScheme.onSurface,
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: ConfigConstant.circlarRadius1,
+            ),
+          ),
+          overlayColor: MaterialStateProperty.all(Colors.transparent),
+          backgroundColor: MaterialStateProperty.resolveWith(
+            (states) {
+              if (states.contains(MaterialState.pressed) ||
+                  states.contains(MaterialState.focused) ||
+                  states.contains(MaterialState.hovered) ||
+                  states.contains(MaterialState.selected)) {
+                return lightScheme.primary.withOpacity(0.1);
+              } else {
+                return Colors.transparent;
+              }
+            },
+          ),
+          foregroundColor: MaterialStateProperty.all(lightScheme.primary),
+        ),
+      ),
+    );
+  }
 
   static final ColorScheme lightScheme = ColorScheme(
     background: Color(0xFFF6F6F6),
@@ -125,10 +132,9 @@ class ThemeConfig {
     brightness: Brightness.dark,
   );
 
-  static const List<String> fontFamilyFallback = ["Quicksand", "Kantumruy"];
   static const List<String> fontFamilyFallbackExample = ["Hello", "សួរស្តី"];
 
-  static TextTheme get textTheme {
+  TextTheme get textTheme {
     return TextTheme(
       headline1: TextStyle(
         fontSize: 98,
