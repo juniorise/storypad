@@ -1,4 +1,11 @@
-## 1.0.1+19
+## 1.0.1+21
+- added lock passcode
+- added more fonts to selected
+- added privacy and policy page
+- added switch on/off vibration
+- bugs fix and improvement
+
+## 1.0.1+19, 20
 - add feeling emoji
 - add in app update
 - add new color picker UI
