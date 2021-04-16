@@ -1,0 +1,78 @@
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:write_story/main.dart';
+import 'package:write_story/storages/font_manager_storage.dart';
+
+const Map<String, String> fontFamilyFallbackDefault = {
+  "en": "Quicksand",
+  "km": "Kantumruy",
+};
+
+class FontManagerNotifier extends ChangeNotifier {
+  FontManagerStorage storage = FontManagerStorage();
+
+  bool _loading = true;
+  List<String>? _fontFamilyFallback;
+
+  setLoading(bool value) {
+    this._loading = value;
+    notifyListeners();
+  }
+
+  load() async {
+    setLoading(true);
+    final result = await storage.readAsMap() ?? fontFamilyFallbackDefault;
+    final families = initSupportedLocales.map((locale) {
+      final code = locale.languageCode;
+      return result[code];
+    }).toList();
+    _fontFamilyFallback = families as List<String>;
+    setLoading(false);
+  }
+
+  Future<bool> replaceFontInMap(
+    String familyName,
+    Locale locale,
+  ) async {
+    try {
+      final storage = FontManagerStorage();
+      Map<String, dynamic>? result = await storage.readAsMap();
+
+      if (!(result != null && result.isNotEmpty)) {
+        result = fontFamilyFallbackDefault;
+      }
+
+      final code = locale.languageCode;
+      Map<String, String> map = Map.fromIterable(
+        result.entries,
+        key: (e) => "${e.key}",
+        value: (e) {
+          if (e.key == code) {
+            return "$familyName";
+          } else {
+            return "${e.value}";
+          }
+        },
+      );
+      await storage.writeMap(map);
+      await load();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  List<String> get fontFamilyFallback {
+    if (_fontFamilyFallback == null)
+      _fontFamilyFallback = ["Quicksand", "Kantumruy"];
+    return _fontFamilyFallback!;
+  }
+
+  bool get loading => _loading;
+}
+
+final fontManagerProvider = ChangeNotifierProvider<FontManagerNotifier>(
+  (ref) {
+    return FontManagerNotifier()..load();
+  },
+);

@@ -67,6 +67,7 @@
   "msg.drive.info.short": "Check all images",
   "msg.drive.loading": "Uploading to your drive",
   "msg.drive.uploaded": "Uploaded folder \"Story\" Google Drive",
+  "msg.example_font": "Almost before we knew it, we had left the ground.",
   "msg.login.account_exists_with_different_credential": "Account exist with different credential",
   "msg.login.cancel": "Cancel",
   "msg.login.email_already_in_use": "The account already exists for that email.",
@@ -95,5 +96,6 @@
   "title.hello_name": "Hello {USER_NAME}",
   "title.setting": "Setting",
   "title.update_available": "New version is available!",
-  "validate.title": "Must not be empty!"
+  "validate.title": "Must not be empty!",
+  "title.font_style": "Font Style"
 }
