@@ -144,6 +144,13 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                 const SizedBox(height: 8.0),
                 buildRate(),
                 buildShareApp(),
+                WListTile(
+                  iconData: Icons.policy,
+                  titleText: "Policy",
+                  onTap: () {
+                    launch("https://theacheng.github.io/write_story/");
+                  },
+                ),
                 buildAboutUs(context),
                 const SizedBox(height: 120),
               ],
