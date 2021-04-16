@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:vibration/vibration.dart';
+import 'package:write_story/storages/vibrate_toggle_storage.dart';
 
 Future<void> onTapVibrate() async {
-  await Vibration.vibrate(repeat: 0, duration: 50);
+  final bool value = await VibrateToggleStorage().getBool() == true;
+  if (value) await Vibration.vibrate(repeat: 0, duration: 50);
 }
 
 enum VTOnTapEffectType {

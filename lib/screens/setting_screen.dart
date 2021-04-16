@@ -23,6 +23,7 @@ import 'package:write_story/notifier/theme_notifier.dart';
 import 'package:write_story/screens/font_manager_screen.dart';
 import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
+import 'package:write_story/storages/vibrate_toggle_storage.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -30,10 +31,14 @@ import 'package:easy_localization/easy_localization.dart';
 class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
   final double avatarSize = 72;
   final ValueNotifier<double> scrollOffsetNotifier = ValueNotifier<double>(0);
-
   @override
   Widget build(BuildContext context) {
     final scrollController = useScrollController();
+    final vibrationNotifier = useState<bool>(false);
+    VibrateToggleStorage().getBool().then((value) {
+      vibrationNotifier.value = value == true;
+    });
+
     final CheckForUpdateNotifier updateNotifier =
         useProvider(checkForUpdateProvider);
 
@@ -85,16 +90,41 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                 buildUpdateSpacer(updateNotifier),
                 buildRelateToAccount(),
                 const SizedBox(height: 8.0),
-
                 buildRelateToTheme(),
                 buildRelateToLanguage(),
                 buildFontStyle(context),
+                ValueListenableBuilder(
+                  valueListenable: vibrationNotifier,
+                  builder: (context, value, child) {
+                    return WListTile(
+                      iconData: Icons.vibration,
+                      titleText: "Vibration",
+                      trailing: Switch(
+                        onChanged: (bool value) async {
+                          await VibrateToggleStorage()
+                              .setBool(value: !vibrationNotifier.value);
+                          vibrationNotifier.value = !vibrationNotifier.value;
+                          if (vibrationNotifier.value) {
+                            onTapVibrate();
+                          }
+                        },
+                        value: vibrationNotifier.value,
+                      ),
+                      onTap: () async {
+                        await VibrateToggleStorage()
+                            .setBool(value: !vibrationNotifier.value);
+                        vibrationNotifier.value = !vibrationNotifier.value;
+                        if (vibrationNotifier.value) {
+                          onTapVibrate();
+                        }
+                      },
+                    );
+                  },
+                ),
                 const SizedBox(height: 8.0),
-                // if (Platform.isAndroid)
                 buildRate(),
                 buildShareApp(),
                 buildAboutUs(context),
-
                 const SizedBox(height: 120),
               ],
             ),
@@ -852,6 +882,7 @@ class WListTile extends StatelessWidget {
     this.forgroundColor,
     this.subtitleMaxLines,
     this.titleFontFamily,
+    this.trailing,
   }) : super(key: key);
 
   final Color? tileColor;
@@ -862,12 +893,14 @@ class WListTile extends StatelessWidget {
   final void Function() onTap;
   final int? subtitleMaxLines;
   final String? titleFontFamily;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
     return VTOnTapEffect(
       onTap: () {},
       child: ListTile(
+        trailing: trailing,
         tileColor: tileColor ?? Theme.of(context).colorScheme.surface,
         leading: AspectRatio(
           aspectRatio: 1.5 / 2,
