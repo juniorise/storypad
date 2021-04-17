@@ -46,6 +46,7 @@ class LockSettingScreen extends HookWidget {
                   ? tr("button.passcode.set")
                   : tr("button.passcode.change"),
               onTap: () {
+                if (notifier.ignoring) return;
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
@@ -65,6 +66,7 @@ class LockSettingScreen extends HookWidget {
                 forgroundColor: Theme.of(context).colorScheme.error,
                 titleText: tr("button.passcode.clear"),
                 onTap: () {
+                  if (notifier.ignoring) return;
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) {

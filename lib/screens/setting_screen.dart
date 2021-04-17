@@ -114,10 +114,10 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         return LockSettingScreen();
                       }),
                     );
-                    Future.delayed(ConfigConstant.fadeDuration).then((value) {
-                      context
-                          .read(lockScreenProvider(LockScreenFlowType.UNLOCK))
-                            ..load();
+                    final notifier = context
+                        .read(lockScreenProvider(LockScreenFlowType.UNLOCK));
+                    Future.delayed(ConfigConstant.duration).then((value) async {
+                      await notifier.load();
                     });
                   },
                 ),

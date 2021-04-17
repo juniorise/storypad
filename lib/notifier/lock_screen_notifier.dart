@@ -3,6 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/screens/lock_screen.dart';
 import 'package:write_story/storages/lock_screen_storage.dart';
+import 'package:write_story/widgets/vt_ontap_effect.dart';
 
 class LockScreenNotifier extends ChangeNotifier {
   Map<String, String>? _storageLockNumberMap;
@@ -15,6 +16,9 @@ class LockScreenNotifier extends ChangeNotifier {
 
   bool _inited = false;
   bool get inited => this._inited;
+
+  bool _ignoring = false;
+  bool get ignoring => this._ignoring;
 
   setFlowType(LockScreenFlowType type) {
     this._type = type;
@@ -43,6 +47,8 @@ class LockScreenNotifier extends ChangeNotifier {
   }
 
   load() async {
+    _ignoring = true;
+    notifyListeners();
     final Map<String, String>? result = await storage.readMap();
     if (result != null) {
       this._storageLockNumberMap = result;
@@ -51,13 +57,34 @@ class LockScreenNotifier extends ChangeNotifier {
       this._storageLockNumberMap = null;
     }
     _inited = true;
+    _ignoring = false;
     notifyListeners();
   }
 
-  setLockNumberMap(Map<String, String?>? lockNumberMap) {
-    this._lockNumberMap = lockNumberMap;
-    print(this._lockNumberMap);
-    notifyListeners();
+  setLockNumberMap(
+    Map<String, String?>? lockNumberMap, {
+    bool fadeLock = false,
+  }) async {
+    if (fadeLock && lockNumberMap == null) {
+      this._ignoring = true;
+      notifyListeners();
+      var newMap = this._lockNumberMap;
+      await Future.delayed(Duration(milliseconds: 200));
+      for (int i = 3; i >= 0; i--) {
+        await Future.delayed(Duration(milliseconds: 50)).then((value) {
+          newMap?["$i"] = null;
+          this._lockNumberMap = newMap;
+          notifyListeners();
+        });
+      }
+      onTapVibrate();
+      this._ignoring = false;
+      notifyListeners();
+    } else {
+      this._lockNumberMap = lockNumberMap;
+      print(this._lockNumberMap);
+      notifyListeners();
+    }
   }
 
   bool get isMax {
@@ -91,8 +118,9 @@ class LockScreenNotifier extends ChangeNotifier {
 
 final lockScreenProvider = ChangeNotifierProvider.autoDispose
     .family<LockScreenNotifier, LockScreenFlowType>(
-        (ref, LockScreenFlowType type) {
-  return LockScreenNotifier()
-    ..setFlowType(type)
-    ..load();
-});
+  (ref, LockScreenFlowType type) {
+    return LockScreenNotifier()
+      ..setFlowType(type)
+      ..load();
+  },
+);

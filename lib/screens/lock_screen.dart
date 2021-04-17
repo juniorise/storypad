@@ -131,9 +131,12 @@ class LockScreenWrapper extends HookWidget {
                             : Radius.zero,
                       ),
                     ),
-                    child: Container(
-                      height: 12.0,
-                      width: 12.0,
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 80),
+                      height:
+                          notifier.lockNumberMap["$index"] != null ? 12.0 : 0,
+                      width:
+                          notifier.lockNumberMap["$index"] != null ? 12.0 : 0,
                       decoration: BoxDecoration(
                         color: notifier.lockNumberMap["$index"] != null
                             ? Theme.of(context).colorScheme.onSurface
@@ -151,171 +154,193 @@ class LockScreenWrapper extends HookWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: map.entries.map((e) {
                 final row = e.value;
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: row.map((value) {
-                    return GestureDetector(
-                      onLongPress: value == 10
-                          ? () {
-                              notifier.setLockNumberMap(null);
-                            }
-                          : null,
-                      child: VTOnTapEffect(
-                        onTap: () async {
-                          onTapVibrate();
-                          if (value == null) return;
-                          Map<String, String?> newMap = notifier.lockNumberMap;
-                          if (value == 10) {
-                            int index = 0;
-                            for (int i = 0; i < newMap.length; i++) {
-                              if (newMap["$i"] != null) {
-                                index = i;
+                return IgnorePointer(
+                  ignoring: notifier.ignoring,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: row.map((value) {
+                      return GestureDetector(
+                        onLongPress: value == 10
+                            ? () {
+                                notifier.setLockNumberMap(null);
                               }
-                            }
-                            newMap["$index"] = null;
-                            notifier.setLockNumberMap(newMap);
-                            return;
-                          } else {
-                            if (notifier.isMax) return;
-                            int index = 0;
-                            for (int i = 0; i < newMap.length; i++) {
-                              if (newMap["$i"] == null) {
-                                index = i;
-                                break;
+                            : null,
+                        child: VTOnTapEffect(
+                          onTap: () async {
+                            onTapVibrate();
+                            if (value == null) return;
+                            Map<String, String?> newMap =
+                                notifier.lockNumberMap;
+                            if (value == 10) {
+                              int index = 0;
+                              for (int i = 0; i < newMap.length; i++) {
+                                if (newMap["$i"] != null) {
+                                  index = i;
+                                }
                               }
-                            }
-                            newMap["$index"] = "$value";
-                          }
-                          notifier.setLockNumberMap(newMap);
-
-                          /// above code is to get password as map, eg.
-                          /// ```
-                          /// map = { 0: 1, 1: 3, 2: 6, 3: 9 }
-                          /// ```
-
-                          if (type == LockScreenFlowType.UNLOCK) {
-                            if (notifier.isMax) {
-                              if ("${notifier.storageLockNumberMap}" ==
-                                  "${notifier.lockNumberMap}") {
-                                Navigator.of(context).pushReplacement(
-                                  PageTransition(
-                                    child: HomeScreen(),
-                                    type: PageTransitionType.fade,
-                                    duration: ConfigConstant.duration,
-                                  ),
-                                );
-                              } else {
-                                notifier.setErrorMessage(
-                                    tr("msg.passcode.incorrect"));
-                                onTapVibrate();
-                              }
+                              newMap["$index"] = null;
+                              notifier.setLockNumberMap(newMap);
+                              return;
                             } else {
-                              notifier.setErrorMessage(null);
+                              if (notifier.isMax) return;
+                              int index = 0;
+                              for (int i = 0; i < newMap.length; i++) {
+                                if (newMap["$i"] == null) {
+                                  index = i;
+                                  break;
+                                }
+                              }
+                              newMap["$index"] = "$value";
                             }
-                          }
+                            notifier.setLockNumberMap(newMap);
 
-                          if (type == LockScreenFlowType.SET) {
-                            if (notifier.isMax) {
-                              bool completeStep1 =
-                                  notifier.firstStepLockNumberMap != null;
-                              if (completeStep1) {
-                                bool match =
-                                    "${notifier.firstStepLockNumberMap}" ==
-                                        "${notifier.lockNumberMap}";
+                            /// above code is to get password as map, eg.
+                            /// ```
+                            /// map = { 0: 1, 1: 3, 2: 6, 3: 9 }
+                            /// ```
 
-                                if (match) {
-                                  var map2 = notifier.lockNumberMap;
-                                  await notifier.storage.writeMap(map2);
-                                  Navigator.of(context)..pop()..pop();
+                            if (type == LockScreenFlowType.UNLOCK) {
+                              if (notifier.isMax) {
+                                if ("${notifier.storageLockNumberMap}" ==
+                                    "${notifier.lockNumberMap}") {
+                                  /// duration here need to be bigger than
+                                  /// animatedContainer duration above
+                                  /// to make it smoother
+                                  Future.delayed(Duration(milliseconds: 100))
+                                      .then((value) {
+                                    Navigator.of(context).pushReplacement(
+                                      PageTransition(
+                                        child: HomeScreen(),
+                                        type: PageTransitionType.fade,
+                                        duration: ConfigConstant.duration,
+                                      ),
+                                    );
+                                  });
                                 } else {
+                                  await notifier.setLockNumberMap(null,
+                                      fadeLock: true);
                                   notifier.setErrorMessage(
-                                    tr("msg.passcode.confirm_incorrect"),
+                                    tr("msg.passcode.incorrect"),
                                   );
                                 }
                               } else {
-                                notifier
-                                    .setfirstStepLockNumberMap(Map.fromIterable(
-                                  notifier.lockNumberMap.entries,
-                                  key: (e) => "${e.key}",
-                                  value: (e) => "${e.value}",
-                                ));
-                                notifier.setLockNumberMap(null);
-                                notifier.fadeOpacity();
+                                notifier.setErrorMessage(null);
                               }
-                            } else {
-                              notifier.setErrorMessage(null);
                             }
-                          }
 
-                          if (type == LockScreenFlowType.REPLACE) {
-                            if (notifier.isMax) {
-                              bool match = "${notifier.storageLockNumberMap}" ==
-                                  "${notifier.lockNumberMap}";
-                              if (match) {
-                                notifier.setFlowType(LockScreenFlowType.SET);
-                                notifier.setLockNumberMap(null);
-                                notifier.fadeOpacity();
-                              } else {
-                                notifier.setErrorMessage(
-                                    tr("msg.passcode.incorrect"));
-                              }
-                            } else {
-                              notifier.setErrorMessage(null);
-                            }
-                          }
+                            if (type == LockScreenFlowType.SET) {
+                              if (notifier.isMax) {
+                                bool completeStep1 =
+                                    notifier.firstStepLockNumberMap != null;
+                                if (completeStep1) {
+                                  bool match =
+                                      "${notifier.firstStepLockNumberMap}" ==
+                                          "${notifier.lockNumberMap}";
 
-                          if (type == LockScreenFlowType.RESET) {
-                            if (notifier.isMax) {
-                              bool match = "${notifier.storageLockNumberMap}" ==
-                                  "${notifier.lockNumberMap}";
-                              if (match) {
-                                await notifier.storage.remove();
-                                Navigator.of(context)..pop()..pop();
+                                  if (match) {
+                                    var map2 = notifier.lockNumberMap;
+                                    await notifier.storage.writeMap(map2);
+                                    Navigator.of(context)..pop()..pop();
+                                  } else {
+                                    await notifier.setLockNumberMap(null,
+                                        fadeLock: true);
+                                    notifier.setErrorMessage(
+                                      tr("msg.passcode.confirm_incorrect"),
+                                    );
+                                  }
+                                } else {
+                                  notifier.setfirstStepLockNumberMap(
+                                      Map.fromIterable(
+                                    notifier.lockNumberMap.entries,
+                                    key: (e) => "${e.key}",
+                                    value: (e) => "${e.value}",
+                                  ));
+                                  notifier.setLockNumberMap(null);
+                                  notifier.fadeOpacity();
+                                }
                               } else {
-                                notifier.setErrorMessage(
-                                    tr("msg.passcode.incorrect"));
+                                notifier.setErrorMessage(null);
                               }
-                            } else {
-                              notifier.setErrorMessage(null);
                             }
-                          }
-                        },
-                        child: Container(
-                          height: kToolbarHeight * 1.5,
-                          width: kToolbarHeight * 1.5,
-                          margin: EdgeInsets.all(1.0),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface,
-                            borderRadius: BorderRadius.only(
-                              topLeft: value == 1
-                                  ? Radius.circular(ConfigConstant.radius2)
-                                  : Radius.zero,
-                              topRight: value == 3
-                                  ? Radius.circular(ConfigConstant.radius2)
-                                  : Radius.zero,
-                              bottomLeft: value == null
-                                  ? Radius.circular(ConfigConstant.radius2)
-                                  : Radius.zero,
-                              bottomRight: value == 10
-                                  ? Radius.circular(ConfigConstant.radius2)
-                                  : Radius.zero,
+
+                            if (type == LockScreenFlowType.REPLACE) {
+                              if (notifier.isMax) {
+                                bool match =
+                                    "${notifier.storageLockNumberMap}" ==
+                                        "${notifier.lockNumberMap}";
+                                if (match) {
+                                  notifier.setFlowType(LockScreenFlowType.SET);
+                                  notifier.setLockNumberMap(null);
+                                  notifier.fadeOpacity();
+                                } else {
+                                  await notifier.setLockNumberMap(null,
+                                      fadeLock: true);
+                                  notifier.setErrorMessage(
+                                    tr("msg.passcode.incorrect"),
+                                  );
+                                }
+                              } else {
+                                notifier.setErrorMessage(null);
+                              }
+                            }
+
+                            if (type == LockScreenFlowType.RESET) {
+                              if (notifier.isMax) {
+                                bool match =
+                                    "${notifier.storageLockNumberMap}" ==
+                                        "${notifier.lockNumberMap}";
+                                if (match) {
+                                  await notifier.storage.remove();
+                                  Navigator.of(context)..pop()..pop();
+                                } else {
+                                  await notifier.setLockNumberMap(null,
+                                      fadeLock: true);
+                                  notifier.setErrorMessage(
+                                      tr("msg.passcode.incorrect"));
+                                }
+                              } else {
+                                notifier.setErrorMessage(null);
+                              }
+                            }
+                          },
+                          child: Container(
+                            height: kToolbarHeight * 1.5,
+                            width: kToolbarHeight * 1.5,
+                            margin: EdgeInsets.all(1.0),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.only(
+                                topLeft: value == 1
+                                    ? Radius.circular(ConfigConstant.radius2)
+                                    : Radius.zero,
+                                topRight: value == 3
+                                    ? Radius.circular(ConfigConstant.radius2)
+                                    : Radius.zero,
+                                bottomLeft: value == null
+                                    ? Radius.circular(ConfigConstant.radius2)
+                                    : Radius.zero,
+                                bottomRight: value == 10
+                                    ? Radius.circular(ConfigConstant.radius2)
+                                    : Radius.zero,
+                              ),
                             ),
+                            child: value != null
+                                ? value == 10
+                                    ? Icon(Icons.arrow_back)
+                                    : Text(
+                                        "$value",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline5,
+                                      )
+                                : null,
                           ),
-                          child: value != null
-                              ? value == 10
-                                  ? Icon(Icons.arrow_back)
-                                  : Text(
-                                      "$value",
-                                      style:
-                                          Theme.of(context).textTheme.headline5,
-                                    )
-                              : null,
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 );
               }).toList(),
             ),
