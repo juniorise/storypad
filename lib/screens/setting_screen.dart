@@ -26,6 +26,7 @@ import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/storages/vibrate_toggle_storage.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:write_story/widgets/w_about_dialog.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -286,11 +287,10 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
         final _version = await GetVersion.projectVersion;
         final _code = await GetVersion.projectCode;
 
-        showAboutDialog(
+        showWAboutDialog(
           context: context,
           applicationName: "StoryPad",
           applicationVersion: "v$_version+$_code",
-          applicationLegalese: tr("info.app_detail"),
           children: [
             const SizedBox(height: 24.0),
             VTOnTapEffect(
@@ -321,15 +321,61 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
               ),
             ),
             const Divider(),
-            Text(
-              tr("position.menglong"),
-              style: _textTheme.caption?.copyWith(
-                color: _theme.colorScheme.onSurface.withOpacity(0.8),
+            VTOnTapEffect(
+              onTap: () {
+                launch("https://facebook.com/100004853777908");
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tr("position.menglong"),
+                    style: _textTheme.caption?.copyWith(
+                      color: _theme.colorScheme.onSurface.withOpacity(0.8),
+                    ),
+                  ),
+                  Text(
+                    tr("name.menglong"),
+                    style: _textTheme.caption!
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ],
               ),
             ),
-            Text(
-              tr("name.menglong"),
-              style: _textTheme.caption!.copyWith(fontWeight: FontWeight.w600),
+            const Divider(),
+            VTOnTapEffect(
+              onTap: () async {
+                final Uri params = Uri(
+                  scheme: 'mailto',
+                  path: 'theacheng.g6@gmail.com',
+                );
+                var url = params.toString();
+                if (await canLaunch(url)) {
+                  await launch(url);
+                } else {
+                  print('Could not launch $url');
+                }
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Contact",
+                    style: _textTheme.caption?.copyWith(
+                      color: _theme.colorScheme.onSurface.withOpacity(0.8),
+                    ),
+                  ),
+                  Text(
+                    "Email: theacheng.g6@gmail.com",
+                    style: _textTheme.caption!
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    "Phnom Penh, Cambodia",
+                    style: _textTheme.caption,
+                  ),
+                ],
+              ),
             ),
           ],
           applicationIcon: ClipRRect(
