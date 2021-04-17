@@ -156,7 +156,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                   iconData: Icons.policy,
                   titleText: "Policy",
                   onTap: () {
-                    launch("https://theacheng.github.io/write_story/");
+                    launch("https://theacheng.github.io/storypad/");
                   },
                 ),
                 buildAboutUs(context),
