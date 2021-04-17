@@ -18,9 +18,11 @@ import 'package:write_story/models/db_backup_model.dart';
 import 'package:write_story/notifier/auth_notifier.dart';
 import 'package:write_story/notifier/check_for_update_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
+import 'package:write_story/notifier/lock_screen_notifier.dart';
 import 'package:write_story/notifier/remote_database_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
 import 'package:write_story/screens/font_manager_screen.dart';
+import 'package:write_story/screens/lock_screen.dart';
 import 'package:write_story/screens/lock_setting_screen.dart';
 import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
@@ -102,16 +104,21 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                 WListTile(
                   iconData: Icons.lock,
                   titleText: tr("title.lock"),
-                  onTap: () {
+                  onTap: () async {
                     if (locked) {
                       showSnackBar(context: context, title: tr("msg.locked"));
                       return;
                     }
-                    Navigator.of(context).push(
+                    await Navigator.of(context).push(
                       MaterialPageRoute(builder: (context) {
                         return LockSettingScreen();
                       }),
                     );
+                    Future.delayed(ConfigConstant.fadeDuration).then((value) {
+                      context
+                          .read(lockScreenProvider(LockScreenFlowType.UNLOCK))
+                            ..load();
+                    });
                   },
                 ),
                 ValueListenableBuilder(

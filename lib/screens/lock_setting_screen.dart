@@ -10,6 +10,7 @@ import 'package:write_story/widgets/w_icon_button.dart';
 class LockSettingScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
+    final notifier = useProvider(lockScreenProvider(LockScreenFlowType.UNLOCK));
     return WillPopScope(
       onWillPop: () async {
         ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
@@ -36,50 +37,44 @@ class LockSettingScreen extends HookWidget {
             },
           ),
         ),
-        body: Consumer(
-          builder: (context, reader, child) {
-            final notifier =
-                reader(lockScreenProvider(LockScreenFlowType.UNLOCK));
-            return ListView(
-              children: [
-                SizedBox(height: 8.0),
-                WListTile(
-                  iconData: Icons.lock,
-                  titleText: notifier.storageLockNumberMap == null
-                      ? tr("button.passcode.set")
-                      : tr("button.passcode.change"),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return LockScreenWrapper(
-                            notifier.storageLockNumberMap == null
-                                ? LockScreenFlowType.SET
-                                : LockScreenFlowType.REPLACE,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-                if (notifier.storageLockNumberMap != null)
-                  WListTile(
-                    iconData: Icons.clear,
-                    forgroundColor: Theme.of(context).colorScheme.error,
-                    titleText: tr("button.passcode.clear"),
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return LockScreenWrapper(LockScreenFlowType.RESET);
-                          },
-                        ),
+        body: ListView(
+          children: [
+            SizedBox(height: 8.0),
+            WListTile(
+              iconData: Icons.lock,
+              titleText: notifier.storageLockNumberMap == null
+                  ? tr("button.passcode.set")
+                  : tr("button.passcode.change"),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return LockScreenWrapper(
+                        notifier.storageLockNumberMap == null
+                            ? LockScreenFlowType.SET
+                            : LockScreenFlowType.REPLACE,
                       );
                     },
                   ),
-              ],
-            );
-          },
+                );
+              },
+            ),
+            if (notifier.storageLockNumberMap != null)
+              WListTile(
+                iconData: Icons.clear,
+                forgroundColor: Theme.of(context).colorScheme.error,
+                titleText: tr("button.passcode.clear"),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return LockScreenWrapper(LockScreenFlowType.RESET);
+                      },
+                    ),
+                  );
+                },
+              ),
+          ],
         ),
       ),
     );
