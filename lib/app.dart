@@ -17,19 +17,31 @@ class App extends HookWidget {
     final lockScreenNotifier =
         useProvider(lockScreenProvider(LockScreenFlowType.UNLOCK));
 
+    String initialRoute;
+    if (!lockScreenNotifier.inited) {
+      initialRoute = "/";
+    } else if (lockScreenNotifier.storageLockNumberMap != null) {
+      initialRoute = "/lockscreen";
+    } else {
+      initialRoute = "/unlocked";
+    }
+
     return MaterialApp(
       locale: context.locale,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       debugShowCheckedModeBanner: false,
-      home: !lockScreenNotifier.inited
-          ? Scaffold()
-          : lockScreenNotifier.storageLockNumberMap != null
-              ? LockScreenWrapper(LockScreenFlowType.UNLOCK)
-              : WrapperScreens(),
-      themeMode: notifier.themeMode,
-      theme: ThemeConfig(fontNotifier.fontFamilyFallback).light,
-      darkTheme: ThemeConfig(fontNotifier.fontFamilyFallback).dark,
+      initialRoute: initialRoute,
+      routes: {
+        '': (context) => Scaffold(),
+        '/unlocked': (context) => WrapperScreens(),
+        '/lockscreen': (context) {
+          return LockScreenWrapper(LockScreenFlowType.UNLOCK);
+        }
+      },
+      theme: !notifier.isDarkMode
+          ? ThemeConfig(fontNotifier.fontFamilyFallback).light
+          : ThemeConfig(fontNotifier.fontFamilyFallback).dark,
     );
   }
 }

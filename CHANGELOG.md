@@ -1,3 +1,6 @@
+## 1.0.1+22
+- bugs fix and passcode improvement
+
 ## 1.0.1+21
 - added lock passcode
 - added more fonts to selected
