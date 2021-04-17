@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +61,10 @@ class LockScreenWrapper extends HookWidget {
         if (type != LockScreenFlowType.UNLOCK) {
           ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
           Navigator.of(context)..pop()..pop();
+        } else {
+          if (Platform.isAndroid) {
+            SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          }
         }
         return false;
       },
