@@ -52,9 +52,9 @@ mixin WSnackBar {
       );
 
       onTapVibrate();
-      ScaffoldMessenger.of(context).showSnackBar(snack).closed.then(
+      ScaffoldMessenger.maybeOf(context)?.showSnackBar(snack).closed.then(
         (value) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
           if (onClose != null) onClose();
         },
       );

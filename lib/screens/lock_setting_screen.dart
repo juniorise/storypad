@@ -38,7 +38,8 @@ class LockSettingScreen extends HookWidget {
         ),
         body: Consumer(
           builder: (context, reader, child) {
-            final notifier = reader(lockScreenProvider);
+            final notifier =
+                reader(lockScreenProvider(LockScreenFlowType.UNLOCK));
             return ListView(
               children: [
                 SizedBox(height: 8.0),

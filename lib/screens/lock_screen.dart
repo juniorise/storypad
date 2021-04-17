@@ -18,12 +18,12 @@ enum LockScreenFlowType {
 }
 
 class LockScreenWrapper extends HookWidget {
-  final LockScreenFlowType type;
-  LockScreenWrapper(this.type);
+  final LockScreenFlowType flowType;
+  LockScreenWrapper(this.flowType);
 
   @override
   Widget build(BuildContext context) {
-    final notifier = useProvider(lockScreenProvider);
+    final notifier = useProvider(lockScreenProvider(flowType));
     Map<int, List<int?>> map = {
       1: [1, 2, 3],
       2: [4, 5, 6],
@@ -31,8 +31,9 @@ class LockScreenWrapper extends HookWidget {
       4: [null, 0, 10]
     };
 
+    final LockScreenFlowType type = notifier.type ?? flowType;
     String? _headerText;
-    if (type == LockScreenFlowType.UNLOCK) {
+    if (notifier.type == LockScreenFlowType.UNLOCK) {
       _headerText = tr("msg.passcode.unlock");
     }
     if (type == LockScreenFlowType.SET) {
@@ -41,9 +42,7 @@ class LockScreenWrapper extends HookWidget {
           : tr("msg.passcode.set.step1");
     }
     if (type == LockScreenFlowType.REPLACE) {
-      _headerText = notifier.firstStepLockNumberMap != null
-          ? tr("msg.passcode.replace.step2")
-          : tr("msg.passcode.replace.step1");
+      _headerText = tr("msg.passcode.replace");
     }
 
     if (type == LockScreenFlowType.RESET) {
@@ -136,7 +135,7 @@ class LockScreenWrapper extends HookWidget {
                       height: 12.0,
                       width: 12.0,
                       decoration: BoxDecoration(
-                        color: notifier.lockNumberMap[index] != null
+                        color: notifier.lockNumberMap["$index"] != null
                             ? Theme.of(context).colorScheme.onSurface
                             : Colors.transparent,
                         shape: BoxShape.circle,
@@ -166,27 +165,27 @@ class LockScreenWrapper extends HookWidget {
                         onTap: () async {
                           onTapVibrate();
                           if (value == null) return;
-                          Map<int, int?> newMap = notifier.lockNumberMap;
+                          Map<String, String?> newMap = notifier.lockNumberMap;
                           if (value == 10) {
                             int index = 0;
                             for (int i = 0; i < newMap.length; i++) {
-                              if (newMap[i] != null) {
+                              if (newMap["$i"] != null) {
                                 index = i;
                               }
                             }
-                            newMap[index] = null;
+                            newMap["$index"] = null;
                             notifier.setLockNumberMap(newMap);
                             return;
                           } else {
                             if (notifier.isMax) return;
                             int index = 0;
                             for (int i = 0; i < newMap.length; i++) {
-                              if (newMap[i] == null) {
+                              if (newMap["$i"] == null) {
                                 index = i;
                                 break;
                               }
                             }
-                            newMap[index] = value;
+                            newMap["$index"] = "$value";
                           }
                           notifier.setLockNumberMap(newMap);
 
@@ -227,9 +226,7 @@ class LockScreenWrapper extends HookWidget {
 
                                 if (match) {
                                   var map2 = notifier.lockNumberMap;
-                                  await notifier.storage.writeMap(
-                                    map2 as Map<int, int>,
-                                  );
+                                  await notifier.storage.writeMap(map2);
                                   Navigator.of(context)..pop()..pop();
                                 } else {
                                   notifier.setErrorMessage(
@@ -237,9 +234,12 @@ class LockScreenWrapper extends HookWidget {
                                   );
                                 }
                               } else {
-                                notifier.setfirstStepLockNumberMap(
-                                  notifier.lockNumberMap as Map<int, int>,
-                                );
+                                notifier
+                                    .setfirstStepLockNumberMap(Map.fromIterable(
+                                  notifier.lockNumberMap.entries,
+                                  key: (e) => "${e.key}",
+                                  value: (e) => "${e.value}",
+                                ));
                                 notifier.setLockNumberMap(null);
                                 notifier.fadeOpacity();
                               }
@@ -250,27 +250,15 @@ class LockScreenWrapper extends HookWidget {
 
                           if (type == LockScreenFlowType.REPLACE) {
                             if (notifier.isMax) {
-                              bool completeStep1 =
-                                  notifier.firstStepLockNumberMap != null;
-                              if (completeStep1) {
-                                var map2 = notifier.lockNumberMap;
-                                await notifier.storage
-                                    .writeMap(map2 as Map<int, int>);
-                                Navigator.of(context)..pop()..pop();
+                              bool match = "${notifier.storageLockNumberMap}" ==
+                                  "${notifier.lockNumberMap}";
+                              if (match) {
+                                notifier.setFlowType(LockScreenFlowType.SET);
+                                notifier.setLockNumberMap(null);
+                                notifier.fadeOpacity();
                               } else {
-                                bool match =
-                                    "${notifier.storageLockNumberMap}" ==
-                                        "${notifier.lockNumberMap}";
-                                if (match) {
-                                  notifier.setfirstStepLockNumberMap(
-                                    notifier.lockNumberMap as Map<int, int>,
-                                  );
-                                  notifier.setLockNumberMap(null);
-                                  notifier.fadeOpacity();
-                                } else {
-                                  notifier.setErrorMessage(
-                                      tr("msg.passcode.incorrect"));
-                                }
+                                notifier.setErrorMessage(
+                                    tr("msg.passcode.incorrect"));
                               }
                             } else {
                               notifier.setErrorMessage(null);
@@ -301,10 +289,10 @@ class LockScreenWrapper extends HookWidget {
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.only(
-                              topLeft: value == 0
+                              topLeft: value == 1
                                   ? Radius.circular(ConfigConstant.radius2)
                                   : Radius.zero,
-                              topRight: value == 2
+                              topRight: value == 3
                                   ? Radius.circular(ConfigConstant.radius2)
                                   : Radius.zero,
                               bottomLeft: value == null
