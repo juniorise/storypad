@@ -314,6 +314,31 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
           color: Colors.grey.shade400,
         ),
         Visibility(
+          visible: true,
+          child: Center(
+            child: WMoveCursurButton(
+              icon: Icons.arrow_left,
+              controller: controller,
+              isRight: false,
+            ),
+          ),
+        ),
+        Visibility(
+          visible: true,
+          child: Center(
+            child: WMoveCursurButton(
+              icon: Icons.arrow_right,
+              controller: controller,
+              isRight: true,
+            ),
+          ),
+        ),
+        VerticalDivider(
+          indent: 16,
+          endIndent: 16,
+          color: Colors.grey.shade400,
+        ),
+        Visibility(
           visible: onImagePickCallback != null,
           child: toolbar.ImageButton(
             icon: Icons.image,
