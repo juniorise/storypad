@@ -100,7 +100,7 @@ class WSliverAppBar extends HookWidget with DialogMixin {
         curve: Curves.easeInOutQuad,
         duration: const Duration(milliseconds: 1000),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AnimatedContainer(
