@@ -1,3 +1,7 @@
+## 1.0.1+23
+- add story sharing with firebase
+- end to end encrypt story data
+
 ## 1.0.1+22
 - bugs fix and passcode improvement
 
