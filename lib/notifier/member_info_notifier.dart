@@ -33,6 +33,7 @@ class MembersInfoNotifier extends ChangeNotifier {
     final selectedGroup = await service.fetchSelectedGroup();
     if (selectedGroup == null) {
       _group = null;
+      loading = false;
       notifyListeners();
       return;
     }

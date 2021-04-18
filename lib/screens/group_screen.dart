@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/models/documents/document.dart';
@@ -40,7 +41,7 @@ class GroupScreen extends HookWidget with DialogMixin {
           backgroundColor: Theme.of(context).colorScheme.surface,
           textTheme: Theme.of(context).textTheme,
           title: Text(
-            notifier.groupModel?.groupName ?? "Group",
+            notifier.groupModel?.groupName ?? tr("title.group"),
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
             ),
@@ -88,7 +89,7 @@ class GroupScreen extends HookWidget with DialogMixin {
                   notifier.storyByIdAsList.length == 0
                       ? Column(
                           children: [
-                            WNoData(customText: "No sharing data"),
+                            WNoData(customText: tr("msg.no_sharing_data")),
                           ],
                         )
                       : Column(
@@ -249,14 +250,16 @@ class GroupScreen extends HookWidget with DialogMixin {
                   Builder(
                     builder: (context) {
                       String? subtitle;
-                      String? title = "Invitation alert";
+                      String? title = tr("msg.invitation.alert");
 
                       String groupName = pendingModel?.groupName ?? "";
                       String sendByEmail = pendingModel?.sendByEmail ?? "";
 
                       if (pendingModel?.sendByEmail != null) {
-                        subtitle =
-                            "Invited to join '$groupName' by $sendByEmail";
+                        subtitle = tr("msg.invitation.subtitle", namedArgs: {
+                          "GROUP_NAME": groupName,
+                          "SEND_BY": sendByEmail,
+                        });
                       }
                       return ListTile(
                         onTap: () async {},
@@ -285,14 +288,14 @@ class GroupScreen extends HookWidget with DialogMixin {
                           if (pendingModel == null) return;
                           await notifier.acceptPending(pendingModel);
                         },
-                        child: Text("Join"),
+                        child: Text(tr('button.save')),
                       ),
                       TextButton(
                         onPressed: () async {
                           if (pendingModel == null) return;
                           await notifier.cancelPending(pendingModel);
                         },
-                        child: Text("Cancel"),
+                        child: Text(tr('button.cancel')),
                       ),
                       const SizedBox(width: 16.0),
                     ],
@@ -318,7 +321,7 @@ class GroupScreen extends HookWidget with DialogMixin {
       elevation: 0.25,
       child: TextFormField(
         decoration: InputDecoration(
-          labelText: "Group name",
+          labelText: tr('input.group.title'),
           border: border,
           enabledBorder: border,
           errorBorder: border,

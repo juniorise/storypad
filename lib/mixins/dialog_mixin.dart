@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:write_story/constants/config_constant.dart';
@@ -32,13 +33,13 @@ mixin DialogMixin {
         ),
         actions: <Widget>[
           TextButton(
-            child: const Text('CANCEL'),
+            child: Text(tr('button.cancel')),
             onPressed: () {
               Navigator.of(context).pop();
             },
           ),
           TextButton(
-            child: const Text('OPEN'),
+            child: Text(tr('button.save')),
             onPressed: () {
               Navigator.of(context).pop(text);
             },

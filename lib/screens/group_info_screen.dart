@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -34,7 +35,7 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
         backgroundColor: Theme.of(context).colorScheme.surface,
         textTheme: Theme.of(context).textTheme,
         title: Text(
-          "Group info",
+          tr('title.group_info'),
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
           ),
@@ -61,8 +62,8 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
           labelColor: Theme.of(context).colorScheme.onSurface,
           labelStyle: Theme.of(context).textTheme.bodyText2,
           tabs: [
-            Tab(text: "Members"),
-            Tab(text: "Groups"),
+            Tab(text: tr('title.group.members')),
+            Tab(text: tr('title.group.groups')),
           ],
         ),
         actions: [
@@ -92,8 +93,8 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                     if (offset > 0.5) {
                       final String? groupName = await showTextDialog(
                         context,
-                        labelText: "Group name",
-                        hintText: "eg. Couple",
+                        labelText: tr('input.group.title'),
+                        hintText: tr('input.group.hint'),
                       );
                       if (groupName == null) return;
                       await groupListingNotifier.createGroup("$groupName");
@@ -102,8 +103,8 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                       if (membersInfoNotifier.group == null) return;
                       final String? email = await showTextDialog(
                         context,
-                        labelText: "Email",
-                        hintText: "eg. sok@example.com",
+                        labelText: tr('input.email.title'),
+                        hintText: tr('input.email.hint'),
                       );
 
                       if (email == null) return;
@@ -112,7 +113,7 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                           (value) {
                             showSnackBar(
                               context: context,
-                              title: "Email is invalid",
+                              title: tr('msg.email.invalid'),
                             );
                           },
                         );
@@ -166,8 +167,8 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                   children: [
                     WNoData(
                       customText: membersInfoNotifier.auth.user == null
-                          ? "Log in with a google account to access this feature"
-                          : "Create or selected a group to view all members.",
+                          ? tr('msg.group.no_auth')
+                          : tr('msg.group.no_member'),
                     ),
                     if (membersInfoNotifier.auth.user == null)
                       TextButton(
@@ -180,7 +181,7 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                             ),
                           );
                         },
-                        child: Text("Open Setting"),
+                        child: Text(tr('button.open_setting')),
                       ),
                   ],
                 ),
@@ -214,8 +215,12 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                                 iconData: hasPhoto ? null : Icons.person,
                                 imageIcon: hasPhoto ? member.photoUrl : null,
                                 titleText: member.email ?? "",
-                                subtitleText:
-                                    date != null ? "Joined on $date" : null,
+                                subtitleText: date != null
+                                    ? tr(
+                                        'msg.joined_on',
+                                        namedArgs: {"DATE": "$date"},
+                                      )
+                                    : null,
                                 onTap: () {},
                               ),
                               if (member.joinOn == null)
@@ -285,8 +290,8 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
               children: [
                 WNoData(
                   customText: membersInfoNotifier.auth.user == null
-                      ? "Log in with a google account to access this feature"
-                      : "You don't have any group yet. Create one and invite your friend!",
+                      ? tr('msg.group.no_auth')
+                      : tr('msg.group.no_group'),
                 ),
                 if (membersInfoNotifier.auth.user == null)
                   TextButton(
@@ -299,7 +304,7 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                         ),
                       );
                     },
-                    child: Text("Open Setting"),
+                    child: Text(tr('button.open_setting')),
                   ),
               ],
             ),
@@ -328,8 +333,8 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                         onPressed: () {
                           showSnackBar(
                             context: context,
-                            title: "Are you sure to exit",
-                            actionLabel: "Yes",
+                            title: tr('msg.exit.warning'),
+                            actionLabel: tr('button.yes'),
                             warning: true,
                             onActionPressed: () async {
                               await groupListingNotifier
