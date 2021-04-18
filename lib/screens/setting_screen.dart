@@ -983,6 +983,7 @@ class WListTile extends StatelessWidget {
     this.trailing,
     this.borderRadius,
     this.imageIcon,
+    this.contentPadding,
   }) : super(key: key);
 
   final Color? tileColor;
@@ -996,6 +997,7 @@ class WListTile extends StatelessWidget {
   final String? titleFontFamily;
   final Widget? trailing;
   final BorderRadius? borderRadius;
+  final EdgeInsets? contentPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -1005,6 +1007,7 @@ class WListTile extends StatelessWidget {
         onTap: () {},
         child: ListTile(
           trailing: trailing,
+          contentPadding: contentPadding,
           tileColor: tileColor ?? Theme.of(context).colorScheme.surface,
           leading: AspectRatio(
             aspectRatio: 1.5 / 2,

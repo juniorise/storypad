@@ -13,6 +13,13 @@ class GroupScreenNotifier extends ChangeNotifier {
   GroupStorageModel? _groupModel;
   GroupStorageModel? get groupModel => this._groupModel;
 
+  bool _loading = false;
+  bool get loading => this._loading;
+  set loading(bool value) {
+    this._loading = value;
+    notifyListeners();
+  }
+
   WDatabase wDatabase = WDatabase.instance;
   List<StoryModel> get storyByIdAsList {
     return this._storyById?.entries.map((e) {
@@ -31,6 +38,7 @@ class GroupScreenNotifier extends ChangeNotifier {
 
   Map<int, StoryModel>? _storyById;
   load() async {
+    loading = true;
     final Map<int, StoryModel>? result =
         await wDatabase.storyById(where: "`is_share` = 1");
     if (result != null) {
@@ -41,7 +49,7 @@ class GroupScreenNotifier extends ChangeNotifier {
     final String? groupId = await service.fetchSelectedGroup();
     if (groupId == null) {
       this._groupModel = null;
-      notifyListeners();
+      loading = false;
       return;
     }
 
@@ -53,7 +61,7 @@ class GroupScreenNotifier extends ChangeNotifier {
     if (groupModel != null) {
       this._groupModel = groupModel;
     }
-    notifyListeners();
+    loading = false;
   }
 
   Future<bool> hasGroup() async {

@@ -18,6 +18,7 @@ import 'package:write_story/screens/group_info_screen.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
 import 'package:write_story/services/authentication_service.dart';
 import 'package:write_story/services/encrypt_service.dart';
+import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:write_story/widgets/w_no_data.dart';
@@ -43,6 +44,15 @@ class GroupScreen extends HookWidget with DialogMixin {
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
             ),
+          ),
+          flexibleSpace: Consumer(
+            builder: (context, reader, child) {
+              return SafeArea(
+                child: WLineLoading(
+                  loading: notifier.loading,
+                ),
+              );
+            },
           ),
           leading: WIconButton(
             iconData: Icons.arrow_back,

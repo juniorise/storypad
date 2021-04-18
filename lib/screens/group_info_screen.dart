@@ -10,6 +10,7 @@ import 'package:write_story/models/member_model.dart';
 import 'package:write_story/notifier/group_listing_notifier.dart';
 import 'package:write_story/notifier/member_info_notifier.dart';
 import 'package:write_story/screens/setting_screen.dart';
+import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:write_story/widgets/w_no_data.dart';
@@ -37,6 +38,16 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
           style: TextStyle(
             color: Theme.of(context).colorScheme.onSurface,
           ),
+        ),
+        flexibleSpace: Consumer(
+          builder: (context, reader, child) {
+            return SafeArea(
+              child: WLineLoading(
+                loading:
+                    membersInfoNotifier.loading || groupListingNotifier.loading,
+              ),
+            );
+          },
         ),
         leading: WIconButton(
           iconData: Icons.arrow_back,
@@ -156,7 +167,7 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                     WNoData(
                       customText: membersInfoNotifier.auth.user == null
                           ? "Log in with a google account to access this feature"
-                          : "Create or select a group to view all members.",
+                          : "Create or selected a group to view all members.",
                     ),
                     if (membersInfoNotifier.auth.user == null)
                       TextButton(
@@ -305,33 +316,32 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                 return Container(
                   margin: const EdgeInsets.only(top: 8.0),
                   child: WListTile(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
                     borderRadius: ConfigConstant.circlarRadius2,
                     iconData: selected
                         ? Icons.check_box
                         : Icons.check_box_outline_blank,
                     titleText: title,
-                    trailing: null,
-                    // TODO: add able to delete group
-                    // Container(
-                    //   width: 48,
-                    //   child: WIconButton(
-                    //     onPressed: () {
-                    //       showSnackBar(
-                    //         context: context,
-                    //         title: "Are you sure to exit",
-                    //         actionLabel: "Yes",
-                    //         warning: true,
-                    //         onActionPressed: () async {
-                    //           await groupListingNotifier
-                    //               .exitGroup(group.groupId);
-                    //           await groupInfoNotifier.load();
-                    //         },
-                    //       );
-                    //     },
-                    //     iconData: Icons.exit_to_app,
-                    //     iconColor: Theme.of(context).colorScheme.error,
-                    //   ),
-                    // ),
+                    trailing: Container(
+                      width: 48,
+                      child: WIconButton(
+                        onPressed: () {
+                          showSnackBar(
+                            context: context,
+                            title: "Are you sure to exit",
+                            actionLabel: "Yes",
+                            warning: true,
+                            onActionPressed: () async {
+                              await groupListingNotifier
+                                  .exitGroup(group.groupId);
+                              await groupListingNotifier.load();
+                            },
+                          );
+                        },
+                        iconData: Icons.close,
+                        iconColor: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
                     onTap: () async {
                       if (selected) {
                         await groupListingNotifier.selectedAGroup(null);

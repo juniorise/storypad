@@ -10,6 +10,13 @@ class MembersInfoNotifier extends ChangeNotifier {
   GroupStorageModel? _group;
   GroupRemoteService service = GroupRemoteService();
 
+  bool _loading = false;
+  bool get loading => this._loading;
+  set loading(bool value) {
+    this._loading = value;
+    notifyListeners();
+  }
+
   AuthenticationService auth = AuthenticationService();
   bool get isAdmin {
     if (_group?.admin == null) return false;
@@ -22,6 +29,7 @@ class MembersInfoNotifier extends ChangeNotifier {
   }
 
   load() async {
+    loading = true;
     final selectedGroup = await service.fetchSelectedGroup();
     if (selectedGroup == null) {
       _group = null;
@@ -29,15 +37,17 @@ class MembersInfoNotifier extends ChangeNotifier {
       return;
     }
     _group = await service.fetchGroup(selectedGroup);
-    notifyListeners();
+    loading = false;
   }
 
   Future<void> addUserToGroup(String email) async {
     if (group == null) return;
-
     if (group?.groupId == null) return;
     await service.addUserToGroup(
-        email.toLowerCase(), group!.groupId!, group!.groupName!);
+      email.toLowerCase(),
+      group!.groupId!,
+      group!.groupName!,
+    );
     await load();
   }
 

@@ -108,12 +108,6 @@ class GroupRemoteService {
     final auth = AuthenticationService();
     if (auth.user?.email == null) return null;
     final String sendByEmail = auth.user!.email!;
-    final pending = PendingModel(
-      sendByEmail: sendByEmail,
-      sendToEmail: email,
-      groupId: groupId,
-      groupName: groupName,
-    );
 
     final member = MemberModel(
       email: email,
@@ -123,11 +117,19 @@ class GroupRemoteService {
       joinOn: null,
       inviteOn: Timestamp.now(),
     );
-
     DocumentReference membersCollection =
         groupsCollection.doc(groupId).collection("members").doc(member.email);
-    await membersCollection.set(member.toJson());
 
+    final value = await membersCollection.get().then((value) => value);
+    if (value.data() != null) return;
+
+    await membersCollection.set(member.toJson());
+    final pending = PendingModel(
+      sendByEmail: sendByEmail,
+      sendToEmail: email,
+      groupId: groupId,
+      groupName: groupName,
+    );
     DocumentReference pendingsDocsRef = pendingsCollection.doc(email);
     await pendingsDocsRef.set(pending.toJson());
   }
@@ -240,11 +242,14 @@ class GroupRemoteService {
     }
 
     await userDocRef.collection("groups").doc(groupId).delete();
-    await groupsCollection
-        .doc(groupId)
-        .collection("members")
-        .doc(email)
-        .delete();
+    CollectionReference membersCollectionsRef =
+        groupsCollection.doc(groupId).collection("members");
+    await membersCollectionsRef.doc(email).delete();
+    membersCollectionsRef.get().then((value) async {
+      if (value.docs.length == 0) {
+        await groupsCollection.doc(groupId).delete();
+      }
+    });
   }
 
   Future<void> syncEncryptStories(
@@ -260,10 +265,12 @@ class GroupRemoteService {
     final String email = auth.user!.email!;
     final encrypt = EncryptService.storyMapEncrypt(result);
 
-    await groupsCollection
-        .doc(groupId)
-        .collection("members")
-        .doc(email)
-        .update({"db": encrypt});
+    try {
+      await groupsCollection
+          .doc(groupId)
+          .collection("members")
+          .doc(email)
+          .update({"db": encrypt});
+    } catch (e) {}
   }
 }
