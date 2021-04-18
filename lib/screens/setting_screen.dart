@@ -972,19 +972,22 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
 class WListTile extends StatelessWidget {
   const WListTile({
     Key? key,
-    required this.iconData,
     required this.titleText,
     required this.onTap,
+    this.iconData,
     this.subtitleText,
     this.tileColor,
     this.forgroundColor,
     this.subtitleMaxLines,
     this.titleFontFamily,
     this.trailing,
+    this.borderRadius,
+    this.imageIcon,
   }) : super(key: key);
 
   final Color? tileColor;
-  final IconData iconData;
+  final IconData? iconData;
+  final String? imageIcon;
   final String titleText;
   final String? subtitleText;
   final Color? forgroundColor;
@@ -992,43 +995,61 @@ class WListTile extends StatelessWidget {
   final int? subtitleMaxLines;
   final String? titleFontFamily;
   final Widget? trailing;
+  final BorderRadius? borderRadius;
 
   @override
   Widget build(BuildContext context) {
-    return VTOnTapEffect(
-      onTap: () {},
-      child: ListTile(
-        trailing: trailing,
-        tileColor: tileColor ?? Theme.of(context).colorScheme.surface,
-        leading: AspectRatio(
-          aspectRatio: 1.5 / 2,
-          child: Container(
-            height: double.infinity,
-            child: Icon(
-              iconData,
-              color: forgroundColor,
+    return ClipRRect(
+      borderRadius: borderRadius ?? BorderRadius.zero,
+      child: VTOnTapEffect(
+        onTap: () {},
+        child: ListTile(
+          trailing: trailing,
+          tileColor: tileColor ?? Theme.of(context).colorScheme.surface,
+          leading: AspectRatio(
+            aspectRatio: 1.5 / 2,
+            child: Container(
+              height: double.infinity,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: imageIcon != null
+                    ? DecorationImage(
+                        image: CachedNetworkImageProvider(imageIcon!),
+                      )
+                    : null,
+              ),
+              child: iconData != null
+                  ? Icon(
+                      iconData,
+                      color: forgroundColor,
+                    )
+                  : null,
             ),
           ),
+          shape: borderRadius != null
+              ? RoundedRectangleBorder(borderRadius: borderRadius!)
+              : null,
+          title: Text(
+            titleText,
+            style:
+                TextStyle(color: forgroundColor, fontFamily: titleFontFamily),
+          ),
+          subtitle: subtitleText != null
+              ? Text(
+                  subtitleText!,
+                  maxLines: subtitleMaxLines,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: forgroundColor ??
+                        Theme.of(context)
+                            .colorScheme
+                            .onBackground
+                            .withOpacity(0.5),
+                  ),
+                )
+              : null,
+          onTap: onTap,
         ),
-        title: Text(
-          titleText,
-          style: TextStyle(color: forgroundColor, fontFamily: titleFontFamily),
-        ),
-        subtitle: subtitleText != null
-            ? Text(
-                subtitleText!,
-                maxLines: subtitleMaxLines,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: forgroundColor ??
-                      Theme.of(context)
-                          .colorScheme
-                          .onBackground
-                          .withOpacity(0.5),
-                ),
-              )
-            : null,
-        onTap: onTap,
       ),
     );
   }

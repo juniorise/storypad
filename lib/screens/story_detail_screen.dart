@@ -45,10 +45,12 @@ class StoryDetailScreen extends HookWidget
     Key? key,
     required this.story,
     this.insert = false,
+    this.forceReadOnly = false,
   }) : super(key: key);
 
   final StoryModel story;
   final bool insert;
+  final bool forceReadOnly;
 
   final ValueNotifier<double> headerPaddingTopNotifier =
       ValueNotifier<double>(0);
@@ -263,7 +265,7 @@ class StoryDetailScreen extends HookWidget
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Image may be deleted or marked as private",
+                      "Image may be deleted or marked as private or not internet connection",
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
@@ -483,12 +485,14 @@ class StoryDetailScreen extends HookWidget
           FocusScope.of(context).unfocus();
           TextEditingController().clear();
         },
-        onDoubleTap: readOnlyModeNotifier.value
-            ? () {
-                readOnlyModeNotifier.value = false;
-                focusNode.requestFocus();
-              }
-            : null,
+        onDoubleTap: forceReadOnly
+            ? null
+            : readOnlyModeNotifier.value
+                ? () {
+                    readOnlyModeNotifier.value = false;
+                    focusNode.requestFocus();
+                  }
+                : null,
         child: Scaffold(
           backgroundColor: _theme.colorScheme.surface,
           body: body,
@@ -656,12 +660,14 @@ class StoryDetailScreen extends HookWidget
               context: context,
               date: notifier.draftStory.forDate,
               notifier: notifier,
+              readOnly: forceReadOnly,
             );
           },
         ),
         EmojiPickerButton(
           currentFeelingModel: currentFeelingModel,
           onPickedEmoji: (String? emojiType) {
+            if (forceReadOnly) return;
             notifier.setDraftStory(
               StoryModel(
                 title: notifier.draftStory.title,
@@ -680,11 +686,27 @@ class StoryDetailScreen extends HookWidget
         WIconButton(
           iconData: Icons.more_vert,
           onPressed: () {
+            bool showDelete = true;
+            bool showSave = true;
+            bool showInfo = true;
+            bool showShare = true;
+            bool showDarkMode = true;
+            bool showReadOnly = true;
+
+            showDelete = !insert;
+            showInfo = !insert;
+
+            if (forceReadOnly) {
+              showSave = false;
+              showDelete = false;
+              showReadOnly = false;
+            }
+
             showMenu(
               context: context,
               position: RelativeRect.fromLTRB(8.0, 0.0, 0.0, 0.0),
               items: [
-                if (!insert)
+                if (showDelete)
                   PopupMenuItem(
                     child: VTOnTapEffect(
                       onTap: () async {
@@ -708,27 +730,28 @@ class StoryDetailScreen extends HookWidget
                       ),
                     ),
                   ),
-                PopupMenuItem(
-                  child: VTOnTapEffect(
-                    onTap: () async {
-                      Navigator.of(context).pop();
-                      await onSave(
-                        imageLoadingNotifier: imageLoadingNotifier,
-                        notifier: notifier,
-                        context: context,
-                        insert: insert,
-                        paragraph: quillNotifier.draftParagraph,
-                      );
-                    },
-                    child: ListTile(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: ConfigConstant.margin1,
-                        ),
-                        leading: const Icon(Icons.save),
-                        title: Text(tr("button.save"))),
+                if (showSave)
+                  PopupMenuItem(
+                    child: VTOnTapEffect(
+                      onTap: () async {
+                        Navigator.of(context).pop();
+                        await onSave(
+                          imageLoadingNotifier: imageLoadingNotifier,
+                          notifier: notifier,
+                          context: context,
+                          insert: insert,
+                          paragraph: quillNotifier.draftParagraph,
+                        );
+                      },
+                      child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: ConfigConstant.margin1,
+                          ),
+                          leading: const Icon(Icons.save),
+                          title: Text(tr("button.save"))),
+                    ),
                   ),
-                ),
-                if (!insert)
+                if (showInfo)
                   PopupMenuItem(
                     child: VTOnTapEffect(
                       onTap: () async {
@@ -768,112 +791,115 @@ class StoryDetailScreen extends HookWidget
                       ),
                     ),
                   ),
-                PopupMenuItem(
-                  child: VTOnTapEffect(
-                    onTap: () async {
-                      Navigator.of(context).pop();
-                      final title = notifier.draftStory.title;
-                      final root = quillNotifier.controller.document.root;
-                      final shareText = QuillHelper.toPlainText(root);
-                      await Share.share(title + "\n$shareText");
-                    },
-                    child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: ConfigConstant.margin1,
+                if (showShare)
+                  PopupMenuItem(
+                    child: VTOnTapEffect(
+                      onTap: () async {
+                        Navigator.of(context).pop();
+                        final title = notifier.draftStory.title;
+                        final root = quillNotifier.controller.document.root;
+                        final shareText = QuillHelper.toPlainText(root);
+                        await Share.share(title + "\n$shareText");
+                      },
+                      child: ListTile(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: ConfigConstant.margin1,
+                        ),
+                        leading: Icon(Icons.share),
+                        title: Text(tr("button.share")),
                       ),
-                      leading: Icon(Icons.share),
-                      title: Text(tr("button.share")),
                     ),
                   ),
-                ),
-                PopupMenuItem(
-                  child: Consumer(
-                    builder: (context, watch, child) {
-                      final notifier = watch(themeProvider);
-                      return VTOnTapEffect(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          Future.delayed(ConfigConstant.duration).then(
-                            (value) {
-                              onTapVibrate();
-                              notifier.toggleTheme();
-                            },
-                          );
-                        },
-                        child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: ConfigConstant.margin1,
+                if (showDarkMode)
+                  PopupMenuItem(
+                    child: Consumer(
+                      builder: (context, watch, child) {
+                        final notifier = watch(themeProvider);
+                        return VTOnTapEffect(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            Future.delayed(ConfigConstant.duration).then(
+                              (value) {
+                                onTapVibrate();
+                                notifier.toggleTheme();
+                              },
+                            );
+                          },
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: ConfigConstant.margin1,
+                            ),
+                            leading: Icon(Icons.nights_stay),
+                            title: Text(tr("button.dark_mode")),
+                            trailing: Container(
+                              child: Switch(
+                                value: notifier.isDarkMode == true,
+                                onChanged: (bool value) {
+                                  Navigator.of(context).pop();
+                                  Future.delayed(ConfigConstant.duration).then(
+                                    (value) {
+                                      onTapVibrate();
+                                      notifier.toggleTheme();
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
                           ),
-                          leading: Icon(Icons.nights_stay),
-                          title: Text(tr("button.dark_mode")),
-                          trailing: Container(
-                            child: Switch(
-                              value: notifier.isDarkMode == true,
+                        );
+                      },
+                    ),
+                  ),
+                if (showReadOnly)
+                  PopupMenuItem(
+                    child: ValueListenableBuilder(
+                      valueListenable: readOnlyModeNotifier,
+                      builder: (context, value, child) {
+                        return VTOnTapEffect(
+                          onTap: () {
+                            if (readOnlyModeNotifier.value) {
+                              focusNode.requestFocus();
+                              Navigator.of(context).pop();
+                            } else {
+                              focusNode.unfocus();
+                            }
+                            Future.delayed(ConfigConstant.duration).then(
+                              (value) {
+                                readOnlyModeNotifier.value =
+                                    !readOnlyModeNotifier.value;
+                              },
+                            );
+                          },
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: ConfigConstant.margin1,
+                            ),
+                            leading: Icon(!readOnlyModeNotifier.value
+                                ? Icons.chrome_reader_mode_outlined
+                                : Icons.chrome_reader_mode),
+                            title: Text(tr("button.read_only")),
+                            trailing: Switch(
+                              value: readOnlyModeNotifier.value,
                               onChanged: (bool value) {
-                                Navigator.of(context).pop();
+                                if (readOnlyModeNotifier.value) {
+                                  focusNode.requestFocus();
+                                  Navigator.of(context).pop();
+                                } else {
+                                  focusNode.unfocus();
+                                }
                                 Future.delayed(ConfigConstant.duration).then(
                                   (value) {
-                                    onTapVibrate();
-                                    notifier.toggleTheme();
+                                    readOnlyModeNotifier.value =
+                                        !readOnlyModeNotifier.value;
                                   },
                                 );
                               },
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
-                ),
-                PopupMenuItem(
-                  child: ValueListenableBuilder(
-                    valueListenable: readOnlyModeNotifier,
-                    builder: (context, value, child) {
-                      return VTOnTapEffect(
-                        onTap: () {
-                          if (readOnlyModeNotifier.value) {
-                            focusNode.requestFocus();
-                            Navigator.of(context).pop();
-                          } else {
-                            focusNode.unfocus();
-                          }
-                          Future.delayed(ConfigConstant.duration).then(
-                            (value) {
-                              readOnlyModeNotifier.value =
-                                  !readOnlyModeNotifier.value;
-                            },
-                          );
-                        },
-                        child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: ConfigConstant.margin1,
-                          ),
-                          leading: Icon(!readOnlyModeNotifier.value
-                              ? Icons.chrome_reader_mode_outlined
-                              : Icons.chrome_reader_mode),
-                          title: Text(tr("button.read_only")),
-                          trailing: Switch(
-                            value: readOnlyModeNotifier.value,
-                            onChanged: (bool value) {
-                              if (readOnlyModeNotifier.value) {
-                                focusNode.requestFocus();
-                                Navigator.of(context).pop();
-                              } else {
-                                focusNode.unfocus();
-                              }
-                              Future.delayed(ConfigConstant.duration).then(
-                                (value) {
-                                  readOnlyModeNotifier.value =
-                                      !readOnlyModeNotifier.value;
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
               ],
             );
           },
@@ -971,11 +997,13 @@ class StoryDetailScreen extends HookWidget
                       title: Text(tr("msg.date.for_date")),
                       subtitle: Text(_forDate, style: style),
                       onTap: () {
+                        if (forceReadOnly) return;
                         Navigator.of(context).pop();
                         onPickDate(
                           context: context,
                           date: notifier.draftStory.forDate,
                           notifier: notifier,
+                          readOnly: forceReadOnly,
                         );
                       },
                     ),

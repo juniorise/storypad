@@ -6,13 +6,11 @@ import "package:path/path.dart";
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/models/user_model.dart';
 import 'dart:convert' as convert;
-import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:write_story/services/encrypt_service.dart';
 
 class WDatabase {
   WDatabase._privateConstructor();
   static final WDatabase instance = WDatabase._privateConstructor();
-
-  static const SECRET_KEY = "2020_PRIVATES_KEYS_ENCRYPTS_2020";
 
   static Database? _database;
   static String deviceId = "os";
@@ -55,6 +53,14 @@ class WDatabase {
           await database
               .execute("ALTER TABLE story ADD COLUMN feeling char(50);");
         }
+
+        /// add new is_share column if not existed
+        try {
+          await database.rawQuery("SELECT is_share from story;");
+        } catch (e) {
+          await database
+              .execute("ALTER TABLE story ADD COLUMN is_share INTEGER");
+        }
       },
       version: 3,
     );
@@ -77,11 +83,7 @@ class WDatabase {
 
     String backup;
     if (isEncrypted) {
-      final key = encrypt.Key.fromUtf8(SECRET_KEY);
-      final iv = encrypt.IV.fromLength(16);
-      final encrypter = encrypt.Encrypter(encrypt.AES(key));
-      final encrypted = encrypter.encrypt(json, iv: iv);
-      backup = encrypted.base64;
+      backup = EncryptService.encryptToString(json);
     } else {
       backup = json;
     }
@@ -93,12 +95,10 @@ class WDatabase {
       var dbs = await this.database;
 
       Batch batch = dbs!.batch();
-      final key = encrypt.Key.fromUtf8(SECRET_KEY);
-      final iv = encrypt.IV.fromLength(16);
-      final encrypter = encrypt.Encrypter(encrypt.AES(key));
 
       List json = convert.jsonDecode(
-          isEncrypted ? encrypter.decrypt64(backup, iv: iv) : backup);
+        isEncrypted ? EncryptService.decryptToString(backup) : backup,
+      );
 
       for (var i = 0; i < json[0].length; i++) {
         for (var k = 0; k < json[1][i].length; k++) {
@@ -139,6 +139,7 @@ class WDatabase {
         for_date = ${story.forDate.millisecondsSinceEpoch},
         update_on = ${updateOn!.millisecondsSinceEpoch},
         is_favorite = ${story.isFavorite == true ? 1 : 0},
+        is_share = ${story.isShare == true ? 1 : 0},
         feeling = '${story.feeling}'
     WHERE id = ${story.id}
     ''';
@@ -167,6 +168,7 @@ class WDatabase {
       for_date,
       update_on, 
       is_favorite,
+      is_share,
       feeling
     )
     VALUES (
@@ -177,6 +179,7 @@ class WDatabase {
         ${story.forDate.millisecondsSinceEpoch}, 
         ${story.updateOn != null ? story.updateOn?.millisecondsSinceEpoch : story.createOn.millisecondsSinceEpoch}, 
         ${story.isFavorite ? 1 : 0},
+        ${story.isShare ? 1 : 0},
         '${story.feeling}'
     )
     ''';
@@ -189,7 +192,7 @@ class WDatabase {
     }
   }
 
-  Future<Map<int, StoryModel>> storyById() async {
+  Future<Map<int, StoryModel>> storyById({String? where}) async {
     var client = await database;
     List<Map<String, dynamic>> maps = await client!.query(
       "story",
@@ -202,7 +205,9 @@ class WDatabase {
         "is_favorite",
         "for_date",
         "feeling",
+        "is_share",
       ],
+      where: where,
     );
 
     final map = Map.fromIterable(maps, key: (e) {

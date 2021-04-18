@@ -6,9 +6,11 @@ class WNoData extends StatelessWidget {
   const WNoData({
     Key? key,
     this.monthName,
+    this.customText,
   }) : super(key: key);
 
   final String? monthName;
+  final String? customText;
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +22,14 @@ class WNoData extends StatelessWidget {
             width: constrant.maxWidth / 2,
             margin: EdgeInsets.only(bottom: ConfigConstant.margin2),
             child: Text(
-              monthName != null
-                  ? tr(
-                      "msg.story.empty",
-                      namedArgs: {'MONTH_NAME': monthName!},
-                    )
-                  : tr("msg.story.empty_normal"),
+              customText != null
+                  ? "$customText"
+                  : monthName != null
+                      ? tr(
+                          "msg.story.empty",
+                          namedArgs: {'MONTH_NAME': monthName!},
+                        )
+                      : tr("msg.story.empty_normal"),
               textAlign: tablet ? TextAlign.start : TextAlign.center,
               style: Theme.of(context).textTheme.bodyText1?.copyWith(
                     color: Theme.of(context)

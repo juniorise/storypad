@@ -76,6 +76,7 @@ mixin StoryDetailMethodMixin {
     required BuildContext context,
     required DateTime date,
     required StoryDetailScreenNotifier notifier,
+    required bool readOnly,
   }) async {
     FocusScope.of(context).unfocus();
     TextEditingController().clear();
@@ -122,6 +123,8 @@ mixin StoryDetailMethodMixin {
         },
       );
     }
+
+    if (readOnly) return;
 
     if (forDate != null) {
       notifier.setDraftStory(

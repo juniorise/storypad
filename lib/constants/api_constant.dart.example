@@ -1,3 +1,4 @@
 class ApiConstant {
   static final langsSheetsEndPoint = '';
+  static const SECRET_KEY = "";
 }
