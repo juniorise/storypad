@@ -8,10 +8,12 @@ class WMoreFaqButton extends StatelessWidget {
     Key? key,
     required this.onAddStoryPressed,
     required this.onSettingPressed,
+    required this.onGroupPressed,
     required this.faqNotifier,
   }) : super(key: key);
 
   final void Function() onSettingPressed;
+  final void Function() onGroupPressed;
   final void Function() onAddStoryPressed;
   final ValueNotifier<bool> faqNotifier;
 
@@ -79,6 +81,22 @@ class WMoreFaqButton extends StatelessWidget {
                 onLongPress: () {
                   onTapVibrate();
                   onSettingPressed();
+                },
+              ),
+              SpeedDialChild(
+                child: Icon(Icons.group),
+                labelBackgroundColor: Theme.of(context).colorScheme.surface,
+                backgroundColor: buttonBackgroundColor,
+                foregroundColor: buttonForegroundColor,
+                label: tr("title.group"),
+                elevation: 0.0,
+                labelStyle: labelStyle,
+                onTap: () {
+                  onGroupPressed();
+                },
+                onLongPress: () {
+                  onTapVibrate();
+                  onGroupPressed();
                 },
               ),
               SpeedDialChild(

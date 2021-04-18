@@ -8,6 +8,7 @@ class StoryModel {
   final DateTime? updateOn;
   final DateTime forDate;
   final bool isFavorite;
+  final bool isShare;
   final String? feeling;
 
   const StoryModel({
@@ -19,6 +20,7 @@ class StoryModel {
     this.feeling,
     this.updateOn,
     this.isFavorite = false,
+    this.isShare = false,
   });
 
   static StoryModel get empty {
@@ -40,6 +42,7 @@ class StoryModel {
     DateTime? updateOn,
     DateTime? forDate,
     bool? isFavorite,
+    bool? isShare,
     String? feeling,
   }) {
     return StoryModel(
@@ -50,6 +53,7 @@ class StoryModel {
       forDate: forDate ?? this.forDate,
       updateOn: updateOn ?? this.updateOn,
       isFavorite: isFavorite ?? this.isFavorite,
+      isShare: isShare ?? this.isShare,
       feeling: feeling ?? this.feeling,
     );
   }
@@ -72,7 +76,12 @@ class StoryModel {
 
     bool isFavorite = false;
     if (json.containsKey("is_favorite")) {
-      isFavorite = json["is_favorite"] == 0 ? false : true;
+      isFavorite = json["is_favorite"] == 1 ? true : false;
+    }
+
+    bool isShare = false;
+    if (json.containsKey("is_share")) {
+      isShare = json["is_share"] == 1 ? true : false;
     }
 
     return StoryModel(
@@ -83,6 +92,7 @@ class StoryModel {
       createOn: createOn,
       forDate: forDate,
       isFavorite: isFavorite,
+      isShare: isShare,
       feeling: json["feeling"],
     );
   }
@@ -92,11 +102,12 @@ class StoryModel {
       "id": id,
       "title": title,
       "paragraph": paragraph,
-      "is_favorite": isFavorite,
+      "is_favorite": isFavorite ? 1 : 0,
       "create_on": createOn.millisecondsSinceEpoch,
       "for_date": forDate.millisecondsSinceEpoch,
       "update_on": updateOn != null ? updateOn!.millisecondsSinceEpoch : null,
       "feeling": feeling,
+      "is_share": isShare ? 1 : 0,
     };
   }
 }

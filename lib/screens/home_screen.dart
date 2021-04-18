@@ -1,14 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_quill/models/documents/document.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/app_helper.dart';
-import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/colors/colors.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/dialog_mixin.dart';
@@ -18,11 +15,12 @@ import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
 import 'package:write_story/notifier/tab_controller_notifier.dart';
 import 'package:write_story/notifier/theme_notifier.dart';
+import 'package:write_story/screens/group_screen.dart';
 import 'package:write_story/screens/setting_screen.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
+import 'package:write_story/widgets/w_story_tile.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/vt_tab_view.dart';
-import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:write_story/widgets/w_more_faq_button.dart';
 import 'package:write_story/widgets/w_no_data.dart';
 import 'package:write_story/widgets/w_sliver_appbar.dart';
@@ -286,6 +284,17 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
         builder: (context, value, child) {
           return WMoreFaqButton(
             faqNotifier: faqNotifier,
+            onGroupPressed: () async {
+              closeFaq();
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return GroupScreen();
+                  },
+                ),
+              );
+              await notifier.load();
+            },
             onSettingPressed: () {
               closeFaq();
               Navigator.of(context).push(
@@ -572,65 +581,15 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     EdgeInsets margin = const EdgeInsets.only(bottom: ConfigConstant.margin1),
     required ValueChanged<DateTime> onSaved,
   }) {
-    final _theme = Theme.of(context);
-
-    /// Title
-    final _titleWidget = story.title.isNotEmpty
-        ? Container(
-            padding: const EdgeInsets.only(right: 30),
-            width: MediaQuery.of(context).size.width - 16 * 7,
-            child: Text(
-              story.title,
-              style: _theme.textTheme.subtitle1,
-              textAlign: TextAlign.start,
-            ),
-          )
-        : const SizedBox();
-
-    String? paragraph;
-
-    try {
-      final decode = jsonDecode(story.paragraph!);
-      final document = Document.fromJson(decode);
-      paragraph = QuillHelper.toPlainText(document.root).trim();
-    } catch (e) {}
-
-    /// Paragraph
-    String _paragraphText = paragraph ?? "${story.paragraph}";
-    String _displayParagraph = _paragraphText.characters.take(150).toString();
-    if (_paragraphText.length > 150) {
-      _displayParagraph = _displayParagraph + " ...";
-    }
-
-    final _paragraphChild = Container(
-      width: MediaQuery.of(context).size.width - 16 * 7,
-      child: Text(
-        _displayParagraph,
-        textAlign: TextAlign.start,
-        style: _theme.textTheme.bodyText2
-            ?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.5)),
-      ),
-    );
-
-    final _paragraphWidget =
-        _paragraphText.isNotEmpty ? _paragraphChild : const SizedBox();
-
-    // Favorite button
-    final _favoriteButton = buildFavoriteButton(
-      notifier: notifier,
+    return WStoryTile(
       story: story,
-      context: context,
-    );
-
-    final _tileEffects = [
-      VTOnTapEffectItem(
-        effectType: VTOnTapEffectType.touchableOpacity,
-        active: 0.3,
-      ),
-    ];
-
-    return VTOnTapEffect(
-      effects: _tileEffects,
+      onSaved: onSaved,
+      onToggleShare: () async {
+        closeFaq();
+        onTapVibrate();
+        print("TEST");
+        await notifier.toggleShare(story.id);
+      },
       onTap: () async {
         closeFaq();
         final dynamic selected = await Navigator.of(
@@ -646,78 +605,11 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
         );
         if (selected != null && selected is DateTime) onSaved(selected);
       },
-      child: Container(
-        width: double.infinity,
-        margin: margin,
-        child: Material(
-          elevation: 0.2,
-          color: _theme.colorScheme.surface,
-          borderRadius: ConfigConstant.circlarRadius2,
-          child: Stack(
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: ConfigConstant.margin2,
-                  vertical: ConfigConstant.margin1 + 4,
-                ),
-                width: double.infinity,
-                child: Wrap(
-                  direction: Axis.vertical,
-                  alignment: WrapAlignment.start,
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  children: [
-                    _titleWidget,
-                    if (story.title.isNotEmpty)
-                      const SizedBox(height: ConfigConstant.margin0),
-                    _paragraphWidget,
-                  ],
-                ),
-              ),
-              _favoriteButton,
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildFavoriteButton({
-    required HomeScreenNotifier notifier,
-    required StoryModel story,
-    required BuildContext context,
-  }) {
-    final favoriteButtonEffect = [
-      VTOnTapEffectItem(
-        effectType: VTOnTapEffectType.scaleDown,
-        active: 0.9,
-      )
-    ];
-
-    return Positioned(
-      right: 0,
-      top: 0,
-      child: VTOnTapEffect(
-        onTap: () async {
-          closeFaq();
-          onTapVibrate();
-          await notifier.toggleFavorite(story.id);
-        },
-        effects: favoriteButtonEffect,
-        child: WIconButton(
-          onPressed: () async {
-            closeFaq();
-            onTapVibrate();
-            await notifier.toggleFavorite(story.id);
-          },
-          size: 40,
-          iconData: story.isFavorite == true
-              ? Icons.favorite
-              : Icons.favorite_border_rounded,
-          iconColor: story.isFavorite == true
-              ? Theme.of(context).colorScheme.error
-              : Theme.of(context).dividerColor,
-        ),
-      ),
+      onToggleFavorite: () async {
+        closeFaq();
+        onTapVibrate();
+        await notifier.toggleFavorite(story.id);
+      },
     );
   }
 
