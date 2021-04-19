@@ -29,156 +29,165 @@ class GroupScreen extends HookWidget with DialogMixin {
   @override
   Widget build(BuildContext context) {
     GroupScreenNotifier notifier = useProvider(groupScreenProvider);
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        TextEditingController().clear();
+    return WillPopScope(
+      onWillPop: () async {
+        ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+        Navigator.of(context).pop();
+        return false;
       },
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          elevation: 1,
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          textTheme: Theme.of(context).textTheme,
-          title: Text(
-            notifier.groupModel?.groupName ?? tr("title.group"),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+          TextEditingController().clear();
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            elevation: 1,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            textTheme: Theme.of(context).textTheme,
+            title: Text(
+              notifier.groupModel?.groupName ?? tr("title.group"),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
-          ),
-          flexibleSpace: Consumer(
-            builder: (context, reader, child) {
-              return SafeArea(
-                child: WLineLoading(
-                  loading: notifier.loading,
-                ),
-              );
-            },
-          ),
-          leading: WIconButton(
-            iconData: Icons.arrow_back,
-            onPressed: () {
-              ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
-              Navigator.of(context).pop();
-            },
-          ),
-          actions: [
-            WIconButton(
-              iconData: Icons.settings,
-              onPressed: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) {
-                    return GroupInfoScreen();
-                  }),
+            flexibleSpace: Consumer(
+              builder: (context, reader, child) {
+                return SafeArea(
+                  child: WLineLoading(
+                    loading: notifier.loading,
+                  ),
                 );
-                await notifier.load();
               },
             ),
-          ],
-        ),
-        body: ListView(
-          children: [
-            buildPending(notifier),
-            SizedBox(height: 16.0),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: ConfigConstant.margin2,
+            leading: WIconButton(
+              iconData: Icons.arrow_back,
+              onPressed: () {
+                ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+                Navigator.of(context).pop();
+              },
+            ),
+            actions: [
+              WIconButton(
+                iconData: Icons.settings,
+                onPressed: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) {
+                      return GroupInfoScreen();
+                    }),
+                  );
+                  await notifier.load();
+                },
               ),
-              child: Column(
-                children: [
-                  notifier.storyByIdAsList.length == 0
-                      ? Column(
-                          children: [
-                            WNoData(customText: tr("msg.no_sharing_data")),
-                          ],
-                        )
-                      : Column(
+            ],
+          ),
+          body: ListView(
+            children: [
+              buildPending(notifier),
+              SizedBox(height: 16.0),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: ConfigConstant.margin2,
+                ),
+                child: Column(
+                  children: [
+                    notifier.storyByIdAsList.length == 0
+                        ? Column(
+                            children: [
+                              WNoData(customText: tr("msg.no_sharing_data")),
+                            ],
+                          )
+                        : Column(
+                            children: List.generate(
+                              notifier.storyByIdAsList.length,
+                              (index) {
+                                final story = notifier.storyByIdAsList[index];
+                                return buildUserStoryTile(
+                                  context: context,
+                                  story: story,
+                                  imageUrl:
+                                      AuthenticationService().user?.photoURL,
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        fullscreenDialog: true,
+                                        builder: (context) {
+                                          return StoryDetailScreen(
+                                              story: story);
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  readOnly: false,
+                                );
+                              },
+                            ),
+                          ),
+                    StreamBuilder<List<MemberModel>>(
+                      stream: notifier.fetchMembers(),
+                      builder: (context, snapshot) {
+                        List<MemberModel> members = [];
+                        if (snapshot.hasData) {
+                          members = snapshot.data ?? [];
+                          members.removeWhere(
+                            (element) => element.email == notifier.email,
+                          );
+                        }
+
+                        return Column(
                           children: List.generate(
-                            notifier.storyByIdAsList.length,
+                            members.length,
                             (index) {
-                              final story = notifier.storyByIdAsList[index];
-                              return buildUserStoryTile(
-                                context: context,
-                                story: story,
-                                imageUrl:
-                                    AuthenticationService().user?.photoURL,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      fullscreenDialog: true,
-                                      builder: (context) {
-                                        return StoryDetailScreen(story: story);
+                              List<StoryModel> stories = [];
+                              final member = members[index];
+                              if (member.db != null &&
+                                  member.db?.isNotEmpty == true) {
+                                var result =
+                                    EncryptService.storyMapDecrypt(member.db!);
+                                if (result != null) {
+                                  stories = result.entries
+                                      .map((e) => e.value)
+                                      .toList();
+                                }
+                              }
+                              return Column(
+                                children: List.generate(
+                                  stories.length,
+                                  (_index) {
+                                    final story = stories[_index];
+                                    return buildUserStoryTile(
+                                      context: context,
+                                      story: story,
+                                      imageUrl: member.photoUrl,
+                                      readOnly: true,
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            fullscreenDialog: true,
+                                            builder: (context) {
+                                              return StoryDetailScreen(
+                                                story: story,
+                                                forceReadOnly: true,
+                                              );
+                                            },
+                                          ),
+                                        );
                                       },
-                                    ),
-                                  );
-                                },
-                                readOnly: false,
+                                    );
+                                  },
+                                ),
                               );
                             },
                           ),
-                        ),
-                  StreamBuilder<List<MemberModel>>(
-                    stream: notifier.fetchMembers(),
-                    builder: (context, snapshot) {
-                      List<MemberModel> members = [];
-                      if (snapshot.hasData) {
-                        members = snapshot.data ?? [];
-                        members.removeWhere(
-                          (element) => element.email == notifier.email,
                         );
-                      }
-
-                      return Column(
-                        children: List.generate(
-                          members.length,
-                          (index) {
-                            List<StoryModel> stories = [];
-                            final member = members[index];
-                            if (member.db != null &&
-                                member.db?.isNotEmpty == true) {
-                              var result =
-                                  EncryptService.storyMapDecrypt(member.db!);
-                              if (result != null) {
-                                stories =
-                                    result.entries.map((e) => e.value).toList();
-                              }
-                            }
-                            return Column(
-                              children: List.generate(
-                                stories.length,
-                                (_index) {
-                                  final story = stories[_index];
-                                  return buildUserStoryTile(
-                                    context: context,
-                                    story: story,
-                                    imageUrl: member.photoUrl,
-                                    readOnly: true,
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          fullscreenDialog: true,
-                                          builder: (context) {
-                                            return StoryDetailScreen(
-                                              story: story,
-                                              forceReadOnly: true,
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            )
-          ],
+                      },
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

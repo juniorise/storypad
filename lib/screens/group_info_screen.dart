@@ -29,71 +29,78 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
     GroupListingScreenNotifer groupListingNotifier =
         useProvider(groupListingProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        elevation: 1,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        textTheme: Theme.of(context).textTheme,
-        title: Text(
-          tr('title.group_info'),
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
+    return WillPopScope(
+      onWillPop: () async {
+        ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+        Navigator.of(context).pop();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          elevation: 1,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          textTheme: Theme.of(context).textTheme,
+          title: Text(
+            tr('title.group_info'),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
+          flexibleSpace: Consumer(
+            builder: (context, reader, child) {
+              return SafeArea(
+                child: WLineLoading(
+                  loading: membersInfoNotifier.loading ||
+                      groupListingNotifier.loading,
+                ),
+              );
+            },
+          ),
+          leading: WIconButton(
+            iconData: Icons.arrow_back,
+            onPressed: () {
+              ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+              Navigator.of(context).pop();
+            },
+          ),
+          bottom: TabBar(
+            controller: tabController,
+            labelColor: Theme.of(context).colorScheme.onSurface,
+            labelStyle: Theme.of(context).textTheme.bodyText2,
+            tabs: [
+              Tab(text: tr('title.group.members')),
+              Tab(text: tr('title.group.groups')),
+            ],
+          ),
+          actions: [
+            buildActionButton(
+              tabController,
+              membersInfoNotifier,
+              groupListingNotifier,
+            ),
+          ],
         ),
-        flexibleSpace: Consumer(
-          builder: (context, reader, child) {
-            return SafeArea(
-              child: WLineLoading(
-                loading:
-                    membersInfoNotifier.loading || groupListingNotifier.loading,
+        body: RefreshIndicator(
+          onRefresh: () async {
+            await membersInfoNotifier.load();
+            await groupListingNotifier.load();
+          },
+          child: VTTabView(
+            controller: tabController,
+            children: [
+              buildMemberListing(
+                membersInfoNotifier: membersInfoNotifier,
+                groupListingNotifier: groupListingNotifier,
+                context: context,
               ),
-            );
-          },
-        ),
-        leading: WIconButton(
-          iconData: Icons.arrow_back,
-          onPressed: () {
-            ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
-            Navigator.of(context).pop();
-          },
-        ),
-        bottom: TabBar(
-          controller: tabController,
-          labelColor: Theme.of(context).colorScheme.onSurface,
-          labelStyle: Theme.of(context).textTheme.bodyText2,
-          tabs: [
-            Tab(text: tr('title.group.members')),
-            Tab(text: tr('title.group.groups')),
-          ],
-        ),
-        actions: [
-          buildActionButton(
-            tabController,
-            membersInfoNotifier,
-            groupListingNotifier,
+              buildGroupListing(
+                membersInfoNotifier: membersInfoNotifier,
+                groupListingNotifier: groupListingNotifier,
+                context: context,
+              ),
+            ],
           ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await membersInfoNotifier.load();
-          await groupListingNotifier.load();
-        },
-        child: VTTabView(
-          controller: tabController,
-          children: [
-            buildMemberListing(
-              membersInfoNotifier: membersInfoNotifier,
-              groupListingNotifier: groupListingNotifier,
-              context: context,
-            ),
-            buildGroupListing(
-              membersInfoNotifier: membersInfoNotifier,
-              groupListingNotifier: groupListingNotifier,
-              context: context,
-            ),
-          ],
         ),
       ),
     );

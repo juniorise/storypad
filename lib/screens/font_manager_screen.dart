@@ -15,101 +15,108 @@ class FontManagerScreen extends HookWidget with WSnackBar {
   @override
   Widget build(BuildContext context) {
     final notifier = useProvider(fontManagerProvider);
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        elevation: 1,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        textTheme: Theme.of(context).textTheme,
-        title: Text(
-          tr("title.font_style"),
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurface,
+    return WillPopScope(
+      onWillPop: () async {
+        ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+        Navigator.of(context).pop();
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          elevation: 1,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          textTheme: Theme.of(context).textTheme,
+          title: Text(
+            tr("title.font_style"),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          flexibleSpace: Consumer(
+            builder: (context, reader, child) {
+              return SafeArea(
+                child: WLineLoading(
+                  loading: notifier.loading,
+                ),
+              );
+            },
+          ),
+          leading: WIconButton(
+            iconData: Icons.arrow_back,
+            onPressed: () {
+              ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+              Navigator.of(context).pop();
+            },
           ),
         ),
-        flexibleSpace: Consumer(
-          builder: (context, reader, child) {
-            return SafeArea(
-              child: WLineLoading(
-                loading: notifier.loading,
-              ),
-            );
-          },
-        ),
-        leading: WIconButton(
-          iconData: Icons.arrow_back,
-          onPressed: () {
-            ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: ListView(
-        children: FontModel.avaiableFontsMap.entries.map((e) {
-          return Column(
-            children: [
-              buildHeader(context, e.key.toLanguageTag().toUpperCase()),
-              Column(
-                children: List.generate(
-                  e.value.length,
-                  (index) {
-                    final font = e.value[index];
-                    final _theme = Theme.of(context);
-                    final String? _font =
-                        _theme.textTheme.bodyText1?.fontFamilyFallback?[0];
-                    return Theme(
-                      data: _theme.copyWith(
-                        textTheme:
-                            _theme.textTheme.apply(fontFamily: font.familyName),
-                      ),
-                      child: WListTile(
-                        iconData: notifier.fontFamilyFallback
-                                .contains(font.familyName)
-                            ? Icons.font_download
-                            : Icons.font_download_outlined,
-                        titleText: font.familyName,
-                        titleFontFamily: "$_font",
-                        subtitleText: FontModel.localeExamples[font.locale],
-                        subtitleMaxLines: 1,
-                        onTap: () async {
-                          onTapVibrate();
-                          ScaffoldMessenger.maybeOf(context)!
-                              .removeCurrentSnackBar();
-                          if (!notifier.fontFamilyFallback
-                              .contains(font.familyName)) {
-                            await notifier
-                                .replaceFontInMap(
-                              font.familyName,
-                              font.locale,
-                            )
-                                .then(
-                              (success) {
-                                Future.delayed(ConfigConstant.fadeDuration)
-                                    .then(
-                                  (value) {
-                                    showSnackBar(
-                                      context: context,
-                                      title: success
-                                          ? tr("msg.update.success")
-                                          : tr(
-                                              "msg.update.fail",
-                                            ),
-                                    );
-                                  },
-                                );
-                              },
-                            );
-                          }
-                        },
-                      ),
-                    );
-                  },
+        body: ListView(
+          children: FontModel.avaiableFontsMap.entries.map((e) {
+            return Column(
+              children: [
+                buildHeader(context, e.key.toLanguageTag().toUpperCase()),
+                Column(
+                  children: List.generate(
+                    e.value.length,
+                    (index) {
+                      final font = e.value[index];
+                      final _theme = Theme.of(context);
+                      final String? _font =
+                          _theme.textTheme.bodyText1?.fontFamilyFallback?[0];
+                      return Theme(
+                        data: _theme.copyWith(
+                          textTheme: _theme.textTheme
+                              .apply(fontFamily: font.familyName),
+                        ),
+                        child: WListTile(
+                          iconData: notifier.fontFamilyFallback
+                                  .contains(font.familyName)
+                              ? Icons.font_download
+                              : Icons.font_download_outlined,
+                          titleText: font.familyName,
+                          titleFontFamily: "$_font",
+                          subtitleText: FontModel.localeExamples[font.locale],
+                          subtitleMaxLines: 1,
+                          onTap: () async {
+                            onTapVibrate();
+                            ScaffoldMessenger.maybeOf(context)!
+                                .removeCurrentSnackBar();
+                            if (!notifier.fontFamilyFallback
+                                .contains(font.familyName)) {
+                              await notifier
+                                  .replaceFontInMap(
+                                font.familyName,
+                                font.locale,
+                              )
+                                  .then(
+                                (success) {
+                                  Future.delayed(ConfigConstant.fadeDuration)
+                                      .then(
+                                    (value) {
+                                      showSnackBar(
+                                        context: context,
+                                        title: success
+                                            ? tr("msg.update.success")
+                                            : tr(
+                                                "msg.update.fail",
+                                              ),
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(height: ConfigConstant.margin1),
-            ],
-          );
-        }).toList(),
+                const SizedBox(height: ConfigConstant.margin1),
+              ],
+            );
+          }).toList(),
+        ),
       ),
     );
   }

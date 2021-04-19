@@ -54,8 +54,8 @@ class ImageViewer extends HookWidget with WSnackBar {
                   await onShareImage();
                 },
                 child: Container(
-                  height: kToolbarHeight,
-                  width: kToolbarHeight,
+                  height: 48,
+                  width: 48,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Theme.of(context).colorScheme.surface,
@@ -109,8 +109,8 @@ class ImageViewer extends HookWidget with WSnackBar {
                                     animationController.isAnimating ? 1 : 0,
                                 duration: ConfigConstant.fadeDuration,
                                 child: Container(
-                                  height: kToolbarHeight,
-                                  width: kToolbarHeight,
+                                  height: 48,
+                                  width: 48,
                                   child: CircularProgressIndicator(
                                     value: animationController.value,
                                   ),
@@ -119,8 +119,8 @@ class ImageViewer extends HookWidget with WSnackBar {
                             },
                           ),
                           Container(
-                            height: kToolbarHeight,
-                            width: kToolbarHeight,
+                            height: 48,
+                            width: 48,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Theme.of(context).colorScheme.surface,
