@@ -875,7 +875,8 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
         final _padding = isCollapse ? EdgeInsets.zero : EdgeInsets.all(16);
 
         return AnimatedContainer(
-          duration: ConfigConstant.fadeDuration,
+          duration: ConfigConstant.duration,
+          curve: Curves.easeOutQuart,
           width: width,
           height: width,
           padding: _padding,
@@ -883,13 +884,14 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
           color: Theme.of(context).colorScheme.background,
           child: AnimatedOpacity(
             duration: ConfigConstant.fadeDuration,
+            curve: Curves.decelerate,
             opacity: scrollOffsetNotifier.value < 350 ? 1 : 0,
             child: Stack(
               alignment: Alignment.bottomLeft,
               children: [
                 AnimatedContainer(
-                  duration: ConfigConstant.fadeDuration,
-                  curve: Curves.linear,
+                  duration: ConfigConstant.duration,
+                  curve: Curves.easeOutQuart,
                   width: _avatarSize,
                   height: _avatarSize,
                   decoration: BoxDecoration(
@@ -903,8 +905,9 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                   ),
                 ),
                 AnimatedContainer(
-                  duration: ConfigConstant.fadeDuration,
+                  duration: ConfigConstant.duration,
                   width: double.infinity,
+                  curve: Curves.easeOutQuart,
                   height: 72,
                   margin: EdgeInsets.only(
                       left: isCollapse ? 0 : this.avatarSize + 16),
