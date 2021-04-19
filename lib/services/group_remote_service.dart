@@ -13,6 +13,10 @@ class GroupRemoteService {
   CollectionReference pendingsCollection = _firestore.collection("pendings");
   AuthenticationService auth = AuthenticationService();
 
+  GroupRemoteService() {
+    setUserDocs(currentUid!);
+  }
+
   String? get currentUid {
     if (auth.user?.uid == null) return null;
     return auth.user!.uid;
@@ -94,6 +98,23 @@ class GroupRemoteService {
     });
   }
 
+  Future<bool> setUserDocs(String docID) async {
+    bool exists = false;
+    try {
+      await userCollection.doc(docID).get().then((doc) {
+        if (doc.exists) {
+          exists = true;
+        } else {
+          exists = false;
+          userCollection.doc(docID).set({'selected_group': null});
+        }
+      });
+      return exists;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<GroupStorageModel?> createGroup(String groupName) async {
     DocumentReference? groupDocRef;
     final map = {
@@ -121,15 +142,15 @@ class GroupRemoteService {
       inviteOn: Timestamp.now(),
     );
 
+    await userCollection
+        .doc(currentUid)
+        .update({"selected_group": groupDocRef.id});
     final path = groupDocRef.id + "/members/" + currentEmail!;
     DocumentReference membersCollection = groupsCollection.doc(path);
     await membersCollection.set(member.toJson());
 
     CollectionReference userGroupCollectionRef =
         userCollection.doc(currentUid).collection("groups");
-    await userCollection
-        .doc(currentUid)
-        .update({"selected_group": groupDocRef.id});
 
     Map<String, dynamic> groupMap = GroupStorageModel(
       groupId: groupDocRef.id,

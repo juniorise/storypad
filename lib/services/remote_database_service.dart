@@ -24,7 +24,7 @@ class RemoteDatabaseService {
   /// User can only backup one 1 month, otherwise will be replace this current month
   Future<bool> insertDatabase(String uid, DbBackupModel backup) async {
     try {
-      await _users.doc(uid).set(backup.toJson());
+      await _users.doc(uid).update(backup.toJson());
       return true;
     } catch (e) {
       return false;

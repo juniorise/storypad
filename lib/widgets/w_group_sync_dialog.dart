@@ -116,12 +116,12 @@ class WGroupSyncDialog extends HookWidget {
                       ),
                       onTap: () async {
                         await notifier.toggleAGroup(group: groupSyncModel);
-                        context.read(homeScreenProvider).load();
+                        await context.read(homeScreenProvider).load();
                       },
                       trailing: Checkbox(
                         onChanged: (bool? value) async {
                           await notifier.toggleAGroup(group: groupSyncModel);
-                          context.read(homeScreenProvider).load();
+                          await context.read(homeScreenProvider).load();
                         },
                         value: notifier.isCheck(storyId, group.groupId ?? ""),
                       ),
@@ -138,7 +138,7 @@ class WGroupSyncDialog extends HookWidget {
                     width: 200,
                   ),
                   const SizedBox(height: 16.0, width: double.infinity),
-                  WNoData(customText: tr('msg.group.no_group')),
+                  WNoData(customText: tr('msg.group.no_selected_group')),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();

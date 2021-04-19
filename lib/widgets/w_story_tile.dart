@@ -17,6 +17,7 @@ class WStoryTile extends StatelessWidget with DialogMixin {
   final EdgeInsets margin =
       const EdgeInsets.only(bottom: ConfigConstant.margin1);
   final void Function()? onToggleFavorite;
+  final void Function()? onToggleSync;
   final bool readOnly;
 
   const WStoryTile({
@@ -26,6 +27,7 @@ class WStoryTile extends StatelessWidget with DialogMixin {
     required this.onTap,
     this.onToggleFavorite,
     this.readOnly = false,
+    this.onToggleSync,
   }) : super(key: key);
 
   @override
@@ -93,25 +95,28 @@ class WStoryTile extends StatelessWidget with DialogMixin {
                   0.0,
                 ),
               child: FutureBuilder(
-                  future:
-                      WDatabase.instance.isStoryIdCheckedByAllGroups(story.id),
-                  builder: (context, snapshot) {
-                    return buildFavoriteButton(
-                      story: story,
-                      context: context,
-                      onPressed: () async {
-                        if (readOnly) return;
-                        await showWDialog(
-                          context: context,
-                          child: WGroupSyncDialog(storyId: story.id),
-                        );
-                      },
-                      isActive: snapshot.data == true,
-                      iconData: snapshot.data == true
-                          ? Icons.people_alt_sharp
-                          : Icons.people_alt_outlined,
-                    );
-                  }),
+                future:
+                    WDatabase.instance.isStoryIdCheckedByAllGroups(story.id),
+                builder: (context, snapshot) {
+                  return buildFavoriteButton(
+                    story: story,
+                    context: context,
+                    onPressed: () async {
+                      if (readOnly) return;
+                      await showWDialog(
+                        context: context,
+                        child: WGroupSyncDialog(storyId: story.id),
+                      );
+                      if (onToggleSync == null) return;
+                      onToggleSync!();
+                    },
+                    isActive: snapshot.data == true,
+                    iconData: snapshot.data == true
+                        ? Icons.people_alt_sharp
+                        : Icons.people_alt_outlined,
+                  );
+                },
+              ),
             ),
           if (onToggleFavorite != null)
             buildFavoriteButton(

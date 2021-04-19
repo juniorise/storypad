@@ -81,7 +81,7 @@ class WDatabase {
     var dbs = await this.database;
 
     List data = [];
-    final List<String> tables = ["user_info", "story"];
+    final List<String> tables = ["user_info", "story", "group_sync"];
     List<Map<String, dynamic>> listMaps = [];
 
     for (var i = 0; i < tables.length; i++) {

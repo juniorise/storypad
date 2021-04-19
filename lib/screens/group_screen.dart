@@ -1,12 +1,9 @@
-import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_quill/models/documents/document.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/app_helper.dart';
-import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/colors/colors.dart';
 import 'package:write_story/constants/config_constant.dart';
 import 'package:write_story/mixins/dialog_mixin.dart';
@@ -20,7 +17,6 @@ import 'package:write_story/screens/story_detail_screen.dart';
 import 'package:write_story/services/authentication_service.dart';
 import 'package:write_story/services/encrypt_service.dart';
 import 'package:write_story/sheets/ask_for_name_sheet.dart';
-import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 import 'package:write_story/widgets/w_no_data.dart';
 import 'package:write_story/widgets/w_story_tile.dart';
@@ -104,20 +100,27 @@ class GroupScreen extends HookWidget with DialogMixin {
                               (index) {
                                 final story = notifier.storyByIdAsList[index];
                                 return buildUserStoryTile(
+                                  notifier: notifier,
                                   context: context,
                                   story: story,
                                   imageUrl:
                                       AuthenticationService().user?.photoURL,
-                                  onTap: () {
-                                    Navigator.of(context).push(
+                                  onTap: () async {
+                                    final date =
+                                        await Navigator.of(context).push(
                                       MaterialPageRoute(
                                         fullscreenDialog: true,
                                         builder: (context) {
                                           return StoryDetailScreen(
-                                              story: story);
+                                            story: story,
+                                          );
                                         },
                                       ),
                                     );
+
+                                    if (date != null) {
+                                      await notifier.load();
+                                    }
                                   },
                                   readOnly: false,
                                 );
@@ -161,6 +164,7 @@ class GroupScreen extends HookWidget with DialogMixin {
                                       story: story,
                                       imageUrl: member.photoUrl,
                                       readOnly: true,
+                                      notifier: notifier,
                                       onTap: () {
                                         Navigator.of(context).push(
                                           MaterialPageRoute(
@@ -198,6 +202,7 @@ class GroupScreen extends HookWidget with DialogMixin {
     required StoryModel story,
     required bool readOnly,
     required void Function() onTap,
+    required GroupScreenNotifier notifier,
     String? imageUrl,
   }) {
     final _sizedBox = const SizedBox(width: 8.0);
@@ -222,6 +227,9 @@ class GroupScreen extends HookWidget with DialogMixin {
                   onSaved: (DateTime date) {},
                   onTap: onTap,
                   story: story,
+                  onToggleSync: () async {
+                    await notifier.load();
+                  },
                 ),
               ),
             ],
@@ -423,108 +431,6 @@ class GroupScreen extends HookWidget with DialogMixin {
         ),
         const SizedBox(height: ConfigConstant.margin1),
       ],
-    );
-  }
-
-  Widget buildStoryTile({
-    required BuildContext context,
-    required StoryModel story,
-    EdgeInsets margin = const EdgeInsets.only(bottom: ConfigConstant.margin1),
-    required ValueChanged<DateTime> onSaved,
-  }) {
-    final _theme = Theme.of(context);
-
-    /// Title
-    final _titleWidget = story.title.isNotEmpty
-        ? Container(
-            padding: const EdgeInsets.only(right: 30),
-            width: MediaQuery.of(context).size.width - 16 * 7,
-            child: Text(
-              story.title,
-              style: _theme.textTheme.subtitle1,
-              textAlign: TextAlign.start,
-            ),
-          )
-        : const SizedBox();
-
-    String? paragraph;
-
-    try {
-      final decode = jsonDecode(story.paragraph!);
-      final document = Document.fromJson(decode);
-      paragraph = QuillHelper.toPlainText(document.root).trim();
-    } catch (e) {}
-
-    /// Paragraph
-    String _paragraphText = paragraph ?? "${story.paragraph}";
-    String _displayParagraph = _paragraphText.characters.take(150).toString();
-    if (_paragraphText.length > 150) {
-      _displayParagraph = _displayParagraph + " ...";
-    }
-
-    final _paragraphChild = Container(
-      width: MediaQuery.of(context).size.width - 16 * 7,
-      child: Text(
-        _displayParagraph,
-        textAlign: TextAlign.start,
-        style: _theme.textTheme.bodyText2
-            ?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.5)),
-      ),
-    );
-
-    final _paragraphWidget =
-        _paragraphText.isNotEmpty ? _paragraphChild : const SizedBox();
-
-    final _tileEffects = [
-      VTOnTapEffectItem(
-        effectType: VTOnTapEffectType.touchableOpacity,
-        active: 0.3,
-      ),
-    ];
-
-    return VTOnTapEffect(
-      effects: _tileEffects,
-      onTap: () async {
-        final dynamic selected = await Navigator.of(
-          context,
-          rootNavigator: true,
-        ).push(
-          MaterialPageRoute(
-            fullscreenDialog: true,
-            builder: (context) {
-              return StoryDetailScreen(story: story);
-            },
-          ),
-        );
-        if (selected != null && selected is DateTime) onSaved(selected);
-      },
-      child: Container(
-        width: double.infinity,
-        margin: margin,
-        child: Material(
-          elevation: 0.2,
-          color: _theme.colorScheme.surface,
-          borderRadius: ConfigConstant.circlarRadius2,
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: ConfigConstant.margin2,
-              vertical: ConfigConstant.margin1 + 4,
-            ),
-            width: double.infinity,
-            child: Wrap(
-              direction: Axis.vertical,
-              alignment: WrapAlignment.start,
-              crossAxisAlignment: WrapCrossAlignment.start,
-              children: [
-                _titleWidget,
-                if (story.title.isNotEmpty)
-                  const SizedBox(height: ConfigConstant.margin0),
-                _paragraphWidget,
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

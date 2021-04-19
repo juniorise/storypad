@@ -84,6 +84,7 @@
   "msg.group.no_auth": "ចូលជាមួយគណនី Google មួយដើម្បីចូលដំណើរការលក្ខណៈពិសេសនេះ",
   "msg.group.no_group": "អ្នកមិនមានក្រុមណាមួយនៅឡើយទេ",
   "msg.group.no_member": "បង្កើតឬជ្រើសរើសក្រុមមួយដើម្បីមើលសមាជិកទាំងអស់",
+  "msg.group.no_selected_group": "បង្កើតឬជ្រើសក្រុមមួយដើម្បីចាប់ផ្តើមការចែករំលែកឱ្យពួកគេ។",
   "msg.invitation.alert": "ការជូនដំណឹងការអញ្ជើញ",
   "msg.invitation.subtitle": "អ្នកត្រូវបានអញ្ជើញឱ្យចូល {GROUP_NAME} ដោយ {SEND_BY}",
   "msg.joined_on": "បានចូលបម្រើការងារនៅលើ {DATE}",

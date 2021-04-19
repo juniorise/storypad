@@ -147,7 +147,6 @@ class ImageViewer extends HookWidget with WSnackBar {
                   backgroundDecoration:
                       BoxDecoration(color: Colors.transparent),
                   minScale: 0.99,
-                  maxScale: 1.99,
                   child: Container(
                     height: MediaQuery.of(context).size.height,
                     child: imageChild,

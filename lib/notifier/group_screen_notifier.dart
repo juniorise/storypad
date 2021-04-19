@@ -121,6 +121,7 @@ class GroupScreenNotifier extends ChangeNotifier {
 
   Future<void> acceptPending(PendingModel pendingModel) async {
     await service.acceptPending(pendingModel);
+    await service.setSelectedGroup(pendingModel.groupId);
     await load();
   }
 

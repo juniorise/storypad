@@ -180,7 +180,7 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
   }) {
     return Consumer(
       builder: (context, watch, child) {
-        if (membersInfoNotifier.group != null) {
+        if (membersInfoNotifier.group?.groupId != null) {
           return StreamBuilder<List<MemberModel>>(
             stream: membersInfoNotifier.fetchMembers(),
             builder: (context, snapshot) {
@@ -197,10 +197,16 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                       final member = members[index];
                       final bool hasPhoto = member.photoUrl != null &&
                           member.photoUrl?.isNotEmpty == true;
-                      final date = member.joinOn!.toDate();
-                      final dateText = member.joinOn != null
-                          ? AppHelper.dateFormat(context).format(date)
-                          : null;
+
+                      String? dateText;
+                      DateTime? date;
+                      if (member.joinOn != null) {
+                        date = member.joinOn?.toDate();
+                        dateText = member.joinOn != null
+                            ? AppHelper.dateFormat(context).format(date!)
+                            : null;
+                      }
+
                       final subtitleText = dateText != null
                           ? tr('msg.joined_on', namedArgs: {"DATE": "$date"})
                           : null;

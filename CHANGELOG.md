@@ -1,3 +1,11 @@
+## 1.0.1+25
+- production release
+- fix bugs and improvements
+
+## 1.0.1+24
+- add option group to choose when share story
+- fix bugs and improve group
+
 ## 1.0.1+23
 - add story sharing with firebase
 - end to end encrypt story data

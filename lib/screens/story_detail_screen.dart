@@ -196,9 +196,7 @@ class StoryDetailScreen extends HookWidget
                       null,
                     ),
                     paragraph: DefaultTextBlockStyle(
-                      _theme.textTheme.bodyText1!.copyWith(
-                        color: _theme.colorScheme.onSurface.withOpacity(0.8),
-                      ),
+                      _theme.textTheme.bodyText1!,
                       Tuple2(0.0, 0.0),
                       Tuple2(0.0, 0.0),
                       null,

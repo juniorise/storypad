@@ -670,7 +670,9 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         onTap: () async {
                           if (locked) {
                             showSnackBar(
-                                context: context, title: tr("msg.locked"));
+                              context: context,
+                              title: tr("msg.locked"),
+                            );
                             return;
                           }
 
@@ -693,6 +695,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                                   onTap: () async {
                                     hasClick = true;
                                     await database.clearAllStories();
+                                    await database.clearAllSync();
                                     Navigator.of(context).pop();
                                   },
                                 ),
