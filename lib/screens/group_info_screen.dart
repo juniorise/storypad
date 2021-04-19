@@ -67,65 +67,10 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
           ],
         ),
         actions: [
-          AnimatedBuilder(
-            animation: tabController.animation!,
-            builder: (context, child) {
-              final controller = tabController;
-              final double offset = controller.animation?.value ?? 0;
-              double opacity = 1;
-
-              if (offset <= 0.5) {
-                opacity = lerpDouble(1, -1, offset)!;
-                if (membersInfoNotifier.group == null) opacity = 0;
-              } else {
-                opacity = lerpDouble(-1, 1, offset)!;
-                if (membersInfoNotifier.auth.user == null) opacity = 0;
-              }
-
-              if (opacity < 0) opacity = 0;
-              if (opacity > 1) opacity = 1;
-              return Opacity(
-                opacity: opacity,
-                child: WIconButton(
-                  iconData: offset <= 0.5 ? Icons.person_add : Icons.group_add,
-                  onPressed: () async {
-                    if (opacity == 0) return;
-                    if (offset > 0.5) {
-                      final String? groupName = await showTextDialog(
-                        context,
-                        labelText: tr('input.group.title'),
-                        hintText: tr('input.group.hint'),
-                      );
-                      if (groupName == null) return;
-                      await groupListingNotifier.createGroup("$groupName");
-                      await membersInfoNotifier.load();
-                    } else {
-                      if (membersInfoNotifier.group == null) return;
-                      final String? email = await showTextDialog(
-                        context,
-                        labelText: tr('input.email.title'),
-                        hintText: tr('input.email.hint'),
-                      );
-
-                      if (email == null) return;
-                      if (!AppHelper.isEmail(email)) {
-                        Future.delayed(ConfigConstant.fadeDuration).then(
-                          (value) {
-                            showSnackBar(
-                              context: context,
-                              title: tr('msg.email.invalid'),
-                            );
-                          },
-                        );
-                        return;
-                      }
-                      await membersInfoNotifier.addUserToGroup(email);
-                      await membersInfoNotifier.load();
-                    }
-                  },
-                ),
-              );
-            },
+          buildActionButton(
+            tabController,
+            membersInfoNotifier,
+            groupListingNotifier,
           ),
         ],
       ),
@@ -153,6 +98,73 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
     );
   }
 
+  AnimatedBuilder buildActionButton(
+    TabController tabController,
+    MembersInfoNotifier membersInfoNotifier,
+    GroupListingScreenNotifer groupListingNotifier,
+  ) {
+    return AnimatedBuilder(
+      animation: tabController.animation!,
+      builder: (context, child) {
+        final controller = tabController;
+        final double offset = controller.animation?.value ?? 0;
+        double opacity = 1;
+
+        if (offset <= 0.5) {
+          opacity = lerpDouble(1, -1, offset)!;
+          if (membersInfoNotifier.group == null) opacity = 0;
+        } else {
+          opacity = lerpDouble(-1, 1, offset)!;
+          if (membersInfoNotifier.auth.user == null) opacity = 0;
+        }
+
+        if (opacity < 0) opacity = 0;
+        if (opacity > 1) opacity = 1;
+        return Opacity(
+          opacity: opacity,
+          child: WIconButton(
+            iconData: offset <= 0.5 ? Icons.person_add : Icons.group_add,
+            onPressed: () async {
+              if (opacity == 0) return;
+              if (offset > 0.5) {
+                final String? groupName = await showTextDialog(
+                  context,
+                  labelText: tr('input.group.title'),
+                  hintText: tr('input.group.hint'),
+                );
+                if (groupName == null) return;
+                await groupListingNotifier.createGroup("$groupName");
+                await membersInfoNotifier.load();
+              } else {
+                if (membersInfoNotifier.group == null) return;
+                final String? email = await showTextDialog(
+                  context,
+                  labelText: tr('input.email.title'),
+                  hintText: tr('input.email.hint'),
+                );
+
+                if (email == null) return;
+                if (!AppHelper.isEmail(email)) {
+                  Future.delayed(ConfigConstant.fadeDuration).then(
+                    (value) {
+                      showSnackBar(
+                        context: context,
+                        title: tr('msg.email.invalid'),
+                      );
+                    },
+                  );
+                  return;
+                }
+                await membersInfoNotifier.addUserToGroup(email);
+                await membersInfoNotifier.load();
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
+
   Consumer buildMemberListing({
     required MembersInfoNotifier membersInfoNotifier,
     required GroupListingScreenNotifer groupListingNotifier,
@@ -160,84 +172,99 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
   }) {
     return Consumer(
       builder: (context, watch, child) {
-        return membersInfoNotifier.group == null
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    WNoData(
-                      customText: membersInfoNotifier.auth.user == null
-                          ? tr('msg.group.no_auth')
-                          : tr('msg.group.no_member'),
-                    ),
-                    if (membersInfoNotifier.auth.user == null)
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return SettingScreen();
-                              },
+        if (membersInfoNotifier.group != null) {
+          return StreamBuilder<List<MemberModel>>(
+            stream: membersInfoNotifier.fetchMembers(),
+            builder: (context, snapshot) {
+              List<MemberModel> members = [];
+              if (snapshot.hasData) members = snapshot.data ?? [];
+              if (members.length == 0) {
+                return buildMemberNoData(membersInfoNotifier, context, true);
+              } else {
+                return ListView(
+                  padding: ConfigConstant.layoutPadding,
+                  children: List.generate(
+                    members.length,
+                    (index) {
+                      final member = members[index];
+                      final bool hasPhoto = member.photoUrl != null &&
+                          member.photoUrl?.isNotEmpty == true;
+                      final date = member.joinOn!.toDate();
+                      final dateText = member.joinOn != null
+                          ? AppHelper.dateFormat(context).format(date)
+                          : null;
+                      final subtitleText = dateText != null
+                          ? tr('msg.joined_on', namedArgs: {"DATE": "$date"})
+                          : null;
+                      return Container(
+                        margin: const EdgeInsets.only(top: 8.0),
+                        child: Stack(
+                          children: [
+                            WListTile(
+                              borderRadius: ConfigConstant.circlarRadius2,
+                              iconData: hasPhoto ? null : Icons.person,
+                              imageIcon: hasPhoto ? member.photoUrl : null,
+                              titleText: member.email ?? "",
+                              subtitleText: subtitleText,
+                              onTap: () {},
                             ),
-                          );
-                        },
-                        child: Text(tr('button.open_setting')),
-                      ),
-                  ],
-                ),
-              )
-            : StreamBuilder<List<MemberModel>>(
-                stream: membersInfoNotifier.fetchMembers(),
-                builder: (context, snapshot) {
-                  List<MemberModel> members = [];
-                  if (snapshot.hasData) {
-                    members = snapshot.data ?? [];
-                  }
-                  return ListView(
-                    padding: ConfigConstant.layoutPadding,
-                    children: List.generate(
-                      members.length,
-                      (index) {
-                        final member = members[index];
-                        final bool hasPhoto = member.photoUrl != null &&
-                            member.photoUrl?.isNotEmpty == true;
-                        final date = member.joinOn != null
-                            ? AppHelper.dateFormat(context).format(
-                                member.joinOn!.toDate(),
+                            if (member.joinOn == null)
+                              buildPendingButton(
+                                context,
+                                member,
+                                membersInfoNotifier,
                               )
-                            : null;
-                        return Container(
-                          margin: const EdgeInsets.only(top: 8.0),
-                          child: Stack(
-                            children: [
-                              WListTile(
-                                borderRadius: ConfigConstant.circlarRadius2,
-                                iconData: hasPhoto ? null : Icons.person,
-                                imageIcon: hasPhoto ? member.photoUrl : null,
-                                titleText: member.email ?? "",
-                                subtitleText: date != null
-                                    ? tr(
-                                        'msg.joined_on',
-                                        namedArgs: {"DATE": "$date"},
-                                      )
-                                    : null,
-                                onTap: () {},
-                              ),
-                              if (member.joinOn == null)
-                                buildPendingButton(
-                                  context,
-                                  member,
-                                  membersInfoNotifier,
-                                )
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              );
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                );
+              }
+            },
+          );
+        } else {
+          return buildMemberNoData(membersInfoNotifier, context, false);
+        }
       },
+    );
+  }
+
+  Center buildMemberNoData(
+    MembersInfoNotifier membersInfoNotifier,
+    BuildContext context,
+    bool hasGroup,
+  ) {
+    String? errorText;
+    if (membersInfoNotifier.auth.user == null) {
+      errorText = tr('msg.group.no_auth');
+    } else if (hasGroup) {
+      errorText = tr("msg.group.member_empty");
+    } else {
+      errorText = tr('msg.group.no_member');
+    }
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          WNoData(
+            customText: errorText,
+          ),
+          if (membersInfoNotifier.auth.user == null)
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return SettingScreen();
+                    },
+                  ),
+                );
+              },
+              child: Text(tr('button.open_setting')),
+            ),
+        ],
+      ),
     );
   }
 
@@ -282,84 +309,82 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
     required GroupListingScreenNotifer groupListingNotifier,
     required BuildContext context,
   }) {
-    return groupListingNotifier.groups.length == 0
-        ? Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                WNoData(
-                  customText: membersInfoNotifier.auth.user == null
-                      ? tr('msg.group.no_auth')
-                      : tr('msg.group.no_group'),
-                ),
-                if (membersInfoNotifier.auth.user == null)
-                  TextButton(
+    if (groupListingNotifier.groups.length == 0) {
+      return Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            WNoData(
+              customText: membersInfoNotifier.auth.user == null
+                  ? tr('msg.group.no_auth')
+                  : tr('msg.group.no_group'),
+            ),
+            if (membersInfoNotifier.auth.user == null)
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return SettingScreen();
+                      },
+                    ),
+                  );
+                },
+                child: Text(tr('button.open_setting')),
+              ),
+          ],
+        ),
+      );
+    } else {
+      return ListView(
+        padding: ConfigConstant.layoutPadding,
+        children: List.generate(
+          groupListingNotifier.groups.length,
+          (index) {
+            final group = groupListingNotifier.groups[index];
+            bool selected = groupListingNotifier.selectedGroup == group.groupId;
+            final title = group.groupName ?? "";
+            return Container(
+              margin: const EdgeInsets.only(top: 8.0),
+              child: WListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
+                borderRadius: ConfigConstant.circlarRadius2,
+                iconData:
+                    selected ? Icons.check_box : Icons.check_box_outline_blank,
+                titleText: title,
+                trailing: Container(
+                  width: 48,
+                  child: WIconButton(
                     onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return SettingScreen();
-                          },
-                        ),
+                      showSnackBar(
+                        context: context,
+                        title: tr('msg.exit.warning'),
+                        actionLabel: tr('button.yes'),
+                        warning: true,
+                        onActionPressed: () async {
+                          await groupListingNotifier.exitGroup(group.groupId);
+                          await groupListingNotifier.load();
+                        },
                       );
                     },
-                    child: Text(tr('button.open_setting')),
+                    iconData: Icons.close,
+                    iconColor: Theme.of(context).colorScheme.error,
                   ),
-              ],
-            ),
-          )
-        : ListView(
-            padding: ConfigConstant.layoutPadding,
-            children: List.generate(
-              groupListingNotifier.groups.length,
-              (index) {
-                final group = groupListingNotifier.groups[index];
-                bool selected =
-                    groupListingNotifier.selectedGroup == group.groupId;
-                final title = group.groupName ?? "";
-                return Container(
-                  margin: const EdgeInsets.only(top: 8.0),
-                  child: WListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8.0),
-                    borderRadius: ConfigConstant.circlarRadius2,
-                    iconData: selected
-                        ? Icons.check_box
-                        : Icons.check_box_outline_blank,
-                    titleText: title,
-                    trailing: Container(
-                      width: 48,
-                      child: WIconButton(
-                        onPressed: () {
-                          showSnackBar(
-                            context: context,
-                            title: tr('msg.exit.warning'),
-                            actionLabel: tr('button.yes'),
-                            warning: true,
-                            onActionPressed: () async {
-                              await groupListingNotifier
-                                  .exitGroup(group.groupId);
-                              await groupListingNotifier.load();
-                            },
-                          );
-                        },
-                        iconData: Icons.close,
-                        iconColor: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                    onTap: () async {
-                      if (selected) {
-                        await groupListingNotifier.selectedAGroup(null);
-                      } else {
-                        await groupListingNotifier
-                            .selectedAGroup(group.groupId);
-                      }
-                      await membersInfoNotifier.load();
-                    },
-                  ),
-                );
-              },
-            ),
-          );
+                ),
+                onTap: () async {
+                  if (selected) {
+                    await groupListingNotifier.selectedAGroup(null);
+                  } else {
+                    await groupListingNotifier.selectedAGroup(group.groupId);
+                  }
+                  await membersInfoNotifier.load();
+                },
+              ),
+            );
+          },
+        ),
+      );
+    }
   }
 }

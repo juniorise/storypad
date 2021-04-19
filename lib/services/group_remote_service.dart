@@ -8,19 +8,35 @@ import 'package:write_story/services/encrypt_service.dart';
 
 class GroupRemoteService {
   static FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  static CollectionReference userCollection = _firestore.collection('users');
-  static CollectionReference groupsCollection = _firestore.collection("groups");
-  static CollectionReference pendingsCollection =
-      _firestore.collection("pendings");
+  CollectionReference userCollection = _firestore.collection('users');
+  CollectionReference groupsCollection = _firestore.collection("groups");
+  CollectionReference pendingsCollection = _firestore.collection("pendings");
+  AuthenticationService auth = AuthenticationService();
+
+  String? get currentUid {
+    if (auth.user?.uid == null) return null;
+    return auth.user!.uid;
+  }
+
+  String? get currentEmail {
+    if (auth.user?.email == null) return null;
+    return auth.user!.email;
+  }
 
   Future<List<GroupStorageModel>?> fetchGroupsList() async {
-    final auth = AuthenticationService();
-    if (auth.user?.uid == null) return null;
-    final String uid = auth.user!.uid;
-    CollectionReference ref = userCollection.doc("$uid").collection("groups");
-    List<QueryDocumentSnapshot> result =
-        await ref.get().then((value) => value.docs);
-
+    if (currentEmail == null || currentUid == null) return null;
+    DocumentReference doc = userCollection.doc("$currentUid");
+    CollectionReference ref = doc.collection("groups");
+    QuerySnapshot? snapshot;
+    try {
+      snapshot = await ref.get().timeout(Duration(seconds: 30), onTimeout: () {
+        throw "request creating timeout";
+      });
+    } catch (e) {
+      print("$e");
+      return null;
+    }
+    List<QueryDocumentSnapshot> result = snapshot.docs;
     final modelsList = result.map((e) {
       final json = e.data();
       print("$json");
@@ -30,24 +46,47 @@ class GroupRemoteService {
   }
 
   Future<String?> fetchSelectedGroup() async {
-    final auth = AuthenticationService();
-    if (auth.user?.uid == null) return null;
-    final String uid = auth.user!.uid;
-    final data = userCollection.doc(uid).get();
-    return data.then((value) => value['selected_group']);
+    if (currentEmail == null || currentUid == null) return null;
+    DocumentSnapshot? data;
+    DocumentReference doc = userCollection.doc(currentUid);
+    try {
+      final ref = doc.get(GetOptions(source: Source.server));
+      data = await ref.timeout(Duration(seconds: 30), onTimeout: () {
+        throw "request creating timeout";
+      });
+    } catch (e) {
+      print("$e");
+      return null;
+    }
+    Map<String, dynamic>? map = data.data();
+    if (map?.containsKey('selected_group') == true) {
+      return map?['selected_group'];
+    } else {
+      return null;
+    }
   }
 
   Future<GroupStorageModel?> fetchGroup(String groupId) async {
     DocumentReference groupDocRef = groupsCollection.doc(groupId);
-    DocumentSnapshot snapshot = await groupDocRef.get().then((value) => value);
+    DocumentSnapshot? snapshot;
+    try {
+      final get = groupDocRef.get();
+      snapshot = await get.timeout(Duration(seconds: 30), onTimeout: () {
+        throw "request creating timeout";
+      });
+    } catch (e) {
+      print("$e");
+      return null;
+    }
+
     final Map<String, dynamic>? data = snapshot.data();
     if (data == null) return null;
     return GroupStorageModel.fromJson(data);
   }
 
   Stream<List<MemberModel>> fetchMembers(String? groupId) {
-    CollectionReference membersCollection =
-        groupsCollection.doc(groupId).collection("members");
+    DocumentReference doc = groupsCollection.doc(groupId);
+    CollectionReference membersCollection = doc.collection("members");
     final snapshot = membersCollection.orderBy('invite_on').snapshots();
     return snapshot.map((event) {
       return event.docs.map((json) {
@@ -57,21 +96,25 @@ class GroupRemoteService {
   }
 
   Future<GroupStorageModel?> createGroup(String groupName) async {
-    final auth = AuthenticationService();
-    if (auth.user?.email == null) return null;
-    final String email = auth.user!.email!;
-    final String uid = auth.user!.uid;
+    DocumentReference? groupDocRef;
+    final map = {
+      'group_name': groupName,
+      'admin': currentEmail,
+      'group_id': ''
+    };
+    try {
+      final add = groupsCollection.add(map);
+      groupDocRef = await add.timeout(Duration(seconds: 30), onTimeout: () {
+        throw "request creating timeout";
+      });
+    } catch (e) {
+      print("$e");
+      return null;
+    }
 
-    DocumentReference groupDocRef = await groupsCollection.add(
-      {'group_name': groupName, 'admin': email, 'group_id': ''},
-    );
-
-    await groupDocRef.update({
-      'group_id': groupDocRef.id,
-    });
-
+    await groupDocRef.update({'group_id': groupDocRef.id});
     final member = MemberModel(
-      email: email,
+      email: currentEmail,
       db: "",
       photoUrl: auth.user!.photoURL,
       isAdmin: true,
@@ -79,22 +122,25 @@ class GroupRemoteService {
       inviteOn: Timestamp.now(),
     );
 
-    DocumentReference membersCollection =
-        groupsCollection.doc(groupDocRef.id).collection("members").doc(email);
+    final path = groupDocRef.id + "/members/" + currentEmail!;
+    DocumentReference membersCollection = groupsCollection.doc(path);
     await membersCollection.set(member.toJson());
 
     CollectionReference userGroupCollectionRef =
-        userCollection.doc(uid).collection("groups");
+        userCollection.doc(currentUid).collection("groups");
+    await userCollection
+        .doc(currentUid)
+        .update({"selected_group": groupDocRef.id});
 
-    await userCollection.doc(uid).update({"selected_group": groupDocRef.id});
-    userGroupCollectionRef.doc(groupDocRef.id).set(GroupStorageModel(
-          groupId: groupDocRef.id,
-          groupName: groupName,
-          admin: email,
-        ).toJson());
+    Map<String, dynamic> groupMap = GroupStorageModel(
+      groupId: groupDocRef.id,
+      groupName: groupName,
+      admin: currentEmail,
+    ).toJson();
 
+    await userGroupCollectionRef.doc(groupDocRef.id).set(groupMap);
     return GroupStorageModel(
-      admin: email,
+      admin: currentEmail,
       groupId: groupDocRef.id,
       groupName: groupName,
     );
@@ -105,10 +151,6 @@ class GroupRemoteService {
     String groupId,
     String groupName,
   ) async {
-    final auth = AuthenticationService();
-    if (auth.user?.email == null) return null;
-    final String sendByEmail = auth.user!.email!;
-
     final member = MemberModel(
       email: email,
       db: "",
@@ -117,39 +159,58 @@ class GroupRemoteService {
       joinOn: null,
       inviteOn: Timestamp.now(),
     );
-    DocumentReference membersCollection =
-        groupsCollection.doc(groupId).collection("members").doc(member.email);
 
-    final value = await membersCollection.get().then((value) => value);
+    String path = groupId + "/members/" + member.email!;
+    DocumentReference membersCollection = groupsCollection.doc(path);
+
+    DocumentSnapshot? value;
+    try {
+      final get = membersCollection.get();
+      value = await get.timeout(timeLimit, onTimeout: () {
+        throw "add user to group timeout";
+      });
+    } catch (e) {
+      print("$e");
+      return;
+    }
     if (value.data() != null) return;
-
-    await membersCollection.set(member.toJson());
-    final pending = PendingModel(
-      sendByEmail: sendByEmail,
+    Map<String, dynamic> memberMap = member.toJson();
+    await membersCollection.set(memberMap);
+    PendingModel pending = PendingModel(
+      sendByEmail: currentEmail,
       sendToEmail: email,
       groupId: groupId,
       groupName: groupName,
     );
     DocumentReference pendingsDocsRef = pendingsCollection.doc(email);
-    await pendingsDocsRef.set(pending.toJson());
+    Map<String, dynamic> pendingMap = pending.toJson();
+    await pendingsDocsRef.set(pendingMap);
   }
 
   Future<void> removePendingUserFromGroup({
     required String email,
     required String groupId,
   }) async {
-    DocumentReference membersCollection =
-        groupsCollection.doc(groupId).collection("members").doc(email);
-    await membersCollection.delete();
+    String path = groupId + "/members/" + email;
+    DocumentReference membersCollection = groupsCollection.doc(path);
+    try {
+      final delete = membersCollection.delete();
+      await delete.timeout(timeLimit, onTimeout: () {
+        throw "remove pending user from group timeout";
+      });
+    } catch (e) {
+      return;
+    }
     DocumentReference pendingsDocsRef = pendingsCollection.doc(email);
     await pendingsDocsRef.delete();
   }
 
-  Stream<PendingModel> hasPending() {
-    final auth = AuthenticationService();
-    final String? email = auth.user?.email;
-    if (email == null) return Stream.value(PendingModel());
-    DocumentReference pendingsDocsRef = pendingsCollection.doc(email);
+  Stream<PendingModel?> hasPending() {
+    if (currentEmail == null || currentUid == null) {
+      return Stream.value(null);
+    }
+
+    DocumentReference pendingsDocsRef = pendingsCollection.doc(currentEmail);
     return pendingsDocsRef.snapshots().map((event) {
       PendingModel? pendingModel;
       var documentSnapshot = event.data();
@@ -161,38 +222,29 @@ class GroupRemoteService {
     });
   }
 
-  // has user joined the group
-  Future<bool> isUserJoined(String groupId) async {
-    final auth = AuthenticationService();
-    if (auth.user?.uid == null) return false;
-    final String uid = auth.user!.uid;
-    DocumentReference userDocRef = userCollection.doc(uid);
-    DocumentSnapshot userDocSnapshot = await userDocRef.get();
-
-    final data = userDocSnapshot.data();
-    List<dynamic> groups = data?['groups'];
-
-    if (groups.contains(groupId)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  static const Duration timeLimit = Duration(seconds: 30);
 
   Future<void> acceptPending(PendingModel pendingModel) async {
-    final auth = AuthenticationService();
-    if (auth.user == null) return null;
+    if (currentEmail == null || currentUid == null) return null;
+    if (pendingModel.groupId == null) return null;
+    if (pendingModel.sendToEmail == null) return null;
     final String? photoUrl = auth.user?.photoURL;
 
     DocumentReference userDocRef = userCollection.doc(auth.user!.uid);
-    await userDocRef
-        .collection("groups")
-        .doc(pendingModel.groupId)
-        .set(GroupStorageModel(
-          groupId: pendingModel.groupId,
-          groupName: pendingModel.groupName,
-          admin: pendingModel.sendByEmail,
-        ).toJson());
+    final group = GroupStorageModel(
+      groupId: pendingModel.groupId,
+      groupName: pendingModel.groupName,
+      admin: pendingModel.sendByEmail,
+    ).toJson();
+
+    try {
+      final doc = userDocRef.collection("groups").doc(pendingModel.groupId);
+      await doc.set(group).timeout(timeLimit, onTimeout: () {
+        throw "accept pending timemout";
+      });
+    } catch (e) {
+      return;
+    }
 
     final map = {
       "email": pendingModel.sendToEmail,
@@ -200,77 +252,101 @@ class GroupRemoteService {
       "join_on": Timestamp.now(),
     };
 
-    DocumentReference membersCollection = groupsCollection
-        .doc(pendingModel.groupId)
-        .collection("members")
-        .doc(pendingModel.sendToEmail);
-
+    final path =
+        pendingModel.groupId! + "/members/" + pendingModel.sendToEmail!;
+    DocumentReference membersCollection = groupsCollection.doc(path);
     await membersCollection.update(map);
     await pendingsCollection.doc(pendingModel.sendToEmail).delete();
   }
 
   Future<void> cancelPending(PendingModel pendingModel) async {
-    await pendingsCollection.doc(pendingModel.sendToEmail).delete();
-    await groupsCollection
-        .doc(pendingModel.groupId)
-        .collection("members")
-        .doc(pendingModel.sendToEmail)
-        .delete();
+    if (currentEmail == null || currentUid == null) return null;
+    if (pendingModel.groupId == null) return null;
+    if (pendingModel.sendToEmail == null) return null;
+    DocumentReference docRef = pendingsCollection.doc(pendingModel.sendToEmail);
+    try {
+      await docRef.delete().timeout(timeLimit, onTimeout: () {
+        throw "cancel pending timeout";
+      });
+    } catch (e) {
+      return;
+    }
+    final path =
+        pendingModel.groupId! + "/members/" + pendingModel.sendToEmail!;
+    final doc = groupsCollection.doc(path);
+    await doc.delete();
   }
 
   Future<void> setSelectedGroup(String? groupId) async {
-    final auth = AuthenticationService();
-    if (auth.user?.uid == null) return null;
-    final String uid = auth.user!.uid;
-    DocumentReference userDocRef = userCollection.doc(uid);
-    await userDocRef.update({"selected_group": groupId});
+    if (currentEmail == null || currentUid == null) return null;
+    DocumentReference userDocRef = userCollection.doc(currentUid);
+    try {
+      final updateFuture = userDocRef.update({"selected_group": groupId});
+      updateFuture.timeout(timeLimit, onTimeout: () {
+        throw "set selected group timeout";
+      });
+    } catch (e) {
+      return;
+    }
   }
 
   Future<void> exitGroup(String? groupId, String? selectedGroup) async {
-    final auth = AuthenticationService();
-    if (auth.user?.uid == null) return null;
-    if (auth.user?.email == null) return null;
-
-    final String uid = auth.user!.uid;
-    final String email = auth.user!.email!;
-
-    DocumentReference userDocRef = userCollection.doc(uid);
+    if (currentEmail == null || currentUid == null) return null;
+    DocumentReference userDocRef = userCollection.doc(currentUid);
     if (selectedGroup == groupId) {
-      await userDocRef.update({
-        "selected_group": null,
-      });
+      final updateFuture = userDocRef.update({"selected_group": null});
+      try {
+        await updateFuture.timeout(timeLimit, onTimeout: () {
+          throw "set selected group to null timeout";
+        });
+      } catch (e) {
+        return;
+      }
     }
 
-    await userDocRef.collection("groups").doc(groupId).delete();
-    CollectionReference membersCollectionsRef =
-        groupsCollection.doc(groupId).collection("members");
-    await membersCollectionsRef.doc(email).delete();
-    membersCollectionsRef.get().then((value) async {
-      if (value.docs.length == 0) {
-        await groupsCollection.doc(groupId).delete();
-      }
-    });
+    final groupRef = userDocRef.collection("groups").doc(groupId);
+    try {
+      await groupRef.delete().timeout(timeLimit, onTimeout: () {
+        throw "exit group timeout";
+      });
+    } catch (e) {
+      print("$e");
+      return;
+    }
+
+    DocumentReference docRef = groupsCollection.doc(groupId);
+    CollectionReference membersCollectionsRef = docRef.collection("members");
+    await membersCollectionsRef.doc(currentEmail).delete();
+
+    QuerySnapshot snapshot = await membersCollectionsRef.get();
+    if (snapshot.docs.length == 0) {
+      await groupsCollection.doc(groupId).delete();
+    }
   }
 
   Future<void> syncEncryptStories(
     String? groupId,
     Map<int, StoryModel>? result,
   ) async {
+    if (currentEmail == null || currentUid == null) return null;
     if (result == null) return;
 
-    final auth = AuthenticationService();
-    if (auth.user?.uid == null) return;
-    if (auth.user?.email == null) return;
-
-    final String email = auth.user!.email!;
-    final encrypt = EncryptService.storyMapEncrypt(result);
-
+    DocumentReference group = groupsCollection.doc(groupId);
+    DocumentSnapshot? snapshot;
     try {
-      await groupsCollection
-          .doc(groupId)
-          .collection("members")
-          .doc(email)
-          .update({"db": encrypt});
-    } catch (e) {}
+      snapshot = await group.get().timeout(timeLimit, onTimeout: () {
+        throw "sync encrypt stories timeout";
+      });
+      if (snapshot.data() == null) return;
+    } catch (e) {
+      print("$e");
+      return;
+    }
+
+    String? encrypt = EncryptService.storyMapEncrypt(result);
+    DocumentReference docRef = groupsCollection.doc(groupId);
+    CollectionReference membersRef = docRef.collection("members");
+    DocumentReference memberRef = membersRef.doc(currentEmail);
+    await memberRef.update({"db": encrypt});
   }
 }

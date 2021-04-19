@@ -28,7 +28,7 @@ class GroupScreenNotifier extends ChangeNotifier {
         [];
   }
 
-  Stream<PendingModel>? hasPending() {
+  Stream<PendingModel?>? hasPending() {
     return service.hasPending();
   }
 
@@ -39,29 +39,34 @@ class GroupScreenNotifier extends ChangeNotifier {
   Map<int, StoryModel>? _storyById;
   load() async {
     loading = true;
-    final Map<int, StoryModel>? result =
-        await wDatabase.storyById(where: "`is_share` = 1");
-    if (result != null) {
-      this._storyById = result;
-      notifyListeners();
-    }
+    try {
+      final Map<int, StoryModel>? result =
+          await wDatabase.storyById(where: "`is_share` = 1");
+      if (result != null) {
+        this._storyById = result;
+        notifyListeners();
+      }
 
-    final String? groupId = await service.fetchSelectedGroup();
-    if (groupId == null) {
-      this._groupModel = null;
+      final String? groupId = await service.fetchSelectedGroup();
+      if (groupId == null) {
+        this._groupModel = null;
+        loading = false;
+        return;
+      }
+      print("current group id: $groupId");
+
+      if (this._storyById != null) {
+        await service.syncEncryptStories(groupId, this._storyById);
+      }
+
+      final GroupStorageModel? groupModel = await service.fetchGroup(groupId);
+      if (groupModel != null) {
+        this._groupModel = groupModel;
+      }
       loading = false;
-      return;
+    } catch (e) {
+      loading = false;
     }
-
-    if (this._storyById != null) {
-      await service.syncEncryptStories(groupId, this._storyById);
-    }
-
-    final GroupStorageModel? groupModel = await service.fetchGroup(groupId);
-    if (groupModel != null) {
-      this._groupModel = groupModel;
-    }
-    loading = false;
   }
 
   Future<bool> hasGroup() async {

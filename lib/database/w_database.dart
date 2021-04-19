@@ -93,7 +93,6 @@ class WDatabase {
   Future<bool> restoreBackup(String backup, {bool isEncrypted = true}) async {
     try {
       var dbs = await this.database;
-
       Batch batch = dbs!.batch();
 
       List json = convert.jsonDecode(

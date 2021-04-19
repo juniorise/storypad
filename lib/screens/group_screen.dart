@@ -225,7 +225,7 @@ class GroupScreen extends HookWidget with DialogMixin {
   }
 
   Widget buildPending(GroupScreenNotifier notifier) {
-    return StreamBuilder<PendingModel>(
+    return StreamBuilder<PendingModel?>(
       stream: notifier.hasPending(),
       builder: (context, snapshot) {
         PendingModel? pendingModel;
@@ -288,7 +288,7 @@ class GroupScreen extends HookWidget with DialogMixin {
                           if (pendingModel == null) return;
                           await notifier.acceptPending(pendingModel);
                         },
-                        child: Text(tr('button.save')),
+                        child: Text(tr('button.accept')),
                       ),
                       TextButton(
                         onPressed: () async {
