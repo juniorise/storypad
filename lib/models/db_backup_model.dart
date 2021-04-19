@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DbBackupModel {
-  final String db;
-  final Timestamp createOn;
+  final String? db;
+  final Timestamp? createOn;
 
   DbBackupModel({
     required this.db,

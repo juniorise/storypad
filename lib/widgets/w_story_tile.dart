@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/constants/config_constant.dart';
+import 'package:write_story/database/w_database.dart';
 import 'package:write_story/mixins/dialog_mixin.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:write_story/widgets/w_group_sync_dialog.dart';
 import 'package:write_story/widgets/w_icon_button.dart';
 
 class WStoryTile extends StatelessWidget with DialogMixin {
@@ -15,7 +17,7 @@ class WStoryTile extends StatelessWidget with DialogMixin {
   final EdgeInsets margin =
       const EdgeInsets.only(bottom: ConfigConstant.margin1);
   final void Function()? onToggleFavorite;
-  final void Function()? onToggleShare;
+  final bool readOnly;
 
   const WStoryTile({
     Key? key,
@@ -23,7 +25,7 @@ class WStoryTile extends StatelessWidget with DialogMixin {
     required this.onSaved,
     required this.onTap,
     this.onToggleFavorite,
-    this.onToggleShare,
+    this.readOnly = false,
   }) : super(key: key);
 
   @override
@@ -83,22 +85,33 @@ class WStoryTile extends StatelessWidget with DialogMixin {
       top: 0,
       child: Row(
         children: [
-          if (onToggleShare != null)
+          if (!readOnly)
             Transform(
               transform: Matrix4.identity()
                 ..translate(
                   onToggleFavorite != null ? 8.0 : 0.0,
                   0.0,
                 ),
-              child: buildFavoriteButton(
-                story: story,
-                context: context,
-                onPressed: onToggleShare ?? () {},
-                isActive: story.isShare,
-                iconData: story.isShare
-                    ? Icons.people_alt_sharp
-                    : Icons.people_alt_outlined,
-              ),
+              child: FutureBuilder(
+                  future:
+                      WDatabase.instance.isStoryIdCheckedByAllGroups(story.id),
+                  builder: (context, snapshot) {
+                    return buildFavoriteButton(
+                      story: story,
+                      context: context,
+                      onPressed: () async {
+                        if (readOnly) return;
+                        await showWDialog(
+                          context: context,
+                          child: WGroupSyncDialog(storyId: story.id),
+                        );
+                      },
+                      isActive: snapshot.data == true,
+                      iconData: snapshot.data == true
+                          ? Icons.people_alt_sharp
+                          : Icons.people_alt_outlined,
+                    );
+                  }),
             ),
           if (onToggleFavorite != null)
             buildFavoriteButton(

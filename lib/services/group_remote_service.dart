@@ -33,13 +33,12 @@ class GroupRemoteService {
         throw "request creating timeout";
       });
     } catch (e) {
-      print("$e");
+      print("GroupRemoteService#fetchGroupsList $e");
       return null;
     }
     List<QueryDocumentSnapshot> result = snapshot.docs;
     final modelsList = result.map((e) {
       final json = e.data();
-      print("$json");
       return GroupStorageModel.fromJson(json);
     }).toList();
     return modelsList;
@@ -55,7 +54,7 @@ class GroupRemoteService {
         throw "request creating timeout";
       });
     } catch (e) {
-      print("$e");
+      print("GroupRemoteService#fetchSelectedGroup $e");
       return null;
     }
     Map<String, dynamic>? map = data.data();
@@ -75,7 +74,7 @@ class GroupRemoteService {
         throw "request creating timeout";
       });
     } catch (e) {
-      print("$e");
+      print("GroupRemoteService#fetchGroup $e");
       return null;
     }
 
@@ -108,7 +107,7 @@ class GroupRemoteService {
         throw "request creating timeout";
       });
     } catch (e) {
-      print("$e");
+      print("GroupRemoteService#createGroup $e");
       return null;
     }
 
@@ -170,7 +169,7 @@ class GroupRemoteService {
         throw "add user to group timeout";
       });
     } catch (e) {
-      print("$e");
+      print("GroupRemoteService#addUserToGroup $e");
       return;
     }
     if (value.data() != null) return;
@@ -199,6 +198,7 @@ class GroupRemoteService {
         throw "remove pending user from group timeout";
       });
     } catch (e) {
+      print("GroupRemoteService#removePendingUserFromGroup $e");
       return;
     }
     DocumentReference pendingsDocsRef = pendingsCollection.doc(email);
@@ -243,6 +243,7 @@ class GroupRemoteService {
         throw "accept pending timemout";
       });
     } catch (e) {
+      print("GroupRemoteService#acceptPending $e");
       return;
     }
 
@@ -269,6 +270,7 @@ class GroupRemoteService {
         throw "cancel pending timeout";
       });
     } catch (e) {
+      print("GroupRemoteService#cancelPending $e");
       return;
     }
     final path =
@@ -286,6 +288,7 @@ class GroupRemoteService {
         throw "set selected group timeout";
       });
     } catch (e) {
+      print("GroupRemoteService#setSelectedGroup $e");
       return;
     }
   }
@@ -300,6 +303,7 @@ class GroupRemoteService {
           throw "set selected group to null timeout";
         });
       } catch (e) {
+        print("GroupRemoteService#exitGroup $e");
         return;
       }
     }
@@ -310,7 +314,7 @@ class GroupRemoteService {
         throw "exit group timeout";
       });
     } catch (e) {
-      print("$e");
+      print("GroupRemoteService#exitGroup $e");
       return;
     }
 
@@ -339,7 +343,7 @@ class GroupRemoteService {
       });
       if (snapshot.data() == null) return;
     } catch (e) {
-      print("$e");
+      print("GroupRemoteService#syncEncryptStories $e");
       return;
     }
 

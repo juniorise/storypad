@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/models/group_storage_model.dart';
 import 'package:write_story/services/group_remote_service.dart';
+import 'package:write_story/storages/group_sync_storage.dart';
 
 class GroupListingScreenNotifer extends ChangeNotifier {
   GroupRemoteService service = GroupRemoteService();
+  GroupsSyncStorage storage = GroupsSyncStorage();
 
   List<GroupStorageModel>? _groups;
   List<GroupStorageModel> get groups => this._groups ?? [];
@@ -23,6 +25,7 @@ class GroupListingScreenNotifer extends ChangeNotifier {
     loading = true;
     _selectedGroup = await service.fetchSelectedGroup();
     final result = await service.fetchGroupsList();
+    await storage.writeList(result);
     if (result != null) {
       _groups = result;
     } else {

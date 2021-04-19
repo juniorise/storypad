@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import "package:path/path.dart";
+import 'package:write_story/models/group_sync_model.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/models/user_model.dart';
 import 'dart:convert' as convert;
@@ -61,6 +62,16 @@ class WDatabase {
           await database
               .execute("ALTER TABLE story ADD COLUMN is_share INTEGER");
         }
+
+        final groupSql = '''
+          CREATE TABLE IF NOT EXISTS group_sync (
+              group_id TEXT NOT NULL,
+              story_id INT,
+              group_name TEXT,
+              UNIQUE(group_id, story_id) ON CONFLICT REPLACE
+          );
+        ''';
+        await database.execute(groupSql);
       },
       version: 3,
     );
@@ -191,6 +202,102 @@ class WDatabase {
     }
   }
 
+  Future<bool> removeFromGroupSync({
+    required String groupId,
+    required int storyId,
+  }) async {
+    try {
+      final Database? client = await database;
+      await client?.delete(
+        'group_sync',
+        where: '''
+        story_id = $storyId AND group_id = '$groupId'
+        ''',
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> isStoryIdCheckedByAllGroups(int id) async {
+    var client = await database;
+    List<Map<String, dynamic>>? maps;
+    try {
+      maps = await client!.query(
+        "group_sync",
+        columns: [
+          "story_id",
+          "group_id",
+          "group_name",
+        ],
+        where: "story_id = $id",
+      );
+      return maps.isNotEmpty;
+    } catch (e) {
+      print("WDatabase#groupSyncsByGroupId $e");
+      return false;
+    }
+  }
+
+  Future<bool> insertToGroupSync({
+    required String groupId,
+    required int storyId,
+    required String groupName,
+  }) async {
+    String query = '''
+      INSERT or REPLACE INTO "group_sync" (
+        group_id,
+        group_name,
+        story_id
+      )
+      VALUES (
+        '$groupId',
+        '$groupName',
+        $storyId
+      )
+    ''';
+    try {
+      final Database? client = await database;
+      await client?.execute(query);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<List<GroupSyncModel>?> groupSyncsByGroupId(String groupId) async {
+    var client = await database;
+    List<Map<String, dynamic>>? maps;
+    try {
+      maps = await client!.query(
+        "group_sync",
+        columns: [
+          "story_id",
+          "group_id",
+          "group_name",
+        ],
+        where: "group_id = '$groupId'",
+      );
+    } catch (e) {
+      print("WDatabase#groupSyncsByGroupId $e");
+      return null;
+    }
+
+    final result = maps.map((json) {
+      return GroupSyncModel.fromJson(json);
+    }).toList();
+    return result;
+  }
+
+  clearAllSync({String? where}) async {
+    String query = "delete from `group_sync`";
+    if (where != null) {
+      query = query + " where " + where;
+    }
+    await _database?.execute(query);
+  }
+
   Future<Map<int, StoryModel>> storyById({String? where}) async {
     var client = await database;
     List<Map<String, dynamic>> maps = await client!.query(
@@ -231,8 +338,12 @@ class WDatabase {
     }
   }
 
-  clearAllStories() async {
-    await _database!.execute("delete from story");
+  clearAllStories({String? where}) async {
+    String query = "delete from story";
+    if (where != null) {
+      query = query + " where " + where;
+    }
+    await _database!.execute(query);
   }
 
   Future<bool> setUserModel(UserModel user) async {

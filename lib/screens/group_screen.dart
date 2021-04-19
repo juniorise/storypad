@@ -112,9 +112,7 @@ class GroupScreen extends HookWidget with DialogMixin {
                                     ),
                                   );
                                 },
-                                onToggleShare: () async {
-                                  await notifier.toggleShare(story.id);
-                                },
+                                readOnly: false,
                               );
                             },
                           ),
@@ -154,6 +152,7 @@ class GroupScreen extends HookWidget with DialogMixin {
                                     context: context,
                                     story: story,
                                     imageUrl: member.photoUrl,
+                                    readOnly: true,
                                     onTap: () {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
@@ -167,7 +166,6 @@ class GroupScreen extends HookWidget with DialogMixin {
                                         ),
                                       );
                                     },
-                                    onToggleShare: null,
                                   );
                                 },
                               ),
@@ -189,7 +187,7 @@ class GroupScreen extends HookWidget with DialogMixin {
   Container buildUserStoryTile({
     required BuildContext context,
     required StoryModel story,
-    void Function()? onToggleShare,
+    required bool readOnly,
     required void Function() onTap,
     String? imageUrl,
   }) {
@@ -211,7 +209,7 @@ class GroupScreen extends HookWidget with DialogMixin {
               _sizedBox,
               Expanded(
                 child: WStoryTile(
-                  onToggleShare: onToggleShare,
+                  readOnly: readOnly,
                   onSaved: (DateTime date) {},
                   onTap: onTap,
                   story: story,

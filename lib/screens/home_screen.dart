@@ -584,12 +584,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     return WStoryTile(
       story: story,
       onSaved: onSaved,
-      onToggleShare: () async {
-        closeFaq();
-        onTapVibrate();
-        print("TEST");
-        await notifier.toggleShare(story.id);
-      },
+      readOnly: false,
       onTap: () async {
         closeFaq();
         final dynamic selected = await Navigator.of(

@@ -184,16 +184,6 @@ class HomeScreenNotifier extends ChangeNotifier {
     this._storyListByMonthID = _mapStoryListByMonthId;
   }
 
-  Future<void> toggleShare(int storyId) async {
-    final story = this._storyById![storyId];
-    final result = story!.copyWith(isShare: !story.isShare);
-
-    this._storyById?[storyId] = result;
-    notifyListeners();
-
-    await wDatabase.updateStory(story: result);
-  }
-
   Future<void> toggleFavorite(int storyId) async {
     final story = this._storyById![storyId];
     final result = story!.copyWith(isFavorite: !story.isFavorite);

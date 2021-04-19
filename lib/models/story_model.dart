@@ -8,8 +8,10 @@ class StoryModel {
   final DateTime? updateOn;
   final DateTime forDate;
   final bool isFavorite;
-  final bool isShare;
   final String? feeling;
+
+  /// this value isn't use anymore
+  final bool isShare;
 
   const StoryModel({
     required this.id,

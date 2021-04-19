@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/database/w_database.dart';
 import 'package:write_story/models/group_storage_model.dart';
+import 'package:write_story/models/group_sync_model.dart';
 import 'package:write_story/models/member_model.dart';
 import 'package:write_story/models/pending_model.dart';
 import 'package:write_story/models/story_model.dart';
@@ -39,34 +40,47 @@ class GroupScreenNotifier extends ChangeNotifier {
   Map<int, StoryModel>? _storyById;
   load() async {
     loading = true;
+    final String? groupId = await service.fetchSelectedGroup();
+
+    if (groupId == null) {
+      this._groupModel = null;
+      loading = false;
+      return;
+    }
+
+    List<GroupSyncModel>? groupSyncs =
+        await wDatabase.groupSyncsByGroupId(groupId);
+    String? where;
+    if (groupSyncs != null) {
+      final _list = groupSyncs.map((e) => e.storyId).toList();
+      String _where = "";
+      for (int i = 0; i < _list.length; i++) {
+        if (i != _list.length - 1) {
+          _where += "`id` = ${_list[i]} OR ";
+        } else {
+          _where += "`id` = ${_list[i]}";
+        }
+      }
+      where = _where;
+    }
+
     try {
       final Map<int, StoryModel>? result =
-          await wDatabase.storyById(where: "`is_share` = 1");
-      if (result != null) {
-        this._storyById = result;
-        notifyListeners();
-      }
-
-      final String? groupId = await service.fetchSelectedGroup();
-      if (groupId == null) {
-        this._groupModel = null;
-        loading = false;
-        return;
-      }
-      print("current group id: $groupId");
-
-      if (this._storyById != null) {
-        await service.syncEncryptStories(groupId, this._storyById);
-      }
-
-      final GroupStorageModel? groupModel = await service.fetchGroup(groupId);
-      if (groupModel != null) {
-        this._groupModel = groupModel;
-      }
-      loading = false;
+          await wDatabase.storyById(where: where);
+      this._storyById = result;
     } catch (e) {
-      loading = false;
+      this._storyById = null;
     }
+
+    if (this._storyById != null) {
+      await service.syncEncryptStories(groupId, this._storyById);
+    }
+
+    final GroupStorageModel? groupModel = await service.fetchGroup(groupId);
+    if (groupModel != null) {
+      this._groupModel = groupModel;
+    }
+    loading = false;
   }
 
   Future<bool> hasGroup() async {

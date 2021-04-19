@@ -16,7 +16,11 @@ class RemoteDatabaseNotifier with ChangeNotifier {
   load() async {
     if (auth.user != null) {
       final result = await service.backup(auth.user!.uid);
-      if (result != null) this._backup = result;
+      if (result != null && result.db != null) {
+        this._backup = result;
+      } else {
+        this._backup = null;
+      }
     }
     WidgetsBinding.instance?.addPostFrameCallback((_) => notifyListeners());
   }

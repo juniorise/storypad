@@ -51,11 +51,6 @@ class MembersInfoNotifier extends ChangeNotifier {
     );
     await load();
   }
-
-  Future<void> achivedGroup() async {
-    await service.setSelectedGroup(null);
-    await load();
-  }
 }
 
 final membersInfoProvider =

@@ -658,11 +658,13 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         subtitleText: tr(
                           "msg.backup.import",
                           namedArgs: {
-                            "DATE": AppHelper.dateFormat(context).format(
-                                    dbNotifier.backup!.createOn.toDate()) +
-                                ", " +
-                                AppHelper.timeFormat(context).format(
-                                    dbNotifier.backup!.createOn.toDate())
+                            "DATE": dbNotifier.backup?.createOn != null
+                                ? AppHelper.dateFormat(context).format(
+                                        dbNotifier.backup!.createOn!.toDate()) +
+                                    ", " +
+                                    AppHelper.timeFormat(context).format(
+                                        dbNotifier.backup!.createOn!.toDate())
+                                : ""
                           },
                         ),
                         onTap: () async {
@@ -672,6 +674,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                             return;
                           }
 
+                          if (dbNotifier.backup == null) return;
                           bool? hasClick;
                           final dialog = Dialog(
                             child: Wrap(
@@ -718,7 +721,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                           if (hasClick == null) return;
 
                           final bool success = await database
-                              .restoreBackup(dbNotifier.backup!.db);
+                              .restoreBackup(dbNotifier.backup!.db!);
                           if (success) {
                             onTapVibrate();
                             await context.read(homeScreenProvider).load();

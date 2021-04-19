@@ -5,6 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:write_story/app_helper/app_helper.dart';
 import 'package:write_story/constants/config_constant.dart';
+import 'package:write_story/database/w_database.dart';
 import 'package:write_story/mixins/dialog_mixin.dart';
 import 'package:write_story/mixins/snakbar_mixin.dart';
 import 'package:write_story/models/member_model.dart';
@@ -364,6 +365,9 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                         warning: true,
                         onActionPressed: () async {
                           await groupListingNotifier.exitGroup(group.groupId);
+                          await WDatabase.instance.clearAllSync(
+                            where: "group_id = '${group.groupId}'",
+                          );
                           await groupListingNotifier.load();
                         },
                       );
