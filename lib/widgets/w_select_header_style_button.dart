@@ -145,11 +145,8 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
                 child: Text(
                   _valueString[index],
                   style: style.copyWith(
-                    color: disable
-                        ? theme.disabledColor
-                        : _valueToText[value] == _valueString[index]
-                            ? theme.primaryIconTheme.color
-                            : theme.iconTheme.color,
+                    color:
+                        disable ? theme.disabledColor : theme.iconTheme.color,
                   ),
                 ),
               ),

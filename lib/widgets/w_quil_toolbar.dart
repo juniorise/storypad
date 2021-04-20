@@ -374,7 +374,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
     final isEnabled = onPressed != null;
     final iconColor = isEnabled ? theme.iconTheme.color : theme.disabledColor;
     final fillColor =
-        isToggled == true ? theme.dividerColor : Colors.transparent;
+        isToggled == true && onPressed != null ? theme.dividerColor : Colors.transparent;
 
     return VTOnTapEffect(
       onTap: onPressed != null ? onPressed : null,
