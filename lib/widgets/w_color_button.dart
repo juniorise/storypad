@@ -105,11 +105,11 @@ class _WColorButtonState extends State<WColorButton>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     Color? iconColor = _isToggledColor && !widget.background
-        ? stringToColor(_selectionStyle.attributes['color']!.value)
+        ? stringToColor(_selectionStyle.attributes['color']?.value)
         : theme.iconTheme.color;
 
     Color? iconColorBackground = _isToggledBackground && widget.background
-        ? stringToColor(_selectionStyle.attributes['background']!.value)
+        ? stringToColor(_selectionStyle.attributes['background']?.value)
         : theme.iconTheme.color;
 
     bool isDarkMode = theme.colorScheme.brightness == Brightness.dark;
@@ -157,7 +157,13 @@ class _WColorButtonState extends State<WColorButton>
 
     final void Function()? onPressed = () {
       return _showColorPicker(
-        currentColor: widget.background ? iconColorBackground : iconColor,
+        currentColor: widget.background
+            ? _isToggledBackground
+                ? iconColorBackground
+                : null
+            : _isToggledColor
+                ? iconColor
+                : null,
       );
     };
 
