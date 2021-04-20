@@ -352,7 +352,7 @@ class StoryDetailScreen extends HookWidget
     BuildContext context,
     Widget imageChild,
     EdgeInsets screenPadding,
-    String imageUrl,
+    String? imageUrl,
   ) {
     showModalBottomSheet(
       context: context,
@@ -363,51 +363,55 @@ class StoryDetailScreen extends HookWidget
         return ImageViewer(
           imageChild: imageChild,
           screenPadding: screenPadding,
-          onShareImage: () async {
-            onTapVibrate();
-            final file = await _findPath(imageUrl);
-            await Share.shareFiles([file.path]);
-          },
-          onSaveImage: () async {
-            var status = Permission.storage;
-            if (await status.isDenied) {
-              await status.request();
-            }
+          onShareImage: imageUrl != null
+              ? () async {
+                  onTapVibrate();
+                  final file = await _findPath(imageUrl);
+                  await Share.shareFiles([file.path]);
+                }
+              : null,
+          onSaveImage: imageUrl != null
+              ? () async {
+                  var status = Permission.storage;
+                  if (await status.isDenied) {
+                    await status.request();
+                  }
 
-            dynamic result;
-            if (imageUrl.startsWith('http')) {
-              final file = await _findPath(imageUrl);
-              result = await ImageGallerySaver.saveFile(
-                file.path,
-                isReturnPathOfIOS: true,
-              );
-            } else if (isBase64(imageUrl)) {
-              result = await ImageGallerySaver.saveImage(
-                base64.decode(imageUrl),
-                isReturnImagePathOfIOS: true,
-              );
-            } else {
-              result = await ImageGallerySaver.saveFile(
-                File(imageUrl).path,
-                isReturnPathOfIOS: true,
-              );
-            }
-            print("$result");
-            if (result['isSuccess'] == true) {
-              showSnackBar(
-                context: context,
-                title: tr("msg.save.success"),
-              );
-              onTapVibrate();
-            } else {
-              if (result['errorMessage'] != null) {
-                showSnackBar(
-                  context: context,
-                  title: result['errorMessage'],
-                );
-              }
-            }
-          },
+                  dynamic result;
+                  if (imageUrl.startsWith('http')) {
+                    final file = await _findPath(imageUrl);
+                    result = await ImageGallerySaver.saveFile(
+                      file.path,
+                      isReturnPathOfIOS: true,
+                    );
+                  } else if (isBase64(imageUrl)) {
+                    result = await ImageGallerySaver.saveImage(
+                      base64.decode(imageUrl),
+                      isReturnImagePathOfIOS: true,
+                    );
+                  } else {
+                    result = await ImageGallerySaver.saveFile(
+                      File(imageUrl).path,
+                      isReturnPathOfIOS: true,
+                    );
+                  }
+                  print("$result");
+                  if (result['isSuccess'] == true) {
+                    showSnackBar(
+                      context: context,
+                      title: tr("msg.save.success"),
+                    );
+                    onTapVibrate();
+                  } else {
+                    if (result['errorMessage'] != null) {
+                      showSnackBar(
+                        context: context,
+                        title: result['errorMessage'],
+                      );
+                    }
+                  }
+                }
+              : null,
         );
       },
     ).then((value) {

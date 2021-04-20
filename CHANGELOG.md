@@ -1,3 +1,10 @@
+## 1.0.1+26
+- add image view to logo
+- add header style
+- fix toggle color button
+- fix toggle group checkbox
+- fix bugs & some improvements
+
 ## 1.0.1+25
 - production release
 - fix bugs and improvements

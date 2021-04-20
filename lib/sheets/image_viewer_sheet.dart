@@ -17,8 +17,8 @@ class ImageViewer extends HookWidget with WSnackBar {
 
   final Widget imageChild;
   final EdgeInsets screenPadding;
-  final Future<void> Function() onSaveImage;
-  final Future<void> Function() onShareImage;
+  final Future<void> Function()? onSaveImage;
+  final Future<void> Function()? onShareImage;
 
   @override
   Widget build(BuildContext context) {
@@ -49,93 +49,95 @@ class ImageViewer extends HookWidget with WSnackBar {
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              VTOnTapEffect(
-                onTap: () async {
-                  await onShareImage();
-                },
-                child: Container(
-                  height: 48,
-                  width: 48,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).colorScheme.surface,
+              if (onShareImage != null)
+                VTOnTapEffect(
+                  onTap: () async {
+                    await onShareImage!();
+                  },
+                  child: Container(
+                    height: 48,
+                    width: 48,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(Icons.share),
                   ),
-                  alignment: Alignment.center,
-                  child: Icon(Icons.share),
                 ),
-              ),
               const SizedBox(height: ConfigConstant.margin2),
-              GestureDetector(
-                onTapDown: (_) async {
-                  animationController.forward().then((value) async {
-                    onTapVibrate();
+              if (onSaveImage != null)
+                GestureDetector(
+                  onTapDown: (_) async {
+                    animationController.forward().then((value) async {
+                      onTapVibrate();
+                      animationController.reset();
+                      await onSaveImage!();
+                    });
+                  },
+                  onTapUp: (_) {
                     animationController.reset();
-                    await onSaveImage();
-                  });
-                },
-                onTapUp: (_) {
-                  animationController.reset();
-                },
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    AnimatedBuilder(
-                      animation: animationController,
-                      builder: (context, child) {
-                        return AnimatedOpacity(
-                          opacity: animationController.isAnimating ? 1 : 0,
-                          duration: ConfigConstant.fadeDuration,
-                          child: Material(
-                            elevation: 0.5,
-                            borderRadius: BorderRadius.circular(2.0),
-                            child: Text(" Saving image... "),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: ConfigConstant.margin2),
-                    Material(
-                      borderRadius: BorderRadius.circular(kToolbarHeight),
-                      elevation: 6.0,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          AnimatedBuilder(
-                            animation: animationController,
-                            builder: (context, child) {
-                              return AnimatedOpacity(
-                                opacity:
-                                    animationController.isAnimating ? 1 : 0,
-                                duration: ConfigConstant.fadeDuration,
-                                child: Container(
-                                  height: 48,
-                                  width: 48,
-                                  child: CircularProgressIndicator(
-                                    value: animationController.value,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          Container(
-                            height: 48,
-                            width: 48,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Theme.of(context).colorScheme.surface,
+                  },
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      AnimatedBuilder(
+                        animation: animationController,
+                        builder: (context, child) {
+                          return AnimatedOpacity(
+                            opacity: animationController.isAnimating ? 1 : 0,
+                            duration: ConfigConstant.fadeDuration,
+                            child: Material(
+                              elevation: 0.5,
+                              borderRadius: BorderRadius.circular(2.0),
+                              child: Text(" Saving image... "),
                             ),
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.get_app,
-                            ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: ConfigConstant.margin2),
+                      Material(
+                        borderRadius: BorderRadius.circular(kToolbarHeight),
+                        elevation: 6.0,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            AnimatedBuilder(
+                              animation: animationController,
+                              builder: (context, child) {
+                                return AnimatedOpacity(
+                                  opacity:
+                                      animationController.isAnimating ? 1 : 0,
+                                  duration: ConfigConstant.fadeDuration,
+                                  child: Container(
+                                    height: 48,
+                                    width: 48,
+                                    child: CircularProgressIndicator(
+                                      value: animationController.value,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            Container(
+                              height: 48,
+                              width: 48,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Theme.of(context).colorScheme.surface,
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.get_app,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
           body: Stack(

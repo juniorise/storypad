@@ -15,6 +15,7 @@ import 'package:write_story/database/w_database.dart';
 import 'package:write_story/mixins/dialog_mixin.dart';
 import 'package:write_story/mixins/snakbar_mixin.dart';
 import 'package:write_story/models/db_backup_model.dart';
+import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/auth_notifier.dart';
 import 'package:write_story/notifier/check_for_update_notifier.dart';
 import 'package:write_story/notifier/home_screen_notifier.dart';
@@ -24,6 +25,7 @@ import 'package:write_story/notifier/theme_notifier.dart';
 import 'package:write_story/screens/font_manager_screen.dart';
 import 'package:write_story/screens/lock_screen.dart';
 import 'package:write_story/screens/lock_setting_screen.dart';
+import 'package:write_story/screens/story_detail_screen.dart';
 import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/storages/vibrate_toggle_storage.dart';
@@ -385,11 +387,23 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
               ),
             ),
           ],
-          applicationIcon: ClipRRect(
-            borderRadius: ConfigConstant.circlarRadius1,
-            child: Image.asset(
-              "assets/icons/app_icon.png",
-              height: ConfigConstant.iconSize3,
+          applicationIcon: GestureDetector(
+            onTap: () {
+              StoryDetailScreen(
+                story: StoryModel.empty,
+              ).showImageViewerSheet(
+                context,
+                Image.asset('assets/icons/app_icon.png'),
+                MediaQuery.of(context).padding,
+                null,
+              );
+            },
+            child: ClipRRect(
+              borderRadius: ConfigConstant.circlarRadius1,
+              child: Image.asset(
+                "assets/icons/ic_launcher_round.png",
+                height: ConfigConstant.iconSize3,
+              ),
             ),
           ),
         );
