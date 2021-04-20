@@ -29,6 +29,14 @@ class WGroupSyncDialogNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool get loading => this._loading;
+  bool _loading = false;
+
+  set loading(bool value) {
+    _loading = value;
+    notifyListeners();
+  }
+
   load() async {
     _groups = await storage.readList();
     if (_groups != null) {
@@ -50,8 +58,9 @@ class WGroupSyncDialogNotifier extends ChangeNotifier {
   }
 
   bool isCheck(int storyId, String groupId) {
-    final list =
-        groupSync.where((e) => e.storyId == storyId && e.groupId == groupId);
+    final list = groupSync.where((e) {
+      return e.storyId == storyId && e.groupId == groupId;
+    });
     if (list.isNotEmpty) {
       return true;
     } else {
@@ -115,13 +124,19 @@ class WGroupSyncDialog extends HookWidget {
                         group.groupName ?? group.admin ?? group.groupId ?? "",
                       ),
                       onTap: () async {
+                        if (notifier.loading == true) return;
+                        notifier.loading = true;
                         await notifier.toggleAGroup(group: groupSyncModel);
                         await context.read(homeScreenProvider).load();
+                        notifier.loading = false;
                       },
                       trailing: Checkbox(
                         onChanged: (bool? value) async {
+                          if (notifier.loading == true) return;
+                          notifier.loading = true;
                           await notifier.toggleAGroup(group: groupSyncModel);
                           await context.read(homeScreenProvider).load();
+                          notifier.loading = false;
                         },
                         value: notifier.isCheck(storyId, group.groupId ?? ""),
                       ),

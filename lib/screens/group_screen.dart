@@ -73,7 +73,11 @@ class GroupScreen extends HookWidget with DialogMixin {
                       return GroupInfoScreen();
                     }),
                   );
-                  await notifier.load();
+                  Future.delayed(ConfigConstant.fadeDuration).then(
+                    (value) async {
+                      await notifier.load();
+                    },
+                  );
                 },
               ),
             ],
