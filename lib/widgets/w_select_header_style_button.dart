@@ -96,7 +96,8 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
 
     final _attributes = widget.controller.getSelectionStyle().attributes;
     final bool hasCodeBlock = _attributes.containsKey("code-block");
-    final bool disable = hasCodeBlock;
+    final bool hasList = _attributes.containsKey("list");
+    final bool disable = hasCodeBlock || hasList;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
