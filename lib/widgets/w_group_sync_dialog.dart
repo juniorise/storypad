@@ -25,6 +25,19 @@ class WGroupSyncDialogNotifier extends ChangeNotifier {
   bool _inited = false;
 
   set inited(bool value) {
+    if (_inited == false) {
+      List<String> localGroup =
+          _groups?.map((e) => "${e.groupId}").toList() ?? [];
+      List<GroupSyncModel> groupNoLongerUsed = groupSync.where((e) {
+        return !localGroup.contains(e.groupId);
+      }).toList();
+      groupNoLongerUsed.forEach((e) async {
+        await database.removeFromGroupSync(
+          groupId: e.groupId,
+          storyId: e.storyId,
+        );
+      });
+    }
     _inited = value;
     notifyListeners();
   }
@@ -40,13 +53,15 @@ class WGroupSyncDialogNotifier extends ChangeNotifier {
   load() async {
     _groups = await storage.readList();
     if (_groups != null) {
-      List<GroupSyncModel> tmpGroupSync = [];
-      _groups?.forEach((e) async {
-        if (e.groupId != null) {
-          final result = await database.groupSyncsByGroupId(e.groupId!);
-          if (result != null) tmpGroupSync.addAll(result);
+      List<GroupSyncModel>? tmpGroupSync = [];
+      for (int i = 0; i < (_groups?.length ?? 0); i++) {
+        GroupStorageModel? e = _groups?[i];
+        if (e == null) return;
+        final result = await database.groupSyncsByGroupId(e.groupId!);
+        if (result != null) {
+          result.forEach((e) => tmpGroupSync.add(e));
         }
-      });
+      }
       this._groupSync = tmpGroupSync;
     }
     notifyListeners();
@@ -102,74 +117,79 @@ class WGroupSyncDialog extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final notifier = useProvider(wGroupSyncDialogProvider);
-    return AnimatedOpacity(
-      opacity: notifier.inited ? 1 : 0,
-      duration: ConfigConstant.fadeDuration,
-      child: Dialog(
-        child: notifier.groups.isNotEmpty
-            ? Wrap(
-                children: List.generate(
-                  notifier.groups.length,
-                  (index) {
-                    final group = notifier.groups[index];
-                    GroupSyncModel? groupSyncModel = GroupSyncModel(
-                      groupId: group.groupId!,
-                      groupName: group.groupName!,
-                      storyId: storyId,
-                    );
+    return WillPopScope(
+      onWillPop: () async {
+        await context.read(homeScreenProvider).load();
+        Navigator.of(context).pop();
+        return false;
+      },
+      child: AnimatedOpacity(
+        opacity: notifier.inited ? 1 : 0,
+        duration: ConfigConstant.fadeDuration,
+        child: Dialog(
+          child: notifier.groups.isNotEmpty
+              ? Wrap(
+                  children: List.generate(
+                    notifier.groups.length,
+                    (index) {
+                      final group = notifier.groups[index];
+                      GroupSyncModel? groupSyncModel = GroupSyncModel(
+                        groupId: group.groupId!,
+                        groupName: group.groupName!,
+                        storyId: storyId,
+                      );
 
-                    return ListTile(
-                      contentPadding: EdgeInsets.only(left: 16.0, right: 8.0),
-                      title: Text(
-                        group.groupName ?? group.admin ?? group.groupId ?? "",
-                      ),
-                      onTap: () async {
-                        if (notifier.loading == true) return;
-                        notifier.loading = true;
-                        await notifier.toggleAGroup(group: groupSyncModel);
-                        await context.read(homeScreenProvider).load();
-                        notifier.loading = false;
-                      },
-                      trailing: Checkbox(
-                        onChanged: (bool? value) async {
+                      return ListTile(
+                        contentPadding: EdgeInsets.only(left: 16.0, right: 8.0),
+                        title: Text(
+                          group.groupName ?? group.admin ?? group.groupId ?? "",
+                        ),
+                        onTap: () async {
                           if (notifier.loading == true) return;
                           notifier.loading = true;
                           await notifier.toggleAGroup(group: groupSyncModel);
-                          await context.read(homeScreenProvider).load();
                           notifier.loading = false;
                         },
-                        value: notifier.isCheck(storyId, group.groupId ?? ""),
-                      ),
-                    );
-                  },
-                ),
-              )
-            : Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                alignment: WrapAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/illustrations/thinking-woman.png',
-                    width: 200,
-                  ),
-                  const SizedBox(height: 16.0, width: double.infinity),
-                  WNoData(customText: tr('msg.group.no_selected_group')),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return GroupScreen();
+                        trailing: Checkbox(
+                          onChanged: (bool? value) async {
+                            if (notifier.loading == true) return;
+                            notifier.loading = true;
+                            await notifier.toggleAGroup(group: groupSyncModel);
+                            notifier.loading = false;
                           },
+                          value: notifier.isCheck(storyId, group.groupId ?? ""),
                         ),
                       );
                     },
-                    child: Text(tr('button.open_group')),
                   ),
-                  const SizedBox(height: 16.0, width: double.infinity),
-                ],
-              ),
+                )
+              : Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/illustrations/thinking-woman.png',
+                      width: 200,
+                    ),
+                    const SizedBox(height: 16.0, width: double.infinity),
+                    WNoData(customText: tr('msg.group.no_selected_group')),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return GroupScreen();
+                            },
+                          ),
+                        );
+                      },
+                      child: Text(tr('button.open_group')),
+                    ),
+                    const SizedBox(height: 16.0, width: double.infinity),
+                  ],
+                ),
+        ),
       ),
     );
   }
