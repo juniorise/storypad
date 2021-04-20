@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/models/documents/attribute.dart';
 import 'package:flutter_quill/widgets/controller.dart';
@@ -6,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:write_story/widgets/vt_ontap_effect.dart';
 import 'package:write_story/widgets/w_clear_format_btn.dart';
 import 'package:write_story/widgets/w_color_button.dart';
+import 'package:write_story/widgets/w_select_header_style_button.dart';
 
 class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget> children;
@@ -15,7 +17,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
   factory WQuillToolbar.basic({
     Key? key,
     required QuillController controller,
-    double toolbarIconSize = 18.0,
+    double toolbarIconSize = 24,
     bool showBoldButton = true,
     bool showItalicButton = true,
     bool showUnderLineButton = true,
@@ -34,10 +36,9 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
     bool showHorizontalRule = false,
     toolbar.OnImagePickCallback? onImagePickCallback,
   }) {
+    controller.iconSize = toolbarIconSize;
     final spaceBetween = const SizedBox(width: 4.0);
     final spaceBetween2 = const SizedBox(width: 8.0);
-
-    toolbar.iconSize = toolbarIconSize;
     return WQuillToolbar(
       key: key,
       children: [
@@ -126,7 +127,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
         ),
         Visibility(
           visible: showHeaderStyle,
-          child: toolbar.SelectHeaderStyleButton(controller: controller),
+          child: WSelectHeaderStyleButton(controller: controller),
         ),
         VerticalDivider(
           indent: 16,
@@ -145,18 +146,18 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               IconData icon,
               Color? fillColor,
               bool? isToggled,
-              VoidCallback? onPressed,
+              VoidCallback? _onPressed,
             ) {
               final _attributes = controller.getSelectionStyle().attributes;
               final bool hasBlockList = _attributes.containsKey("blockquote");
-              final _onPressed = hasBlockList ? null : onPressed;
+              final onPressed = hasBlockList ? null : _onPressed;
               return defaultToggleStyleButtonBuilder(
                 context,
                 attribute,
                 icon,
                 fillColor,
                 isToggled,
-                _onPressed,
+                onPressed,
               );
             },
           ),
@@ -173,18 +174,18 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               IconData icon,
               Color? fillColor,
               bool? isToggled,
-              VoidCallback? onPressed,
+              VoidCallback? _onPressed,
             ) {
               final _attributes = controller.getSelectionStyle().attributes;
               final bool hasBlockList = _attributes.containsKey("blockquote");
-              final _onPressed = hasBlockList ? null : onPressed;
+              final onPressed = hasBlockList ? null : _onPressed;
               return defaultToggleStyleButtonBuilder(
                 context,
                 attribute,
                 icon,
                 fillColor,
                 isToggled,
-                _onPressed,
+                onPressed,
               );
             },
           ),
@@ -201,18 +202,18 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               IconData icon,
               Color? fillColor,
               bool? isToggled,
-              VoidCallback? onPressed,
+              VoidCallback? _onPressed,
             ) {
               final _attributes = controller.getSelectionStyle().attributes;
               final bool hasBlockList = _attributes.containsKey("blockquote");
-              final _onPressed = hasBlockList ? null : onPressed;
+              final onPressed = hasBlockList ? null : _onPressed;
               return defaultToggleStyleButtonBuilder(
                 context,
                 attribute,
                 icon,
                 fillColor,
                 isToggled,
-                _onPressed,
+                onPressed,
               );
             },
           ),
@@ -234,21 +235,20 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               IconData icon,
               Color? fillColor,
               bool? isToggled,
-              VoidCallback? onPressed,
+              VoidCallback? _onPressed,
             ) {
-              // print(controller.getSelectionStyle());
               final _attributes = controller.getSelectionStyle().attributes;
               final bool hasBlockQuote = _attributes.containsKey("blockquote");
               final bool hasBlockList = _attributes.containsKey("list");
-              final _onPressed =
-                  hasBlockQuote || hasBlockList ? null : onPressed;
+              final onPressed =
+                  hasBlockQuote || hasBlockList ? null : _onPressed;
               return defaultToggleStyleButtonBuilder(
                 context,
                 attribute,
                 icon,
                 fillColor,
                 isToggled,
-                _onPressed,
+                onPressed,
               );
             },
           ),
@@ -265,18 +265,18 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               IconData icon,
               Color? fillColor,
               bool? isToggled,
-              VoidCallback? onPressed,
+              VoidCallback? _onPressed,
             ) {
               final _attributes = controller.getSelectionStyle().attributes;
               final bool hasBlockList = _attributes.containsKey("list");
-              final _onPressed = hasBlockList ? null : onPressed;
+              final onPressed = hasBlockList ? null : _onPressed;
               return defaultToggleStyleButtonBuilder(
                 context,
                 attribute,
                 icon,
                 fillColor,
                 isToggled,
-                _onPressed,
+                onPressed,
               );
             },
           ),
@@ -377,7 +377,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
         isToggled == true ? theme.dividerColor : Colors.transparent;
 
     return VTOnTapEffect(
-      onTap: onPressed != null ? onPressed : () {},
+      onTap: onPressed != null ? onPressed : null,
       effects: [
         VTOnTapEffectItem(
           effectType: VTOnTapEffectType.scaleDown,
@@ -391,8 +391,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
       child: toolbar.QuillIconButton(
         highlightElevation: 1,
         hoverElevation: 0,
-        size: 44,
-        icon: Icon(icon, size: 24, color: iconColor),
+        icon: Icon(icon, color: iconColor),
         fillColor: fillColor,
         onPressed: onPressed,
       ),

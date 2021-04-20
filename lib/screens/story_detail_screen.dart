@@ -503,7 +503,7 @@ class StoryDetailScreen extends HookWidget
                 controller: controller,
                 toolbarIconSize: ConfigConstant.iconSize2,
                 showLink: true,
-                showHeaderStyle: false,
+                showHeaderStyle: true,
                 showCodeBlock: true,
                 showBoldButton: true,
                 showItalicButton: true,

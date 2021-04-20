@@ -168,21 +168,21 @@ packages:
       name: cloud_firestore
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   cloud_firestore_platform_interface:
     dependency: transitive
     description:
       name: cloud_firestore_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.1"
+    version: "4.0.2"
   cloud_firestore_web:
     dependency: transitive
     description:
       name: cloud_firestore_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   code_builder:
     dependency: transitive
     description:
@@ -301,28 +301,28 @@ packages:
       name: firebase_auth
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   firebase_auth_platform_interface:
     dependency: transitive
     description:
       name: firebase_auth_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.1.0"
+    version: "4.1.1"
   firebase_auth_web:
     dependency: transitive
     description:
       name: firebase_auth_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.6"
+    version: "1.0.7"
   firebase_core:
     dependency: "direct main"
     description:
       name: firebase_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.4"
   firebase_core_platform_interface:
     dependency: transitive
     description:
@@ -397,7 +397,7 @@ packages:
       name: flutter_keyboard_visibility
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.0.0"
+    version: "5.0.1"
   flutter_keyboard_visibility_platform_interface:
     dependency: transitive
     description:
@@ -430,13 +430,13 @@ packages:
       name: flutter_portal
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.0-nullsafety.0"
+    version: "0.4.0"
   flutter_quill:
     dependency: "direct main"
     description:
       path: "."
       ref: master
-      resolved-ref: "14817ec752f530cafcd12c10827bfb8142ea6bbe"
+      resolved-ref: "0b33c9512c1adac90e5b97e54c544ce3955bc900"
       url: "https://github.com/singerdmx/flutter-quill.git"
     source: git
     version: "1.2.0"
@@ -761,7 +761,7 @@ packages:
       name: permission_handler_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.1.3"
+    version: "3.2.0"
   petitparser:
     dependency: transitive
     description:

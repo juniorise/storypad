@@ -177,11 +177,9 @@ class _WColorButtonState extends State<WColorButton>
         key: floatingKey,
         highlightElevation: 0,
         hoverElevation: 0,
-        size: toolbar.iconSize * 1.77,
         fillColor: widget.background ? fillColorBackground : fillColor,
         icon: Icon(
           widget.icon,
-          size: toolbar.iconSize,
           color:
               widget.background ? displayiconColorBackground : displayIconColor,
         ),

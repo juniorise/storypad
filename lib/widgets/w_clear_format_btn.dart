@@ -26,18 +26,18 @@ class _WClearFormatButtonState extends State<WClearFormatButton> {
     final iconColor = theme.iconTheme.color;
     final fillColor = theme.colorScheme.background;
     return toolbar.QuillIconButton(
-        highlightElevation: 0,
-        hoverElevation: 0,
-        size: toolbar.iconSize * 1.77,
-        icon: Icon(widget.icon, size: toolbar.iconSize, color: iconColor),
-        fillColor: fillColor,
-        onPressed: () {
-          onTapVibrate();
-          for (Attribute k
-              in widget.controller.getSelectionStyle().attributes.values) {
-            widget.controller.formatSelection(Attribute.clone(k, null));
-          }
-        });
+      highlightElevation: 0,
+      hoverElevation: 0,
+      icon: Icon(widget.icon, color: iconColor),
+      fillColor: fillColor,
+      onPressed: () {
+        onTapVibrate();
+        for (Attribute k
+            in widget.controller.getSelectionStyle().attributes.values) {
+          widget.controller.formatSelection(Attribute.clone(k, null));
+        }
+      },
+    );
   }
 }
 
@@ -66,8 +66,12 @@ class _WMoveCursurButtonState extends State<WMoveCursurButton> {
     return toolbar.QuillIconButton(
       highlightElevation: 0,
       hoverElevation: 0,
-      size: toolbar.iconSize * 1.77,
-      icon: Icon(widget.icon, size: toolbar.iconSize, color: iconColor),
+      size: widget.controller.iconSize * 1.77,
+      icon: Icon(
+        widget.icon,
+        size: widget.controller.iconSize,
+        color: iconColor,
+      ),
       fillColor: fillColor,
       onPressed: () {
         onTapVibrate();
