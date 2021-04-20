@@ -8,6 +8,7 @@ import 'package:write_story/models/story_model.dart';
 import 'package:write_story/models/user_model.dart';
 import 'dart:convert' as convert;
 import 'package:write_story/services/encrypt_service.dart';
+import 'package:write_story/storages/group_sync_storage.dart';
 
 class WDatabase {
   WDatabase._privateConstructor();
@@ -220,7 +221,9 @@ class WDatabase {
     }
   }
 
-  Future<bool> isStoryIdCheckedByAllGroups(int id) async {
+  Future<bool> isStoryIdCheckedByAllGroups(
+    int id,
+  ) async {
     var client = await database;
     List<Map<String, dynamic>>? maps;
     try {
@@ -233,6 +236,21 @@ class WDatabase {
         ],
         where: "story_id = $id",
       );
+
+      try {
+        final _groups = await GroupsSyncStorage().readList();
+        List<String> availableGroup =
+            _groups?.map((e) => "${e.groupId}").toList() ?? [];
+        maps.forEach((e) async {
+          final groupId = e['group_id'];
+          final storyId = e['story_id'];
+          if (groupId == null && storyId == null) return;
+          if (!availableGroup.contains("$groupId")) {
+            await removeFromGroupSync(groupId: groupId, storyId: storyId);
+          }
+        });
+      } catch (e) {}
+
       return maps.isNotEmpty;
     } catch (e) {
       print("WDatabase#groupSyncsByGroupId $e");

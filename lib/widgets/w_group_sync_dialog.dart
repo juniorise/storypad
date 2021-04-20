@@ -25,19 +25,6 @@ class WGroupSyncDialogNotifier extends ChangeNotifier {
   bool _inited = false;
 
   set inited(bool value) {
-    if (_inited == false) {
-      List<String> localGroup =
-          _groups?.map((e) => "${e.groupId}").toList() ?? [];
-      List<GroupSyncModel> groupNoLongerUsed = groupSync.where((e) {
-        return !localGroup.contains(e.groupId);
-      }).toList();
-      groupNoLongerUsed.forEach((e) async {
-        await database.removeFromGroupSync(
-          groupId: e.groupId,
-          storyId: e.storyId,
-        );
-      });
-    }
     _inited = value;
     notifyListeners();
   }
