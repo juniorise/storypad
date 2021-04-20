@@ -131,7 +131,7 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
                 ),
                 fillColor:
                     _valueToText[value] == _valueString[index] && !disable
-                        ? theme.toggleableActiveColor
+                        ? theme.dividerColor
                         : theme.canvasColor,
                 onPressed: disable
                     ? null
