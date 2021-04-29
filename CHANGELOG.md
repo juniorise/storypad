@@ -1,4 +1,11 @@
-## 1.0.1+26
+## 1.0.1+28
+- add pending with username instead of email
+- add scroll bar to detail screen
+- load group and save to storage on signed in
+- only people who invite can cancel invite
+- remove image gallery saver
+
+## 1.0.1+26, 27
 - add image view to logo
 - add header style
 - fix toggle color button
@@ -27,7 +34,7 @@
 - added switch on/off vibration
 - bugs fix and improvement
 
-## 1.0.1+19, 20
+## 1.0.1+9...19, 20
 - add feeling emoji
 - add in app update
 - add new color picker UI
