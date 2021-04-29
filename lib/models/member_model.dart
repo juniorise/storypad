@@ -7,6 +7,7 @@ class MemberModel {
   final bool? isAdmin;
   final String? db;
   final Timestamp? inviteOn;
+  final String? invitedBy;
 
   MemberModel({
     this.email,
@@ -15,6 +16,7 @@ class MemberModel {
     this.isAdmin,
     this.db,
     this.inviteOn,
+    this.invitedBy,
   });
 
   MemberModel copyWith({
@@ -24,6 +26,7 @@ class MemberModel {
     bool? isAdmin,
     String? db,
     Timestamp? inviteOn,
+    String? invitedBy,
   }) {
     return MemberModel(
       email: email ?? this.email,
@@ -32,6 +35,7 @@ class MemberModel {
       isAdmin: isAdmin ?? this.isAdmin,
       db: db ?? this.db,
       inviteOn: inviteOn ?? this.inviteOn,
+      invitedBy: invitedBy ?? this.invitedBy,
     );
   }
 
@@ -43,6 +47,7 @@ class MemberModel {
       isAdmin: json['is_admin'],
       db: json['db'],
       inviteOn: json['invite_on'],
+      invitedBy: json['invited_by'],
     );
   }
 
@@ -54,6 +59,7 @@ class MemberModel {
       "is_admin": this.isAdmin,
       "db": this.db,
       "invite_on": this.inviteOn,
+      'invited_by': this.invitedBy,
     };
   }
 }

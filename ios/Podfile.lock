@@ -116,8 +116,6 @@ PODS:
     - AppAuth/Core (~> 1.4)
     - GTMSessionFetcher/Core (~> 1.5)
   - GTMSessionFetcher/Core (1.5.0)
-  - image_gallery_saver (1.5.0):
-    - Flutter
   - image_picker (0.0.1):
     - Flutter
   - launch_review (0.0.1):
@@ -177,7 +175,6 @@ DEPENDENCIES:
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - get_version (from `.symlinks/plugins/get_version/ios`)
   - google_sign_in (from `.symlinks/plugins/google_sign_in/ios`)
-  - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
   - launch_review (from `.symlinks/plugins/launch_review/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
@@ -236,8 +233,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/get_version/ios"
   google_sign_in:
     :path: ".symlinks/plugins/google_sign_in/ios"
-  image_gallery_saver:
-    :path: ".symlinks/plugins/image_gallery_saver/ios"
   image_picker:
     :path: ".symlinks/plugins/image_picker/ios"
   launch_review:
@@ -289,7 +284,6 @@ SPEC CHECKSUMS:
   GoogleUtilities: e1d9ed4e544fc32a93e00e721400cbc3f377200d
   GTMAppAuth: 5b53231ef6920f149ab84b2969cb0ab572da3077
   GTMSessionFetcher: b3503b20a988c4e20cc189aa798fd18220133f52
-  image_gallery_saver: 259eab68fb271cfd57d599904f7acdc7832e7ef2
   image_picker: 50e7c7ff960e5f58faa4d1f4af84a771c671bc4a
   launch_review: 75d5a956ba8eaa493e9c9d4bf4c05e505e8d5ed0
   libwebp: e90b9c01d99205d03b6bb8f2c8c415e5a4ef66f0

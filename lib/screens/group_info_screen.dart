@@ -222,7 +222,9 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                               subtitleText: subtitleText,
                               onTap: () {},
                             ),
-                            if (member.joinOn == null)
+                            if (member.joinOn == null &&
+                                member.invitedBy ==
+                                    membersInfoNotifier.auth.user?.email)
                               buildPendingButton(
                                 context,
                                 member,

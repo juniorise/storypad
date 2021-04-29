@@ -14,7 +14,7 @@ class GroupRemoteService {
   AuthenticationService auth = AuthenticationService();
 
   GroupRemoteService() {
-    setUserDocs(currentUid!);
+    if (currentUid != null) setUserDocs(currentUid!);
   }
 
   String? get currentUid {
@@ -178,6 +178,7 @@ class GroupRemoteService {
       isAdmin: false,
       joinOn: null,
       inviteOn: Timestamp.now(),
+      invitedBy: this.currentEmail,
     );
 
     String path = groupId + "/members/" + member.email!;
