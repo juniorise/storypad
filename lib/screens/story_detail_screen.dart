@@ -15,8 +15,6 @@ import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/default_styles.dart';
 import 'package:flutter_quill/widgets/editor.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:share/share.dart';
 import 'package:write_story/app_helper/quill_helper.dart';
 import 'package:write_story/constants/config_constant.dart';
@@ -368,48 +366,6 @@ class StoryDetailScreen extends HookWidget
                   onTapVibrate();
                   final file = await _findPath(imageUrl);
                   await Share.shareFiles([file.path]);
-                }
-              : null,
-          onSaveImage: imageUrl != null
-              ? () async {
-                  var status = Permission.storage;
-                  if (await status.isDenied) {
-                    await status.request();
-                  }
-
-                  dynamic result;
-                  if (imageUrl.startsWith('http')) {
-                    final file = await _findPath(imageUrl);
-                    result = await ImageGallerySaver.saveFile(
-                      file.path,
-                      isReturnPathOfIOS: true,
-                    );
-                  } else if (isBase64(imageUrl)) {
-                    result = await ImageGallerySaver.saveImage(
-                      base64.decode(imageUrl),
-                      isReturnImagePathOfIOS: true,
-                    );
-                  } else {
-                    result = await ImageGallerySaver.saveFile(
-                      File(imageUrl).path,
-                      isReturnPathOfIOS: true,
-                    );
-                  }
-                  print("$result");
-                  if (result['isSuccess'] == true) {
-                    showSnackBar(
-                      context: context,
-                      title: tr("msg.save.success"),
-                    );
-                    onTapVibrate();
-                  } else {
-                    if (result['errorMessage'] != null) {
-                      showSnackBar(
-                        context: context,
-                        title: result['errorMessage'],
-                      );
-                    }
-                  }
                 }
               : null,
         );

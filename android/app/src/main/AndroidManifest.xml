@@ -7,8 +7,6 @@
          FlutterApplication and put your custom class here. -->
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <queries>
         <intent>
             <action android:name="android.intent.action.VIEW" />
@@ -24,7 +22,6 @@
         </intent>
     </queries>
     <application
-        android:requestLegacyExternalStorage="true"
         android:name="io.flutter.app.FlutterApplication"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher">

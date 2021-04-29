@@ -564,15 +564,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.2"
-  image_gallery_saver:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: master
-      resolved-ref: adc4af39664bba6c7b7b3092968b86d8fc5b218d
-      url: "git@github.com:theacheng/image_gallery_saver.git"
-    source: git
-    version: "1.6.8"
   image_picker:
     dependency: transitive
     description:
