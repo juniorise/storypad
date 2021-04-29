@@ -161,49 +161,52 @@ class StoryDetailScreen extends HookWidget
             child: ValueListenableBuilder(
               valueListenable: readOnlyModeNotifier,
               builder: (context, value, child) {
-                return QuillEditor(
-                  placeholder: tr("hint_text.story_detail"),
-                  maxHeight: null,
-                  controller: quillController,
-                  scrollController: scrollController,
-                  scrollable: true,
-                  focusNode: focusNode,
-                  autoFocus: insert,
-                  readOnly: readOnlyModeNotifier.value,
-                  showCursor: !readOnlyModeNotifier.value,
-                  keyboardAppearance: _theme.brightness,
-                  enableInteractiveSelection: true,
-                  expands: false,
-                  embedBuilder: (BuildContext context, leaf.Embed node) {
-                    return _embedBuilder(
-                      context: context,
-                      node: node,
-                      notifier: _notifier,
-                      screenPadding: screenPadding,
-                      readOnlyModeNotifier: readOnlyModeNotifier,
-                    );
-                  },
-                  textCapitalization: TextCapitalization.sentences,
-                  customStyles: DefaultStyles(
-                    placeHolder: DefaultTextBlockStyle(
-                      _theme.textTheme.bodyText1!.copyWith(
-                        color: _theme.colorScheme.onSurface.withOpacity(0.3),
+                return Scrollbar(
+                  showTrackOnHover: true,
+                  child: QuillEditor(
+                    placeholder: tr("hint_text.story_detail"),
+                    maxHeight: null,
+                    controller: quillController,
+                    scrollController: scrollController,
+                    scrollable: true,
+                    focusNode: focusNode,
+                    autoFocus: insert,
+                    readOnly: readOnlyModeNotifier.value,
+                    showCursor: !readOnlyModeNotifier.value,
+                    keyboardAppearance: _theme.brightness,
+                    enableInteractiveSelection: true,
+                    expands: false,
+                    embedBuilder: (BuildContext context, leaf.Embed node) {
+                      return _embedBuilder(
+                        context: context,
+                        node: node,
+                        notifier: _notifier,
+                        screenPadding: screenPadding,
+                        readOnlyModeNotifier: readOnlyModeNotifier,
+                      );
+                    },
+                    textCapitalization: TextCapitalization.sentences,
+                    customStyles: DefaultStyles(
+                      placeHolder: DefaultTextBlockStyle(
+                        _theme.textTheme.bodyText1!.copyWith(
+                          color: _theme.colorScheme.onSurface.withOpacity(0.3),
+                        ),
+                        Tuple2(0.0, 0.0),
+                        Tuple2(0.0, 0.0),
+                        null,
                       ),
-                      Tuple2(0.0, 0.0),
-                      Tuple2(0.0, 0.0),
-                      null,
+                      paragraph: DefaultTextBlockStyle(
+                        _theme.textTheme.bodyText1!,
+                        Tuple2(0.0, 0.0),
+                        Tuple2(0.0, 0.0),
+                        null,
+                      ),
                     ),
-                    paragraph: DefaultTextBlockStyle(
-                      _theme.textTheme.bodyText1!,
-                      Tuple2(0.0, 0.0),
-                      Tuple2(0.0, 0.0),
-                      null,
+                    padding: const EdgeInsets.all(
+                      ConfigConstant.margin2,
+                    ).copyWith(
+                      bottom: kToolbarHeight,
                     ),
-                  ),
-                  padding: const EdgeInsets.all(
-                    ConfigConstant.margin2,
-                  ).copyWith(
-                    bottom: kToolbarHeight,
                   ),
                 );
               },
