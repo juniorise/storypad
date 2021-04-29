@@ -18,8 +18,18 @@ class MemberModel {
     this.db,
     this.inviteOn,
     this.invitedBy,
-    required this.nickname,
+    this.nickname,
   });
+
+  String? get username {
+    if (this.email == null) return null;
+    final username = this.email?.split("@").first.split(".").first;
+    String _username = "";
+    for (int i = 0; i < username!.length - 2; i++) {
+      _username += username[i];
+    }
+    return _username;
+  }
 
   MemberModel copyWith({
     String? email,
@@ -29,7 +39,7 @@ class MemberModel {
     String? db,
     Timestamp? inviteOn,
     String? invitedBy,
-    required String? nickname,
+    String? nickname,
   }) {
     return MemberModel(
       email: email ?? this.email,

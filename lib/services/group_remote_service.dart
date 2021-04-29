@@ -13,6 +13,8 @@ class GroupRemoteService {
   CollectionReference userCollection = _firestore.collection('users');
   CollectionReference groupsCollection = _firestore.collection("groups");
   CollectionReference pendingsCollection = _firestore.collection("pendings");
+  CollectionReference metaCollection = _firestore.collection("meta");
+
   AuthenticationService auth = AuthenticationService();
 
   GroupRemoteService() {
@@ -177,17 +179,25 @@ class GroupRemoteService {
     );
   }
 
+  Future<String?> getCommunityGroupId() async {
+    final value = await metaCollection.doc('community').get();
+    final data = value.data();
+    return data?['group_id'];
+  }
+
+  Future<bool> isUserJoin({required String groupId}) async {
+    List<GroupStorageModel>? groups = await fetchGroupsList();
+    for (var e in groups ?? []) {
+      if (e.groupId == groupId) return true;
+    }
+    return false;
+  }
+
   Future<void> addUserToGroup(
     String email,
     String groupId,
     String groupName,
   ) async {
-    final username = email.split("@").first.split(".").first;
-    String _username = "";
-    for (int i = 0; i < username.length - 2; i++) {
-      _username += username[i];
-    }
-
     final member = MemberModel(
       email: email,
       db: "",
@@ -196,7 +206,7 @@ class GroupRemoteService {
       joinOn: null,
       inviteOn: Timestamp.now(),
       invitedBy: this.currentEmail,
-      nickname: _username,
+      nickname: MemberModel(email: email).username,
     );
 
     String path = groupId + "/members/" + member.email!;

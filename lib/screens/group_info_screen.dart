@@ -221,7 +221,7 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                               titleText: member.invitedBy ==
                                       membersInfoNotifier.auth.user?.email
                                   ? member.email ?? ""
-                                  : member.nickname ?? "",
+                                  : member.nickname ?? member.username ?? "",
                               subtitleText: subtitleText,
                               onTap: () {},
                             ),

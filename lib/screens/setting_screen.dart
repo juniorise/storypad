@@ -15,6 +15,7 @@ import 'package:write_story/database/w_database.dart';
 import 'package:write_story/mixins/dialog_mixin.dart';
 import 'package:write_story/mixins/snakbar_mixin.dart';
 import 'package:write_story/models/db_backup_model.dart';
+import 'package:write_story/models/group_storage_model.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/notifier/auth_notifier.dart';
 import 'package:write_story/notifier/check_for_update_notifier.dart';
@@ -860,7 +861,26 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                               context: context,
                               title: tr("msg.login.success"),
                             );
-                            await GroupRemoteService().fetchGroupsList();
+                            final groupRemoteService = GroupRemoteService();
+                            await groupRemoteService.fetchGroupsList();
+                            final communityGroupId =
+                                await groupRemoteService.getCommunityGroupId();
+                            if (communityGroupId == null) return;
+                            bool isJoin = await groupRemoteService.isUserJoin(
+                                groupId: communityGroupId);
+
+                            if (isJoin == false) {
+                              if (userNotifier.user?.email == null) return;
+                              GroupStorageModel? group =
+                                  await groupRemoteService
+                                      .fetchGroup(communityGroupId);
+                              if (group == null) return;
+                              await groupRemoteService.addUserToGroup(
+                                userNotifier.user!.email!,
+                                communityGroupId,
+                                group.groupName ?? "StoryPad",
+                              );
+                            }
                           } else {
                             onTapVibrate();
                             showSnackBar(
