@@ -26,6 +26,7 @@ import 'package:write_story/screens/font_manager_screen.dart';
 import 'package:write_story/screens/lock_screen.dart';
 import 'package:write_story/screens/lock_setting_screen.dart';
 import 'package:write_story/screens/story_detail_screen.dart';
+import 'package:write_story/services/group_remote_service.dart';
 import 'package:write_story/sheets/ask_for_name_sheet.dart';
 import 'package:write_story/services/google_drive_api_service.dart';
 import 'package:write_story/storages/vibrate_toggle_storage.dart';
@@ -859,6 +860,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                               context: context,
                               title: tr("msg.login.success"),
                             );
+                            await GroupRemoteService().fetchGroupsList();
                           } else {
                             onTapVibrate();
                             showSnackBar(

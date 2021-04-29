@@ -5,6 +5,7 @@ import 'package:write_story/models/pending_model.dart';
 import 'package:write_story/models/story_model.dart';
 import 'package:write_story/services/authentication_service.dart';
 import 'package:write_story/services/encrypt_service.dart';
+import 'package:write_story/storages/group_sync_storage.dart';
 
 class GroupRemoteService {
   static FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -45,6 +46,9 @@ class GroupRemoteService {
       final json = e.data();
       return GroupStorageModel.fromJson(json);
     }).toList();
+
+    GroupsSyncStorage storage = GroupsSyncStorage();
+    await storage.writeList(modelsList);
     return modelsList;
   }
 
