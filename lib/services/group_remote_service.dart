@@ -3,6 +3,7 @@ import 'package:write_story/models/group_storage_model.dart';
 import 'package:write_story/models/member_model.dart';
 import 'package:write_story/models/pending_model.dart';
 import 'package:write_story/models/story_model.dart';
+import 'package:write_story/notifier/user_model_notifier.dart';
 import 'package:write_story/services/authentication_service.dart';
 import 'package:write_story/services/encrypt_service.dart';
 import 'package:write_story/storages/group_sync_storage.dart';
@@ -136,7 +137,12 @@ class GroupRemoteService {
       return null;
     }
 
+    final userNotifier = UserModelNotifier();
+    await userNotifier.load();
+    final nickname = userNotifier.user?.nickname;
+
     await groupDocRef.update({'group_id': groupDocRef.id});
+
     final member = MemberModel(
       email: currentEmail,
       db: "",
@@ -144,6 +150,7 @@ class GroupRemoteService {
       isAdmin: true,
       joinOn: Timestamp.now(),
       inviteOn: Timestamp.now(),
+      nickname: nickname,
     );
 
     await userCollection
@@ -175,6 +182,12 @@ class GroupRemoteService {
     String groupId,
     String groupName,
   ) async {
+    final username = email.split("@").first.split(".").first;
+    String _username = "";
+    for (int i = 0; i < username.length - 2; i++) {
+      _username += username[i];
+    }
+
     final member = MemberModel(
       email: email,
       db: "",
@@ -183,6 +196,7 @@ class GroupRemoteService {
       joinOn: null,
       inviteOn: Timestamp.now(),
       invitedBy: this.currentEmail,
+      nickname: _username,
     );
 
     String path = groupId + "/members/" + member.email!;
@@ -273,10 +287,15 @@ class GroupRemoteService {
       return;
     }
 
+    final userNotifier = UserModelNotifier();
+    await userNotifier.load();
+    final nickname = userNotifier.user?.nickname;
+
     final map = {
       "email": pendingModel.sendToEmail,
       "photo_url": photoUrl,
       "join_on": Timestamp.now(),
+      "nickname": nickname,
     };
 
     final path =

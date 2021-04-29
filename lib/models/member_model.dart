@@ -8,6 +8,7 @@ class MemberModel {
   final String? db;
   final Timestamp? inviteOn;
   final String? invitedBy;
+  final String? nickname;
 
   MemberModel({
     this.email,
@@ -17,6 +18,7 @@ class MemberModel {
     this.db,
     this.inviteOn,
     this.invitedBy,
+    required this.nickname,
   });
 
   MemberModel copyWith({
@@ -27,6 +29,7 @@ class MemberModel {
     String? db,
     Timestamp? inviteOn,
     String? invitedBy,
+    required String? nickname,
   }) {
     return MemberModel(
       email: email ?? this.email,
@@ -36,6 +39,7 @@ class MemberModel {
       db: db ?? this.db,
       inviteOn: inviteOn ?? this.inviteOn,
       invitedBy: invitedBy ?? this.invitedBy,
+      nickname: nickname ?? this.nickname,
     );
   }
 
@@ -48,6 +52,7 @@ class MemberModel {
       db: json['db'],
       inviteOn: json['invite_on'],
       invitedBy: json['invited_by'],
+      nickname: json['nickname'],
     );
   }
 
@@ -60,6 +65,7 @@ class MemberModel {
       "db": this.db,
       "invite_on": this.inviteOn,
       'invited_by': this.invitedBy,
+      'nickname': this.nickname,
     };
   }
 }

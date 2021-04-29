@@ -218,7 +218,10 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
                               borderRadius: ConfigConstant.circlarRadius2,
                               iconData: hasPhoto ? null : Icons.person,
                               imageIcon: hasPhoto ? member.photoUrl : null,
-                              titleText: member.email ?? "",
+                              titleText: member.invitedBy ==
+                                      membersInfoNotifier.auth.user?.email
+                                  ? member.email ?? ""
+                                  : member.nickname ?? "",
                               subtitleText: subtitleText,
                               onTap: () {},
                             ),
