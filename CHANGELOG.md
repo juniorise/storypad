@@ -1,9 +1,6 @@
 ## 1.0.1+28
-- add pending with username instead of email
-- add scroll bar to detail screen
-- load group and save to storage on signed in
-- only people who invite can cancel invite
-- remove image gallery saver
+- update checkbox
+- update packages
 
 ## 1.0.1+26, 27
 - add image view to logo
