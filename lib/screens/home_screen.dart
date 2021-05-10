@@ -24,6 +24,8 @@ import 'package:storypad/widgets/vt_tab_view.dart';
 import 'package:storypad/widgets/w_more_faq_button.dart';
 import 'package:storypad/widgets/w_no_data.dart';
 import 'package:storypad/widgets/w_sliver_appbar.dart';
+import 'package:storypad/notifier/remote_database_notifier.dart';
+import 'package:storypad/notifier/auth_notifier.dart';
 
 class HomeScreen extends HookWidget with HookController, DialogMixin {
   static final now = DateTime.now();
@@ -61,9 +63,100 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       themeNotifier: _themeNotifier,
     );
 
-    return buildFadeInitAnimationBackground(
+    final fadeScaffold = buildFadeInitAnimationBackground(
       context: context,
       scaffold: scaffold,
+    );
+
+    final bottomSyncHeight = kBottomNavigationBarHeight + bottomBarHeight;
+
+    return Consumer(
+      child: fadeScaffold,
+      builder: (context, watch, Widget? child) {
+        final authNotifier = watch(authenticationProvider);
+        return Stack(
+          children: [
+            Positioned(
+              bottom: 0.0,
+              left: 0,
+              right: 0,
+              child: ValueListenableBuilder(
+                valueListenable: faqNotifier,
+                child: Material(
+                  child: Consumer(
+                    builder: (context, watch, child) {
+                      final dbNotifier = watch(remoteDatabaseProvider)..load();
+                      final titleText = dbNotifier.backup != null
+                          ? tr(
+                              "msg.backup.import",
+                              namedArgs: {
+                                "DATE": dbNotifier.lastImportDate(context)
+                              },
+                            ).replaceFirst(": ", ":\n")
+                          : "";
+                      return WListTile(
+                        iconData: Icons.cloud,
+                        trailing: TextButton(
+                          child: Text(tr("button.backup.export").toUpperCase()),
+                          onPressed: () async {
+                            await dbNotifier.backupToCloud(
+                              context: context,
+                              showSnackbar: false,
+                            );
+                          },
+                          style: buildButtonStyle(context),
+                        ),
+                        titleText: titleText,
+                      );
+                    },
+                  ),
+                ),
+                builder: (context, watch, child) {
+                  return AnimatedContainer(
+                    duration: ConfigConstant.duration,
+                    height: bottomSyncHeight,
+                    curve: Curves.easeOutQuart,
+                    padding: EdgeInsets.only(bottom: bottomBarHeight),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.1),
+                      ),
+                    ),
+                    transform: Matrix4.identity()
+                      ..translate(
+                        0.0,
+                        faqNotifier.value == true ? 0 : bottomSyncHeight,
+                      ),
+                    child: child,
+                  );
+                },
+              ),
+            ),
+            ValueListenableBuilder(
+              valueListenable: faqNotifier,
+              child: fadeScaffold,
+              builder: (context, watch, child) {
+                return AnimatedContainer(
+                  transform: Matrix4.identity()
+                    ..translate(
+                      0.0,
+                      faqNotifier.value && authNotifier.isAccountSignedIn
+                          ? -bottomSyncHeight
+                          : 0,
+                    ),
+                  curve: Curves.easeOutQuart,
+                  duration: ConfigConstant.duration,
+                  child: child,
+                );
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -84,7 +177,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
             SystemChannels.platform.invokeMethod('SystemNavigator.pop');
           }
         }
-
         return closeFaq();
       },
       child: GestureDetector(

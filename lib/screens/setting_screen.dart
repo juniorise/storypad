@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -9,17 +8,13 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:storypad/app_helper/app_helper.dart';
 import 'package:storypad/constants/config_constant.dart';
-import 'package:storypad/database/w_database.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/mixins/snakbar_mixin.dart';
-import 'package:storypad/models/db_backup_model.dart';
 import 'package:storypad/models/group_storage_model.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/auth_notifier.dart';
 import 'package:storypad/notifier/check_for_update_notifier.dart';
-import 'package:storypad/notifier/home_screen_notifier.dart';
 import 'package:storypad/notifier/lock_screen_notifier.dart';
 import 'package:storypad/notifier/remote_database_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
@@ -615,7 +610,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
       builder: (context, reader, child) {
         final userNotifier = reader(authenticationProvider);
         final dbNotifier = reader(remoteDatabaseProvider)..load();
-        final WDatabase database = WDatabase.instance;
 
         final bool imageNotNull = userNotifier.isAccountSignedIn &&
             userNotifier.user!.photoURL != null;
@@ -674,13 +668,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         subtitleText: tr(
                           "msg.backup.import",
                           namedArgs: {
-                            "DATE": dbNotifier.backup?.createOn != null
-                                ? AppHelper.dateFormat(context).format(
-                                        dbNotifier.backup!.createOn!.toDate()) +
-                                    ", " +
-                                    AppHelper.timeFormat(context).format(
-                                        dbNotifier.backup!.createOn!.toDate())
-                                : ""
+                            "DATE": dbNotifier.lastImportDate(context),
                           },
                         ),
                         onTap: () async {
@@ -691,70 +679,10 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                             );
                             return;
                           }
-
-                          if (dbNotifier.backup == null) return;
-                          bool? hasClick;
-                          final dialog = Dialog(
-                            child: Wrap(
-                              children: [
-                                ListTile(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(
-                                          ConfigConstant.radius1),
-                                    ),
-                                  ),
-                                  title: Text(
-                                    tr("msg.backup.import.replace"),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  onTap: () async {
-                                    hasClick = true;
-                                    await database.clearAllStories();
-                                    await database.clearAllSync();
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                const Divider(height: 0),
-                                ListTile(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.vertical(
-                                      bottom: Radius.circular(
-                                          ConfigConstant.radius1),
-                                    ),
-                                  ),
-                                  title: Text(
-                                    tr("msg.backup.import.no_replace"),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  onTap: () {
-                                    hasClick = true;
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            ),
+                          dbNotifier.restoreFromCloud(
+                            context: context,
+                            showSnackbar: true,
                           );
-
-                          await showWDialog(context: context, child: dialog);
-                          if (hasClick == null) return;
-
-                          final bool success = await database
-                              .restoreBackup(dbNotifier.backup!.db!);
-                          if (success) {
-                            onTapVibrate();
-                            await context.read(homeScreenProvider).load();
-                            showSnackBar(
-                              context: context,
-                              title: tr("msg.backup.import.success"),
-                            );
-                          } else {
-                            onTapVibrate();
-                            showSnackBar(
-                              context: context,
-                              title: tr("msg.backup.import.fail"),
-                            );
-                          }
                         },
                       ),
                     ),
@@ -770,64 +698,12 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                               context: context,
                               title: tr("msg.backup.export.warning"),
                               onActionPressed: () async {
-                                String backup = await database.generateBackup();
-                                final backupModel = DbBackupModel(
-                                  createOn: Timestamp.now(),
-                                  db: backup,
-                                );
-                                final bool success =
-                                    await dbNotifier.replace(backupModel);
-                                if (success) {
-                                  onTapVibrate();
-                                  showSnackBar(
-                                    context: context,
-                                    title: tr("msg.backup.export.success"),
-                                  );
-                                } else {
-                                  onTapVibrate();
-                                  showSnackBar(
-                                    context: context,
-                                    title: tr("msg.backup.export.fail"),
-                                  );
-                                }
+                                dbNotifier.backupToCloud(context: context);
                               },
                             );
                           },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.resolveWith(
-                              (states) {
-                                if (states.contains(MaterialState.pressed) ||
-                                    states.contains(MaterialState.focused) ||
-                                    states.contains(MaterialState.hovered) ||
-                                    states.contains(MaterialState.selected)) {
-                                  return Theme.of(context)
-                                      .colorScheme
-                                      .secondaryVariant;
-                                } else {
-                                  return Theme.of(context)
-                                      .colorScheme
-                                      .secondary;
-                                }
-                              },
-                            ),
-                            foregroundColor: MaterialStateProperty.resolveWith(
-                              (states) {
-                                if (states.contains(MaterialState.pressed) ||
-                                    states.contains(MaterialState.focused) ||
-                                    states.contains(MaterialState.hovered) ||
-                                    states.contains(MaterialState.selected)) {
-                                  return Theme.of(context)
-                                      .colorScheme
-                                      .onPrimary;
-                                } else {
-                                  return Theme.of(context)
-                                      .colorScheme
-                                      .onSecondary;
-                                }
-                              },
-                            ),
-                          ),
-                          child: Text(tr("button.backup.export")),
+                          style: buildButtonStyle(context),
+                          child: Text(tr("button.backup.export").toUpperCase()),
                         ),
                       ),
                     ),
@@ -846,7 +722,9 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       onTap: () async {
                         if (locked) {
                           showSnackBar(
-                              context: context, title: tr("msg.locked"));
+                            context: context,
+                            title: tr("msg.locked"),
+                          );
                           return;
                         }
                         onTapVibrate();
@@ -1018,7 +896,7 @@ class WListTile extends StatelessWidget {
   const WListTile({
     Key? key,
     required this.titleText,
-    required this.onTap,
+    this.onTap,
     this.iconData,
     this.subtitleText,
     this.tileColor,
@@ -1037,7 +915,7 @@ class WListTile extends StatelessWidget {
   final String titleText;
   final String? subtitleText;
   final Color? forgroundColor;
-  final void Function() onTap;
+  final void Function()? onTap;
   final int? subtitleMaxLines;
   final String? titleFontFamily;
   final Widget? trailing;
@@ -1049,7 +927,7 @@ class WListTile extends StatelessWidget {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
       child: VTOnTapEffect(
-        onTap: () {},
+        onTap: onTap,
         child: ListTile(
           trailing: trailing,
           contentPadding: contentPadding,
@@ -1101,4 +979,34 @@ class WListTile extends StatelessWidget {
       ),
     );
   }
+}
+
+ButtonStyle buildButtonStyle(BuildContext context) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return ButtonStyle(
+    backgroundColor: MaterialStateProperty.resolveWith(
+      (states) {
+        if (states.contains(MaterialState.pressed) ||
+            states.contains(MaterialState.focused) ||
+            states.contains(MaterialState.hovered) ||
+            states.contains(MaterialState.selected)) {
+          return colorScheme.secondaryVariant;
+        } else {
+          return colorScheme.secondary;
+        }
+      },
+    ),
+    foregroundColor: MaterialStateProperty.resolveWith(
+      (states) {
+        if (states.contains(MaterialState.pressed) ||
+            states.contains(MaterialState.focused) ||
+            states.contains(MaterialState.hovered) ||
+            states.contains(MaterialState.selected)) {
+          return colorScheme.onPrimary;
+        } else {
+          return colorScheme.onSecondary;
+        }
+      },
+    ),
+  );
 }
