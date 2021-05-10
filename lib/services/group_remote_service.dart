@@ -46,7 +46,7 @@ class GroupRemoteService {
     }
     List<QueryDocumentSnapshot> result = snapshot.docs;
     final modelsList = result.map((e) {
-      final json = e.data();
+      final json = e.data() as Map<String, dynamic>;
       return GroupStorageModel.fromJson(json);
     }).toList();
 
@@ -68,7 +68,7 @@ class GroupRemoteService {
       print("GroupRemoteService#fetchSelectedGroup $e");
       return null;
     }
-    Map<String, dynamic>? map = data.data();
+    Map<String, dynamic>? map = data.data() as Map<String, dynamic>?;
     if (map?.containsKey('selected_group') == true) {
       return map?['selected_group'];
     } else {
@@ -89,7 +89,7 @@ class GroupRemoteService {
       return null;
     }
 
-    final Map<String, dynamic>? data = snapshot.data();
+    final Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
     if (data == null) return null;
     return GroupStorageModel.fromJson(data);
   }
@@ -100,7 +100,8 @@ class GroupRemoteService {
     final snapshot = membersCollection.orderBy('invite_on').snapshots();
     return snapshot.map((event) {
       return event.docs.map((json) {
-        return MemberModel.fromJson(json.data());
+        final data = json.data() as Map<String, dynamic>;
+        return MemberModel.fromJson(data);
       }).toList();
     });
   }
@@ -181,7 +182,7 @@ class GroupRemoteService {
 
   Future<String?> getCommunityGroupId() async {
     final value = await metaCollection.doc('community').get();
-    final data = value.data();
+    final data = value.data() as Map<String, dynamic>?;
     return data?['group_id'];
   }
 
@@ -264,7 +265,7 @@ class GroupRemoteService {
     return pendingsDocsRef.snapshots().map((event) {
       PendingModel? pendingModel;
       var documentSnapshot = event.data();
-      final Map<String, dynamic>? data = documentSnapshot;
+      final data = documentSnapshot as Map<String, dynamic>?;
       if (data != null) {
         pendingModel = PendingModel.fromJson(data);
       }

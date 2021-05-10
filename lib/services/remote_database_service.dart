@@ -10,7 +10,7 @@ class RemoteDatabaseService {
 
     await _users.doc(uid).get().then((e) {
       final json = e.data();
-      if (json != null) {
+      if (json != null && json is Map<String, dynamic>) {
         final DbBackupModel result = DbBackupModel.fromJson(json);
         if (result is DbBackupModel) {
           remoteBackup = result;

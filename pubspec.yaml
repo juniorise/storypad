@@ -66,7 +66,7 @@ dependencies:
   # google services
   firebase_core: ^1.0.1
   firebase_auth: ^1.0.1
-  cloud_firestore: ^1.0.1
+  cloud_firestore: ^2.1.0
   google_sign_in: ^5.0.1
 
   # functionalities
