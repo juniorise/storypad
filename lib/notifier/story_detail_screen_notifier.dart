@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/database/w_database.dart';
-import 'package:write_story/models/story_model.dart';
-import 'package:write_story/services/google_drive_api_service.dart';
+import 'package:storypad/database/w_database.dart';
+import 'package:storypad/models/story_model.dart';
+import 'package:storypad/services/google_drive_api_service.dart';
 
 class StoryDetailScreenNotifier extends ChangeNotifier {
   final WDatabase wDatabase = WDatabase.instance;

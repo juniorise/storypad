@@ -3,10 +3,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:write_story/notifier/user_model_notifier.dart';
-import 'package:write_story/screens/home_screen.dart';
-import 'package:write_story/sheets/ask_for_name_sheet.dart';
-import 'package:write_story/storages/vibrate_toggle_storage.dart';
+import 'package:storypad/notifier/user_model_notifier.dart';
+import 'package:storypad/screens/home_screen.dart';
+import 'package:storypad/sheets/ask_for_name_sheet.dart';
+import 'package:storypad/storages/vibrate_toggle_storage.dart';
 
 class WrapperScreens extends HookWidget {
   WrapperScreens({Key? key}) : super(key: key);

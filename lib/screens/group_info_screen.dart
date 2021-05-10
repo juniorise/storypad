@@ -3,19 +3,19 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/app_helper/app_helper.dart';
-import 'package:write_story/constants/config_constant.dart';
-import 'package:write_story/database/w_database.dart';
-import 'package:write_story/mixins/dialog_mixin.dart';
-import 'package:write_story/mixins/snakbar_mixin.dart';
-import 'package:write_story/models/member_model.dart';
-import 'package:write_story/notifier/group_listing_notifier.dart';
-import 'package:write_story/notifier/member_info_notifier.dart';
-import 'package:write_story/screens/setting_screen.dart';
-import 'package:write_story/sheets/ask_for_name_sheet.dart';
-import 'package:write_story/widgets/vt_tab_view.dart';
-import 'package:write_story/widgets/w_icon_button.dart';
-import 'package:write_story/widgets/w_no_data.dart';
+import 'package:storypad/app_helper/app_helper.dart';
+import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/database/w_database.dart';
+import 'package:storypad/mixins/dialog_mixin.dart';
+import 'package:storypad/mixins/snakbar_mixin.dart';
+import 'package:storypad/models/member_model.dart';
+import 'package:storypad/notifier/group_listing_notifier.dart';
+import 'package:storypad/notifier/member_info_notifier.dart';
+import 'package:storypad/screens/setting_screen.dart';
+import 'package:storypad/sheets/ask_for_name_sheet.dart';
+import 'package:storypad/widgets/vt_tab_view.dart';
+import 'package:storypad/widgets/w_icon_button.dart';
+import 'package:storypad/widgets/w_no_data.dart';
 
 class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
   const GroupInfoScreen({

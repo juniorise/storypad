@@ -2,14 +2,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/constants/config_constant.dart';
-import 'package:write_story/mixins/snakbar_mixin.dart';
-import 'package:write_story/models/font_model.dart';
-import 'package:write_story/notifier/font_manager_notifier.dart';
-import 'package:write_story/screens/setting_screen.dart';
-import 'package:write_story/sheets/ask_for_name_sheet.dart';
-import 'package:write_story/widgets/vt_ontap_effect.dart';
-import 'package:write_story/widgets/w_icon_button.dart';
+import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/mixins/snakbar_mixin.dart';
+import 'package:storypad/models/font_model.dart';
+import 'package:storypad/notifier/font_manager_notifier.dart';
+import 'package:storypad/screens/setting_screen.dart';
+import 'package:storypad/sheets/ask_for_name_sheet.dart';
+import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_icon_button.dart';
 
 class FontManagerScreen extends HookWidget with WSnackBar {
   @override

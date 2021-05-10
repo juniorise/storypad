@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/vt_ontap_effect.dart';
 
 class WMoreFaqButton extends StatelessWidget {
   const WMoreFaqButton({

@@ -7,7 +7,7 @@ import 'package:csv/csv.dart';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:write_story/constants/api_constant.dart';
+import 'package:storypad/constants/api_constant.dart';
 
 /// Before generate new lacalize json file, please make sure that:
 /// - "Stories App Translation" - langs is published in Google Spreadsheets

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:write_story/constants/config_constant.dart';
+import 'package:storypad/constants/config_constant.dart';
 
 mixin DialogMixin {
   Future<String> showTextDialog(

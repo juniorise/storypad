@@ -1,7 +1,7 @@
 // A button for a [SnackBar], known as an "action".
 import 'package:flutter/material.dart';
-import 'package:write_story/configs/theme_config.dart';
-import 'package:write_story/constants/config_constant.dart';
+import 'package:storypad/configs/theme_config.dart';
+import 'package:storypad/constants/config_constant.dart';
 
 ///
 /// Snack bar actions are always enabled. If you want to disable a snack bar

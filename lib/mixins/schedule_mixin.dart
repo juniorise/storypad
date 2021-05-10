@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:write_story/constants/config_constant.dart';
+import 'package:storypad/constants/config_constant.dart';
 
 mixin ScheduleMixin {
   Timer? _timer;

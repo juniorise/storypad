@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:write_story/models/db_backup_model.dart';
+import 'package:storypad/models/db_backup_model.dart';
 
 class RemoteDatabaseService {
   static FirebaseFirestore _firestore = FirebaseFirestore.instance;

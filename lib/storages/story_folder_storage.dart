@@ -1,4 +1,4 @@
-import 'package:write_story/storages/share_preference_storage.dart';
+import 'package:storypad/storages/share_preference_storage.dart';
 
 class StoryFolderStorage extends SharePreferenceStorage {
   @override

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/models/group_storage_model.dart';
-import 'package:write_story/services/group_remote_service.dart';
+import 'package:storypad/models/group_storage_model.dart';
+import 'package:storypad/services/group_remote_service.dart';
 
 class GroupListingScreenNotifer extends ChangeNotifier {
   GroupRemoteService service = GroupRemoteService();

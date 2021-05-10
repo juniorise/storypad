@@ -2,14 +2,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/constants/config_constant.dart';
-import 'package:write_story/database/w_database.dart';
-import 'package:write_story/models/group_storage_model.dart';
-import 'package:write_story/models/group_sync_model.dart';
-import 'package:write_story/notifier/home_screen_notifier.dart';
-import 'package:write_story/screens/group_screen.dart';
-import 'package:write_story/storages/group_sync_storage.dart';
-import 'package:write_story/widgets/w_no_data.dart';
+import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/database/w_database.dart';
+import 'package:storypad/models/group_storage_model.dart';
+import 'package:storypad/models/group_sync_model.dart';
+import 'package:storypad/notifier/home_screen_notifier.dart';
+import 'package:storypad/screens/group_screen.dart';
+import 'package:storypad/storages/group_sync_storage.dart';
+import 'package:storypad/widgets/w_no_data.dart';
 
 class WGroupSyncDialogNotifier extends ChangeNotifier {
   List<GroupStorageModel>? _groups;

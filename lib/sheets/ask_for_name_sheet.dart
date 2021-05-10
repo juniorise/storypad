@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:write_story/constants/config_constant.dart';
-import 'package:write_story/models/user_model.dart';
-import 'package:write_story/notifier/user_model_notifier.dart';
-import 'package:write_story/screens/home_screen.dart';
-import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/models/user_model.dart';
+import 'package:storypad/notifier/user_model_notifier.dart';
+import 'package:storypad/screens/home_screen.dart';
+import 'package:storypad/widgets/vt_ontap_effect.dart';
 
 final GlobalKey<ScaffoldState> askForNameScaffoldKey =
     GlobalKey<ScaffoldState>();

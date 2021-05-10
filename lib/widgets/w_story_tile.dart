@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/models/documents/document.dart';
-import 'package:write_story/app_helper/quill_helper.dart';
-import 'package:write_story/constants/config_constant.dart';
-import 'package:write_story/database/w_database.dart';
-import 'package:write_story/mixins/dialog_mixin.dart';
-import 'package:write_story/models/story_model.dart';
-import 'package:write_story/widgets/vt_ontap_effect.dart';
-import 'package:write_story/widgets/w_group_sync_dialog.dart';
-import 'package:write_story/widgets/w_icon_button.dart';
+import 'package:storypad/app_helper/quill_helper.dart';
+import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/database/w_database.dart';
+import 'package:storypad/mixins/dialog_mixin.dart';
+import 'package:storypad/models/story_model.dart';
+import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_group_sync_dialog.dart';
+import 'package:storypad/widgets/w_icon_button.dart';
 
 class WStoryTile extends StatelessWidget with DialogMixin {
   final StoryModel story;

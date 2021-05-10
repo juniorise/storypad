@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/vt_ontap_effect.dart';
 
 class WIconButton extends StatelessWidget {
   const WIconButton({

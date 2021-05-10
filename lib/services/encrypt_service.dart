@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:write_story/constants/api_constant.dart';
+import 'package:storypad/constants/api_constant.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
-import 'package:write_story/models/story_model.dart';
+import 'package:storypad/models/story_model.dart';
 
 class EncryptService {
   static String? storyMapEncrypt(Map<int, StoryModel> map) {

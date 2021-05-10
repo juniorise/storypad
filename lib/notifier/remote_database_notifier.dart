@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/models/db_backup_model.dart';
-import 'package:write_story/models/user_model.dart';
-import 'package:write_story/services/authentication_service.dart';
-import 'package:write_story/services/remote_database_service.dart';
+import 'package:storypad/models/db_backup_model.dart';
+import 'package:storypad/models/user_model.dart';
+import 'package:storypad/services/authentication_service.dart';
+import 'package:storypad/services/remote_database_service.dart';
 
 class RemoteDatabaseNotifier with ChangeNotifier {
   RemoteDatabaseService service = RemoteDatabaseService();

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:write_story/configs/theme_config.dart';
+import 'package:storypad/configs/theme_config.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
 
 class TextHelper {

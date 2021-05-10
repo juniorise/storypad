@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/models/group_storage_model.dart';
-import 'package:write_story/models/member_model.dart';
-import 'package:write_story/services/authentication_service.dart';
-import 'package:write_story/services/group_remote_service.dart';
+import 'package:storypad/models/group_storage_model.dart';
+import 'package:storypad/models/member_model.dart';
+import 'package:storypad/services/authentication_service.dart';
+import 'package:storypad/services/group_remote_service.dart';
 
 class MembersInfoNotifier extends ChangeNotifier {
   GroupStorageModel? get group => this._group;

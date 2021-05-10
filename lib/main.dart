@@ -3,8 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/app.dart';
-import 'package:write_story/database/w_database.dart';
+import 'package:storypad/app.dart';
+import 'package:storypad/database/w_database.dart';
 
 const initSupportedLocales = [
   Locale('en'),

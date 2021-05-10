@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/app_helper/measure_size.dart';
-import 'package:write_story/constants/config_constant.dart';
+import 'package:storypad/app_helper/measure_size.dart';
+import 'package:storypad/constants/config_constant.dart';
 
 enum WOverlayFloatingType {
   topToBottom,

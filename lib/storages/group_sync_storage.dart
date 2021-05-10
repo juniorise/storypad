@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:write_story/models/group_storage_model.dart';
-import 'package:write_story/storages/share_preference_storage.dart';
+import 'package:storypad/models/group_storage_model.dart';
+import 'package:storypad/storages/share_preference_storage.dart';
 
 /// Desire list
 /// ```

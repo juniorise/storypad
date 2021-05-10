@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:write_story/models/group_storage_model.dart';
-import 'package:write_story/models/member_model.dart';
-import 'package:write_story/models/pending_model.dart';
-import 'package:write_story/models/story_model.dart';
-import 'package:write_story/notifier/user_model_notifier.dart';
-import 'package:write_story/services/authentication_service.dart';
-import 'package:write_story/services/encrypt_service.dart';
-import 'package:write_story/storages/group_sync_storage.dart';
+import 'package:storypad/models/group_storage_model.dart';
+import 'package:storypad/models/member_model.dart';
+import 'package:storypad/models/pending_model.dart';
+import 'package:storypad/models/story_model.dart';
+import 'package:storypad/notifier/user_model_notifier.dart';
+import 'package:storypad/services/authentication_service.dart';
+import 'package:storypad/services/encrypt_service.dart';
+import 'package:storypad/storages/group_sync_storage.dart';
 
 class GroupRemoteService {
   static FirebaseFirestore _firestore = FirebaseFirestore.instance;

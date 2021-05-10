@@ -1,4 +1,4 @@
-import 'package:write_story/models/story_list_model.dart';
+import 'package:storypad/models/story_list_model.dart';
 
 final Map<int, StoryListModel> tmpGlobalStoryListByDayId = {
   1: StoryListModel(

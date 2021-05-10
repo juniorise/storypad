@@ -2,9 +2,9 @@ import 'dart:io' as io;
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
-import 'package:write_story/services/authentication_service.dart';
-import 'package:write_story/storages/auth_header_storage.dart';
-import 'package:write_story/storages/story_folder_storage.dart';
+import 'package:storypad/services/authentication_service.dart';
+import 'package:storypad/storages/auth_header_storage.dart';
+import 'package:storypad/storages/story_folder_storage.dart';
 
 class GoogleAuthClient extends http.BaseClient {
   final Map<String, String> _headers;

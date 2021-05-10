@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/widgets/controller.dart';
-import 'package:write_story/widgets/w_icon_button.dart';
+import 'package:storypad/widgets/w_icon_button.dart';
 
 class WHistoryButton extends StatefulWidget {
   final IconData icon;

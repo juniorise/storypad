@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/models/documents/attribute.dart';
 import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter_quill/widgets/controller.dart';
-import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/vt_ontap_effect.dart';
 
 class WSelectHeaderStyleButton extends StatefulWidget {
   const WSelectHeaderStyleButton({required this.controller, Key? key})

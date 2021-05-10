@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:write_story/colors/colors.dart';
-import 'package:write_story/constants/config_constant.dart';
-import 'package:write_story/widgets/w_icon_button.dart';
+import 'package:storypad/colors/colors.dart';
+import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/widgets/w_icon_button.dart';
 
 getBlackWhite(BuildContext context) {
   bool isDarkMode = Theme.of(context).colorScheme.brightness == Brightness.dark;

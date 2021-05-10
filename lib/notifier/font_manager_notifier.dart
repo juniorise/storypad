@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/main.dart';
-import 'package:write_story/storages/font_manager_storage.dart';
+import 'package:storypad/main.dart';
+import 'package:storypad/storages/font_manager_storage.dart';
 
 const Map<String, String> fontFamilyFallbackDefault = {
   "en": "Quicksand",

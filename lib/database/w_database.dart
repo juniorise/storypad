@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import "package:path/path.dart";
-import 'package:write_story/models/group_sync_model.dart';
-import 'package:write_story/models/story_model.dart';
-import 'package:write_story/models/user_model.dart';
+import 'package:storypad/models/group_sync_model.dart';
+import 'package:storypad/models/story_model.dart';
+import 'package:storypad/models/user_model.dart';
 import 'dart:convert' as convert;
-import 'package:write_story/services/encrypt_service.dart';
-import 'package:write_story/storages/group_sync_storage.dart';
+import 'package:storypad/services/encrypt_service.dart';
+import 'package:storypad/storages/group_sync_storage.dart';
 
 class WDatabase {
   WDatabase._privateConstructor();

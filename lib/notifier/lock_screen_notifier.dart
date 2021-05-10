@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:write_story/constants/config_constant.dart';
-import 'package:write_story/screens/lock_screen.dart';
-import 'package:write_story/storages/lock_screen_storage.dart';
-import 'package:write_story/widgets/vt_ontap_effect.dart';
+import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/screens/lock_screen.dart';
+import 'package:storypad/storages/lock_screen_storage.dart';
+import 'package:storypad/widgets/vt_ontap_effect.dart';
 
 class LockScreenNotifier extends ChangeNotifier {
   Map<String, String>? _storageLockNumberMap;

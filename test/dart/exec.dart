@@ -1,4 +1,4 @@
-import 'package:write_story/examples/stories_data.dart';
+import 'package:storypad/examples/stories_data.dart';
 
 void main() async {
   /// generate insert story

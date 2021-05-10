@@ -5,10 +5,10 @@ import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter_quill/utils/color.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
-import 'package:write_story/app_helper/measure_size.dart';
-import 'package:write_story/constants/config_constant.dart';
-import 'package:write_story/widgets/vt_ontap_effect.dart';
-import 'package:write_story/widgets/w_color_picker.dart';
+import 'package:storypad/app_helper/measure_size.dart';
+import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_color_picker.dart';
 
 /// Controls color styles.
 ///

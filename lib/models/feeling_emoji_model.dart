@@ -1,4 +1,4 @@
-import 'package:write_story/widgets/w_color_picker.dart';
+import 'package:storypad/widgets/w_color_picker.dart';
 
 class FeelingEmojiModel {
   final String? type;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:write_story/constants/config_constant.dart';
+import 'package:storypad/constants/config_constant.dart';
 
 class ThemeConfig {
   List<String> fontFamilyFallback;
