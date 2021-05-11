@@ -19,6 +19,7 @@ import 'package:storypad/notifier/theme_notifier.dart';
 import 'package:storypad/screens/group_screen.dart';
 import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/screens/story_detail_screen.dart';
+import 'package:storypad/widgets/w_list_tile.dart';
 import 'package:storypad/widgets/w_story_tile.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/vt_tab_view.dart';
@@ -53,6 +54,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
 
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double bottomBarHeight = MediaQuery.of(context).padding.bottom;
+
     final Widget scaffold = buildScaffold(
       context: context,
       notifier: _notifier,
@@ -75,15 +77,16 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       child: fadeScaffold,
       builder: (context, watch, Widget? child) {
         final authNotifier = watch(authenticationProvider);
-        return Stack(
-          children: [
-            Positioned(
-              bottom: 0.0,
-              left: 0,
-              right: 0,
-              child: ValueListenableBuilder(
-                valueListenable: faqNotifier,
-                child: Material(
+        return Material(
+          color: Theme.of(context).colorScheme.surface,
+          child: Stack(
+            children: [
+              Positioned(
+                bottom: bottomBarHeight,
+                left: 0,
+                right: 0,
+                child: ValueListenableBuilder(
+                  valueListenable: faqNotifier,
                   child: Consumer(
                     builder: (context, watch, child) {
                       final dbNotifier = watch(remoteDatabaseProvider);
@@ -95,8 +98,8 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                               },
                             ).replaceFirst(": ", ":\n")
                           : "";
-                      return ListTile(
-                        leading: Icon(Icons.cloud),
+                      return WListTile(
+                        iconData: Icons.cloud,
                         trailing: TextButton(
                           child: Text(tr("button.backup.export").toUpperCase()),
                           onPressed: () async {
@@ -107,57 +110,56 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                           },
                           style: buildButtonStyle(context),
                         ),
-                        title: Text(
-                          titleText,
-                        ),
+                        titleText: titleText,
+                        titleStyle: Theme.of(context).textTheme.bodyText2,
                       );
                     },
                   ),
+                  builder: (context, watch, child) {
+                    return Center(
+                      child: AnimatedContainer(
+                        duration: ConfigConstant.duration,
+                        curve: Curves.easeOutQuart,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withOpacity(0.1),
+                          ),
+                        ),
+                        transform: Matrix4.identity()
+                          ..translate(
+                            0.0,
+                            faqNotifier.value == true ? 0 : bottomSyncHeight,
+                          ),
+                        child: child,
+                      ),
+                    );
+                  },
                 ),
+              ),
+              ValueListenableBuilder(
+                valueListenable: faqNotifier,
+                child: fadeScaffold,
                 builder: (context, watch, child) {
                   return AnimatedContainer(
-                    duration: ConfigConstant.duration,
-                    height: bottomSyncHeight,
-                    curve: Curves.easeOutQuart,
-                    padding: EdgeInsets.only(bottom: bottomBarHeight),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      border: Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.1),
-                      ),
-                    ),
                     transform: Matrix4.identity()
                       ..translate(
                         0.0,
-                        faqNotifier.value == true ? 0 : bottomSyncHeight,
+                        faqNotifier.value && authNotifier.isAccountSignedIn
+                            ? -bottomSyncHeight
+                            : 0,
                       ),
+                    curve: Curves.easeOutQuart,
+                    duration: ConfigConstant.duration,
                     child: child,
                   );
                 },
               ),
-            ),
-            ValueListenableBuilder(
-              valueListenable: faqNotifier,
-              child: fadeScaffold,
-              builder: (context, watch, child) {
-                return AnimatedContainer(
-                  transform: Matrix4.identity()
-                    ..translate(
-                      0.0,
-                      faqNotifier.value && authNotifier.isAccountSignedIn
-                          ? -bottomSyncHeight
-                          : 0,
-                    ),
-                  curve: Curves.easeOutQuart,
-                  duration: ConfigConstant.duration,
-                  child: child,
-                );
-              },
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
