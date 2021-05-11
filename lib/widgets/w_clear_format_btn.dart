@@ -31,7 +31,6 @@ class _WClearFormatButtonState extends State<WClearFormatButton> {
       icon: Icon(widget.icon, color: iconColor),
       fillColor: fillColor,
       onPressed: () {
-        onTapVibrate();
         for (Attribute k
             in widget.controller.getSelectionStyle().attributes.values) {
           widget.controller.formatSelection(Attribute.clone(k, null));

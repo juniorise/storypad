@@ -68,10 +68,11 @@ class StoryDetailScreen extends HookWidget
     final statusBarHeight = screenPadding.top;
 
     focusNode.addListener(() {
+      bool _keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
       if (focusNode.hasFocus) {
-        _notifier.paragraphIsFocused = true;
+        _notifier.setSaragraphIsFocused(true, keyboardOpen: _keyboardVisible);
       } else {
-        _notifier.paragraphIsFocused = false;
+        _notifier.setSaragraphIsFocused(false);
       }
     });
 
@@ -533,35 +534,29 @@ class StoryDetailScreen extends HookWidget
                 : null,
         child: Scaffold(
           backgroundColor: _theme.colorScheme.surface,
-          body: body,
-          extendBody: true,
-          bottomNavigationBar: Builder(
-            builder: (context) {
-              final bool hide =
-                  readOnlyModeNotifier.value || !notifier.paragraphIsFocused;
-              return AnimatedContainer(
-                curve: Curves.easeOutQuart,
-                duration: ConfigConstant.duration,
-                margin: EdgeInsets.only(bottom: bottomHeight + insets.bottom),
-                child: AnimatedContainer(
-                  curve: Curves.easeOutQuart,
-                  duration: ConfigConstant.duration,
-                  height: hide ? 0 : notifier.toolbarHeight,
-                  color: _theme.colorScheme.background,
-                  child: Wrap(
-                    children: [
-                      AnimatedOpacity(
-                        opacity: hide ? 0 : 1,
-                        duration: ConfigConstant.duration * 2,
-                        curve: Curves.easeInOut,
-                        child: toolbar,
-                      ),
-                    ],
-                  ),
+          body: Stack(
+            children: [
+              body,
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Builder(
+                  builder: (context) {
+                    final bool hide = readOnlyModeNotifier.value ||
+                        !notifier.paragraphIsFocused;
+                    return AnimatedOpacity(
+                      opacity: hide ? 0 : 1,
+                      duration: ConfigConstant.fadeDuration,
+                      curve: Curves.fastOutSlowIn,
+                      child: toolbar,
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           ),
+          extendBody: true,
         ),
       ),
     );

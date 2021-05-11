@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/database/w_database.dart';
 import 'package:storypad/mixins/change_notifier_mixin.dart';
+import 'package:storypad/mixins/schedule_mixin.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/services/google_drive_api_service.dart';
 
 class StoryDetailScreenNotifier extends ChangeNotifier
-    with ChangeNotifierMixin {
+    with ChangeNotifierMixin, ScheduleMixin {
   final WDatabase wDatabase = WDatabase.instance;
   StoryModel draftStory;
   bool hasChanged = false;
@@ -18,12 +19,16 @@ class StoryDetailScreenNotifier extends ChangeNotifier
   String? _loadingUrl;
   String? get loadingUrl => this._loadingUrl;
 
+  double _toolbarOpacity = 0.0;
+  double get toolbarOpacity => this._toolbarOpacity;
+
   bool _paragraphIsFocused = false;
   bool get paragraphIsFocused => this._paragraphIsFocused;
-  set paragraphIsFocused(bool value) {
+  void setSaragraphIsFocused(bool value, {bool keyboardOpen = false}) {
     if (value == this._paragraphIsFocused) return;
     this._paragraphIsFocused = value;
     notifyListeners();
+    return;
   }
 
   double _toolbarHeight = kToolbarHeight;
@@ -31,7 +36,7 @@ class StoryDetailScreenNotifier extends ChangeNotifier
   set toolbarHeight(double value) {
     if (value == _toolbarHeight) return;
     _toolbarHeight = value;
-    notifyListeners();
+    // notifyListeners();
   }
 
   setLoadingUrl(String imageUrl) {

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:vibration/vibration.dart';
@@ -65,12 +67,8 @@ class VTOnTapEffect extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final controller = useAnimationController(duration: duration);
-    final animation =
-        Tween<double>(begin: 1, end: _scaleActive).animate(controller);
-    final animation2 =
-        Tween<double>(begin: 1, end: _opacityActive).animate(controller);
-
     setActiveValue();
+
     return GestureDetector(
       onTapDown: onTap != null ? (_) => controller.forward() : null,
       onTapUp: onTap != null
@@ -101,15 +99,15 @@ class VTOnTapEffect extends HookWidget {
           for (var effect in effects) {
             final tmp = result;
             if (effect.effectType == VTOnTapEffectType.scaleDown) {
-              result = ScaleTransition(
-                scale: animation,
+              result = Transform.scale(
+                scale: lerpDouble(1, _scaleActive, controller.value) ?? 0,
                 child: tmp,
               );
             }
             if (effect.effectType == VTOnTapEffectType.touchableOpacity) {
               result = AnimatedOpacity(
                 duration: this.duration,
-                opacity: animation2.value,
+                opacity: lerpDouble(1, _opacityActive, controller.value) ?? 0,
                 child: tmp,
               );
             }
