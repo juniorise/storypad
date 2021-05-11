@@ -1,4 +1,10 @@
-## 1.0.1+28
+## 1.0.2+30
+- in update in app update text
+- remove delete button from image 
+- add sync data from home
+- hide toolbar on unfocus
+
+## 1.0.1+28, 29
 - update checkbox
 - update packages
 

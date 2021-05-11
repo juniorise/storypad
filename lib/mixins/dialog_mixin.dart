@@ -53,7 +53,7 @@ mixin DialogMixin {
     required BuildContext context,
     required Widget child,
   }) async {
-    if (Platform.isIOS) {
+    if (Platform.isIOS || Platform.isAndroid) {
       return await showCupertinoDialog(
         context: context,
         barrierDismissible: true,
