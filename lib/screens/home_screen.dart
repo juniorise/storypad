@@ -95,8 +95,8 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                               },
                             ).replaceFirst(": ", ":\n")
                           : "";
-                      return WListTile(
-                        iconData: Icons.cloud,
+                      return ListTile(
+                        leading: Icon(Icons.cloud),
                         trailing: TextButton(
                           child: Text(tr("button.backup.export").toUpperCase()),
                           onPressed: () async {
@@ -107,7 +107,9 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                           },
                           style: buildButtonStyle(context),
                         ),
-                        titleText: titleText,
+                        title: Text(
+                          titleText,
+                        ),
                       );
                     },
                   ),

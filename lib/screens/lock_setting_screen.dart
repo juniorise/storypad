@@ -4,8 +4,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/notifier/lock_screen_notifier.dart';
 import 'package:storypad/screens/lock_screen.dart';
-import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
+import 'package:storypad/widgets/w_list_tile.dart';
 
 class LockSettingScreen extends HookWidget {
   @override

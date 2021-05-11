@@ -6,10 +6,10 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/snakbar_mixin.dart';
 import 'package:storypad/models/font_model.dart';
 import 'package:storypad/notifier/font_manager_notifier.dart';
-import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
+import 'package:storypad/widgets/w_list_tile.dart';
 
 class FontManagerScreen extends HookWidget with WSnackBar {
   @override
