@@ -25,6 +25,7 @@ mixin ChangeNotifierMixin on ChangeNotifier {
   @override
   void notifyListeners() {
     if (disposed) return;
+    print("notifyListeners");
     super.notifyListeners();
   }
 }

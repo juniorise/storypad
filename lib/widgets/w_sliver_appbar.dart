@@ -231,7 +231,6 @@ class WSliverAppBar extends HookWidget with DialogMixin {
 
   Widget buildYearChooserDialog(List<int> years, BuildContext context) {
     final notifier = context.read(homeScreenProvider);
-
     return Dialog(
       child: SingleChildScrollView(
         child: Wrap(

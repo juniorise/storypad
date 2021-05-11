@@ -41,9 +41,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
 
   @override
   Widget build(BuildContext context) {
-    final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final bottomBarHeight = MediaQuery.of(context).padding.bottom;
-
     final _notifier = useProvider(homeScreenProvider);
     final _themeNotifier = useProvider(themeProvider);
 
@@ -54,6 +51,8 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
 
     final _tabNotifier = useProvider(tabControllerProvider(controller));
 
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double bottomBarHeight = MediaQuery.of(context).padding.bottom;
     final Widget scaffold = buildScaffold(
       context: context,
       notifier: _notifier,
@@ -67,6 +66,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     final fadeScaffold = buildFadeInitAnimationBackground(
       context: context,
       scaffold: scaffold,
+      notifier: _notifier,
     );
 
     final bottomSyncHeight = kBottomNavigationBarHeight + bottomBarHeight;
@@ -86,7 +86,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                 child: Material(
                   child: Consumer(
                     builder: (context, watch, child) {
-                      final dbNotifier = watch(remoteDatabaseProvider)..load();
+                      final dbNotifier = watch(remoteDatabaseProvider);
                       final titleText = dbNotifier.backup != null
                           ? tr(
                               "msg.backup.import",
@@ -182,8 +182,10 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       },
       child: GestureDetector(
         onTap: () {
-          FocusScope.of(context).unfocus();
-          TextEditingController().clear();
+          if (FocusScope.of(context).hasFocus) {
+            FocusScope.of(context).unfocus();
+            TextEditingController().clear();
+          }
           closeFaq();
         },
         child: Scaffold(
@@ -280,6 +282,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                 }
 
                 return buildFadeInOnInit(
+                  notifier: notifier,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -372,6 +375,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     TabController controller,
   ) {
     return buildFadeInOnInit(
+      notifier: notifier,
       child: ValueListenableBuilder(
         valueListenable: faqNotifier,
         builder: (context, value, child) {
@@ -481,6 +485,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
           .format(DateTime(DateTime.now().year, monthId));
       return buildFadeInOnInit(
         child: WNoData(monthName: monthName),
+        notifier: notifier,
       );
     }
 
@@ -537,6 +542,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       margin: const EdgeInsets.only(bottom: 4.0),
       child: buildFadeInOnInit(
         duration: duration,
+        notifier: notifier,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -704,6 +710,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
   Widget buildFadeInitAnimationBackground({
     required BuildContext context,
     required Widget scaffold,
+    required HomeScreenNotifier notifier,
   }) {
     return Stack(
       children: [
@@ -714,6 +721,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
           height: double.infinity,
         ),
         buildFadeInOnInit(
+          notifier: notifier,
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -728,17 +736,12 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
   Widget buildFadeInOnInit({
     required Widget child,
     Duration duration = const Duration(milliseconds: 350),
+    required HomeScreenNotifier notifier,
   }) {
-    return Consumer(
+    return AnimatedOpacity(
+      duration: duration,
+      opacity: notifier.inited ? 1 : 0,
       child: child,
-      builder: (context, watch, child) {
-        final _notifier = watch(homeScreenProvider);
-        return AnimatedOpacity(
-          duration: duration,
-          opacity: _notifier.inited ? 1 : 0,
-          child: child,
-        );
-      },
     );
   }
 

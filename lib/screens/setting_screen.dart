@@ -609,7 +609,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
     return Consumer(
       builder: (context, reader, child) {
         final userNotifier = reader(authenticationProvider);
-        final dbNotifier = reader(remoteDatabaseProvider)..load();
+        final dbNotifier = reader(remoteDatabaseProvider);
 
         final bool imageNotNull = userNotifier.isAccountSignedIn &&
             userNotifier.user!.photoURL != null;

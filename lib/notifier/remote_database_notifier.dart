@@ -154,6 +154,6 @@ class RemoteDatabaseNotifier
 
 final remoteDatabaseProvider = ChangeNotifierProvider<RemoteDatabaseNotifier>(
   (ref) {
-    return RemoteDatabaseNotifier();
+    return RemoteDatabaseNotifier()..load();
   },
 );

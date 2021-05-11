@@ -26,7 +26,6 @@ import 'package:storypad/models/feeling_emoji_model.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/quill_controller_notifier.dart';
 import 'package:storypad/notifier/story_detail_screen_notifier.dart';
-import 'package:storypad/notifier/theme_notifier.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/sheets/image_viewer_sheet.dart';
 import 'package:storypad/services/google_drive_api_service.dart';
@@ -35,6 +34,7 @@ import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_emoji_picker_button.dart';
 import 'package:storypad/widgets/w_history_button.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
+import 'package:storypad/widgets/w_more_vert_button.dart';
 import 'package:storypad/widgets/w_quil_toolbar.dart';
 import 'package:tuple/tuple.dart';
 
@@ -51,17 +51,17 @@ class StoryDetailScreen extends HookWidget
   final bool insert;
   final bool forceReadOnly;
 
+  final imageLoadingNotifier = ValueNotifier<bool>(false);
+  final imageRetryingNotifier = ValueNotifier<bool>(false);
+  final headerPaddingTopNotifier = ValueNotifier<double>(0);
+
   @override
   Widget build(BuildContext context) {
     print("build detail");
 
-    final readOnlyModeNotifier = useState<bool>(!insert);
-    final imageLoadingNotifier = useState<bool>(false);
-    final imageRetryingNotifier = useState<bool>(false);
-    final headerPaddingTopNotifier = useState<double>(0);
-    final focusNode = useFocusNode();
-
     final _notifier = useProvider(storydetailScreenNotifier(story));
+    final readOnlyModeNotifier = useState<bool>(!insert);
+    final focusNode = useFocusNode();
 
     final screenPadding = MediaQuery.of(context).padding;
     final bottomHeight = screenPadding.bottom;
@@ -166,59 +166,54 @@ class StoryDetailScreen extends HookWidget
             color: Theme.of(context).colorScheme.onSurface,
           ),
           Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: readOnlyModeNotifier,
-              builder: (context, value, child) {
-                return Scrollbar(
-                  showTrackOnHover: true,
-                  child: QuillEditor(
-                    placeholder: tr("hint_text.story_detail"),
-                    maxHeight: null,
-                    controller: quillController,
-                    scrollController: scrollController,
-                    scrollable: true,
-                    focusNode: focusNode,
-                    autoFocus: true,
-                    readOnly: readOnlyModeNotifier.value,
-                    showCursor: !readOnlyModeNotifier.value,
-                    keyboardAppearance: _theme.brightness,
-                    enableInteractiveSelection: true,
-                    expands: false,
-                    embedBuilder: (BuildContext context, leaf.Embed node) {
-                      return _embedBuilder(
-                        context: context,
-                        node: node,
-                        notifier: _notifier,
-                        screenPadding: screenPadding,
-                        readOnlyModeNotifier: readOnlyModeNotifier,
-                        imageRetryingNotifier: imageRetryingNotifier,
-                      );
-                    },
-                    textCapitalization: TextCapitalization.sentences,
-                    customStyles: DefaultStyles(
-                      placeHolder: DefaultTextBlockStyle(
-                        _theme.textTheme.bodyText1!.copyWith(
-                          color: _theme.colorScheme.onSurface.withOpacity(0.3),
-                        ),
-                        Tuple2(0.0, 0.0),
-                        Tuple2(0.0, 0.0),
-                        null,
-                      ),
-                      paragraph: DefaultTextBlockStyle(
-                        _theme.textTheme.bodyText1!,
-                        Tuple2(0.0, 0.0),
-                        Tuple2(0.0, 0.0),
-                        null,
-                      ),
+            child: Scrollbar(
+              showTrackOnHover: true,
+              child: QuillEditor(
+                placeholder: tr("hint_text.story_detail"),
+                maxHeight: null,
+                controller: quillController,
+                scrollController: scrollController,
+                scrollable: true,
+                focusNode: focusNode,
+                autoFocus: true,
+                readOnly: readOnlyModeNotifier.value,
+                showCursor: !readOnlyModeNotifier.value,
+                keyboardAppearance: _theme.brightness,
+                enableInteractiveSelection: true,
+                expands: false,
+                embedBuilder: (BuildContext context, leaf.Embed node) {
+                  return _embedBuilder(
+                    context: context,
+                    node: node,
+                    notifier: _notifier,
+                    screenPadding: screenPadding,
+                    readOnlyModeNotifier: readOnlyModeNotifier,
+                    imageRetryingNotifier: imageRetryingNotifier,
+                  );
+                },
+                textCapitalization: TextCapitalization.sentences,
+                customStyles: DefaultStyles(
+                  placeHolder: DefaultTextBlockStyle(
+                    _theme.textTheme.bodyText1!.copyWith(
+                      color: _theme.colorScheme.onSurface.withOpacity(0.3),
                     ),
-                    padding: const EdgeInsets.all(
-                      ConfigConstant.margin2,
-                    ).copyWith(
-                      bottom: kToolbarHeight,
-                    ),
+                    Tuple2(0.0, 0.0),
+                    Tuple2(0.0, 0.0),
+                    null,
                   ),
-                );
-              },
+                  paragraph: DefaultTextBlockStyle(
+                    _theme.textTheme.bodyText1!,
+                    Tuple2(0.0, 0.0),
+                    Tuple2(0.0, 0.0),
+                    null,
+                  ),
+                ),
+                padding: const EdgeInsets.all(
+                  ConfigConstant.margin2,
+                ).copyWith(
+                  bottom: kToolbarHeight,
+                ),
+              ),
             ),
           ),
         ],
@@ -296,13 +291,13 @@ class StoryDetailScreen extends HookWidget
             builder: (context, value, errorBuilder) {
               return imageRetryingNotifier.value &&
                       notifier.loadingUrl == imageUrl
-                  ? errorBuilder ?? SizedBox()
+                  ? errorBuilder ?? const SizedBox()
                   : CachedNetworkImage(
                       key: UniqueKey(),
                       imageUrl: imageUrl,
                       errorWidget: (context, _, __) {
                         error = true;
-                        return errorBuilder ?? SizedBox();
+                        return errorBuilder ?? const SizedBox();
                       },
                     );
             },
@@ -385,29 +380,24 @@ class StoryDetailScreen extends HookWidget
   }) {
     final _theme = Theme.of(context);
     return Container(
-      constraints: BoxConstraints(maxHeight: 250),
-      child: ValueListenableBuilder(
-        valueListenable: readOnlyModeNotifier,
-        builder: (context, value, child) {
-          return TextField(
-            readOnly: readOnlyModeNotifier.value,
-            controller: titleController,
-            selectionHeightStyle: BoxHeightStyle.max,
-            textAlign: TextAlign.left,
-            style: _theme.textTheme.headline6,
-            onChanged: onChanged,
-            maxLines: null,
-            autofocus: true,
-            keyboardAppearance: _theme.brightness,
-            decoration: InputDecoration(
-              hintText: tr("hint_text.title"),
-              hintStyle: _theme.textTheme.headline6?.copyWith(
-                color: _theme.colorScheme.onSurface.withOpacity(0.3),
-              ),
-              border: InputBorder.none,
-            ),
-          );
-        },
+      constraints: const BoxConstraints(maxHeight: 250),
+      child: TextField(
+        readOnly: readOnlyModeNotifier.value,
+        controller: titleController,
+        selectionHeightStyle: BoxHeightStyle.max,
+        textAlign: TextAlign.left,
+        style: _theme.textTheme.headline6,
+        onChanged: onChanged,
+        maxLines: null,
+        autofocus: true,
+        keyboardAppearance: _theme.brightness,
+        decoration: InputDecoration(
+          hintText: tr("hint_text.title"),
+          hintStyle: _theme.textTheme.headline6?.copyWith(
+            color: _theme.colorScheme.onSurface.withOpacity(0.3),
+          ),
+          border: InputBorder.none,
+        ),
       ),
     );
   }
@@ -423,6 +413,104 @@ class StoryDetailScreen extends HookWidget
   }) {
     final insets = MediaQuery.of(context).viewInsets;
     final _theme = Theme.of(context);
+
+    final toolbar = MeasureSize(
+      onChange: (Size size) {
+        notifier.toolbarHeight = size.height;
+      },
+      child: WQuillToolbar.basic(
+        controller: controller,
+        toolbarIconSize: ConfigConstant.iconSize2,
+        showLink: true,
+        showHeaderStyle: true,
+        showCodeBlock: true,
+        showBoldButton: true,
+        showItalicButton: true,
+        showListBullets: true,
+        showListCheck: true,
+        showListNumbers: true,
+        showQuote: true,
+        showUnderLineButton: true,
+        showHorizontalRule: false,
+        showStrikeThrough: true,
+        showIndent: false,
+        showClearFormat: true,
+        showColorButton: true,
+        showBackgroundColorButton: true,
+        onImagePickCallback: (File _pickImage) async {
+          bool? compress;
+          final Widget dialog = Dialog(
+            child: Wrap(
+              children: [
+                ListTile(
+                  leading: AspectRatio(
+                    aspectRatio: 1.5 / 2,
+                    child: Container(
+                      height: double.infinity,
+                      child: const Icon(Icons.compress),
+                    ),
+                  ),
+                  title: Text(tr("button.compress.yes")),
+                  subtitle: Text(tr("msg.compress.yes")),
+                  onTap: () {
+                    compress = true;
+                    Navigator.of(context).pop();
+                  },
+                ),
+                const Divider(height: 0),
+                ListTile(
+                  leading: AspectRatio(
+                    aspectRatio: 1.5 / 2,
+                    child: Container(
+                      height: double.infinity,
+                      child: const Icon(Icons.crop_original),
+                    ),
+                  ),
+                  title: Text(tr("button.compress.no")),
+                  subtitle: Text(tr("msg.compress.no")),
+                  onTap: () {
+                    compress = false;
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          );
+
+          if (Platform.isIOS) {
+            await showCupertinoDialog(
+              barrierDismissible: true,
+              context: context,
+              builder: (context) {
+                return dialog;
+              },
+            );
+          } else {
+            await showDialog(
+              context: context,
+              builder: (context) {
+                return dialog;
+              },
+            );
+          }
+
+          if (compress == null) return "";
+          final imageName = await _pickImage.length();
+
+          final File? image = await ImageCompressService(
+            file: _pickImage,
+            name: imageName.toString(),
+            compress: compress == true,
+          ).exec();
+
+          if (image?.path.isNotEmpty == true) {
+            notifier.addImagePath(image?.absolute.path);
+          }
+          return image?.path ?? "";
+        },
+      ),
+    );
+
     return WillPopScope(
       onWillPop: () async {
         onPopNavigator(
@@ -433,8 +521,10 @@ class StoryDetailScreen extends HookWidget
       },
       child: GestureDetector(
         onTap: () {
-          FocusScope.of(context).unfocus();
-          TextEditingController().clear();
+          if (FocusScope.of(context).hasFocus) {
+            FocusScope.of(context).unfocus();
+            TextEditingController().clear();
+          }
         },
         onDoubleTap: forceReadOnly
             ? null
@@ -445,105 +535,8 @@ class StoryDetailScreen extends HookWidget
           backgroundColor: _theme.colorScheme.surface,
           body: body,
           extendBody: true,
-          bottomNavigationBar: ValueListenableBuilder(
-            valueListenable: readOnlyModeNotifier,
-            child: MeasureSize(
-              onChange: (Size size) {
-                notifier.toolbarHeight = size.height;
-              },
-              child: WQuillToolbar.basic(
-                controller: controller,
-                toolbarIconSize: ConfigConstant.iconSize2,
-                showLink: true,
-                showHeaderStyle: true,
-                showCodeBlock: true,
-                showBoldButton: true,
-                showItalicButton: true,
-                showListBullets: true,
-                showListCheck: true,
-                showListNumbers: true,
-                showQuote: true,
-                showUnderLineButton: true,
-                showHorizontalRule: false,
-                showStrikeThrough: true,
-                showIndent: false,
-                showClearFormat: true,
-                showColorButton: true,
-                showBackgroundColorButton: true,
-                onImagePickCallback: (File _pickImage) async {
-                  bool? compress;
-                  final Widget dialog = Dialog(
-                    child: Wrap(
-                      children: [
-                        ListTile(
-                          leading: AspectRatio(
-                            aspectRatio: 1.5 / 2,
-                            child: Container(
-                              height: double.infinity,
-                              child: const Icon(Icons.compress),
-                            ),
-                          ),
-                          title: Text(tr("button.compress.yes")),
-                          subtitle: Text(tr("msg.compress.yes")),
-                          onTap: () {
-                            compress = true;
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        const Divider(height: 0),
-                        ListTile(
-                          leading: AspectRatio(
-                            aspectRatio: 1.5 / 2,
-                            child: Container(
-                              height: double.infinity,
-                              child: const Icon(Icons.crop_original),
-                            ),
-                          ),
-                          title: Text(tr("button.compress.no")),
-                          subtitle: Text(tr("msg.compress.no")),
-                          onTap: () {
-                            compress = false;
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-
-                  if (Platform.isIOS) {
-                    await showCupertinoDialog(
-                      barrierDismissible: true,
-                      context: context,
-                      builder: (context) {
-                        return dialog;
-                      },
-                    );
-                  } else {
-                    await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return dialog;
-                      },
-                    );
-                  }
-
-                  if (compress == null) return "";
-                  final imageName = await _pickImage.length();
-
-                  final File? image = await ImageCompressService(
-                    file: _pickImage,
-                    name: imageName.toString(),
-                    compress: compress == true,
-                  ).exec();
-
-                  if (image?.path.isNotEmpty == true) {
-                    notifier.addImagePath(image?.absolute.path);
-                  }
-                  return image?.path ?? "";
-                },
-              ),
-            ),
-            builder: (context, value, child) {
+          bottomNavigationBar: Builder(
+            builder: (context) {
               final bool hide =
                   readOnlyModeNotifier.value || !notifier.paragraphIsFocused;
               return AnimatedContainer(
@@ -561,7 +554,7 @@ class StoryDetailScreen extends HookWidget
                         opacity: hide ? 0 : 1,
                         duration: ConfigConstant.duration * 2,
                         curve: Curves.easeInOut,
-                        child: child ?? const SizedBox(),
+                        child: toolbar,
                       ),
                     ],
                   ),
@@ -584,293 +577,155 @@ class StoryDetailScreen extends HookWidget
     required FocusNode focusNode,
   }) {
     final _theme = Theme.of(context);
-    final String? currentFeeling = notifier.draftStory.feeling;
-    final FeelingEmojiModel? currentFeelingModel =
-        currentFeeling != null ? FeelingEmojiModel(type: currentFeeling) : null;
     return SliverAppBar(
       backgroundColor: _theme.colorScheme.surface,
       centerTitle: false,
       floating: true,
       elevation: 0.5,
       leading: buildAppBarLeadingButton(context: context, notifier: notifier),
-      actions: [
-        ValueListenableBuilder(
-          valueListenable: readOnlyModeNotifier,
-          child: Row(
-            children: [
-              WHistoryButton(
-                icon: Icons.undo_outlined,
-                controller: quillNotifier.controller,
-                undo: true,
-              ),
-              WHistoryButton(
-                icon: Icons.redo_outlined,
-                controller: quillNotifier.controller,
-                undo: false,
-              ),
-            ],
-          ),
-          builder: (context, value, child) {
-            return AnimatedOpacity(
-              duration: ConfigConstant.fadeDuration,
-              opacity: !readOnlyModeNotifier.value ? 1 : 0,
-              child: child,
-            );
-          },
-        ),
-        WIconButton(
-          iconData: Icons.date_range_rounded,
-          onPressed: () async {
-            onPickDate(
-              context: context,
-              date: notifier.draftStory.forDate,
-              notifier: notifier,
-              readOnly: forceReadOnly,
-            );
-          },
-        ),
-        EmojiPickerButton(
-          currentFeelingModel: currentFeelingModel,
-          onPickedEmoji: (String? emojiType) {
-            if (forceReadOnly) return;
-            notifier.setDraftStory(
-              StoryModel(
-                title: notifier.draftStory.title,
-                paragraph: notifier.draftStory.paragraph,
-                createOn: notifier.draftStory.createOn,
-                id: notifier.draftStory.id,
-                updateOn: notifier.draftStory.updateOn,
-                forDate: notifier.draftStory.forDate,
-                isFavorite: notifier.draftStory.isFavorite,
-                feeling: emojiType?.isEmpty == true ? null : emojiType,
-              ),
-            );
-            notifier.setLoadingUrl("");
-          },
-        ),
-        WIconButton(
-          iconData: Icons.more_vert,
-          onPressed: () {
-            bool showDelete = true;
-            bool showSave = true;
-            bool showInfo = true;
-            bool showShare = true;
-            bool showDarkMode = true;
-            bool showReadOnly = true;
-
-            showDelete = !insert;
-            showInfo = !insert;
-
-            if (forceReadOnly) {
-              showSave = false;
-              showDelete = false;
-              showReadOnly = false;
-            }
-
-            showMenu(
-              context: context,
-              position: RelativeRect.fromLTRB(8.0, 0.0, 0.0, 0.0),
-              items: [
-                if (showDelete)
-                  PopupMenuItem(
-                    child: VTOnTapEffect(
-                      onTap: () async {
-                        Navigator.of(context).pop();
-                        onDelete(
-                          context: context,
-                          notifier: notifier,
-                          insert: insert,
-                          id: story.id,
-                        );
-                      },
-                      child: ListTile(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: ConfigConstant.margin1,
-                        ),
-                        leading: Icon(
-                          Icons.delete,
-                          color: _theme.colorScheme.error,
-                        ),
-                        title: Text(tr("button.delete")),
-                      ),
-                    ),
-                  ),
-                if (showSave)
-                  PopupMenuItem(
-                    child: VTOnTapEffect(
-                      onTap: () async {
-                        Navigator.of(context).pop();
-                        await onSave(
-                          imageLoadingNotifier: imageLoadingNotifier,
-                          notifier: notifier,
-                          context: context,
-                          insert: insert,
-                          paragraph: quillNotifier.draftParagraph,
-                        );
-                      },
-                      child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: ConfigConstant.margin1,
-                          ),
-                          leading: const Icon(Icons.save),
-                          title: Text(tr("button.save"))),
-                    ),
-                  ),
-                if (showInfo)
-                  PopupMenuItem(
-                    child: VTOnTapEffect(
-                      onTap: () async {
-                        Navigator.of(context).pop();
-                        final dialog = Dialog(
-                          child: buildAboutDateText(
-                            context: context,
-                            insert: insert,
-                            notifier: notifier,
-                          ),
-                        );
-                        if (Platform.isIOS) {
-                          showCupertinoDialog(
-                            barrierDismissible: true,
-                            context: context,
-                            builder: (context) {
-                              return dialog;
-                            },
-                          );
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return dialog;
-                            },
-                          );
-                        }
-                      },
-                      child: ListTile(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: ConfigConstant.margin1,
-                        ),
-                        leading: Icon(Icons.info),
-                        title: Text(
-                          tr("button.info"),
-                        ),
-                      ),
-                    ),
-                  ),
-                if (showShare)
-                  PopupMenuItem(
-                    child: VTOnTapEffect(
-                      onTap: () async {
-                        Navigator.of(context).pop();
-                        final title = notifier.draftStory.title;
-                        final root = quillNotifier.controller.document.root;
-                        final shareText = QuillHelper.toPlainText(root);
-                        await Share.share(title + "\n$shareText");
-                      },
-                      child: ListTile(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: ConfigConstant.margin1,
-                        ),
-                        leading: Icon(Icons.share),
-                        title: Text(tr("button.share")),
-                      ),
-                    ),
-                  ),
-                if (showDarkMode)
-                  PopupMenuItem(
-                    child: Consumer(
-                      builder: (context, watch, child) {
-                        final notifier = watch(themeProvider);
-                        return VTOnTapEffect(
-                          onTap: () {
-                            Navigator.of(context).pop();
-                            Future.delayed(ConfigConstant.duration).then(
-                              (value) {
-                                onTapVibrate();
-                                notifier.toggleTheme();
-                              },
-                            );
-                          },
-                          child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: ConfigConstant.margin1,
-                            ),
-                            leading: Icon(Icons.nights_stay),
-                            title: Text(tr("button.dark_mode")),
-                            trailing: Container(
-                              child: Switch(
-                                value: notifier.isDarkMode == true,
-                                onChanged: (bool value) {
-                                  Navigator.of(context).pop();
-                                  Future.delayed(ConfigConstant.duration).then(
-                                    (value) {
-                                      onTapVibrate();
-                                      notifier.toggleTheme();
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                if (showReadOnly)
-                  PopupMenuItem(
-                    child: ValueListenableBuilder(
-                      valueListenable: readOnlyModeNotifier,
-                      builder: (context, value, child) {
-                        return VTOnTapEffect(
-                          onTap: () {
-                            if (readOnlyModeNotifier.value) {
-                              focusNode.requestFocus();
-                              Navigator.of(context).pop();
-                            } else {
-                              focusNode.unfocus();
-                            }
-                            Future.delayed(ConfigConstant.duration).then(
-                              (value) {
-                                readOnlyModeNotifier.value =
-                                    !readOnlyModeNotifier.value;
-                              },
-                            );
-                          },
-                          child: ListTile(
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: ConfigConstant.margin1,
-                            ),
-                            leading: Icon(!readOnlyModeNotifier.value
-                                ? Icons.chrome_reader_mode_outlined
-                                : Icons.chrome_reader_mode),
-                            title: Text(tr("button.read_only")),
-                            trailing: Switch(
-                              value: readOnlyModeNotifier.value,
-                              onChanged: (bool value) {
-                                if (readOnlyModeNotifier.value) {
-                                  focusNode.requestFocus();
-                                  Navigator.of(context).pop();
-                                } else {
-                                  focusNode.unfocus();
-                                }
-                                Future.delayed(ConfigConstant.duration).then(
-                                  (value) {
-                                    readOnlyModeNotifier.value =
-                                        !readOnlyModeNotifier.value;
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
-      ],
+      actions: buildAppBarActionsButtonsList(
+        context: context,
+        insert: insert,
+        notifier: notifier,
+        quillNotifier: quillNotifier,
+        readOnlyModeNotifier: readOnlyModeNotifier,
+        focusNode: focusNode,
+      ),
     );
+  }
+
+  List<Widget> buildAppBarActionsButtonsList({
+    required BuildContext context,
+    required bool insert,
+    required StoryDetailScreenNotifier notifier,
+    required QuillControllerNotifer quillNotifier,
+    required ValueNotifier readOnlyModeNotifier,
+    required FocusNode focusNode,
+  }) {
+    final String? currentFeeling = notifier.draftStory.feeling;
+    final FeelingEmojiModel? currentFeelingModel =
+        currentFeeling != null ? FeelingEmojiModel(type: currentFeeling) : null;
+    return [
+      AnimatedOpacity(
+        duration: ConfigConstant.fadeDuration,
+        opacity: !readOnlyModeNotifier.value ? 1 : 0,
+        child: Row(
+          children: [
+            WHistoryButton(
+              icon: Icons.undo_outlined,
+              controller: quillNotifier.controller,
+              undo: true,
+            ),
+            WHistoryButton(
+              icon: Icons.redo_outlined,
+              controller: quillNotifier.controller,
+              undo: false,
+            ),
+          ],
+        ),
+      ),
+      WIconButton(
+        iconData: Icons.date_range_rounded,
+        onPressed: () {
+          onPickDate(
+            context: context,
+            date: notifier.draftStory.forDate,
+            notifier: notifier,
+            readOnly: forceReadOnly,
+          );
+        },
+      ),
+      EmojiPickerButton(
+        currentFeelingModel: currentFeelingModel,
+        onPickedEmoji: (String? emojiType) {
+          if (forceReadOnly) return;
+          notifier.setDraftStory(
+            StoryModel(
+              title: notifier.draftStory.title,
+              paragraph: notifier.draftStory.paragraph,
+              createOn: notifier.draftStory.createOn,
+              id: notifier.draftStory.id,
+              updateOn: notifier.draftStory.updateOn,
+              forDate: notifier.draftStory.forDate,
+              isFavorite: notifier.draftStory.isFavorite,
+              feeling: emojiType?.isEmpty == true ? null : emojiType,
+            ),
+          );
+          notifier.setLoadingUrl("");
+        },
+      ),
+      MoreVertButton(
+        forceReadOnly: forceReadOnly,
+        story: story,
+        insert: insert,
+        readOnly: readOnlyModeNotifier.value,
+        onDelete: () async {
+          Navigator.of(context).pop();
+          onDelete(
+            context: context,
+            notifier: notifier,
+            insert: insert,
+            id: story.id,
+          );
+        },
+        onSave: () async {
+          Navigator.of(context).pop();
+          await onSave(
+            imageLoadingNotifier: imageLoadingNotifier,
+            notifier: notifier,
+            context: context,
+            insert: insert,
+            paragraph: quillNotifier.draftParagraph,
+          );
+        },
+        onShowInfo: () async {
+          Navigator.of(context).pop();
+          final dialog = Dialog(
+            child: buildAboutDateText(
+              context: context,
+              insert: insert,
+              notifier: notifier,
+            ),
+          );
+          if (Platform.isIOS) {
+            showCupertinoDialog(
+              barrierDismissible: true,
+              context: context,
+              builder: (context) {
+                return dialog;
+              },
+            );
+          } else {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return dialog;
+              },
+            );
+          }
+        },
+        onShare: () async {
+          Navigator.of(context).pop();
+          final title = notifier.draftStory.title;
+          final root = quillNotifier.controller.document.root;
+          final shareText = QuillHelper.toPlainText(root);
+          await Share.share(title + "\n$shareText");
+        },
+        onReadOnlyTap: () {
+          if (readOnlyModeNotifier.value) {
+            focusNode.requestFocus();
+            Navigator.of(context).pop();
+          } else {
+            focusNode.unfocus();
+          }
+          Future.delayed(ConfigConstant.duration).then(
+            (value) {
+              readOnlyModeNotifier.value = !readOnlyModeNotifier.value;
+            },
+          );
+        },
+      ),
+    ];
   }
 
   Container buildListTile(

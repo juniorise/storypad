@@ -278,6 +278,7 @@ class HomeScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
   Map<int, StoryListModel>? get storyListByMonthID => this._storyListByMonthID;
 }
 
-final homeScreenProvider = ChangeNotifierProvider<HomeScreenNotifier>((ref) {
+final homeScreenProvider =
+    ChangeNotifierProvider.autoDispose<HomeScreenNotifier>((ref) {
   return HomeScreenNotifier()..load();
 });

@@ -78,8 +78,10 @@ mixin StoryDetailMethodMixin {
     required StoryDetailScreenNotifier notifier,
     required bool readOnly,
   }) async {
-    FocusScope.of(context).unfocus();
-    TextEditingController().clear();
+    if (FocusScope.of(context).hasFocus) {
+      FocusScope.of(context).unfocus();
+      TextEditingController().clear();
+    }
 
     final _theme = Theme.of(context);
 

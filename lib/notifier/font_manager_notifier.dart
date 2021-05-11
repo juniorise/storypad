@@ -76,7 +76,8 @@ class FontManagerNotifier extends ChangeNotifier with ChangeNotifierMixin {
   bool get loading => _loading;
 }
 
-final fontManagerProvider = ChangeNotifierProvider<FontManagerNotifier>(
+final fontManagerProvider =
+    ChangeNotifierProvider.autoDispose<FontManagerNotifier>(
   (ref) {
     return FontManagerNotifier()..load();
   },
