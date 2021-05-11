@@ -18,6 +18,22 @@ class StoryDetailScreenNotifier extends ChangeNotifier
   String? _loadingUrl;
   String? get loadingUrl => this._loadingUrl;
 
+  bool _paragraphIsFocused = false;
+  bool get paragraphIsFocused => this._paragraphIsFocused;
+  set paragraphIsFocused(bool value) {
+    if (value == this._paragraphIsFocused) return;
+    this._paragraphIsFocused = value;
+    notifyListeners();
+  }
+
+  double _toolbarHeight = kToolbarHeight;
+  double get toolbarHeight => this._toolbarHeight;
+  set toolbarHeight(double value) {
+    if (value == _toolbarHeight) return;
+    _toolbarHeight = value;
+    notifyListeners();
+  }
+
   setLoadingUrl(String imageUrl) {
     this._loadingUrl = imageUrl;
     notifyListeners();

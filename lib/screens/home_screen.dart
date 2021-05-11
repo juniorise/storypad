@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -683,7 +684,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
           context,
           rootNavigator: true,
         ).push(
-          MaterialPageRoute(
+          CupertinoPageRoute(
             fullscreenDialog: true,
             builder: (context) {
               return StoryDetailScreen(story: story);

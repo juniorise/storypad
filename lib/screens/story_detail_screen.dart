@@ -16,6 +16,7 @@ import 'package:flutter_quill/widgets/default_styles.dart';
 import 'package:flutter_quill/widgets/editor.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:share/share.dart';
+import 'package:storypad/app_helper/measure_size.dart';
 import 'package:storypad/app_helper/quill_helper.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/hook_controller.dart';
@@ -50,24 +51,29 @@ class StoryDetailScreen extends HookWidget
   final bool insert;
   final bool forceReadOnly;
 
-  final ValueNotifier<double> headerPaddingTopNotifier =
-      ValueNotifier<double>(0);
-
-  final ValueNotifier<bool> imageLoadingNotifier = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> imageRetryingNotifier = ValueNotifier<bool>(false);
-
-  final FocusNode focusNode = FocusNode();
-
   @override
   Widget build(BuildContext context) {
     print("build detail");
 
     final readOnlyModeNotifier = useState<bool>(!insert);
+    final imageLoadingNotifier = useState<bool>(false);
+    final imageRetryingNotifier = useState<bool>(false);
+    final headerPaddingTopNotifier = useState<double>(0);
+    final focusNode = useFocusNode();
+
     final _notifier = useProvider(storydetailScreenNotifier(story));
 
     final screenPadding = MediaQuery.of(context).padding;
     final bottomHeight = screenPadding.bottom;
     final statusBarHeight = screenPadding.top;
+
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        _notifier.paragraphIsFocused = true;
+      } else {
+        _notifier.paragraphIsFocused = false;
+      }
+    });
 
     Document? doc;
     try {
@@ -122,6 +128,8 @@ class StoryDetailScreen extends HookWidget
             notifier: _notifier,
             quillNotifier: quillNotifier,
             readOnlyModeNotifier: readOnlyModeNotifier,
+            imageLoadingNotifier: imageLoadingNotifier,
+            focusNode: focusNode,
           ),
         ];
       },
@@ -170,7 +178,7 @@ class StoryDetailScreen extends HookWidget
                     scrollController: scrollController,
                     scrollable: true,
                     focusNode: focusNode,
-                    autoFocus: insert,
+                    autoFocus: true,
                     readOnly: readOnlyModeNotifier.value,
                     showCursor: !readOnlyModeNotifier.value,
                     keyboardAppearance: _theme.brightness,
@@ -183,6 +191,7 @@ class StoryDetailScreen extends HookWidget
                         notifier: _notifier,
                         screenPadding: screenPadding,
                         readOnlyModeNotifier: readOnlyModeNotifier,
+                        imageRetryingNotifier: imageRetryingNotifier,
                       );
                     },
                     textCapitalization: TextCapitalization.sentences,
@@ -233,6 +242,7 @@ class StoryDetailScreen extends HookWidget
     required StoryDetailScreenNotifier notifier,
     required EdgeInsets screenPadding,
     required ValueNotifier readOnlyModeNotifier,
+    required ValueNotifier imageRetryingNotifier,
   }) {
     bool isDarkMode =
         Theme.of(context).colorScheme.brightness == Brightness.dark;
@@ -387,6 +397,7 @@ class StoryDetailScreen extends HookWidget
             style: _theme.textTheme.headline6,
             onChanged: onChanged,
             maxLines: null,
+            autofocus: true,
             keyboardAppearance: _theme.brightness,
             decoration: InputDecoration(
               hintText: tr("hint_text.title"),
@@ -410,6 +421,7 @@ class StoryDetailScreen extends HookWidget
     required double bottomHeight,
     required double statusBarHeight,
   }) {
+    final insets = MediaQuery.of(context).viewInsets;
     final _theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
@@ -427,10 +439,7 @@ class StoryDetailScreen extends HookWidget
         onDoubleTap: forceReadOnly
             ? null
             : readOnlyModeNotifier.value
-                ? () {
-                    readOnlyModeNotifier.value = false;
-                    focusNode.requestFocus();
-                  }
+                ? () => readOnlyModeNotifier.value = false
                 : null,
         child: Scaffold(
           backgroundColor: _theme.colorScheme.surface,
@@ -438,8 +447,10 @@ class StoryDetailScreen extends HookWidget
           extendBody: true,
           bottomNavigationBar: ValueListenableBuilder(
             valueListenable: readOnlyModeNotifier,
-            child: Container(
-              padding: EdgeInsets.only(bottom: bottomHeight),
+            child: MeasureSize(
+              onChange: (Size size) {
+                notifier.toolbarHeight = size.height;
+              },
               child: WQuillToolbar.basic(
                 controller: controller,
                 toolbarIconSize: ConfigConstant.iconSize2,
@@ -533,14 +544,27 @@ class StoryDetailScreen extends HookWidget
               ),
             ),
             builder: (context, value, child) {
-              return AnimatedOpacity(
-                opacity: !readOnlyModeNotifier.value ? 1 : 0,
+              final bool hide =
+                  readOnlyModeNotifier.value || !notifier.paragraphIsFocused;
+              return AnimatedContainer(
+                curve: Curves.easeOutQuart,
                 duration: ConfigConstant.duration,
-                child: Container(
-                  padding: MediaQuery.of(context).viewInsets,
-                  height: readOnlyModeNotifier.value ? bottomHeight : null,
+                margin: EdgeInsets.only(bottom: bottomHeight + insets.bottom),
+                child: AnimatedContainer(
+                  curve: Curves.easeOutQuart,
+                  duration: ConfigConstant.duration,
+                  height: hide ? 0 : notifier.toolbarHeight,
                   color: _theme.colorScheme.background,
-                  child: child,
+                  child: Wrap(
+                    children: [
+                      AnimatedOpacity(
+                        opacity: hide ? 0 : 1,
+                        duration: ConfigConstant.duration * 2,
+                        curve: Curves.easeInOut,
+                        child: child ?? const SizedBox(),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
@@ -556,6 +580,8 @@ class StoryDetailScreen extends HookWidget
     required StoryDetailScreenNotifier notifier,
     required QuillControllerNotifer quillNotifier,
     required ValueNotifier readOnlyModeNotifier,
+    required ValueNotifier imageLoadingNotifier,
+    required FocusNode focusNode,
   }) {
     final _theme = Theme.of(context);
     final String? currentFeeling = notifier.draftStory.feeling;
