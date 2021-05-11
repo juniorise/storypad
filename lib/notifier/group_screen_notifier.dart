@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/database/w_database.dart';
+import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/models/group_storage_model.dart';
 import 'package:storypad/models/group_sync_model.dart';
 import 'package:storypad/models/member_model.dart';
@@ -9,7 +10,7 @@ import 'package:storypad/models/story_model.dart';
 import 'package:storypad/services/authentication_service.dart';
 import 'package:storypad/services/group_remote_service.dart';
 
-class GroupScreenNotifier extends ChangeNotifier {
+class GroupScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
   GroupRemoteService service = GroupRemoteService();
   GroupStorageModel? _groupModel;
   GroupStorageModel? get groupModel => this._groupModel;

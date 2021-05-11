@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/models/db_backup_model.dart';
 import 'package:storypad/models/user_model.dart';
 import 'package:storypad/services/authentication_service.dart';
@@ -14,7 +15,8 @@ import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/mixins/snakbar_mixin.dart';
 import 'package:storypad/notifier/home_screen_notifier.dart';
 
-class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBar {
+class RemoteDatabaseNotifier
+    with ChangeNotifier, DialogMixin, WSnackBar, ChangeNotifierMixin {
   RemoteDatabaseService service = RemoteDatabaseService();
   AuthenticationService auth = AuthenticationService();
 

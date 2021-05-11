@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:storypad/mixins/change_notifier_mixin.dart';
 
-class TabControllerNotifier with ChangeNotifier {
+class TabControllerNotifier extends ChangeNotifier with ChangeNotifierMixin {
   final TabController controller;
   int _currentIndex = 0;
 

@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/services/authentication_service.dart';
 
-class AuthenticatoinNotifier extends ChangeNotifier {
+class AuthenticatoinNotifier extends ChangeNotifier with ChangeNotifierMixin {
   AuthenticationService? service = AuthenticationService();
   User? get user => service?.user;
   bool get isAccountSignedIn => user != null;

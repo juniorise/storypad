@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/models/group_storage_model.dart';
 import 'package:storypad/services/group_remote_service.dart';
 
-class GroupListingScreenNotifer extends ChangeNotifier {
+class GroupListingScreenNotifer extends ChangeNotifier
+    with ChangeNotifierMixin {
   GroupRemoteService service = GroupRemoteService();
 
   List<GroupStorageModel>? _groups;

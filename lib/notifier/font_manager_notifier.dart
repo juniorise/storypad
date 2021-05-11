@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/main.dart';
+import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/storages/font_manager_storage.dart';
 
 const Map<String, String> fontFamilyFallbackDefault = {
@@ -8,7 +9,7 @@ const Map<String, String> fontFamilyFallbackDefault = {
   "km": "Kantumruy",
 };
 
-class FontManagerNotifier extends ChangeNotifier {
+class FontManagerNotifier extends ChangeNotifier with ChangeNotifierMixin {
   FontManagerStorage storage = FontManagerStorage();
 
   bool _loading = true;

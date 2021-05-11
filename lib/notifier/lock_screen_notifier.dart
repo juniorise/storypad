@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/storages/lock_screen_storage.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 
-class LockScreenNotifier extends ChangeNotifier {
+class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
   Map<String, String>? _storageLockNumberMap;
   Map<String, String>? _firstStepLockNumberMap;
   Map<String, String>? get firstStepLockNumberMap =>
