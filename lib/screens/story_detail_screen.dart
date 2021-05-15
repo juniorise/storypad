@@ -20,6 +20,7 @@ import 'package:share/share.dart';
 import 'package:storypad/app_helper/measure_size.dart';
 import 'package:storypad/app_helper/quill_helper.dart';
 import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/mixins/hook_controller.dart';
 import 'package:storypad/mixins/snakbar_mixin.dart';
 import 'package:storypad/mixins/story_detail_method_mixin.dart';
@@ -27,6 +28,7 @@ import 'package:storypad/models/feeling_emoji_model.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/quill_controller_notifier.dart';
 import 'package:storypad/notifier/story_detail_screen_notifier.dart';
+import 'package:storypad/notifier/theme_notifier.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/sheets/image_viewer_sheet.dart';
 import 'package:storypad/services/google_drive_api_service.dart';
@@ -35,12 +37,11 @@ import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_emoji_picker_button.dart';
 import 'package:storypad/widgets/w_history_button.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
-import 'package:storypad/widgets/w_more_vert_button.dart';
 import 'package:storypad/widgets/w_quil_toolbar.dart';
 import 'package:tuple/tuple.dart';
 
 class StoryDetailScreen extends HookWidget
-    with StoryDetailMethodMixin, HookController, WSnackBar {
+    with StoryDetailMethodMixin, HookController, WSnackBar, DialogMixin {
   StoryDetailScreen({
     Key? key,
     required this.story,
@@ -497,24 +498,7 @@ class StoryDetailScreen extends HookWidget
               ],
             ),
           );
-
-          if (Platform.isIOS) {
-            await showCupertinoDialog(
-              barrierDismissible: true,
-              context: context,
-              builder: (context) {
-                return dialog;
-              },
-            );
-          } else {
-            await showDialog(
-              context: context,
-              builder: (context) {
-                return dialog;
-              },
-            );
-          }
-
+          await showWDialog(context: context, child: dialog);
           if (compress == null) return "";
           final imageName = await _pickImage.length();
 
@@ -724,80 +708,241 @@ class StoryDetailScreen extends HookWidget
               notifier.setLoadingUrl("");
             },
           ),
-          MoreVertButton(
-            forceReadOnly: forceReadOnly,
-            story: story,
-            insert: insert,
-            readOnly: readOnlyModeNotifier.value,
-            onDelete: () async {
-              Navigator.of(context).pop();
-              onDelete(
-                context: context,
-                notifier: notifier,
-                insert: insert,
-                id: story.id,
-              );
-            },
-            onSave: () async {
-              Navigator.of(context).pop();
-              await onSave(
-                imageLoadingNotifier: imageLoadingNotifier,
-                notifier: notifier,
-                context: context,
-                insert: insert,
-                paragraph: quillNotifier.draftParagraph,
-              );
-            },
-            onShowInfo: () async {
-              Navigator.of(context).pop();
-              final dialog = Dialog(
-                child: buildAboutDateText(
-                  context: context,
-                  insert: insert,
-                  notifier: notifier,
-                ),
-              );
-              if (Platform.isIOS) {
-                showCupertinoDialog(
-                  barrierDismissible: true,
-                  context: context,
-                  builder: (context) {
-                    return dialog;
-                  },
-                );
-              } else {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return dialog;
-                  },
-                );
-              }
-            },
-            onShare: () async {
-              Navigator.of(context).pop();
-              final title = notifier.draftStory.title;
-              final root = quillNotifier.controller.document.root;
-              final shareText = QuillHelper.toPlainText(root);
-              await Share.share(title + "\n$shareText");
-            },
-            onReadOnlyTap: () {
-              if (readOnlyModeNotifier.value) {
-                focusNode.requestFocus();
-                Navigator.of(context).pop();
-              } else {
-                focusNode.unfocus();
-              }
-              Future.delayed(ConfigConstant.duration).then(
-                (value) {
-                  readOnlyModeNotifier.value = !readOnlyModeNotifier.value;
-                },
-              );
-            },
-          ),
+          buildMoreVertButton(context, insert, notifier, quillNotifier,
+              readOnlyModeNotifier, focusNode),
         ],
       ),
     ];
+  }
+
+  WIconButton buildMoreVertButton(
+    BuildContext context,
+    bool insert,
+    StoryDetailScreenNotifier notifier,
+    QuillControllerNotifer quillNotifier,
+    ValueNotifier readOnlyModeNotifier,
+    FocusNode focusNode,
+  ) {
+    return WIconButton(
+      iconData: Icons.more_vert,
+      onPressed: () {
+        final _theme = Theme.of(context);
+        bool showDelete = true;
+        bool showSave = true;
+        bool showInfo = true;
+        bool showShare = true;
+        bool showDarkMode = true;
+        bool showReadOnly = true;
+
+        showDelete = !insert;
+        showInfo = !insert;
+
+        if (forceReadOnly) {
+          showSave = false;
+          showDelete = false;
+          showReadOnly = false;
+        }
+
+        showMenu(
+          context: context,
+          position: RelativeRect.fromLTRB(8.0, 0.0, 0.0, 0.0),
+          items: [
+            if (showDelete)
+              PopupMenuItem(
+                child: VTOnTapEffect(
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    onDelete(
+                      context: context,
+                      notifier: notifier,
+                      insert: insert,
+                      id: story.id,
+                    );
+                  },
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: ConfigConstant.margin1,
+                    ),
+                    leading: Icon(
+                      Icons.delete,
+                      color: _theme.colorScheme.error,
+                    ),
+                    title: Text(tr("button.delete")),
+                  ),
+                ),
+              ),
+            if (showSave)
+              PopupMenuItem(
+                child: VTOnTapEffect(
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    await onSave(
+                      imageLoadingNotifier: imageLoadingNotifier,
+                      notifier: notifier,
+                      context: context,
+                      insert: insert,
+                      paragraph: quillNotifier.draftParagraph,
+                    );
+                  },
+                  child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: ConfigConstant.margin1,
+                      ),
+                      leading: const Icon(Icons.save),
+                      title: Text(tr("button.save"))),
+                ),
+              ),
+            if (showInfo)
+              PopupMenuItem(
+                child: VTOnTapEffect(
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    final dialog = Dialog(
+                      child: buildAboutDateText(
+                        context: context,
+                        insert: insert,
+                        notifier: notifier,
+                      ),
+                    );
+                    if (Platform.isIOS) {
+                      showCupertinoDialog(
+                        barrierDismissible: true,
+                        context: context,
+                        builder: (context) {
+                          return dialog;
+                        },
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return dialog;
+                        },
+                      );
+                    }
+                  },
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: ConfigConstant.margin1,
+                    ),
+                    leading: Icon(Icons.info),
+                    title: Text(
+                      tr("button.info"),
+                    ),
+                  ),
+                ),
+              ),
+            if (showShare)
+              PopupMenuItem(
+                child: VTOnTapEffect(
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    final title = notifier.draftStory.title;
+                    final root = quillNotifier.controller.document.root;
+                    final shareText = QuillHelper.toPlainText(root);
+                    await Share.share(title + "\n$shareText");
+                  },
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: ConfigConstant.margin1,
+                    ),
+                    leading: Icon(Icons.share),
+                    title: Text(tr("button.share")),
+                  ),
+                ),
+              ),
+            if (showDarkMode)
+              PopupMenuItem(
+                child: Consumer(
+                  builder: (context, watch, child) {
+                    final notifier = watch(themeProvider);
+                    return VTOnTapEffect(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        Future.delayed(ConfigConstant.duration).then(
+                          (value) {
+                            onTapVibrate();
+                            notifier.toggleTheme();
+                          },
+                        );
+                      },
+                      child: ListTile(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: ConfigConstant.margin1,
+                        ),
+                        leading: Icon(Icons.nights_stay),
+                        title: Text(tr("button.dark_mode")),
+                        trailing: Container(
+                          child: Switch(
+                            value: notifier.isDarkMode == true,
+                            onChanged: (bool value) {
+                              Navigator.of(context).pop();
+                              Future.delayed(ConfigConstant.duration).then(
+                                (value) {
+                                  onTapVibrate();
+                                  notifier.toggleTheme();
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            if (showReadOnly)
+              PopupMenuItem(
+                child: ValueListenableBuilder(
+                  valueListenable: readOnlyModeNotifier,
+                  builder: (context, value, child) {
+                    return VTOnTapEffect(
+                      onTap: () {
+                        if (readOnlyModeNotifier.value) {
+                          focusNode.requestFocus();
+                          Navigator.of(context).pop();
+                        } else {
+                          focusNode.unfocus();
+                        }
+                        Future.delayed(ConfigConstant.duration).then(
+                          (value) {
+                            readOnlyModeNotifier.value =
+                                !readOnlyModeNotifier.value;
+                          },
+                        );
+                      },
+                      child: ListTile(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: ConfigConstant.margin1,
+                        ),
+                        leading: Icon(!readOnlyModeNotifier.value
+                            ? Icons.chrome_reader_mode_outlined
+                            : Icons.chrome_reader_mode),
+                        title: Text(tr("button.read_only")),
+                        trailing: Switch(
+                          value: readOnlyModeNotifier.value,
+                          onChanged: (bool value) {
+                            if (readOnlyModeNotifier.value) {
+                              focusNode.requestFocus();
+                              Navigator.of(context).pop();
+                              readOnlyModeNotifier.value =
+                                  !readOnlyModeNotifier.value;
+                            } else {
+                              readOnlyModeNotifier.value =
+                                  !readOnlyModeNotifier.value;
+                              focusNode.unfocus();
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
+        );
+      },
+    );
   }
 
   Container buildListTile(
