@@ -19,7 +19,6 @@ import 'package:storypad/notifier/theme_notifier.dart';
 import 'package:storypad/screens/group_screen.dart';
 import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/screens/story_detail_screen.dart';
-import 'package:storypad/widgets/w_list_tile.dart';
 import 'package:storypad/widgets/w_story_tile.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/vt_tab_view.dart';
@@ -28,8 +27,7 @@ import 'package:storypad/widgets/w_no_data.dart';
 import 'package:storypad/widgets/w_sliver_appbar.dart';
 import 'package:storypad/notifier/remote_database_notifier.dart';
 import 'package:storypad/notifier/auth_notifier.dart';
-
-// final GlobalKey<ScaffoldState> _homescreenKey = GlobalKey<ScaffoldState>();
+import 'local_widgets/backup_tile.dart';
 
 class HomeScreen extends HookWidget with HookController, DialogMixin {
   static final now = DateTime.now();
@@ -81,15 +79,25 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
         child: fadeScaffold,
         builder: (context, watch, Widget? child) {
           final authNotifier = watch(authenticationProvider);
+          final dbNotifier = watch(remoteDatabaseProvider);
+
           return Material(
             color: Theme.of(context).colorScheme.surface,
             child: Stack(
               children: [
-                if (authNotifier.isAccountSignedIn)
+                if (authNotifier.isAccountSignedIn && dbNotifier.backup != null)
                   BackupTile(
                     bottomBarHeight: bottomBarHeight,
                     faqNotifier: faqNotifier,
                     bottomSyncHeight: bottomSyncHeight,
+                    date: dbNotifier.lastImportDate(context),
+                    backup: dbNotifier.backup!,
+                    onBackup: () async {
+                      await dbNotifier.backupToCloud(
+                        context: context,
+                        showSnackbar: false,
+                      );
+                    },
                   ),
                 ValueListenableBuilder(
                   valueListenable: faqNotifier,
@@ -99,7 +107,9 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                       transform: Matrix4.identity()
                         ..translate(
                           0.0,
-                          faqNotifier.value && authNotifier.isAccountSignedIn
+                          faqNotifier.value &&
+                                  authNotifier.isAccountSignedIn &&
+                                  dbNotifier.backup != null
                               ? -bottomSyncHeight
                               : 0,
                         ),
@@ -757,109 +767,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         if (onClose != null) onClose();
       },
-    );
-  }
-}
-
-class BackupTile extends HookWidget {
-  const BackupTile({
-    Key? key,
-    required this.bottomBarHeight,
-    required this.faqNotifier,
-    required this.bottomSyncHeight,
-  }) : super(key: key);
-
-  final double bottomBarHeight;
-  final ValueNotifier<bool> faqNotifier;
-  final double bottomSyncHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    final ValueNotifier<bool> loading = useState(false);
-
-    return Positioned(
-      bottom: bottomBarHeight,
-      left: 0,
-      right: 0,
-      child: ValueListenableBuilder(
-        valueListenable: faqNotifier,
-        child: Consumer(
-          builder: (context, watch, child) {
-            final dbNotifier = watch(remoteDatabaseProvider);
-            final titleText = dbNotifier.backup != null
-                ? tr(
-                    "msg.backup.import",
-                    namedArgs: {"DATE": dbNotifier.lastImportDate(context)},
-                  ).replaceFirst(": ", ":\n")
-                : "";
-
-            return Column(
-              children: [
-                const Divider(height: 1),
-                WListTile(
-                  iconData: Icons.cloud,
-                  titleMaxLines: 2,
-                  trailing: AnimatedCrossFade(
-                    duration: ConfigConstant.fadeDuration,
-                    crossFadeState: loading.value == false
-                        ? CrossFadeState.showFirst
-                        : CrossFadeState.showSecond,
-                    secondChild: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Opacity(
-                          opacity: 0,
-                          child: TextButton(
-                            child:
-                                Text(tr("button.backup.export").toUpperCase()),
-                            onPressed: () {},
-                          ),
-                        ),
-                        Transform.scale(
-                          scale: 0.5,
-                          child: CircularProgressIndicator(),
-                        ),
-                      ],
-                    ),
-                    firstChild: TextButton(
-                      child: Text(tr("button.backup.export").toUpperCase()),
-                      onPressed: () async {
-                        loading.value = true;
-                        await dbNotifier.backupToCloud(
-                          context: context,
-                          showSnackbar: false,
-                        );
-                        loading.value = false;
-                      },
-                      style: buildButtonStyle(context),
-                    ),
-                  ),
-                  titleText: titleText,
-                  titleStyle: Theme.of(context).textTheme.bodyText2,
-                ),
-              ],
-            );
-          },
-        ),
-        builder: (context, watch, child) {
-          return AnimatedContainer(
-            duration: ConfigConstant.duration,
-            curve: Curves.easeOutQuart,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              border: Border.all(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-              ),
-            ),
-            transform: Matrix4.identity()
-              ..translate(
-                0.0,
-                faqNotifier.value == true ? 2.5 : bottomSyncHeight,
-              ),
-            child: child,
-          );
-        },
-      ),
     );
   }
 }

@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:lottie/lottie.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:storypad/notifier/user_model_notifier.dart';
-import 'package:storypad/screens/home_screen.dart';
+import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/storages/vibrate_toggle_storage.dart';
 

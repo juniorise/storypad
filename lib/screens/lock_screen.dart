@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/lock_screen_notifier.dart';
-import 'package:storypad/screens/home_screen.dart';
+import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';

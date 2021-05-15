@@ -8,7 +8,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/models/user_model.dart';
 import 'package:storypad/notifier/user_model_notifier.dart';
-import 'package:storypad/screens/home_screen.dart';
+import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 
 final GlobalKey<ScaffoldState> askForNameScaffoldKey =
