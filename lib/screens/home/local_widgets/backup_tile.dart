@@ -49,7 +49,7 @@ class BackupTile extends HookWidget {
                 const Divider(height: 1),
                 WListTile(
                   iconData: Icons.cloud,
-                  titleMaxLines: 2,
+                  titleMaxLines: 1,
                   trailing: AnimatedCrossFade(
                     duration: ConfigConstant.fadeDuration,
                     crossFadeState: loading.value == false
@@ -93,16 +93,12 @@ class BackupTile extends HookWidget {
           return AnimatedContainer(
             duration: ConfigConstant.duration,
             curve: Curves.easeOutQuart,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              border: Border.all(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
-              ),
-            ),
+            decoration:
+                BoxDecoration(color: Theme.of(context).colorScheme.surface),
             transform: Matrix4.identity()
               ..translate(
                 0.0,
-                faqNotifier.value == true ? 2.5 : bottomSyncHeight,
+                faqNotifier.value == true ? 1 : bottomSyncHeight,
               ),
             child: child,
           );
