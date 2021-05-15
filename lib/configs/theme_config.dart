@@ -90,6 +90,22 @@ class ThemeConfig {
     );
   }
 
+  static final ColorScheme darkScheme = ColorScheme(
+    background: Color(0xFF121212),
+    surface: Color(0xFF1E1E1E),
+    primary: Color(0xFFE74C3C),
+    secondary: Color(0xFFFFFFFF),
+    onBackground: Color(0xFFFFFFFF),
+    onSurface: Color(0xFFFFFFFF),
+    onPrimary: Color(0xFFFFFFFF),
+    onSecondary: Color(0xFF1E1E1E),
+    primaryVariant: Color(0xFFAE0C13),
+    secondaryVariant: Color(0xFFCCCCCC),
+    error: Color(0xFFE74C3C),
+    onError: Color(0xFFFFFFFF),
+    brightness: Brightness.dark,
+  );
+
   static final ColorScheme lightScheme = ColorScheme(
     background: Color(0xFFF6F6F6),
     surface: Color(0xFFFFFFFF),
@@ -115,22 +131,6 @@ class ThemeConfig {
 
     return hslLight.toColor();
   }
-
-  static final ColorScheme darkScheme = ColorScheme(
-    background: Color(0xFF121212),
-    surface: Color(0xFF1E1E1E),
-    primary: Color(0xFFE74C3C),
-    secondary: Color(0xFFFFFFFF),
-    onBackground: Color(0xFFFFFFFF),
-    onSurface: Color(0xFFFFFFFF),
-    onPrimary: Color(0xFFFFFFFF),
-    onSecondary: Color(0xFF1E1E1E),
-    primaryVariant: Color(0xFFAE0C13),
-    secondaryVariant: Color(0xFFCCCCCC),
-    error: Color(0xFFE74C3C),
-    onError: Color(0xFFFFFFFF),
-    brightness: Brightness.dark,
-  );
 
   static const List<String> fontFamilyFallbackExample = ["Hello", "សួរស្តី"];
 

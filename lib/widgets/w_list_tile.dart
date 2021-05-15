@@ -12,6 +12,7 @@ class WListTile extends StatelessWidget {
     this.tileColor,
     this.forgroundColor,
     this.subtitleMaxLines,
+    this.titleMaxLines,
     this.titleFontFamily,
     this.trailing,
     this.borderRadius,
@@ -28,6 +29,7 @@ class WListTile extends StatelessWidget {
   final Color? forgroundColor;
   final void Function()? onTap;
   final int? subtitleMaxLines;
+  final int? titleMaxLines;
   final String? titleFontFamily;
   final Widget? trailing;
   final BorderRadius? borderRadius;
@@ -69,6 +71,8 @@ class WListTile extends StatelessWidget {
               : null,
           title: Text(
             titleText,
+            maxLines: titleMaxLines,
+            overflow: TextOverflow.ellipsis,
             style: titleStyle ??
                 TextStyle(color: forgroundColor, fontFamily: titleFontFamily),
           ),

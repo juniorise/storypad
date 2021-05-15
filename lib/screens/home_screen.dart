@@ -29,6 +29,8 @@ import 'package:storypad/widgets/w_sliver_appbar.dart';
 import 'package:storypad/notifier/remote_database_notifier.dart';
 import 'package:storypad/notifier/auth_notifier.dart';
 
+final GlobalKey<ScaffoldState> _homescreenKey = GlobalKey<ScaffoldState>();
+
 class HomeScreen extends HookWidget with HookController, DialogMixin {
   static final now = DateTime.now();
 
@@ -73,95 +75,45 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
 
     final bottomSyncHeight = kBottomNavigationBarHeight + bottomBarHeight;
 
-    return Consumer(
-      child: fadeScaffold,
-      builder: (context, watch, Widget? child) {
-        final authNotifier = watch(authenticationProvider);
-        return Material(
-          color: Theme.of(context).colorScheme.surface,
-          child: Stack(
-            children: [
-              Positioned(
-                bottom: bottomBarHeight,
-                left: 0,
-                right: 0,
-                child: ValueListenableBuilder(
-                  valueListenable: faqNotifier,
-                  child: Consumer(
-                    builder: (context, watch, child) {
-                      final dbNotifier = watch(remoteDatabaseProvider);
-                      final titleText = dbNotifier.backup != null
-                          ? tr(
-                              "msg.backup.import",
-                              namedArgs: {
-                                "DATE": dbNotifier.lastImportDate(context)
-                              },
-                            ).replaceFirst(": ", ":\n")
-                          : "";
-                      return WListTile(
-                        iconData: Icons.cloud,
-                        trailing: TextButton(
-                          child: Text(tr("button.backup.export").toUpperCase()),
-                          onPressed: () async {
-                            await dbNotifier.backupToCloud(
-                              context: context,
-                              showSnackbar: false,
-                            );
-                          },
-                          style: buildButtonStyle(context),
-                        ),
-                        titleText: titleText,
-                        titleStyle: Theme.of(context).textTheme.bodyText2,
-                      );
-                    },
+    return Scaffold(
+      key: _homescreenKey,
+      body: Consumer(
+        child: fadeScaffold,
+        builder: (context, watch, Widget? child) {
+          final authNotifier = watch(authenticationProvider);
+          return Material(
+            color: Theme.of(context).colorScheme.surface,
+            child: Stack(
+              children: [
+                if (authNotifier.isAccountSignedIn)
+                  BackupTile(
+                    bottomBarHeight: bottomBarHeight,
+                    faqNotifier: faqNotifier,
+                    bottomSyncHeight: bottomSyncHeight,
                   ),
+                ValueListenableBuilder(
+                  valueListenable: faqNotifier,
+                  child: fadeScaffold,
                   builder: (context, watch, child) {
-                    return Center(
-                      child: AnimatedContainer(
-                        duration: ConfigConstant.duration,
-                        curve: Curves.easeOutQuart,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          border: Border.all(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withOpacity(0.1),
-                          ),
+                    return AnimatedContainer(
+                      transform: Matrix4.identity()
+                        ..translate(
+                          0.0,
+                          faqNotifier.value && authNotifier.isAccountSignedIn
+                              ? -bottomSyncHeight
+                              : 0,
                         ),
-                        transform: Matrix4.identity()
-                          ..translate(
-                            0.0,
-                            faqNotifier.value == true ? 0 : bottomSyncHeight,
-                          ),
-                        child: child,
-                      ),
+                      curve: Curves.easeOutQuart,
+                      duration: ConfigConstant.duration,
+                      child: child,
                     );
                   },
                 ),
-              ),
-              ValueListenableBuilder(
-                valueListenable: faqNotifier,
-                child: fadeScaffold,
-                builder: (context, watch, child) {
-                  return AnimatedContainer(
-                    transform: Matrix4.identity()
-                      ..translate(
-                        0.0,
-                        faqNotifier.value && authNotifier.isAccountSignedIn
-                            ? -bottomSyncHeight
-                            : 0,
-                      ),
-                    curve: Curves.easeOutQuart,
-                    duration: ConfigConstant.duration,
-                    child: child,
-                  );
-                },
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -795,6 +747,109 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         if (onClose != null) onClose();
       },
+    );
+  }
+}
+
+class BackupTile extends HookWidget {
+  const BackupTile({
+    Key? key,
+    required this.bottomBarHeight,
+    required this.faqNotifier,
+    required this.bottomSyncHeight,
+  }) : super(key: key);
+
+  final double bottomBarHeight;
+  final ValueNotifier<bool> faqNotifier;
+  final double bottomSyncHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final ValueNotifier<bool> loading = useState(false);
+
+    return Positioned(
+      bottom: bottomBarHeight,
+      left: 0,
+      right: 0,
+      child: ValueListenableBuilder(
+        valueListenable: faqNotifier,
+        child: Consumer(
+          builder: (context, watch, child) {
+            final dbNotifier = watch(remoteDatabaseProvider);
+            final titleText = dbNotifier.backup != null
+                ? tr(
+                    "msg.backup.import",
+                    namedArgs: {"DATE": dbNotifier.lastImportDate(context)},
+                  ).replaceFirst(": ", ":\n")
+                : "";
+
+            return Column(
+              children: [
+                const Divider(height: 1),
+                WListTile(
+                  iconData: Icons.cloud,
+                  titleMaxLines: 2,
+                  trailing: AnimatedCrossFade(
+                    duration: ConfigConstant.fadeDuration,
+                    crossFadeState: loading.value == false
+                        ? CrossFadeState.showFirst
+                        : CrossFadeState.showSecond,
+                    secondChild: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Opacity(
+                          opacity: 0,
+                          child: TextButton(
+                            child:
+                                Text(tr("button.backup.export").toUpperCase()),
+                            onPressed: () {},
+                          ),
+                        ),
+                        Transform.scale(
+                          scale: 0.5,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ],
+                    ),
+                    firstChild: TextButton(
+                      child: Text(tr("button.backup.export").toUpperCase()),
+                      onPressed: () async {
+                        loading.value = true;
+                        await dbNotifier.backupToCloud(
+                          context: _homescreenKey.currentContext ?? context,
+                          showSnackbar: false,
+                        );
+                        loading.value = false;
+                      },
+                      style: buildButtonStyle(context),
+                    ),
+                  ),
+                  titleText: titleText,
+                  titleStyle: Theme.of(context).textTheme.bodyText2,
+                ),
+              ],
+            );
+          },
+        ),
+        builder: (context, watch, child) {
+          return AnimatedContainer(
+            duration: ConfigConstant.duration,
+            curve: Curves.easeOutQuart,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+              ),
+            ),
+            transform: Matrix4.identity()
+              ..translate(
+                0.0,
+                faqNotifier.value == true ? 2.5 : bottomSyncHeight,
+              ),
+            child: child,
+          );
+        },
+      ),
     );
   }
 }

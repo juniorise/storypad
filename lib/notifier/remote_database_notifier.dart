@@ -128,6 +128,21 @@ class RemoteDatabaseNotifier
     required BuildContext context,
     bool showSnackbar = true,
   }) async {
+    if (this.backup != null) {
+      int createOn = this.backup?.createOn?.millisecondsSinceEpoch ?? 0;
+      double createDate = createOn * 0.001;
+      final currentDate = DateTime.now().millisecondsSinceEpoch * 0.001;
+
+      print("$createDate   $currentDate ${currentDate - createDate}");
+      if (currentDate - createDate < 60) {
+        showSnackBar(
+          context: context,
+          title: tr("msg.redo_after_1_minute"),
+        );
+        return;
+      }
+    }
+
     final database = WDatabase.instance;
     String backup = await database.generateBackup();
     final backupModel = DbBackupModel(

@@ -412,7 +412,6 @@ class StoryDetailScreen extends HookWidget
     required double bottomHeight,
     required double statusBarHeight,
   }) {
-    final insets = MediaQuery.of(context).viewInsets;
     final _theme = Theme.of(context);
 
     final toolbar = MeasureSize(
