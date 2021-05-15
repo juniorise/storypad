@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -54,6 +55,7 @@ class StoryDetailScreen extends HookWidget
   final imageLoadingNotifier = ValueNotifier<bool>(false);
   final imageRetryingNotifier = ValueNotifier<bool>(false);
   final headerPaddingTopNotifier = ValueNotifier<double>(0);
+  final headerHeightNotifier = ValueNotifier<double>(0);
 
   @override
   Widget build(BuildContext context) {
@@ -89,18 +91,13 @@ class StoryDetailScreen extends HookWidget
     );
 
     final quillNotifier = useProvider(quillControllerProvider(quillController));
-
     final scrollController = useScrollController();
-    final sliverController = useScrollController();
 
     scrollController.addListener(() {
-      sliverController.jumpTo(scrollController.offset);
-    });
-
-    sliverController.addListener(() {
-      double top = lerpDouble(0, MediaQuery.of(context).viewPadding.top,
-          sliverController.offset / sliverController.position.maxScrollExtent)!;
-      headerPaddingTopNotifier.value = top;
+      double minValue = scrollController.offset;
+      if (minValue >= kToolbarHeight) minValue = kToolbarHeight;
+      if (minValue <= 0) minValue = 0;
+      headerPaddingTopNotifier.value = minValue / kToolbarHeight;
     });
 
     final titleController =
@@ -114,13 +111,16 @@ class StoryDetailScreen extends HookWidget
       onChanged: (String value) {
         _notifier.setDraftStory(_notifier.draftStory.copyWith(title: value));
       },
+      onHeightChange: (double value) {
+        headerHeightNotifier.value = value;
+      },
       titleController: titleController,
     );
 
     final _theme = Theme.of(context);
 
     final _scaffoldBody = NestedScrollView(
-      controller: sliverController,
+      physics: NeverScrollableScrollPhysics(),
       headerSliverBuilder: (context, val) {
         return [
           buildAppBar(
@@ -131,45 +131,52 @@ class StoryDetailScreen extends HookWidget
             readOnlyModeNotifier: readOnlyModeNotifier,
             imageLoadingNotifier: imageLoadingNotifier,
             focusNode: focusNode,
+            titleController: titleController,
+            headerPaddingTopNotifier: headerPaddingTopNotifier,
+            top: MediaQuery.of(context).viewPadding.top,
           ),
         ];
       },
       body: Column(
         children: [
           ValueListenableBuilder(
-            valueListenable: headerPaddingTopNotifier,
-            builder: (context, value, child) {
-              return Padding(
-                child: _headerText,
-                padding:
-                    EdgeInsets.symmetric(horizontal: ConfigConstant.margin2)
-                        .copyWith(top: headerPaddingTopNotifier.value),
-              );
-            },
-          ),
-          ValueListenableBuilder(
-            valueListenable: imageLoadingNotifier,
+            valueListenable: headerHeightNotifier,
             builder: (context, value, child) {
               return ValueListenableBuilder(
-                valueListenable: imageRetryingNotifier,
+                valueListenable: headerPaddingTopNotifier,
                 builder: (context, value, child) {
-                  return WLineLoading(
-                    loading: imageLoadingNotifier.value ||
-                        imageRetryingNotifier.value,
+                  double top = lerpDouble(
+                    0,
+                    MediaQuery.of(context).viewPadding.top,
+                    headerPaddingTopNotifier.value,
+                  )!;
+
+                  double height = lerpDouble(
+                    headerHeightNotifier.value,
+                    0,
+                    headerPaddingTopNotifier.value,
+                  )!;
+
+                  return ClipPath(
+                    child: Container(
+                      height: height,
+                      transform: Matrix4.identity()..translate(0.0, -top),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: ConfigConstant.margin2,
+                      ),
+                      child: Wrap(children: [_headerText]),
+                    ),
                   );
                 },
               );
             },
           ),
-          Divider(
-            height: 0,
-            thickness: 0.1,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          buildDivider(context),
           Expanded(
             child: Scrollbar(
               showTrackOnHover: true,
               child: QuillEditor(
+                scrollBottomInset: ConfigConstant.objectHeight1,
                 placeholder: tr("hint_text.story_detail"),
                 maxHeight: null,
                 controller: quillController,
@@ -212,7 +219,7 @@ class StoryDetailScreen extends HookWidget
                 padding: const EdgeInsets.all(
                   ConfigConstant.margin2,
                 ).copyWith(
-                  bottom: kToolbarHeight,
+                  bottom: kToolbarHeight * 2,
                 ),
               ),
             ),
@@ -229,6 +236,14 @@ class StoryDetailScreen extends HookWidget
       readOnlyModeNotifier: readOnlyModeNotifier,
       bottomHeight: bottomHeight,
       statusBarHeight: statusBarHeight,
+    );
+  }
+
+  Divider buildDivider(BuildContext context) {
+    return Divider(
+      height: 0,
+      thickness: 0.1,
+      color: Theme.of(context).colorScheme.onSurface,
     );
   }
 
@@ -378,26 +393,32 @@ class StoryDetailScreen extends HookWidget
     required ValueChanged<String> onChanged,
     required TextEditingController titleController,
     required ValueNotifier readOnlyModeNotifier,
+    required ValueChanged<double> onHeightChange,
   }) {
     final _theme = Theme.of(context);
-    return Container(
-      constraints: const BoxConstraints(maxHeight: 250),
-      child: TextField(
-        readOnly: readOnlyModeNotifier.value,
-        controller: titleController,
-        selectionHeightStyle: BoxHeightStyle.max,
-        textAlign: TextAlign.left,
-        style: _theme.textTheme.headline6,
-        onChanged: onChanged,
-        maxLines: null,
-        autofocus: true,
-        keyboardAppearance: _theme.brightness,
-        decoration: InputDecoration(
-          hintText: tr("hint_text.title"),
-          hintStyle: _theme.textTheme.headline6?.copyWith(
-            color: _theme.colorScheme.onSurface.withOpacity(0.3),
+    return MeasureSize(
+      onChange: (Size size) {
+        onHeightChange(size.height);
+      },
+      child: Container(
+        constraints: const BoxConstraints(maxHeight: 250),
+        child: TextField(
+          readOnly: readOnlyModeNotifier.value,
+          controller: titleController,
+          selectionHeightStyle: BoxHeightStyle.max,
+          textAlign: TextAlign.left,
+          style: _theme.textTheme.headline6,
+          onChanged: onChanged,
+          maxLines: null,
+          autofocus: true,
+          keyboardAppearance: _theme.brightness,
+          decoration: InputDecoration(
+            hintText: tr("hint_text.title"),
+            hintStyle: _theme.textTheme.headline6?.copyWith(
+              color: _theme.colorScheme.onSurface.withOpacity(0.3),
+            ),
+            border: InputBorder.none,
           ),
-          border: InputBorder.none,
         ),
       ),
     );
@@ -569,13 +590,66 @@ class StoryDetailScreen extends HookWidget
     required ValueNotifier readOnlyModeNotifier,
     required ValueNotifier imageLoadingNotifier,
     required FocusNode focusNode,
+    required TextEditingController titleController,
+    required ValueNotifier<double> headerPaddingTopNotifier,
+    required double top,
   }) {
     final _theme = Theme.of(context);
     return SliverAppBar(
       backgroundColor: _theme.colorScheme.surface,
       centerTitle: false,
-      floating: true,
-      elevation: 0.5,
+      pinned: true,
+      elevation: 0.0,
+      titleSpacing: 0.0,
+      title: ValueListenableBuilder(
+        valueListenable: headerPaddingTopNotifier,
+        builder: (context, value, child) {
+          double ox = lerpDouble(MediaQuery.of(context).viewPadding.top, 0,
+              headerPaddingTopNotifier.value)!;
+          return Transform.translate(
+            offset: Offset(0.0, ox),
+            child: Text(
+              titleController.text,
+              style: _theme.textTheme.headline6,
+              maxLines: 1,
+              softWrap: true,
+            ),
+          );
+        },
+      ),
+      flexibleSpace: SafeArea(
+        child: ValueListenableBuilder(
+          valueListenable: imageLoadingNotifier,
+          builder: (context, value, child) {
+            return ValueListenableBuilder(
+              valueListenable: imageRetryingNotifier,
+              builder: (context, value, child) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: kToolbarHeight - 4),
+                  child: Column(
+                    children: [
+                      WLineLoading(
+                        loading: imageLoadingNotifier.value ||
+                            imageRetryingNotifier.value,
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: headerPaddingTopNotifier,
+                        builder: (context, value, child) {
+                          return AnimatedOpacity(
+                            duration: ConfigConstant.fadeDuration,
+                            opacity: min(1, headerPaddingTopNotifier.value * 2),
+                            child: buildDivider(context),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
       leading: buildAppBarLeadingButton(context: context, notifier: notifier),
       actions: buildAppBarActionsButtonsList(
         context: context,
@@ -600,124 +674,128 @@ class StoryDetailScreen extends HookWidget
     final FeelingEmojiModel? currentFeelingModel =
         currentFeeling != null ? FeelingEmojiModel(type: currentFeeling) : null;
     return [
-      AnimatedOpacity(
-        duration: ConfigConstant.fadeDuration,
-        opacity: !readOnlyModeNotifier.value ? 1 : 0,
-        child: Row(
-          children: [
-            WHistoryButton(
-              icon: Icons.undo_outlined,
-              controller: quillNotifier.controller,
-              undo: true,
+      Wrap(
+        children: [
+          AnimatedOpacity(
+            duration: ConfigConstant.fadeDuration,
+            opacity: !readOnlyModeNotifier.value ? 1 : 0,
+            child: Row(
+              children: [
+                WHistoryButton(
+                  icon: Icons.undo_outlined,
+                  controller: quillNotifier.controller,
+                  undo: true,
+                ),
+                WHistoryButton(
+                  icon: Icons.redo_outlined,
+                  controller: quillNotifier.controller,
+                  undo: false,
+                ),
+              ],
             ),
-            WHistoryButton(
-              icon: Icons.redo_outlined,
-              controller: quillNotifier.controller,
-              undo: false,
-            ),
-          ],
-        ),
-      ),
-      WIconButton(
-        iconData: Icons.date_range_rounded,
-        onPressed: () {
-          onPickDate(
-            context: context,
-            date: notifier.draftStory.forDate,
-            notifier: notifier,
-            readOnly: forceReadOnly,
-          );
-        },
-      ),
-      EmojiPickerButton(
-        currentFeelingModel: currentFeelingModel,
-        onPickedEmoji: (String? emojiType) {
-          if (forceReadOnly) return;
-          notifier.setDraftStory(
-            StoryModel(
-              title: notifier.draftStory.title,
-              paragraph: notifier.draftStory.paragraph,
-              createOn: notifier.draftStory.createOn,
-              id: notifier.draftStory.id,
-              updateOn: notifier.draftStory.updateOn,
-              forDate: notifier.draftStory.forDate,
-              isFavorite: notifier.draftStory.isFavorite,
-              feeling: emojiType?.isEmpty == true ? null : emojiType,
-            ),
-          );
-          notifier.setLoadingUrl("");
-        },
-      ),
-      MoreVertButton(
-        forceReadOnly: forceReadOnly,
-        story: story,
-        insert: insert,
-        readOnly: readOnlyModeNotifier.value,
-        onDelete: () async {
-          Navigator.of(context).pop();
-          onDelete(
-            context: context,
-            notifier: notifier,
-            insert: insert,
-            id: story.id,
-          );
-        },
-        onSave: () async {
-          Navigator.of(context).pop();
-          await onSave(
-            imageLoadingNotifier: imageLoadingNotifier,
-            notifier: notifier,
-            context: context,
-            insert: insert,
-            paragraph: quillNotifier.draftParagraph,
-          );
-        },
-        onShowInfo: () async {
-          Navigator.of(context).pop();
-          final dialog = Dialog(
-            child: buildAboutDateText(
-              context: context,
-              insert: insert,
-              notifier: notifier,
-            ),
-          );
-          if (Platform.isIOS) {
-            showCupertinoDialog(
-              barrierDismissible: true,
-              context: context,
-              builder: (context) {
-                return dialog;
-              },
-            );
-          } else {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return dialog;
-              },
-            );
-          }
-        },
-        onShare: () async {
-          Navigator.of(context).pop();
-          final title = notifier.draftStory.title;
-          final root = quillNotifier.controller.document.root;
-          final shareText = QuillHelper.toPlainText(root);
-          await Share.share(title + "\n$shareText");
-        },
-        onReadOnlyTap: () {
-          if (readOnlyModeNotifier.value) {
-            focusNode.requestFocus();
-            Navigator.of(context).pop();
-          } else {
-            focusNode.unfocus();
-          }
-          Future.delayed(ConfigConstant.duration).then(
-            (value) {
-              readOnlyModeNotifier.value = !readOnlyModeNotifier.value;
+          ),
+          WIconButton(
+            iconData: Icons.date_range_rounded,
+            onPressed: () {
+              onPickDate(
+                context: context,
+                date: notifier.draftStory.forDate,
+                notifier: notifier,
+                readOnly: forceReadOnly,
+              );
             },
-          );
-        },
+          ),
+          EmojiPickerButton(
+            currentFeelingModel: currentFeelingModel,
+            onPickedEmoji: (String? emojiType) {
+              if (forceReadOnly) return;
+              notifier.setDraftStory(
+                StoryModel(
+                  title: notifier.draftStory.title,
+                  paragraph: notifier.draftStory.paragraph,
+                  createOn: notifier.draftStory.createOn,
+                  id: notifier.draftStory.id,
+                  updateOn: notifier.draftStory.updateOn,
+                  forDate: notifier.draftStory.forDate,
+                  isFavorite: notifier.draftStory.isFavorite,
+                  feeling: emojiType?.isEmpty == true ? null : emojiType,
+                ),
+              );
+              notifier.setLoadingUrl("");
+            },
+          ),
+          MoreVertButton(
+            forceReadOnly: forceReadOnly,
+            story: story,
+            insert: insert,
+            readOnly: readOnlyModeNotifier.value,
+            onDelete: () async {
+              Navigator.of(context).pop();
+              onDelete(
+                context: context,
+                notifier: notifier,
+                insert: insert,
+                id: story.id,
+              );
+            },
+            onSave: () async {
+              Navigator.of(context).pop();
+              await onSave(
+                imageLoadingNotifier: imageLoadingNotifier,
+                notifier: notifier,
+                context: context,
+                insert: insert,
+                paragraph: quillNotifier.draftParagraph,
+              );
+            },
+            onShowInfo: () async {
+              Navigator.of(context).pop();
+              final dialog = Dialog(
+                child: buildAboutDateText(
+                  context: context,
+                  insert: insert,
+                  notifier: notifier,
+                ),
+              );
+              if (Platform.isIOS) {
+                showCupertinoDialog(
+                  barrierDismissible: true,
+                  context: context,
+                  builder: (context) {
+                    return dialog;
+                  },
+                );
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return dialog;
+                  },
+                );
+              }
+            },
+            onShare: () async {
+              Navigator.of(context).pop();
+              final title = notifier.draftStory.title;
+              final root = quillNotifier.controller.document.root;
+              final shareText = QuillHelper.toPlainText(root);
+              await Share.share(title + "\n$shareText");
+            },
+            onReadOnlyTap: () {
+              if (readOnlyModeNotifier.value) {
+                focusNode.requestFocus();
+                Navigator.of(context).pop();
+              } else {
+                focusNode.unfocus();
+              }
+              Future.delayed(ConfigConstant.duration).then(
+                (value) {
+                  readOnlyModeNotifier.value = !readOnlyModeNotifier.value;
+                },
+              );
+            },
+          ),
+        ],
       ),
     ];
   }
