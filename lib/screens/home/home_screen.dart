@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -74,13 +75,11 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     final bottomSyncHeight = kBottomNavigationBarHeight + bottomBarHeight;
 
     return Scaffold(
-      // key: _homescreenKey,
       body: Consumer(
         child: fadeScaffold,
         builder: (context, watch, Widget? child) {
           final authNotifier = watch(authenticationProvider);
           final dbNotifier = watch(remoteDatabaseProvider);
-
           return Material(
             color: Theme.of(context).colorScheme.surface,
             child: Stack(
@@ -119,6 +118,34 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                     );
                   },
                 ),
+                if (authNotifier.isAccountSignedIn && dbNotifier.backup != null)
+                  ValueListenableBuilder(
+                    valueListenable: faqNotifier,
+                    builder: (context, value, child) {
+                      return AnimatedOpacity(
+                        opacity: faqNotifier.value ? 1 : 0,
+                        duration: ConfigConstant.fadeDuration,
+                        child: Container(
+                          height: statusBarHeight * 1,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Theme.of(context).colorScheme.surface,
+                                Theme.of(context)
+                                    .colorScheme
+                                    .surface
+                                    .withOpacity(0.5),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )
               ],
             ),
           );

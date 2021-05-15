@@ -49,7 +49,7 @@ class BackupTile extends HookWidget {
                 const Divider(height: 1),
                 WListTile(
                   iconData: Icons.cloud,
-                  titleMaxLines: 1,
+                  titleMaxLines: 2,
                   trailing: AnimatedCrossFade(
                     duration: ConfigConstant.fadeDuration,
                     crossFadeState: loading.value == false
