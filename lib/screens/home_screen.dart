@@ -29,7 +29,7 @@ import 'package:storypad/widgets/w_sliver_appbar.dart';
 import 'package:storypad/notifier/remote_database_notifier.dart';
 import 'package:storypad/notifier/auth_notifier.dart';
 
-final GlobalKey<ScaffoldState> _homescreenKey = GlobalKey<ScaffoldState>();
+// final GlobalKey<ScaffoldState> _homescreenKey = GlobalKey<ScaffoldState>();
 
 class HomeScreen extends HookWidget with HookController, DialogMixin {
   static final now = DateTime.now();
@@ -76,7 +76,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     final bottomSyncHeight = kBottomNavigationBarHeight + bottomBarHeight;
 
     return Scaffold(
-      key: _homescreenKey,
+      // key: _homescreenKey,
       body: Consumer(
         child: fadeScaffold,
         builder: (context, watch, Widget? child) {
@@ -826,7 +826,7 @@ class BackupTile extends HookWidget {
                       onPressed: () async {
                         loading.value = true;
                         await dbNotifier.backupToCloud(
-                          context: _homescreenKey.currentContext ?? context,
+                          context: context,
                           showSnackbar: false,
                         );
                         loading.value = false;

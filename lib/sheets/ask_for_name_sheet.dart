@@ -38,15 +38,6 @@ class AskForNameSheet extends HookWidget {
     bool canContinue = nameNotEmpty;
     canContinue = nameNotEmpty && notifier.user?.nickname != notifier.nickname;
 
-    final tabController = useTabController(
-      initialLength: init ? 1 : 2,
-      initialIndex: intTapIndex,
-    );
-
-    tabController.addListener(() {
-      ScaffoldMessenger.of(context).removeCurrentSnackBar();
-    });
-
     final _continueButton = _buildContinueButton(
       nameNotEmpty: canContinue,
       context: context,

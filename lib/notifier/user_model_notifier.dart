@@ -16,6 +16,8 @@ class UserModelNotifier extends ChangeNotifier with ChangeNotifierMixin {
   bool isInit = false;
   bool loading = true;
 
+  bool firstTime = true;
+
   setInit() {
     this.isInit = true;
     notifyListeners();
@@ -26,8 +28,10 @@ class UserModelNotifier extends ChangeNotifier with ChangeNotifierMixin {
 
     if (result != null && result is UserModel) {
       this.user = result;
+      firstTime = true;
       alreadyHasUser = true;
     } else {
+      firstTime = false;
       alreadyHasUser = false;
     }
 

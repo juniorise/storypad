@@ -27,6 +27,7 @@ class WrapperScreens extends HookWidget {
           ..forward();
       });
     }
+
     final Widget splashScreen = Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: LayoutBuilder(
@@ -37,8 +38,7 @@ class WrapperScreens extends HookWidget {
               tablet ? constrant.maxHeight / 2 : constrant.maxWidth / 2;
 
           var _margin = EdgeInsets.only(
-            top: notifier.alreadyHasUser != null &&
-                    notifier.alreadyHasUser == false
+            top: notifier.firstTime == false
                 ? statusBarHeight
                 : constrant.maxHeight / 2.5 - statusBarHeight,
           );
@@ -58,7 +58,7 @@ class WrapperScreens extends HookWidget {
     if (notifier.alreadyHasUser == null) {
       return splashScreen;
     } else {
-      WidgetsBinding.instance!.addPostFrameCallback(
+      WidgetsBinding.instance?.addPostFrameCallback(
         (_) {
           if (notifier.alreadyHasUser == true &&
               notifier.user?.nickname != null) {
