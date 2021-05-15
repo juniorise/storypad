@@ -12,23 +12,16 @@ const Map<String, String> fontFamilyFallbackDefault = {
 class FontManagerNotifier extends ChangeNotifier with ChangeNotifierMixin {
   FontManagerStorage storage = FontManagerStorage();
 
-  bool _loading = true;
   List<String?>? _fontFamilyFallback;
 
-  setLoading(bool value) {
-    this._loading = value;
-    notifyListeners();
-  }
-
   load() async {
-    setLoading(true);
     final result = await storage.readAsMap() ?? fontFamilyFallbackDefault;
     final families = initSupportedLocales.map((locale) {
       final code = locale.languageCode;
       return result[code];
     }).toList();
     _fontFamilyFallback = families;
-    setLoading(false);
+    notifyListeners();
   }
 
   Future<bool> replaceFontInMap(
@@ -72,8 +65,6 @@ class FontManagerNotifier extends ChangeNotifier with ChangeNotifierMixin {
     return _fontFamilyFallback?.map((e) => "$e").toList() ??
         ["Quicksand", "Kantumruy"];
   }
-
-  bool get loading => _loading;
 }
 
 final fontManagerProvider =

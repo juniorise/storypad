@@ -125,13 +125,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     required TabControllerNotifier tabNotifier,
     required double bottomBarHeight,
   }) {
-    final column = Column(
-      children: [
-        SizedBox(),
-        SizedBox(),
-      ],
-    );
-
     return WillPopScope(
       onWillPop: () async {
         if (faqNotifier.value) {
