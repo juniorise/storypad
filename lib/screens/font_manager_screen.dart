@@ -14,6 +14,8 @@ import 'package:storypad/widgets/w_list_tile.dart';
 class FontManagerScreen extends HookWidget with WSnackBar {
   @override
   Widget build(BuildContext context) {
+    print("Build FontManagerScreen");
+
     final notifier = useProvider(fontManagerProvider);
     return WillPopScope(
       onWillPop: () async {

@@ -12,6 +12,8 @@ import 'package:storypad/screens/wrapper_screens.dart';
 class App extends HookWidget {
   @override
   Widget build(BuildContext context) {
+    print("Build App");
+
     final fontNotifier = useProvider(fontManagerProvider);
     final notifier = useProvider(themeProvider);
     final lockScreenNotifier =

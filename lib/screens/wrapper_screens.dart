@@ -13,6 +13,8 @@ class WrapperScreens extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("Build WrapperScreens");
+
     final notifier = useProvider(userModelProvider);
     final controller = useAnimationController();
     final statusBarHeight = MediaQuery.of(context).padding.top;

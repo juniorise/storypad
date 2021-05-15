@@ -40,6 +40,8 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
 
   @override
   Widget build(BuildContext context) {
+    print("Build SettingScreen");
+
     final scrollController = useScrollController();
     final vibrationNotifier = useState<bool>(false);
     VibrateToggleStorage().getBool().then((value) {

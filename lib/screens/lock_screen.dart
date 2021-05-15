@@ -26,6 +26,8 @@ class LockScreenWrapper extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("Build LockScreenWrapper");
+
     final notifier = useProvider(lockScreenProvider(flowType));
     Map<int, List<int?>> map = {
       1: [1, 2, 3],

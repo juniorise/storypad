@@ -24,6 +24,8 @@ import 'package:storypad/widgets/w_story_tile.dart';
 class GroupScreen extends HookWidget with DialogMixin {
   @override
   Widget build(BuildContext context) {
+    print("Build GroupScreen");
+
     GroupScreenNotifier notifier = useProvider(groupScreenProvider);
     return WillPopScope(
       onWillPop: () async {

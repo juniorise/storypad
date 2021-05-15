@@ -57,7 +57,7 @@ class StoryDetailScreen extends HookWidget
 
   @override
   Widget build(BuildContext context) {
-    print("build detail");
+    print("Build StoryDetailScreen");
 
     final _notifier = useProvider(storydetailScreenNotifier(story));
     final readOnlyModeNotifier = useState<bool>(!insert);

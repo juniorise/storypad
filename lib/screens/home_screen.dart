@@ -44,8 +44,9 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
 
   @override
   Widget build(BuildContext context) {
+    print("Build HomeScreen");
+
     final _notifier = useProvider(homeScreenProvider);
-    final _themeNotifier = useProvider(themeProvider);
 
     final controller = useTabController(
       initialLength: 12,
@@ -64,7 +65,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       statusBarHeight: statusBarHeight,
       tabNotifier: _tabNotifier,
       bottomBarHeight: bottomBarHeight,
-      themeNotifier: _themeNotifier,
     );
 
     final fadeScaffold = buildFadeInitAnimationBackground(
@@ -124,8 +124,14 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     required double statusBarHeight,
     required TabControllerNotifier tabNotifier,
     required double bottomBarHeight,
-    required ThemeNotifier themeNotifier,
   }) {
+    final column = Column(
+      children: [
+        SizedBox(),
+        SizedBox(),
+      ],
+    );
+
     return WillPopScope(
       onWillPop: () async {
         if (faqNotifier.value) {
@@ -154,27 +160,38 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
             controller,
           ),
           resizeToAvoidBottomInset: false,
-          body: NestedScrollView(
-            headerSliverBuilder: (context, _) => [
-              buildHeaderAppBar(
-                isInit: notifier.inited,
-                controller: controller,
-                statusBarHeight: statusBarHeight,
-                context: context,
-                notifier: notifier,
-                bottomBarHeight: bottomBarHeight,
-                themeNotifier: themeNotifier,
-              )
-            ],
-            body: Consumer(
-              builder: (context, _, child) {
-                if (themeNotifier.isNormalList) {
-                  return buildNormalList(controller, notifier, context);
-                } else {
-                  return buildDayList(controller, context, notifier);
-                }
-              },
+          body: Consumer(
+            child: Column(
+              children: [
+                buildNormalList(controller, notifier, context),
+                buildDayList(controller, context, notifier)
+              ],
             ),
+            builder: (context, watch, column) {
+              final themeNotifier = watch(themeProvider);
+              return NestedScrollView(
+                headerSliverBuilder: (context, _) => [
+                  buildHeaderAppBar(
+                    isInit: notifier.inited,
+                    controller: controller,
+                    statusBarHeight: statusBarHeight,
+                    context: context,
+                    notifier: notifier,
+                    bottomBarHeight: bottomBarHeight,
+                    themeNotifier: themeNotifier,
+                  )
+                ],
+                body: Builder(
+                  builder: (context) {
+                    if (themeNotifier.isNormalList) {
+                      return (column as Column).children.first;
+                    } else {
+                      return (column as Column).children.last;
+                    }
+                  },
+                ),
+              );
+            },
           ),
         ),
       ),

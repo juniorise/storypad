@@ -25,6 +25,8 @@ class GroupInfoScreen extends HookWidget with DialogMixin, WSnackBar {
 
   @override
   Widget build(BuildContext context) {
+    print("Build GroupInfoScreen");
+
     final tabController = useTabController(initialLength: 2);
     MembersInfoNotifier membersInfoNotifier = useProvider(membersInfoProvider);
     GroupListingScreenNotifer groupListingNotifier =

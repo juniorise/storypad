@@ -10,6 +10,8 @@ import 'package:storypad/widgets/w_list_tile.dart';
 class LockSettingScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
+    print("Build LockSettingScreen");
+
     final notifier = useProvider(lockScreenProvider(LockScreenFlowType.UNLOCK));
     return WillPopScope(
       onWillPop: () async {
