@@ -60,9 +60,9 @@ class WrapperScreens extends HookWidget {
     } else {
       WidgetsBinding.instance?.addPostFrameCallback(
         (_) {
+          print("alreadyHasUser ${notifier.alreadyHasUser}");
           if (notifier.alreadyHasUser == true &&
               notifier.user?.nickname != null) {
-            print("1");
             Navigator.of(context).pushReplacement(
               PageTransition(
                 child: HomeScreen(),
@@ -71,7 +71,6 @@ class WrapperScreens extends HookWidget {
               ),
             );
           } else {
-            print("2");
             if (!notifier.isInit) {
               notifier.setInit();
               showModalBottomSheet(
