@@ -93,9 +93,19 @@ class StoryDetailScreen extends HookWidget
 
     final quillNotifier = useProvider(quillControllerProvider(quillController));
     final scrollController = useScrollController();
+    final sliverController = useScrollController();
 
     scrollController.addListener(() {
       double minValue = scrollController.offset;
+      sliverController.jumpTo(minValue);
+
+      if (minValue >= kToolbarHeight) minValue = kToolbarHeight;
+      if (minValue <= 0) minValue = 0;
+      headerPaddingTopNotifier.value = minValue / kToolbarHeight;
+    });
+
+    sliverController.addListener(() {
+      double minValue = sliverController.offset;
       if (minValue >= kToolbarHeight) minValue = kToolbarHeight;
       if (minValue <= 0) minValue = 0;
       headerPaddingTopNotifier.value = minValue / kToolbarHeight;
@@ -121,6 +131,7 @@ class StoryDetailScreen extends HookWidget
     final _theme = Theme.of(context);
 
     final _scaffoldBody = NestedScrollView(
+      controller: sliverController,
       physics: NeverScrollableScrollPhysics(),
       headerSliverBuilder: (context, val) {
         return [
