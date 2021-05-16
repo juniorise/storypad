@@ -599,8 +599,8 @@ class StoryDetailScreen extends HookWidget
       title: ValueListenableBuilder(
         valueListenable: headerPaddingTopNotifier,
         builder: (context, value, child) {
-          double ox = lerpDouble(MediaQuery.of(context).viewPadding.top, 0,
-              headerPaddingTopNotifier.value)!;
+          double ox =
+              lerpDouble(kToolbarHeight, 0, headerPaddingTopNotifier.value)!;
           return Transform.translate(
             offset: Offset(0.0, ox),
             child: Text(
@@ -670,6 +670,7 @@ class StoryDetailScreen extends HookWidget
         currentFeeling != null ? FeelingEmojiModel(type: currentFeeling) : null;
     return [
       Wrap(
+        runAlignment: WrapAlignment.center,
         children: [
           AnimatedOpacity(
             duration: ConfigConstant.fadeDuration,
