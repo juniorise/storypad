@@ -68,8 +68,8 @@ class WTabBar extends HookWidget implements PreferredSizeWidget {
                   opacity: isInit ? 1 : 0,
                   child: Container(
                     padding: const EdgeInsets.only(
-                      left: 16.0,
-                      right: 16.0,
+                      left: 8.0,
+                      right: 8.0,
                       top: 8.0,
                       bottom: 8.0,
                     ),
