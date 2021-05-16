@@ -794,22 +794,10 @@ class StoryDetailScreen extends HookWidget
                         notifier: notifier,
                       ),
                     );
-                    if (Platform.isIOS) {
-                      showCupertinoDialog(
-                        barrierDismissible: true,
-                        context: context,
-                        builder: (context) {
-                          return dialog;
-                        },
-                      );
-                    } else {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return dialog;
-                        },
-                      );
-                    }
+                    showWDialog(
+                      context: context,
+                      child: dialog,
+                    );
                   },
                   child: ListTile(
                     contentPadding: EdgeInsets.symmetric(
