@@ -52,8 +52,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       initialIndex: _notifier.currentIndex,
     );
 
-    final _tabNotifier = useProvider(tabControllerProvider(controller));
-
     final double statusBarHeight = MediaQuery.of(context).padding.top;
     final double bottomBarHeight = MediaQuery.of(context).padding.bottom;
 
@@ -62,7 +60,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       notifier: _notifier,
       controller: controller,
       statusBarHeight: statusBarHeight,
-      tabNotifier: _tabNotifier,
       bottomBarHeight: bottomBarHeight,
     );
 
@@ -159,7 +156,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     required HomeScreenNotifier notifier,
     required TabController controller,
     required double statusBarHeight,
-    required TabControllerNotifier tabNotifier,
     required double bottomBarHeight,
   }) {
     return WillPopScope(
@@ -186,7 +182,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
             statusBarHeight,
             bottomBarHeight,
             notifier,
-            tabNotifier,
             controller,
           ),
           resizeToAvoidBottomInset: false,
@@ -374,7 +369,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     double statusBarHeight,
     double bottomBarHeight,
     HomeScreenNotifier notifier,
-    TabControllerNotifier tabNotifier,
     TabController controller,
   ) {
     return buildFadeInOnInit(
@@ -406,10 +400,12 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
               );
             },
             onAddStoryPressed: () async {
+              final _tabNotifier =
+                  context.read(tabControllerProvider(controller));
               closeFaq();
               final forDate = DateTime(
                 notifier.currentSelectedYear,
-                tabNotifier.currentIndex + 1,
+                _tabNotifier.currentIndex + 1,
                 now.day,
               );
               final dynamic date =

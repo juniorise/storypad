@@ -59,7 +59,7 @@ dependencies:
   http: ^0.13.1
 
   flutter_image_compress: ^1.0.0
-  flutter_cache_manager: ^3.0.1
+  flutter_cache_manager: ^3.0.2
   cached_network_image: ^3.0.0
   permission_handler: ^7.1.0
 
@@ -67,7 +67,7 @@ dependencies:
   firebase_core: ^1.0.1
   firebase_auth: ^1.0.1
   cloud_firestore: ^2.1.0
-  google_sign_in: ^5.0.1
+  google_sign_in: ^5.0.3
 
   # functionalities
   in_app_update: ^2.0.0
