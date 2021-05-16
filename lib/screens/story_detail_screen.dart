@@ -651,10 +651,8 @@ class StoryDetailScreen extends HookWidget
       Wrap(
         runAlignment: WrapAlignment.center,
         children: [
-          AnimatedOpacity(
-            duration: ConfigConstant.fadeDuration,
-            opacity: !readOnlyModeNotifier.value ? 1 : 0,
-            child: Row(
+          AnimatedCrossFade(
+            firstChild: Row(
               children: [
                 WHistoryButton(
                   icon: Icons.undo_outlined,
@@ -668,6 +666,12 @@ class StoryDetailScreen extends HookWidget
                 ),
               ],
             ),
+            secondChild: SizedBox(),
+            crossFadeState:
+                !readOnlyModeNotifier.value && notifier.paragraphIsFocused
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+            duration: ConfigConstant.fadeDuration,
           ),
           WIconButton(
             iconData: Icons.date_range_rounded,
