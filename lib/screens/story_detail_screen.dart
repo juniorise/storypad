@@ -26,6 +26,8 @@ import 'package:storypad/mixins/snakbar_mixin.dart';
 import 'package:storypad/mixins/story_detail_method_mixin.dart';
 import 'package:storypad/models/feeling_emoji_model.dart';
 import 'package:storypad/models/story_model.dart';
+import 'package:storypad/notifier/story_detail/header_notifer.dart';
+import 'package:storypad/notifier/story_detail/image_load_notifier.dart';
 import 'package:storypad/notifier/quill_controller_notifier.dart';
 import 'package:storypad/notifier/story_detail_screen_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
@@ -52,11 +54,6 @@ class StoryDetailScreen extends HookWidget
   final StoryModel story;
   final bool insert;
   final bool forceReadOnly;
-
-  final imageLoadingNotifier = ValueNotifier<bool>(false);
-  final imageRetryingNotifier = ValueNotifier<bool>(false);
-  final headerPaddingTopNotifier = ValueNotifier<double>(0);
-  final headerHeightNotifier = ValueNotifier<double>(0);
 
   @override
   Widget build(BuildContext context) {
@@ -98,17 +95,14 @@ class StoryDetailScreen extends HookWidget
     scrollController.addListener(() {
       double minValue = scrollController.offset;
       sliverController.jumpTo(minValue);
-
-      if (minValue >= kToolbarHeight) minValue = kToolbarHeight;
-      if (minValue <= 0) minValue = 0;
-      headerPaddingTopNotifier.value = minValue / kToolbarHeight;
     });
 
     sliverController.addListener(() {
       double minValue = sliverController.offset;
       if (minValue >= kToolbarHeight) minValue = kToolbarHeight;
       if (minValue <= 0) minValue = 0;
-      headerPaddingTopNotifier.value = minValue / kToolbarHeight;
+      final headNotifier = context.read(headerProvider);
+      headNotifier.headerPaddingTop = minValue / kToolbarHeight;
     });
 
     final titleController =
@@ -123,7 +117,8 @@ class StoryDetailScreen extends HookWidget
         _notifier.setDraftStory(_notifier.draftStory.copyWith(title: value));
       },
       onHeightChange: (double value) {
-        headerHeightNotifier.value = value;
+        final headNotifier = context.read(headerProvider);
+        headNotifier.headerHeight = value;
       },
       titleController: titleController,
     );
@@ -141,45 +136,38 @@ class StoryDetailScreen extends HookWidget
             notifier: _notifier,
             quillNotifier: quillNotifier,
             readOnlyModeNotifier: readOnlyModeNotifier,
-            imageLoadingNotifier: imageLoadingNotifier,
             focusNode: focusNode,
             titleController: titleController,
-            headerPaddingTopNotifier: headerPaddingTopNotifier,
             top: MediaQuery.of(context).viewPadding.top,
           ),
         ];
       },
       body: Column(
         children: [
-          ValueListenableBuilder(
-            valueListenable: headerHeightNotifier,
-            builder: (context, value, child) {
-              return ValueListenableBuilder(
-                valueListenable: headerPaddingTopNotifier,
-                builder: (context, value, child) {
-                  double top = lerpDouble(
-                    0,
-                    MediaQuery.of(context).viewPadding.top,
-                    headerPaddingTopNotifier.value,
-                  )!;
+          Consumer(
+            builder: (context, watch, child) {
+              final headNotifier = watch(headerProvider);
+              double top = lerpDouble(
+                0,
+                MediaQuery.of(context).viewPadding.top,
+                headNotifier.headerPaddingTop,
+              )!;
 
-                  double height = lerpDouble(
-                    headerHeightNotifier.value,
-                    0,
-                    headerPaddingTopNotifier.value,
-                  )!;
+              double height = lerpDouble(
+                headNotifier.headerHeight,
+                0,
+                headNotifier.headerPaddingTop,
+              )!;
 
-                  return ClipPath(
-                    child: Container(
-                      height: height,
-                      transform: Matrix4.identity()..translate(0.0, -top),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: ConfigConstant.margin2,
-                      ),
-                      child: Wrap(children: [_headerText]),
-                    ),
-                  );
-                },
+              return ClipPath(
+                child: Container(
+                  height: height,
+                  transform: Matrix4.identity()..translate(0.0, -top),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: ConfigConstant.margin2,
+                  ),
+                  child: Wrap(children: [_headerText]),
+                ),
               );
             },
           ),
@@ -208,7 +196,6 @@ class StoryDetailScreen extends HookWidget
                     notifier: _notifier,
                     screenPadding: screenPadding,
                     readOnlyModeNotifier: readOnlyModeNotifier,
-                    imageRetryingNotifier: imageRetryingNotifier,
                   );
                 },
                 textCapitalization: TextCapitalization.sentences,
@@ -265,7 +252,6 @@ class StoryDetailScreen extends HookWidget
     required StoryDetailScreenNotifier notifier,
     required EdgeInsets screenPadding,
     required ValueNotifier readOnlyModeNotifier,
-    required ValueNotifier imageRetryingNotifier,
   }) {
     bool isDarkMode =
         Theme.of(context).colorScheme.brightness == Brightness.dark;
@@ -277,8 +263,7 @@ class StoryDetailScreen extends HookWidget
         Widget imageChild;
         String imageUrl = _standardizeImageUrl(node.value.data);
         if (imageUrl.startsWith('http')) {
-          imageChild = ValueListenableBuilder(
-            valueListenable: imageRetryingNotifier,
+          imageChild = Consumer(
             child: Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.background,
@@ -304,20 +289,23 @@ class StoryDetailScreen extends HookWidget
                     TextButton(
                       child: Text("Retry"),
                       onPressed: () async {
-                        imageRetryingNotifier.value = true;
+                        final imageLoadNotifier =
+                            context.read(imageLoadProvider);
+                        imageLoadNotifier.imageRetry = true;
                         notifier.setLoadingUrl(imageUrl);
                         await _clearCache(imageUrl);
                         await notifier.retryLoadImage();
                         await notifier.retryLoadImage();
-                        imageRetryingNotifier.value = false;
+                        imageLoadNotifier.imageRetry = false;
                       },
                     ),
                   ],
                 ),
               ),
             ),
-            builder: (context, value, errorBuilder) {
-              return imageRetryingNotifier.value &&
+            builder: (context, watch, errorBuilder) {
+              final imageLoadNotifier = watch(imageLoadProvider);
+              return imageLoadNotifier.imageRetry &&
                       notifier.loadingUrl == imageUrl
                   ? errorBuilder ?? const SizedBox()
                   : CachedNetworkImage(
@@ -583,10 +571,8 @@ class StoryDetailScreen extends HookWidget
     required StoryDetailScreenNotifier notifier,
     required QuillControllerNotifer quillNotifier,
     required ValueNotifier readOnlyModeNotifier,
-    required ValueNotifier imageLoadingNotifier,
     required FocusNode focusNode,
     required TextEditingController titleController,
-    required ValueNotifier<double> headerPaddingTopNotifier,
     required double top,
   }) {
     final _theme = Theme.of(context);
@@ -596,11 +582,11 @@ class StoryDetailScreen extends HookWidget
       pinned: true,
       elevation: 0.0,
       titleSpacing: 0.0,
-      title: ValueListenableBuilder(
-        valueListenable: headerPaddingTopNotifier,
-        builder: (context, value, child) {
+      title: Consumer(
+        builder: (context, watch, child) {
+          final headNotifier = watch(headerProvider);
           double ox =
-              lerpDouble(kToolbarHeight, 0, headerPaddingTopNotifier.value)!;
+              lerpDouble(kToolbarHeight, 0, headNotifier.headerPaddingTop)!;
           return Transform.translate(
             offset: Offset(0.0, ox),
             child: Text(
@@ -613,36 +599,29 @@ class StoryDetailScreen extends HookWidget
         },
       ),
       flexibleSpace: SafeArea(
-        child: ValueListenableBuilder(
-          valueListenable: imageLoadingNotifier,
-          builder: (context, value, child) {
-            return ValueListenableBuilder(
-              valueListenable: imageRetryingNotifier,
-              builder: (context, value, child) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: kToolbarHeight - 4),
-                  child: Column(
-                    children: [
-                      WLineLoading(
-                        loading: imageLoadingNotifier.value ||
-                            imageRetryingNotifier.value,
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: headerPaddingTopNotifier,
-                        builder: (context, value, child) {
-                          return AnimatedOpacity(
-                            duration: ConfigConstant.fadeDuration,
-                            opacity: min(1, headerPaddingTopNotifier.value * 2),
-                            child: buildDivider(context),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.only(top: kToolbarHeight - 4),
+          child: Column(
+            children: [
+              Consumer(builder: (context, watch, child) {
+                final imageLoadNotifier = watch(imageLoadProvider);
+                return WLineLoading(
+                  loading: imageLoadNotifier.imageLoading ||
+                      imageLoadNotifier.imageRetry,
                 );
-              },
-            );
-          },
+              }),
+              Consumer(
+                builder: (context, watch, child) {
+                  final headNotifier = watch(headerProvider);
+                  return AnimatedOpacity(
+                    duration: ConfigConstant.fadeDuration,
+                    opacity: min(1, headNotifier.headerPaddingTop * 2),
+                    child: buildDivider(context),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
       leading: buildAppBarLeadingButton(context: context, notifier: notifier),
@@ -789,7 +768,6 @@ class StoryDetailScreen extends HookWidget
                   onTap: () async {
                     Navigator.of(context).pop();
                     await onSave(
-                      imageLoadingNotifier: imageLoadingNotifier,
                       notifier: notifier,
                       context: context,
                       insert: insert,
@@ -1112,7 +1090,6 @@ class StoryDetailScreen extends HookWidget
   }
 
   Future<void> onSave({
-    required ValueNotifier imageLoadingNotifier,
     required StoryDetailScreenNotifier notifier,
     required BuildContext context,
     required String paragraph,
@@ -1144,7 +1121,8 @@ class StoryDetailScreen extends HookWidget
           imagesPath.add(e);
         }
       });
-      imageLoadingNotifier.value = true;
+      final imageLoadNotifier = context.read(imageLoadProvider);
+      imageLoadNotifier.imageLoading = true;
       showSnackBar(
         context: context,
         title: tr("msg.drive.loading"),
@@ -1175,7 +1153,7 @@ class StoryDetailScreen extends HookWidget
           title: tr("msg.drive.fail"),
         );
       }
-      imageLoadingNotifier.value = false;
+      imageLoadNotifier.imageLoading = false;
 
       ///Insert to database
       bool success;
