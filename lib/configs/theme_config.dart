@@ -60,7 +60,7 @@ class ThemeConfig {
       iconTheme: IconThemeData(color: lightScheme.onSurface),
       accentColor: lightScheme.onSurface,
       canvasColor: lightScheme.background,
-      appBarTheme: AppBarTheme(titleSpacing: 0.0),
+      appBarTheme: const AppBarTheme(titleSpacing: 0.0),
       textTheme: textTheme.apply(
         bodyColor: lightScheme.onSurface,
         displayColor: lightScheme.onSurface,

@@ -279,12 +279,17 @@ class LockScreenWrapper extends HookWidget {
                                     "${notifier.storageLockNumberMap}" ==
                                         "${notifier.lockNumberMap}";
                                 if (match) {
-                                  notifier.setFlowType(LockScreenFlowType.SET);
+                                  notifier.setFlowType(
+                                    LockScreenFlowType.SET,
+                                    false,
+                                  );
                                   notifier.setLockNumberMap(null);
                                   notifier.fadeOpacity();
                                 } else {
-                                  await notifier.setLockNumberMap(null,
-                                      fadeLock: true);
+                                  await notifier.setLockNumberMap(
+                                    null,
+                                    fadeLock: true,
+                                  );
                                   notifier.setErrorMessage(
                                     tr("msg.passcode.incorrect"),
                                   );

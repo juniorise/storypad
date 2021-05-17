@@ -20,13 +20,22 @@ class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
 
   bool _ignoring = false;
   bool get ignoring => this._ignoring;
-
-  setFlowType(LockScreenFlowType type) {
-    this._type = type;
+  set ignoring(bool value) {
+    if (this._ignoring == value) return;
+    this._ignoring = value;
     notifyListeners();
   }
 
-  setfirstStepLockNumberMap(Map<String, String> value) {
+  setFlowType(LockScreenFlowType type, bool updateState) {
+    this._type = type;
+    if (updateState) {
+      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        notifyListeners();
+      });
+    }
+  }
+
+  void setfirstStepLockNumberMap(Map<String, String> value) {
     _firstStepLockNumberMap = value;
     print("_firstStepLockNumberMap $_firstStepLockNumberMap");
     notifyListeners();
@@ -38,7 +47,7 @@ class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
 
   LockScreenStorage storage = LockScreenStorage();
 
-  fadeOpacity() {
+  void fadeOpacity() {
     _opacity = 0;
     notifyListeners();
     Future.delayed(ConfigConstant.fadeDuration).then((value) {
@@ -47,9 +56,8 @@ class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
     });
   }
 
-  load() async {
-    _ignoring = true;
-    notifyListeners();
+  Future<void> load() async {
+    ignoring = true;
     final Map<String, String>? result = await storage.readMap();
     if (result != null) {
       this._storageLockNumberMap = result;
@@ -58,17 +66,15 @@ class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
       this._storageLockNumberMap = null;
     }
     _inited = true;
-    _ignoring = false;
-    notifyListeners();
+    ignoring = false;
   }
 
-  setLockNumberMap(
+  Future<void> setLockNumberMap(
     Map<String, String?>? lockNumberMap, {
     bool fadeLock = false,
   }) async {
     if (fadeLock && lockNumberMap == null) {
-      this._ignoring = true;
-      notifyListeners();
+      ignoring = true;
       var newMap = this._lockNumberMap;
       await Future.delayed(Duration(milliseconds: 200));
       for (int i = 3; i >= 0; i--) {
@@ -79,8 +85,7 @@ class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
         });
       }
       onTapVibrate();
-      this._ignoring = false;
-      notifyListeners();
+      ignoring = false;
     } else {
       this._lockNumberMap = lockNumberMap;
       print(this._lockNumberMap);
@@ -121,7 +126,7 @@ final lockScreenProvider = ChangeNotifierProvider.autoDispose
     .family<LockScreenNotifier, LockScreenFlowType>(
   (ref, LockScreenFlowType type) {
     return LockScreenNotifier()
-      ..setFlowType(type)
+      ..setFlowType(type, false)
       ..load();
   },
 );

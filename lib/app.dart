@@ -39,9 +39,8 @@ class App extends HookWidget {
       supportedLocales: context.supportedLocales,
       debugShowCheckedModeBanner: false,
       initialRoute: initialRoute,
-      home: WrapperScreens(),
       routes: {
-        '': (context) => Scaffold(),
+        '/': (context) => Scaffold(),
         '/unlocked': (context) => WrapperScreens(),
         '/lockscreen': (context) {
           return LockScreenWrapper(LockScreenFlowType.UNLOCK);
