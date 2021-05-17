@@ -186,7 +186,7 @@ class StoryDetailScreen extends HookWidget
                 autoFocus: true,
                 readOnly: readOnlyModeNotifier.value,
                 showCursor: !readOnlyModeNotifier.value,
-                keyboardAppearance: _theme.brightness,
+                keyboardAppearance: _theme.colorScheme.brightness,
                 enableInteractiveSelection: true,
                 expands: false,
                 embedBuilder: (BuildContext context, leaf.Embed node) {
@@ -403,6 +403,7 @@ class StoryDetailScreen extends HookWidget
       child: Container(
         constraints: const BoxConstraints(maxHeight: 250),
         child: TextField(
+          keyboardType: TextInputType.multiline,
           readOnly: readOnlyModeNotifier.value,
           controller: titleController,
           selectionHeightStyle: BoxHeightStyle.max,
@@ -411,7 +412,7 @@ class StoryDetailScreen extends HookWidget
           onChanged: onChanged,
           maxLines: null,
           autofocus: true,
-          keyboardAppearance: _theme.brightness,
+          keyboardAppearance: _theme.colorScheme.brightness,
           decoration: InputDecoration(
             hintText: tr("hint_text.title"),
             hintStyle: _theme.textTheme.headline6?.copyWith(
@@ -548,11 +549,14 @@ class StoryDetailScreen extends HookWidget
                   builder: (context) {
                     final bool hide = readOnlyModeNotifier.value ||
                         !notifier.paragraphIsFocused;
-                    return AnimatedOpacity(
-                      opacity: hide ? 0 : 1,
-                      duration: ConfigConstant.fadeDuration,
-                      curve: Curves.fastOutSlowIn,
-                      child: toolbar,
+                    return IgnorePointer(
+                      ignoring: hide,
+                      child: AnimatedOpacity(
+                        opacity: hide ? 0 : 1,
+                        duration: ConfigConstant.fadeDuration,
+                        curve: Curves.fastOutSlowIn,
+                        child: toolbar,
+                      ),
                     );
                   },
                 ),
