@@ -72,7 +72,10 @@ class WDatabase {
               UNIQUE(group_id, story_id) ON CONFLICT REPLACE
           );
         ''';
-        await database.execute(groupSql);
+
+        try {
+          await database.execute(groupSql);
+        } catch (e) {}
       },
       version: 3,
     );
