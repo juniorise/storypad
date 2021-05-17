@@ -17,6 +17,7 @@ class ThemeConfig {
       accentColor: darkScheme.onSurface,
       toggleableActiveColor: darkScheme.primary,
       canvasColor: darkScheme.background,
+      appBarTheme: AppBarTheme(titleSpacing: 0.0),
       textTheme: textTheme.apply(
         bodyColor: darkScheme.onSurface,
         displayColor: darkScheme.onSurface,
@@ -59,6 +60,7 @@ class ThemeConfig {
       iconTheme: IconThemeData(color: lightScheme.onSurface),
       accentColor: lightScheme.onSurface,
       canvasColor: lightScheme.background,
+      appBarTheme: AppBarTheme(titleSpacing: 0.0),
       textTheme: textTheme.apply(
         bodyColor: lightScheme.onSurface,
         displayColor: lightScheme.onSurface,
