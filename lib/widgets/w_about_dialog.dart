@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void showWAboutDialog({
@@ -10,9 +11,11 @@ void showWAboutDialog({
   bool useRootNavigator = true,
   RouteSettings? routeSettings,
 }) {
-  showDialog<void>(
+  showCupertinoDialog(
     context: context,
     useRootNavigator: useRootNavigator,
+    barrierDismissible: true,
+    routeSettings: routeSettings,
     builder: (BuildContext context) {
       return WAboutDialog(
         applicationName: applicationName,
@@ -22,7 +25,6 @@ void showWAboutDialog({
         children: children,
       );
     },
-    routeSettings: routeSettings,
   );
 }
 

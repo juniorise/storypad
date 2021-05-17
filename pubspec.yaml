@@ -39,6 +39,7 @@ dependencies:
   animated_clipper: ^0.2.0
   flutter_speed_dial: ^3.0.5
   flutter_portal: ^0.4.0-nullsafety.0
+  community_material_icon: ^5.9.55
 
   # State management
   flutter_hooks: ^0.16.0
