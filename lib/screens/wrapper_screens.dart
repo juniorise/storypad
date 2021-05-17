@@ -88,9 +88,10 @@ class WrapperScreens extends HookWidget {
                   );
                 },
               ).then((_) async {
-                await VibrateToggleStorage().setBool(value: true);
-                ScaffoldMessenger.of(askForNameScaffoldKey.currentContext!)
-                    .removeCurrentSnackBar();
+                VibrateToggleStorage().setBool(value: false);
+                ScaffoldMessenger.of(
+                  askForNameScaffoldKey.currentContext ?? context,
+                ).removeCurrentSnackBar();
               });
             }
           }

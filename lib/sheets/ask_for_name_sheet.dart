@@ -33,7 +33,7 @@ class AskForNameSheet extends HookWidget {
     final notifier = useProvider(userModelProvider);
 
     final nameNotEmpty =
-        notifier.nickname != null && notifier.nickname!.isNotEmpty;
+        notifier.nickname != null && notifier.nickname?.isNotEmpty == true;
 
     bool canContinue = nameNotEmpty;
     canContinue = nameNotEmpty && notifier.user?.nickname != notifier.nickname;

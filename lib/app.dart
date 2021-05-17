@@ -39,6 +39,7 @@ class App extends HookWidget {
       supportedLocales: context.supportedLocales,
       debugShowCheckedModeBanner: false,
       initialRoute: initialRoute,
+      home: WrapperScreens(),
       routes: {
         '': (context) => Scaffold(),
         '/unlocked': (context) => WrapperScreens(),
@@ -90,7 +91,7 @@ class WErrorWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  errorDetails.summary.toString(),
+                  errorDetails.summary.toDescription().toString(),
                   style: Theme.of(context).textTheme.headline6,
                   textAlign: TextAlign.center,
                 ),
