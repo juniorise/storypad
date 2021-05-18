@@ -7,6 +7,7 @@ import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/services/payment_service.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SponserNotifier extends ChangeNotifier with ChangeNotifierMixin {
   PaymentService instance = PaymentService.instance;
@@ -45,6 +46,7 @@ class SponserNotifier extends ChangeNotifier with ChangeNotifierMixin {
   }
 
   Future<void> buyProduct(String productId) async {
+    error = null;
     await instance.buyProduct(productId);
   }
 
@@ -132,40 +134,39 @@ class SponserScreen extends HookWidget {
             right: 0,
             child: Padding(
               padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).padding.bottom,
+                bottom: MediaQuery.of(context).padding.bottom + 18,
                 left: 48,
                 right: 48,
               ),
-              child: AnimatedCrossFade(
-                crossFadeState: notifier.error != null
-                    ? CrossFadeState.showFirst
-                    : CrossFadeState.showSecond,
-                duration: ConfigConstant.fadeDuration,
-                firstChild: Text(
-                  notifier.error ?? "",
-                  style: Theme.of(context)
-                      .textTheme
-                      .overline
-                      ?.copyWith(color: Theme.of(context).colorScheme.error),
-                ),
-                secondChild: const SizedBox(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AnimatedCrossFade(
+                    crossFadeState: notifier.error != null
+                        ? CrossFadeState.showFirst
+                        : CrossFadeState.showSecond,
+                    duration: ConfigConstant.fadeDuration,
+                    firstChild: Text(
+                      notifier.error ?? "",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.caption?.copyWith(
+                          color: Theme.of(context).colorScheme.error),
+                    ),
+                    secondChild: const SizedBox(),
+                  ),
+                  if (notifier.isProUser)
+                    TextButton(
+                      child: Text("Manage subscriptions"),
+                      onPressed: () {
+                        launch(
+                          "https://play.google.com/store/apps/details?id=com.tc.writestory",
+                        );
+                      },
+                    ),
+                ],
               ),
             ),
           ),
-          // Positioned(
-          //   bottom: 0,
-          //   left: 0,
-          //   right: 0,
-          //   child: Padding(
-          //     padding: EdgeInsets.only(
-          //       bottom: MediaQuery.of(context).padding.bottom,
-          //     ),
-          //     child: TextButton(
-          //       child: Text("Restore Purchases"),
-          //       onPressed: () {},
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );

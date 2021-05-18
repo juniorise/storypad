@@ -56,7 +56,7 @@ class WrapperScreens extends HookWidget {
     if (notifier.alreadyHasUser == null) {
       return splashScreen;
     } else {
-      WidgetsBinding.instance!.addPostFrameCallback(
+      WidgetsBinding.instance?.addPostFrameCallback(
         (_) {
           if (notifier.alreadyHasUser == true &&
               notifier.user?.nickname != null) {
@@ -87,8 +87,9 @@ class WrapperScreens extends HookWidget {
                   );
                 },
               ).then((_) async {
-                await VibrateToggleStorage().setBool(value: true);
-                ScaffoldMessenger.of(askForNameScaffoldKey.currentContext!)
+                await VibrateToggleStorage().setBool(value: false);
+                ScaffoldMessenger.of(
+                        askForNameScaffoldKey.currentContext ?? context)
                     .removeCurrentSnackBar();
               });
             }

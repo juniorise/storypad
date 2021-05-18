@@ -10,6 +10,7 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/font_manager_notifier.dart';
 import 'package:storypad/notifier/lock_state_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
+import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/screens/wrapper_screens.dart';
 
@@ -31,7 +32,7 @@ class App extends HookWidget {
       navigatorKey: navigatorKey,
       home: lockNotifier.enable
           ? LockScreenWrapper(LockFlowType.UNLOCK)
-          : WrapperScreens(),
+          : HomeScreen(),
       theme: !notifier.isDarkMode
           ? ThemeConfig(fontNotifier.fontFamilyFallback).light
           : ThemeConfig(fontNotifier.fontFamilyFallback).dark,
