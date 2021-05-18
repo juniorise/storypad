@@ -13,23 +13,24 @@ const initSupportedLocales = [
   Locale('en'),
   Locale('km'),
 ];
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
-
   await Firebase.initializeApp();
-  await WDatabase.instance.database;
-
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
 
   if (defaultTargetPlatform == TargetPlatform.android) {
     InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
   }
 
+  await WDatabase.instance.database;
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  await EasyLocalization.ensureInitialized();
   await LockService.instance.enable;
+
   runApp(
     ProviderScope(
       child: AppLocalization(),

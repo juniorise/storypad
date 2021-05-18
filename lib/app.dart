@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/configs/theme_config.dart';
@@ -10,7 +9,6 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/font_manager_notifier.dart';
 import 'package:storypad/notifier/lock_state_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
-import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/screens/wrapper_screens.dart';
 
@@ -32,7 +30,7 @@ class App extends HookWidget {
       navigatorKey: navigatorKey,
       home: lockNotifier.enable
           ? LockScreenWrapper(LockFlowType.UNLOCK)
-          : HomeScreen(),
+          : WrapperScreens(),
       theme: !notifier.isDarkMode
           ? ThemeConfig(fontNotifier.fontFamilyFallback).light
           : ThemeConfig(fontNotifier.fontFamilyFallback).dark,
@@ -78,7 +76,7 @@ class WErrorWidget extends StatelessWidget {
                 const SizedBox(height: 8),
                 TextButton(
                   child: Text(
-                    "Clear Cache & Restart".toUpperCase(),
+                    "Exit app".toUpperCase(),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamilyFallback: Theme.of(context)
@@ -88,7 +86,6 @@ class WErrorWidget extends StatelessWidget {
                     ),
                   ),
                   onPressed: () async {
-                    await DefaultCacheManager().emptyCache();
                     exit(1);
                   },
                   style: ButtonStyle(

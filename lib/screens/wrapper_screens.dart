@@ -9,10 +9,14 @@ import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/storages/vibrate_toggle_storage.dart';
 
 class WrapperScreens extends HookWidget {
+  static const routeName = '/unlocked';
+
   WrapperScreens({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print("Build WrapperScreens");
+
     final notifier = useProvider(userModelProvider);
     final controller = useAnimationController();
     final statusBarHeight = MediaQuery.of(context).padding.top;
@@ -25,6 +29,7 @@ class WrapperScreens extends HookWidget {
           ..forward();
       });
     }
+
     final Widget splashScreen = Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: LayoutBuilder(
@@ -35,8 +40,7 @@ class WrapperScreens extends HookWidget {
               tablet ? constrant.maxHeight / 2 : constrant.maxWidth / 2;
 
           var _margin = EdgeInsets.only(
-            top: notifier.alreadyHasUser != null &&
-                    notifier.alreadyHasUser == false
+            top: notifier.firstTime == false
                 ? statusBarHeight
                 : constrant.maxHeight / 2.5 - statusBarHeight,
           );
@@ -58,9 +62,9 @@ class WrapperScreens extends HookWidget {
     } else {
       WidgetsBinding.instance?.addPostFrameCallback(
         (_) {
+          print("alreadyHasUser ${notifier.alreadyHasUser}");
           if (notifier.alreadyHasUser == true &&
               notifier.user?.nickname != null) {
-            print("1");
             Navigator.of(context).pushReplacement(
               PageTransition(
                 child: HomeScreen(),
@@ -69,7 +73,6 @@ class WrapperScreens extends HookWidget {
               ),
             );
           } else {
-            print("2");
             if (!notifier.isInit) {
               notifier.setInit();
               showModalBottomSheet(
@@ -87,10 +90,10 @@ class WrapperScreens extends HookWidget {
                   );
                 },
               ).then((_) async {
-                await VibrateToggleStorage().setBool(value: false);
+                VibrateToggleStorage().setBool(value: false);
                 ScaffoldMessenger.of(
-                        askForNameScaffoldKey.currentContext ?? context)
-                    .removeCurrentSnackBar();
+                  askForNameScaffoldKey.currentContext ?? context,
+                ).removeCurrentSnackBar();
               });
             }
           }
