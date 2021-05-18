@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:storypad/mixins/snakbar_mixin.dart';
 
@@ -26,7 +24,7 @@ class PaymentService with WSnackBar {
   StreamSubscription<PurchaseResult?>? _purchaseErrorSubscription;
 
   /// List of product ids you want to fetch
-  final List<String> _productIds = ['monthly_subscription'];
+  final List<String> _productIds = ['monthly_sponsor'];
 
   /// All available products will be store in this list
   List<IAPItem>? _products;
@@ -131,12 +129,10 @@ class PaymentService with WSnackBar {
     return true;
   }
 
-  Future<void> buyProduct(String productId, BuildContext context) async {
+  Future<void> buyProduct(String productId) async {
     try {
       await FlutterInappPurchase.instance.requestSubscription(productId);
-    } catch (error) {
-      showSnackBar(context: context, title: error.toString());
-    }
+    } catch (error) {}
   }
 
   void _handlePurchaseError(PurchaseResult? purchaseError) {
@@ -215,6 +211,26 @@ class PaymentService with WSnackBar {
     } else {
       _callErrorListeners("Varification failed");
     }
+  }
+
+  /// view can subscribe to _proStatusChangedListeners using this method
+  addToProStatusChangedListeners(Function callback) {
+    _proStatusChangedListeners.add(callback);
+  }
+
+  /// view can cancel to _proStatusChangedListeners using this method
+  removeFromProStatusChangedListeners(Function callback) {
+    _proStatusChangedListeners.remove(callback);
+  }
+
+  /// view can subscribe to _errorListeners using this method
+  addToErrorListeners(Function(String) callback) {
+    _errorListeners.add(callback);
+  }
+
+  /// view can cancel to _errorListeners using this method
+  removeFromErrorListeners(Function(String) callback) {
+    _errorListeners.remove(callback);
   }
 
   /// call when user close the app

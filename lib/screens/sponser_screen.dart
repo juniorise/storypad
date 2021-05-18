@@ -22,16 +22,30 @@ class SponserNotifier extends ChangeNotifier with ChangeNotifierMixin {
     notifyListeners();
   }
 
+  String? _error;
+  String? get error => this._error;
+  set error(String? value) {
+    if (value == _error) return;
+    _error = value;
+    notifyListeners();
+  }
+
+  SponserNotifier() {
+    instance.addToErrorListeners((String _error) {
+      error = _error;
+    });
+    instance.addToProStatusChangedListeners(() {
+      isProUser = instance.isProUser;
+    });
+  }
+
   Future<void> load() async {
     await instance.initConnection();
     _products = await instance.products.then((value) => value);
-    _isProUser = instance.isProUser;
   }
 
-  Future<void> buyProduct(String productId, BuildContext context) async {
-    await instance.buyProduct(productId, context);
-    _isProUser = instance.isProUser;
-    notifyListeners();
+  Future<void> buyProduct(String productId) async {
+    await instance.buyProduct(productId);
   }
 
   @override
@@ -42,7 +56,7 @@ class SponserNotifier extends ChangeNotifier with ChangeNotifierMixin {
 }
 
 final sponserProvider = ChangeNotifierProvider<SponserNotifier>((ref) {
-  return SponserNotifier();
+  return SponserNotifier()..load();
 });
 
 class SponserScreen extends HookWidget {
@@ -51,7 +65,6 @@ class SponserScreen extends HookWidget {
     final notifier = useProvider(sponserProvider);
     final products = notifier.products;
     final product = products.isNotEmpty ? products.first : null;
-
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -101,18 +114,44 @@ class SponserScreen extends HookWidget {
               ],
             ),
           if (!notifier.isProUser)
-            ListView(padding: ConfigConstant.layoutPadding, children: [
-              VTOnTapEffect(
-                onTap: () async {
-                  final productId = product?.productId;
-                  await notifier.buyProduct(
-                    productId ?? "monthly_sponsor",
-                    context,
-                  );
-                },
-                child: buildProductItem(context, product),
+            ListView(
+              padding: ConfigConstant.layoutPadding,
+              children: [
+                VTOnTapEffect(
+                  onTap: () async {
+                    final productId = product?.productId;
+                    await notifier.buyProduct(productId ?? "monthly_sponsor");
+                  },
+                  child: buildProductItem(context, product),
+                ),
+              ],
+            ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).padding.bottom,
+                left: 48,
+                right: 48,
               ),
-            ]),
+              child: AnimatedCrossFade(
+                crossFadeState: notifier.error != null
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
+                duration: ConfigConstant.fadeDuration,
+                firstChild: Text(
+                  notifier.error ?? "",
+                  style: Theme.of(context)
+                      .textTheme
+                      .overline
+                      ?.copyWith(color: Theme.of(context).colorScheme.error),
+                ),
+                secondChild: const SizedBox(),
+              ),
+            ),
+          ),
           // Positioned(
           //   bottom: 0,
           //   left: 0,
