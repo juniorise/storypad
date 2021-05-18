@@ -10,19 +10,16 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/font_manager_notifier.dart';
 import 'package:storypad/notifier/lock_state_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
+import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/screens/wrapper_screens.dart';
 
 class App extends HookWidget {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
-  final bool enable;
-
-  App({required this.enable});
-
   @override
   Widget build(BuildContext context) {
     print("Build App");
 
-    context.read(lockStateNotifier);
+    final lockNotifier = useProvider(lockStateNotifier);
     final fontNotifier = useProvider(fontManagerProvider);
     final notifier = useProvider(themeProvider);
 
@@ -32,7 +29,9 @@ class App extends HookWidget {
       supportedLocales: context.supportedLocales,
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      home: WrapperScreens(),
+      home: lockNotifier.enable
+          ? LockScreenWrapper(LockFlowType.UNLOCK)
+          : WrapperScreens(),
       theme: !notifier.isDarkMode
           ? ThemeConfig(fontNotifier.fontFamilyFallback).light
           : ThemeConfig(fontNotifier.fontFamilyFallback).dark,

@@ -31,7 +31,7 @@ class SponserNotifier extends ChangeNotifier with ChangeNotifierMixin {
   }
 
   SponserNotifier() {
-    instance.addToErrorListeners((String _error) {
+    instance.addToErrorListeners((String? _error) {
       error = _error;
     });
     instance.addToProStatusChangedListeners(() {

@@ -29,18 +29,15 @@ void main() async {
     InAppPurchaseAndroidPlatformAddition.enablePendingPurchases();
   }
 
-  bool enable = await LockService.instance.enable;
+  await LockService.instance.enable;
   runApp(
     ProviderScope(
-      child: AppLocalization(enable: enable),
+      child: AppLocalization(),
     ),
   );
 }
 
 class AppLocalization extends StatelessWidget {
-  final bool enable;
-  const AppLocalization({Key? key, required this.enable}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return EasyLocalization(
@@ -49,7 +46,7 @@ class AppLocalization extends StatelessWidget {
       path: "assets/translations",
       useOnlyLangCode: true,
       fallbackLocale: Locale('en'),
-      child: App(enable: enable),
+      child: App(),
     );
   }
 }
