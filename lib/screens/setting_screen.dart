@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:share/share.dart';
+// import 'package:storypad/screens/sponser_screen.dart';
 import 'package:storypad/widgets/w_list_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:storypad/constants/config_constant.dart';
@@ -122,6 +123,20 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                     );
                   },
                 ),
+                const SizedBox(height: 8.0),
+                // WListTile(
+                //   iconData: Icons.wallet_membership,
+                //   titleText: "Support us",
+                //   onTap: () async {
+                //     Navigator.of(context).push(
+                //       MaterialPageRoute(
+                //           fullscreenDialog: true,
+                //           builder: (context) {
+                //             return SponserScreen();
+                //           }),
+                //     );
+                //   },
+                // ),
                 const SizedBox(height: 8.0),
                 buildRate(),
                 buildShareApp(),

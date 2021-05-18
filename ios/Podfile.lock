@@ -77,6 +77,8 @@ PODS:
     - Flutter
     - Mantle
     - SDWebImageWebPCoder
+  - flutter_inapp_purchase (0.0.1):
+    - Flutter
   - flutter_keyboard_visibility (0.0.1):
     - Flutter
   - flutter_secure_storage (3.3.1):
@@ -120,6 +122,8 @@ PODS:
     - GTMSessionFetcher/Core (~> 1.5)
   - GTMSessionFetcher/Core (1.5.0)
   - image_picker (0.0.1):
+    - Flutter
+  - in_app_purchase_ios (0.0.1):
     - Flutter
   - launch_review (0.0.1):
     - Flutter
@@ -175,12 +179,14 @@ DEPENDENCIES:
   - FirebaseFirestore (from `https://github.com/invertase/firestore-ios-sdk-frameworks.git`, tag `7.11.0`)
   - Flutter (from `Flutter`)
   - flutter_image_compress (from `.symlinks/plugins/flutter_image_compress/ios`)
+  - flutter_inapp_purchase (from `.symlinks/plugins/flutter_inapp_purchase/ios`)
   - flutter_keyboard_visibility (from `.symlinks/plugins/flutter_keyboard_visibility/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - get_version (from `.symlinks/plugins/get_version/ios`)
   - google_sign_in (from `.symlinks/plugins/google_sign_in/ios`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
+  - in_app_purchase_ios (from `.symlinks/plugins/in_app_purchase_ios/ios`)
   - launch_review (from `.symlinks/plugins/launch_review/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
@@ -231,6 +237,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_image_compress:
     :path: ".symlinks/plugins/flutter_image_compress/ios"
+  flutter_inapp_purchase:
+    :path: ".symlinks/plugins/flutter_inapp_purchase/ios"
   flutter_keyboard_visibility:
     :path: ".symlinks/plugins/flutter_keyboard_visibility/ios"
   flutter_secure_storage:
@@ -243,6 +251,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/google_sign_in/ios"
   image_picker:
     :path: ".symlinks/plugins/image_picker/ios"
+  in_app_purchase_ios:
+    :path: ".symlinks/plugins/in_app_purchase_ios/ios"
   launch_review:
     :path: ".symlinks/plugins/launch_review/ios"
   package_info:
@@ -282,6 +292,7 @@ SPEC CHECKSUMS:
   FirebaseFirestore: 783538aced1557a6b817ee121593561127a00244
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   flutter_image_compress: 082f8daaf6c1b0c9fe798251c750ef0ecd98d7ae
+  flutter_inapp_purchase: 5c6a1ac3f11b11d0c8c0321c0c41c1f05805e4c8
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
   fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
@@ -294,6 +305,7 @@ SPEC CHECKSUMS:
   GTMAppAuth: 5b53231ef6920f149ab84b2969cb0ab572da3077
   GTMSessionFetcher: b3503b20a988c4e20cc189aa798fd18220133f52
   image_picker: 50e7c7ff960e5f58faa4d1f4af84a771c671bc4a
+  in_app_purchase_ios: 1fd2beee2a16ec0c1b52c0e8720036612dd9f86f
   launch_review: 75d5a956ba8eaa493e9c9d4bf4c05e505e8d5ed0
   libwebp: e90b9c01d99205d03b6bb8f2c8c415e5a4ef66f0
   Mantle: 4c0ed6ce47c96eccc4dc3bb071deb3def0e2c3be
