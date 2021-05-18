@@ -15,14 +15,17 @@ import 'package:storypad/screens/wrapper_screens.dart';
 
 class App extends HookWidget {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
+  final bool enable;
+
+  App({required this.enable});
 
   @override
   Widget build(BuildContext context) {
     print("Build App");
 
+    context.read(lockStateNotifier);
     final fontNotifier = useProvider(fontManagerProvider);
     final notifier = useProvider(themeProvider);
-    final lockScreenNotifier = useProvider(lockStateNotifier);
 
     return MaterialApp(
       locale: context.locale,
@@ -30,23 +33,10 @@ class App extends HookWidget {
       supportedLocales: context.supportedLocales,
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      home: lockScreenNotifier.enable == true
-          ? LockScreenWrapper(LockFlowType.UNLOCK)
-          : WrapperScreens(),
+      home: enable ? LockScreenWrapper(LockFlowType.UNLOCK) : WrapperScreens(),
       theme: !notifier.isDarkMode
           ? ThemeConfig(fontNotifier.fontFamilyFallback).light
           : ThemeConfig(fontNotifier.fontFamilyFallback).dark,
-      builder: (BuildContext context, Widget? widget) {
-        Widget error = Text('...rendering error...');
-        ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
-          final text = WErrorWidget(errorDetails: errorDetails);
-          error = text;
-          return error;
-        };
-        if (widget is Scaffold || widget is Navigator)
-          error = MaterialApp(home: Scaffold(body: Center(child: error)));
-        return widget ?? WErrorWidget(errorDetails: null);
-      },
     );
   }
 }

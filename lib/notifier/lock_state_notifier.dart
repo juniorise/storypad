@@ -10,14 +10,16 @@ import 'package:storypad/services/lock_service.dart';
 class LockStateNotifier extends ChangeNotifier with WidgetsBindingObserver {
   Timer? _backgroundLockLatencyTimer;
   Duration backgroundLockLatency = Duration(seconds: 5);
-  bool? enable;
+  bool get enable => this._enable == true;
+  bool? _enable;
 
   LockStateNotifier() {
     WidgetsBinding.instance?.addObserver(this);
-    LockService.instance.enable.then((value) {
-      enable = value;
-      notifyListeners();
-    });
+  }
+
+  Future<void> load() async {
+    _enable = await LockService.instance.enable;
+    notifyListeners();
   }
 
   @override
@@ -55,5 +57,5 @@ class LockStateNotifier extends ChangeNotifier with WidgetsBindingObserver {
 }
 
 final lockStateNotifier = ChangeNotifierProvider<LockStateNotifier>((ref) {
-  return LockStateNotifier();
+  return LockStateNotifier()..load();
 });

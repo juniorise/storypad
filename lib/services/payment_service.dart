@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
+import 'package:storypad/mixins/snakbar_mixin.dart';
 
-class PaymentService {
+class PaymentService with WSnackBar {
   /// We want singelton object of ``PaymentService`` so create private constructor
   ///
   /// Use PaymentService as ``PaymentService.instance``
@@ -126,18 +128,15 @@ class PaymentService {
   }
 
   Future<bool> _verifyPurchase(PurchasedItem purchasedItem) async {
-    if (purchasedItem.productId == "monthly_sponsor") {
-      return true;
-    }
-    return false;
+    return true;
   }
 
-  Future<void> buyProduct(IAPItem item) async {
-    final productId = item.productId;
-    if (productId == null) return;
+  Future<void> buyProduct(String productId, BuildContext context) async {
     try {
       await FlutterInappPurchase.instance.requestSubscription(productId);
-    } catch (error) {}
+    } catch (error) {
+      showSnackBar(context: context, title: error.toString());
+    }
   }
 
   void _handlePurchaseError(PurchaseResult? purchaseError) {

@@ -28,8 +28,8 @@ class SponserNotifier extends ChangeNotifier with ChangeNotifierMixin {
     _isProUser = instance.isProUser;
   }
 
-  Future<void> buyProduct(IAPItem item) async {
-    await instance.buyProduct(item);
+  Future<void> buyProduct(String productId, BuildContext context) async {
+    await instance.buyProduct(productId, context);
     _isProUser = instance.isProUser;
     notifyListeners();
   }
@@ -49,6 +49,9 @@ class SponserScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final notifier = useProvider(sponserProvider);
+    final products = notifier.products;
+    final product = products.isNotEmpty ? products.first : null;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -65,54 +68,51 @@ class SponserScreen extends HookWidget {
       ),
       body: Stack(
         children: [
-          // if (notifier.isProUser)
-          Column(
-            children: [
-              Center(
-                child: Padding(
-                  padding: ConfigConstant.layoutPadding,
-                  child: Material(
-                    elevation: 1.0,
-                    borderRadius: ConfigConstant.circlarRadius1,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: ConfigConstant.circlarRadius1,
-                      ),
-                      child: Column(
-                        children: [
-                          ImageIcon(
-                            AssetImage("assets/icons/sponsor.png"),
-                            size: ConfigConstant.iconSize4,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          Text("Thank for your help"),
-                        ],
+          if (notifier.isProUser)
+            Column(
+              children: [
+                Center(
+                  child: Padding(
+                    padding: ConfigConstant.layoutPadding,
+                    child: Material(
+                      elevation: 1.0,
+                      borderRadius: ConfigConstant.circlarRadius1,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: ConfigConstant.circlarRadius1,
+                        ),
+                        child: Column(
+                          children: [
+                            ImageIcon(
+                              AssetImage("assets/icons/sponsor.png"),
+                              size: ConfigConstant.iconSize4,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                            Text("Thank for your help"),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           if (!notifier.isProUser)
-            ListView(
-              padding: ConfigConstant.layoutPadding,
-              children: List.generate(
-                notifier.products.length,
-                (index) {
-                  final product = notifier.products[index];
-                  return VTOnTapEffect(
-                    onTap: () async {
-                      await notifier.buyProduct(product);
-                    },
-                    child: buildProductItem(context, product),
+            ListView(padding: ConfigConstant.layoutPadding, children: [
+              VTOnTapEffect(
+                onTap: () async {
+                  final productId = product?.productId;
+                  await notifier.buyProduct(
+                    productId ?? "monthly_sponsor",
+                    context,
                   );
                 },
+                child: buildProductItem(context, product),
               ),
-            ),
+            ]),
           // Positioned(
           //   bottom: 0,
           //   left: 0,
@@ -132,7 +132,7 @@ class SponserScreen extends HookWidget {
     );
   }
 
-  Material buildProductItem(BuildContext context, IAPItem product) {
+  Material buildProductItem(BuildContext context, IAPItem? product) {
     return Material(
       color: Theme.of(context).colorScheme.surface,
       elevation: 4.0,
@@ -146,24 +146,33 @@ class SponserScreen extends HookWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.title ?? "",
+                  product?.title ?? "Monthly",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.headline6?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.primary,
                       ),
                 ),
                 Text(
-                  product.description ?? "",
+                  product?.description ?? "Buy us a coffee once a month",
                   style: Theme.of(context).textTheme.subtitle2,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ],
             ),
-            Text(
-              product.price ?? "",
-              style: Theme.of(context)
-                  .textTheme
-                  .headline6
-                  ?.copyWith(fontWeight: FontWeight.w600),
+            Expanded(
+              child: Text(
+                product?.price ?? "1\$ per month",
+                softWrap: true,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline6
+                    ?.copyWith(fontWeight: FontWeight.w600),
+              ),
             )
           ],
         ),
