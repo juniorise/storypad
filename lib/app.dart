@@ -24,26 +24,15 @@ class App extends HookWidget {
     final notifier = useProvider(themeProvider);
     final lockScreenNotifier = useProvider(lockStateNotifier);
 
-    String initialRoute;
-    if (lockScreenNotifier.enable == true) {
-      initialRoute = "/lockscreen";
-    } else {
-      initialRoute = "/unlocked";
-    }
-
     return MaterialApp(
       locale: context.locale,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       debugShowCheckedModeBanner: false,
-      initialRoute: initialRoute,
       navigatorKey: navigatorKey,
-      routes: {
-        WrapperScreens.routeName: (context) => WrapperScreens(),
-        LockScreenWrapper.routeName: (context) {
-          return LockScreenWrapper(LockFlowType.UNLOCK);
-        }
-      },
+      home: lockScreenNotifier.enable == true
+          ? LockScreenWrapper(LockFlowType.UNLOCK)
+          : WrapperScreens(),
       theme: !notifier.isDarkMode
           ? ThemeConfig(fontNotifier.fontFamilyFallback).light
           : ThemeConfig(fontNotifier.fontFamilyFallback).dark,
@@ -54,11 +43,9 @@ class App extends HookWidget {
           error = text;
           return error;
         };
-
         if (widget is Scaffold || widget is Navigator)
           error = MaterialApp(home: Scaffold(body: Center(child: error)));
-
-        return widget ?? SizedBox();
+        return widget ?? WErrorWidget(errorDetails: null);
       },
     );
   }
@@ -70,7 +57,7 @@ class WErrorWidget extends StatelessWidget {
     required this.errorDetails,
   }) : super(key: key);
 
-  final FlutterErrorDetails errorDetails;
+  final FlutterErrorDetails? errorDetails;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -87,11 +74,12 @@ class WErrorWidget extends StatelessWidget {
                   height: 100,
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  errorDetails.summary.toDescription().toString(),
-                  style: Theme.of(context).textTheme.headline6,
-                  textAlign: TextAlign.center,
-                ),
+                if (errorDetails != null)
+                  Text(
+                    errorDetails!.summary.toDescription().toString(),
+                    style: Theme.of(context).textTheme.headline6,
+                    textAlign: TextAlign.center,
+                  ),
                 const SizedBox(height: 16),
                 Text(
                   "Try restart the app or clear app cache and data",
