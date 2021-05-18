@@ -106,7 +106,8 @@ class SponserScreen extends HookWidget {
                               size: ConfigConstant.iconSize4,
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
-                            Text("Thank for your help"),
+                            const SizedBox(height: 4.0),
+                            Text("Thank for your help 🙏📝"),
                           ],
                         ),
                       ),
@@ -186,7 +187,7 @@ class SponserScreen extends HookWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product?.title ?? "Monthly",
+                  "Monthly",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.headline6?.copyWith(
@@ -195,7 +196,7 @@ class SponserScreen extends HookWidget {
                       ),
                 ),
                 Text(
-                  product?.description ?? "Buy us a coffee once a month",
+                  "Buy us a coffee\nonce a month",
                   style: Theme.of(context).textTheme.subtitle2,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
