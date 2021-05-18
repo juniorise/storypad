@@ -160,7 +160,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         launch("https://facebook.com/tc.writestory");
                       },
                     ),
-                    const SizedBox(width: 8.0),
+                    const SizedBox(width: 12.0),
                     WIconButton(
                       iconData: CommunityMaterialIcons.instagram,
                       filledColor: Theme.of(context).colorScheme.surface,
@@ -169,7 +169,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         launch("https://www.instagram.com/tc.writestory/");
                       },
                     ),
-                    const SizedBox(width: 8.0),
+                    const SizedBox(width: 12.0),
                     WIconButton(
                       iconData: CommunityMaterialIcons.google_play,
                       filledColor: Theme.of(context).colorScheme.surface,
