@@ -3,16 +3,33 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 abstract class SecurePreferenceStorage {
   FlutterSecureStorage storage = FlutterSecureStorage();
   String get key;
+  Object? error;
 
   Future<String?> read() async {
-    return await storage.read(key: key);
+    try {
+      final result = await storage.read(key: key);
+      error = null;
+      return result;
+    } catch (e) {
+      error = e;
+    }
   }
 
   Future<void> write(String value) async {
-    await storage.write(key: key, value: value);
+    try {
+      await storage.write(key: key, value: value);
+      error = null;
+    } catch (e) {
+      error = e;
+    }
   }
 
   Future<void> remove() async {
-    await storage.delete(key: key);
+    try {
+      await storage.delete(key: key);
+      error = null;
+    } catch (e) {
+      error = e;
+    }
   }
 }
