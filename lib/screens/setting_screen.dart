@@ -797,6 +797,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                               context: context,
                               title: tr("msg.login.success"),
                             );
+                            context.read(remoteDatabaseProvider).load();
                             final groupRemoteService = GroupRemoteService();
                             await groupRemoteService.fetchGroupsList();
                             final communityGroupId =
