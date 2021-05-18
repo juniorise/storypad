@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,25 +8,24 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/configs/theme_config.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/font_manager_notifier.dart';
-import 'package:storypad/notifier/lock_screen_notifier.dart';
+import 'package:storypad/notifier/lock_state_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
 import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/screens/wrapper_screens.dart';
 
 class App extends HookWidget {
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     print("Build App");
 
     final fontNotifier = useProvider(fontManagerProvider);
     final notifier = useProvider(themeProvider);
-    final lockScreenNotifier =
-        useProvider(lockScreenProvider(LockScreenFlowType.UNLOCK));
+    final lockScreenNotifier = useProvider(lockStateNotifier);
 
     String initialRoute;
-    if (!lockScreenNotifier.inited) {
-      initialRoute = "/";
-    } else if (lockScreenNotifier.storageLockNumberMap != null) {
+    if (lockScreenNotifier.enable == true) {
       initialRoute = "/lockscreen";
     } else {
       initialRoute = "/unlocked";
@@ -39,11 +37,11 @@ class App extends HookWidget {
       supportedLocales: context.supportedLocales,
       debugShowCheckedModeBanner: false,
       initialRoute: initialRoute,
+      navigatorKey: navigatorKey,
       routes: {
-        '/': (context) => Scaffold(),
-        '/unlocked': (context) => WrapperScreens(),
-        '/lockscreen': (context) {
-          return LockScreenWrapper(LockScreenFlowType.UNLOCK);
+        WrapperScreens.routeName: (context) => WrapperScreens(),
+        LockScreenWrapper.routeName: (context) {
+          return LockScreenWrapper(LockFlowType.UNLOCK);
         }
       },
       theme: !notifier.isDarkMode

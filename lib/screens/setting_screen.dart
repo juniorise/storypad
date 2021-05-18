@@ -18,7 +18,7 @@ import 'package:storypad/models/group_storage_model.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/auth_notifier.dart';
 import 'package:storypad/notifier/check_for_update_notifier.dart';
-import 'package:storypad/notifier/lock_screen_notifier.dart';
+import 'package:storypad/notifier/lock_notifier.dart';
 import 'package:storypad/notifier/remote_database_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
 import 'package:storypad/screens/font_manager_screen.dart';
@@ -88,8 +88,8 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         return LockSettingScreen();
                       }),
                     );
-                    final notifier = context
-                        .read(lockScreenProvider(LockScreenFlowType.UNLOCK));
+                    final notifier =
+                        context.read(lockProvider(LockFlowType.UNLOCK));
                     Future.delayed(ConfigConstant.duration).then((value) async {
                       await notifier.load();
                     });

@@ -9,6 +9,8 @@ import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/storages/vibrate_toggle_storage.dart';
 
 class WrapperScreens extends HookWidget {
+  static const routeName = '/unlocked';
+
   WrapperScreens({Key? key}) : super(key: key);
 
   @override

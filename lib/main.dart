@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/app.dart';
 import 'package:storypad/database/w_database.dart';
+import 'package:storypad/services/lock_service.dart';
 // import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 const initSupportedLocales = [
@@ -18,6 +19,7 @@ void main() async {
 
   await Firebase.initializeApp();
   await WDatabase.instance.database;
+  await LockService.instance.enable;
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

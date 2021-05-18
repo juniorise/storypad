@@ -7,13 +7,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:storypad/constants/config_constant.dart';
-import 'package:storypad/notifier/lock_screen_notifier.dart';
+import 'package:storypad/notifier/lock_notifier.dart';
 import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 
-enum LockScreenFlowType {
+enum LockFlowType {
   RESET,
   REPLACE,
   SET,
@@ -21,14 +21,16 @@ enum LockScreenFlowType {
 }
 
 class LockScreenWrapper extends HookWidget {
-  final LockScreenFlowType flowType;
-  LockScreenWrapper(this.flowType);
+  static const routeName = '/lockscreen';
+
+  final LockDetail? lockDetail;
+  final LockFlowType flowType;
+  LockScreenWrapper(this.flowType, {this.lockDetail});
 
   @override
   Widget build(BuildContext context) {
     print("Build LockScreenWrapper");
-
-    final notifier = useProvider(lockScreenProvider(flowType));
+    final notifier = useProvider(lockProvider(flowType));
     Map<int, List<int?>> map = {
       1: [1, 2, 3],
       2: [4, 5, 6],
@@ -36,21 +38,21 @@ class LockScreenWrapper extends HookWidget {
       4: [null, 0, 10]
     };
 
-    final LockScreenFlowType type = notifier.type ?? flowType;
+    final LockFlowType type = notifier.type ?? flowType;
     String? _headerText;
-    if (notifier.type == LockScreenFlowType.UNLOCK) {
+    if (notifier.type == LockFlowType.UNLOCK) {
       _headerText = tr("msg.passcode.unlock");
     }
-    if (type == LockScreenFlowType.SET) {
+    if (type == LockFlowType.SET) {
       _headerText = notifier.firstStepLockNumberMap != null
           ? tr("msg.passcode.set.step2")
           : tr("msg.passcode.set.step1");
     }
-    if (type == LockScreenFlowType.REPLACE) {
+    if (type == LockFlowType.REPLACE) {
       _headerText = tr("msg.passcode.replace");
     }
 
-    if (type == LockScreenFlowType.RESET) {
+    if (type == LockFlowType.RESET) {
       _headerText = tr("msg.passcode.reset");
     }
 
@@ -60,7 +62,7 @@ class LockScreenWrapper extends HookWidget {
 
     return WillPopScope(
       onWillPop: () async {
-        if (type != LockScreenFlowType.UNLOCK) {
+        if (type != LockFlowType.UNLOCK) {
           ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
           Navigator.of(context)..pop()..pop();
         } else {
@@ -73,9 +75,10 @@ class LockScreenWrapper extends HookWidget {
       child: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
           elevation: 0.0,
-          leading: type != LockScreenFlowType.UNLOCK
+          leading: type != LockFlowType.UNLOCK
               ? WIconButton(
                   iconData: Icons.arrow_back,
                   onPressed: () {
@@ -84,7 +87,7 @@ class LockScreenWrapper extends HookWidget {
                   },
                 )
               : null,
-          actions: type == LockScreenFlowType.UNLOCK
+          actions: type == LockFlowType.UNLOCK
               ? [
                   WIconButton(
                     iconData: Icons.settings,
@@ -209,7 +212,7 @@ class LockScreenWrapper extends HookWidget {
                             /// map = { 0: 1, 1: 3, 2: 6, 3: 9 }
                             /// ```
 
-                            if (type == LockScreenFlowType.UNLOCK) {
+                            if (type == LockFlowType.UNLOCK) {
                               if (notifier.isMax) {
                                 if ("${notifier.storageLockNumberMap}" ==
                                     "${notifier.lockNumberMap}") {
@@ -217,15 +220,22 @@ class LockScreenWrapper extends HookWidget {
                                   /// animatedContainer duration above
                                   /// to make it smoother
                                   Future.delayed(Duration(milliseconds: 100))
-                                      .then((value) {
-                                    Navigator.of(context).pushReplacement(
-                                      PageTransition(
-                                        child: HomeScreen(),
-                                        type: PageTransitionType.fade,
-                                        duration: ConfigConstant.duration,
-                                      ),
-                                    );
-                                  });
+                                      .then(
+                                    (value) {
+                                      if (lockDetail != null &&
+                                          lockDetail?.fromLaunch == false) {
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        Navigator.of(context).pushReplacement(
+                                          PageTransition(
+                                            child: HomeScreen(),
+                                            type: PageTransitionType.fade,
+                                            duration: ConfigConstant.duration,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  );
                                 } else {
                                   await notifier.setLockNumberMap(null,
                                       fadeLock: true);
@@ -238,7 +248,7 @@ class LockScreenWrapper extends HookWidget {
                               }
                             }
 
-                            if (type == LockScreenFlowType.SET) {
+                            if (type == LockFlowType.SET) {
                               if (notifier.isMax) {
                                 bool completeStep1 =
                                     notifier.firstStepLockNumberMap != null;
@@ -249,7 +259,7 @@ class LockScreenWrapper extends HookWidget {
 
                                   if (match) {
                                     var map2 = notifier.lockNumberMap;
-                                    await notifier.storage.writeMap(map2);
+                                    await notifier.service.setLock(map2);
                                     Navigator.of(context)..pop()..pop();
                                   } else {
                                     await notifier.setLockNumberMap(null,
@@ -273,14 +283,14 @@ class LockScreenWrapper extends HookWidget {
                               }
                             }
 
-                            if (type == LockScreenFlowType.REPLACE) {
+                            if (type == LockFlowType.REPLACE) {
                               if (notifier.isMax) {
                                 bool match =
                                     "${notifier.storageLockNumberMap}" ==
                                         "${notifier.lockNumberMap}";
                                 if (match) {
                                   notifier.setFlowType(
-                                    LockScreenFlowType.SET,
+                                    LockFlowType.SET,
                                     false,
                                   );
                                   notifier.setLockNumberMap(null);
@@ -299,13 +309,13 @@ class LockScreenWrapper extends HookWidget {
                               }
                             }
 
-                            if (type == LockScreenFlowType.RESET) {
+                            if (type == LockFlowType.RESET) {
                               if (notifier.isMax) {
                                 bool match =
                                     "${notifier.storageLockNumberMap}" ==
                                         "${notifier.lockNumberMap}";
                                 if (match) {
-                                  await notifier.storage.remove();
+                                  await notifier.service.clearLock();
                                   Navigator.of(context)..pop()..pop();
                                 } else {
                                   await notifier.setLockNumberMap(null,

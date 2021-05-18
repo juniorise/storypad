@@ -1,22 +1,26 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/screens/lock_screen.dart';
+import 'package:storypad/services/lock_service.dart';
 import 'package:storypad/storages/lock_screen_storage.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 
-class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
+class LockDetail {
+  bool? fromLaunch;
+  LockDetail({this.fromLaunch});
+}
+
+class LockNotifier extends ChangeNotifier with ChangeNotifierMixin {
   Map<String, String>? _storageLockNumberMap;
   Map<String, String>? _firstStepLockNumberMap;
   Map<String, String>? get firstStepLockNumberMap =>
       this._firstStepLockNumberMap;
 
-  LockScreenFlowType? _type;
-  LockScreenFlowType? get type => this._type;
-
-  bool _inited = false;
-  bool get inited => this._inited;
+  LockFlowType? _type;
+  LockFlowType? get type => this._type;
 
   bool _ignoring = false;
   bool get ignoring => this._ignoring;
@@ -26,7 +30,7 @@ class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
     notifyListeners();
   }
 
-  setFlowType(LockScreenFlowType type, bool updateState) {
+  setFlowType(LockFlowType type, bool updateState) {
     this._type = type;
     if (updateState) {
       WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
@@ -46,6 +50,7 @@ class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
   double _opacity = 1;
 
   LockScreenStorage storage = LockScreenStorage();
+  LockService service = LockService.instance;
 
   void fadeOpacity() {
     _opacity = 0;
@@ -56,17 +61,10 @@ class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
     });
   }
 
+  bool? _enable;
   Future<void> load() async {
-    ignoring = true;
-    final Map<String, String>? result = await storage.readMap();
-    if (result != null) {
-      this._storageLockNumberMap = result;
-      print("result $result");
-    } else {
-      this._storageLockNumberMap = null;
-    }
-    _inited = true;
-    ignoring = false;
+    this._storageLockNumberMap = service.storageLockNumberMap;
+    this._enable = await service.enable;
   }
 
   Future<void> setLockNumberMap(
@@ -109,6 +107,7 @@ class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
 
   String? get errorMessage => this._errorMessage;
   double get opacity => this._opacity;
+  bool get enable => this._enable == true;
   Map<String, String>? get storageLockNumberMap => _storageLockNumberMap;
   Map<String, String?> get lockNumberMap {
     return _lockNumberMap ?? {"0": null, "1": null, "2": null, "3": null};
@@ -122,10 +121,10 @@ class LockScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
   }
 }
 
-final lockScreenProvider = ChangeNotifierProvider.autoDispose
-    .family<LockScreenNotifier, LockScreenFlowType>(
-  (ref, LockScreenFlowType type) {
-    return LockScreenNotifier()
+final lockProvider =
+    ChangeNotifierProvider.autoDispose.family<LockNotifier, LockFlowType>(
+  (ref, LockFlowType type) {
+    return LockNotifier()
       ..setFlowType(type, false)
       ..load();
   },
