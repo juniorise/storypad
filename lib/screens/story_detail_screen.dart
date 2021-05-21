@@ -58,6 +58,7 @@ class StoryDetailScreen extends HookWidget
   @override
   Widget build(BuildContext context) {
     print("Build StoryDetailScreen");
+    final paddingTop = MediaQuery.of(context).viewPadding.top;
 
     final _notifier = useProvider(storydetailScreenNotifier(story));
     final readOnlyModeNotifier = useState<bool>(!insert);
@@ -90,15 +91,9 @@ class StoryDetailScreen extends HookWidget
 
     final quillNotifier = useProvider(quillControllerProvider(quillController));
     final scrollController = useScrollController();
-    final sliverController = useScrollController();
 
     scrollController.addListener(() {
       double minValue = scrollController.offset;
-      sliverController.jumpTo(minValue);
-    });
-
-    sliverController.addListener(() {
-      double minValue = sliverController.offset;
       if (minValue >= kToolbarHeight) minValue = kToolbarHeight;
       if (minValue <= 0) minValue = 0;
       final headNotifier = context.read(headerProvider);
@@ -124,24 +119,19 @@ class StoryDetailScreen extends HookWidget
     );
 
     final _theme = Theme.of(context);
-
-    final _scaffoldBody = NestedScrollView(
-      controller: sliverController,
-      physics: NeverScrollableScrollPhysics(),
-      headerSliverBuilder: (context, val) {
-        return [
-          buildAppBar(
-            context: context,
-            insert: insert,
-            notifier: _notifier,
-            quillNotifier: quillNotifier,
-            readOnlyModeNotifier: readOnlyModeNotifier,
-            focusNode: focusNode,
-            titleController: titleController,
-            top: MediaQuery.of(context).viewPadding.top,
-          ),
-        ];
-      },
+    final _scaffoldBody = Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: buildAppBar(
+        context: context,
+        insert: insert,
+        notifier: _notifier,
+        quillNotifier: quillNotifier,
+        readOnlyModeNotifier: readOnlyModeNotifier,
+        focusNode: focusNode,
+        titleController: titleController,
+        top: MediaQuery.of(context).viewPadding.top,
+        scrollController: scrollController,
+      ),
       body: Column(
         children: [
           Consumer(
@@ -149,7 +139,7 @@ class StoryDetailScreen extends HookWidget
               final headNotifier = watch(headerProvider);
               double top = lerpDouble(
                 0,
-                MediaQuery.of(context).viewPadding.top,
+                paddingTop,
                 headNotifier.headerPaddingTop,
               )!;
 
@@ -235,6 +225,7 @@ class StoryDetailScreen extends HookWidget
       readOnlyModeNotifier: readOnlyModeNotifier,
       bottomHeight: bottomHeight,
       statusBarHeight: statusBarHeight,
+      quillNotifier: quillNotifier,
     );
   }
 
@@ -433,6 +424,7 @@ class StoryDetailScreen extends HookWidget
     required ValueNotifier readOnlyModeNotifier,
     required double bottomHeight,
     required double statusBarHeight,
+    required QuillControllerNotifer quillNotifier,
   }) {
     final _theme = Theme.of(context);
 
@@ -521,6 +513,14 @@ class StoryDetailScreen extends HookWidget
         onPopNavigator(
           context: context,
           notifier: notifier,
+          onSavedPressed: () async {
+            await onSave(
+              notifier: notifier,
+              context: context,
+              paragraph: quillNotifier.draftParagraph,
+              insert: insert,
+            );
+          },
         );
         return false;
       },
@@ -569,7 +569,7 @@ class StoryDetailScreen extends HookWidget
     );
   }
 
-  Widget buildAppBar({
+  AppBar buildAppBar({
     required BuildContext context,
     required bool insert,
     required StoryDetailScreenNotifier notifier,
@@ -578,29 +578,38 @@ class StoryDetailScreen extends HookWidget
     required FocusNode focusNode,
     required TextEditingController titleController,
     required double top,
+    required ScrollController scrollController,
   }) {
     final _theme = Theme.of(context);
-    return SliverAppBar(
+    return AppBar(
       backgroundColor: _theme.colorScheme.surface,
       centerTitle: false,
-      pinned: true,
       elevation: 0.0,
       titleSpacing: 0.0,
-      title: Consumer(
-        builder: (context, watch, child) {
-          final headNotifier = watch(headerProvider);
-          double ox =
-              lerpDouble(kToolbarHeight, 0, headNotifier.headerPaddingTop)!;
-          return Transform.translate(
-            offset: Offset(0.0, ox),
-            child: Text(
-              titleController.text,
-              style: _theme.textTheme.headline6,
-              maxLines: 1,
-              softWrap: true,
-            ),
+      title: VTOnTapEffect(
+        onTap: () {
+          scrollController.animateTo(
+            0,
+            duration: ConfigConstant.fadeDuration,
+            curve: Curves.linearToEaseOut,
           );
         },
+        child: Consumer(
+          builder: (context, watch, child) {
+            final headNotifier = watch(headerProvider);
+            double ox =
+                lerpDouble(kToolbarHeight, 0, headNotifier.headerPaddingTop)!;
+            return Transform.translate(
+              offset: Offset(0.0, ox),
+              child: Text(
+                titleController.text,
+                style: _theme.textTheme.headline6,
+                maxLines: 1,
+                softWrap: true,
+              ),
+            );
+          },
+        ),
       ),
       flexibleSpace: SafeArea(
         child: Padding(
@@ -628,7 +637,11 @@ class StoryDetailScreen extends HookWidget
           ),
         ),
       ),
-      leading: buildAppBarLeadingButton(context: context, notifier: notifier),
+      leading: buildAppBarLeadingButton(
+        context: context,
+        notifier: notifier,
+        quillNotifier: quillNotifier,
+      ),
       actions: buildAppBarActionsButtonsList(
         context: context,
         insert: insert,
@@ -756,6 +769,7 @@ class StoryDetailScreen extends HookWidget
                       notifier: notifier,
                       insert: insert,
                       id: story.id,
+                      quillNotifier: quillNotifier,
                     );
                   },
                   child: ListTile(
@@ -954,6 +968,7 @@ class StoryDetailScreen extends HookWidget
   Widget buildAppBarLeadingButton({
     required BuildContext context,
     required StoryDetailScreenNotifier notifier,
+    required QuillControllerNotifer quillNotifier,
   }) {
     return WIconButton(
       iconData: Icons.clear,
@@ -961,6 +976,14 @@ class StoryDetailScreen extends HookWidget
         onPopNavigator(
           context: context,
           notifier: notifier,
+          onSavedPressed: () async {
+            await onSave(
+              notifier: notifier,
+              context: context,
+              paragraph: quillNotifier.draftParagraph,
+              insert: insert,
+            );
+          },
         );
       },
     );
@@ -1051,6 +1074,7 @@ class StoryDetailScreen extends HookWidget
     required StoryDetailScreenNotifier notifier,
     required bool insert,
     required int id,
+    required QuillControllerNotifer quillNotifier,
   }) async {
     await showSnackBar(
       context: context,
@@ -1064,6 +1088,7 @@ class StoryDetailScreen extends HookWidget
             onPopNavigator(
               context: context,
               notifier: notifier,
+              onSavedPressed: null,
             );
           });
         } else {
@@ -1077,6 +1102,7 @@ class StoryDetailScreen extends HookWidget
                 notifier: notifier,
                 insert: insert,
                 id: id,
+                quillNotifier: quillNotifier,
               );
             },
           );
@@ -1166,6 +1192,7 @@ class StoryDetailScreen extends HookWidget
           context: context,
           title: tr("msg.save.success"),
         );
+        notifier.updateInitStory();
       } else {
         await showSnackBar(
           context: context,

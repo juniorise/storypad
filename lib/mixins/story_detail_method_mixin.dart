@@ -18,7 +18,39 @@ mixin StoryDetailMethodMixin {
   void onPopNavigator({
     required BuildContext context,
     required StoryDetailScreenNotifier notifier,
+    required Future<void> Function()? onSavedPressed,
   }) async {
+    if (onSavedPressed != null && notifier.draftStory != notifier.initStory) {
+      final dialog = AlertDialog(
+        title: Text(tr('msg.save_draft_prompt')),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
+              final draftStoryDate =
+                  notifier.hasChanged ? notifier.draftStory.forDate : null;
+              Navigator.of(context).pop(draftStoryDate);
+            },
+            child: Text(tr('button.no')),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await onSavedPressed();
+            },
+            child: Text(tr('button.yes')),
+          ),
+        ],
+      );
+      await showCupertinoDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (context) => dialog,
+      );
+      return;
+    }
+
     ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
     final draftStoryDate =
         notifier.hasChanged ? notifier.draftStory.forDate : null;

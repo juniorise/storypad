@@ -10,6 +10,7 @@ import 'package:storypad/services/google_drive_api_service.dart';
 class StoryDetailScreenNotifier extends ChangeNotifier
     with ChangeNotifierMixin, ScheduleMixin {
   final WDatabase wDatabase = WDatabase.instance;
+  StoryModel initStory;
   StoryModel draftStory;
   bool hasChanged = false;
   int? imageLength;
@@ -44,7 +45,10 @@ class StoryDetailScreenNotifier extends ChangeNotifier
     notifyListeners();
   }
 
-  StoryDetailScreenNotifier(this.draftStory);
+  StoryDetailScreenNotifier(this.draftStory, this.initStory);
+  updateInitStory() {
+    this.initStory = this.draftStory;
+  }
 
   final List<String> tmpImagePath = [];
   void addImagePath(String? path) {
@@ -91,6 +95,6 @@ class StoryDetailScreenNotifier extends ChangeNotifier
 final storydetailScreenNotifier = ChangeNotifierProvider.family
     .autoDispose<StoryDetailScreenNotifier, StoryModel>(
   (ref, story) {
-    return StoryDetailScreenNotifier(story);
+    return StoryDetailScreenNotifier(story, story);
   },
 );
