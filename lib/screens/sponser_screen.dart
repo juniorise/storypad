@@ -3,63 +3,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_inapp_purchase/modules.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/config_constant.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
-import 'package:storypad/services/payment_service.dart';
+import 'package:storypad/notifier/sponser_notifier.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-class SponserNotifier extends ChangeNotifier with ChangeNotifierMixin {
-  PaymentService instance = PaymentService.instance;
-
-  List<IAPItem>? _products;
-  List<IAPItem> get products => this._products ?? [];
-
-  bool _isProUser = false;
-  bool get isProUser => this._isProUser;
-  set isProUser(bool value) {
-    if (value == _isProUser) return;
-    _isProUser = value;
-    notifyListeners();
-  }
-
-  String? _error;
-  String? get error => this._error;
-  set error(String? value) {
-    if (value == _error) return;
-    _error = value;
-    notifyListeners();
-  }
-
-  SponserNotifier() {
-    instance.addToErrorListeners((String? _error) {
-      error = _error;
-    });
-    instance.addToProStatusChangedListeners(() {
-      isProUser = instance.isProUser;
-    });
-  }
-
-  Future<void> load() async {
-    await instance.initConnection();
-    _products = await instance.products.then((value) => value);
-  }
-
-  Future<void> buyProduct(String productId) async {
-    error = null;
-    await instance.buyProduct(productId);
-  }
-
-  @override
-  void dispose() {
-    instance.dispose();
-    super.dispose();
-  }
-}
-
-final sponserProvider = ChangeNotifierProvider<SponserNotifier>((ref) {
-  return SponserNotifier()..load();
-});
 
 class SponserScreen extends HookWidget {
   @override
