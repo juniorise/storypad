@@ -20,7 +20,10 @@ mixin StoryDetailMethodMixin {
     required StoryDetailScreenNotifier notifier,
     required Future<void> Function()? onSavedPressed,
   }) async {
-    if (onSavedPressed != null && notifier.draftStory != notifier.initStory) {
+    bool isDifferrent = notifier.draftStory.toJson().toString() !=
+        notifier.initStory.toJson().toString();
+
+    if (onSavedPressed != null && isDifferrent) {
       final dialog = AlertDialog(
         title: Text(tr('msg.save_draft_prompt')),
         actions: [
