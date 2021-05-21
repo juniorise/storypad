@@ -6,6 +6,7 @@ import 'package:storypad/app.dart';
 import 'package:storypad/notifier/lock_notifier.dart';
 import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/services/lock_service.dart';
+import 'package:storypad/storages/is_unlocked_storage.dart';
 
 class LockStateNotifier extends ChangeNotifier with WidgetsBindingObserver {
   Timer? _backgroundLockLatencyTimer;
@@ -31,21 +32,27 @@ class LockStateNotifier extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    final storage = IsUnlockStorage();
     if (state == AppLifecycleState.paused && this.enable == true) {
       this._backgroundLockLatencyTimer = Timer(
         this.backgroundLockLatency,
         () {
-          App.navigatorKey.currentState?.push(
-            MaterialPageRoute(
-              fullscreenDialog: true,
-              builder: (context) {
-                return LockScreenWrapper(
-                  LockFlowType.UNLOCK,
-                  lockDetail: LockDetail(fromLaunch: false),
-                );
-              },
-            ),
-          );
+          storage.getBool().then((isUnlock) {
+            if (isUnlock == true) {
+              storage.setBool(value: false);
+              App.navigatorKey.currentState?.push(
+                MaterialPageRoute(
+                  fullscreenDialog: true,
+                  builder: (context) {
+                    return LockScreenWrapper(
+                      LockFlowType.UNLOCK,
+                      lockDetail: LockDetail(fromLaunch: false),
+                    );
+                  },
+                ),
+              );
+            }
+          });
         },
       );
     }

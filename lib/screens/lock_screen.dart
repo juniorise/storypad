@@ -10,6 +10,7 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/lock_notifier.dart';
 import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/screens/setting_screen.dart';
+import 'package:storypad/storages/is_unlocked_storage.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 
@@ -234,6 +235,7 @@ class LockScreenWrapper extends HookWidget {
                                           ),
                                         );
                                       }
+                                      IsUnlockStorage().setBool(value: true);
                                     },
                                   );
                                 } else {
