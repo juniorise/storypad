@@ -64,15 +64,26 @@ class SponserScreen extends HookWidget {
               ],
             ),
           if (!notifier.isProUser)
-            ListView(
-              padding: ConfigConstant.layoutPadding,
+            Column(
               children: [
-                VTOnTapEffect(
-                  onTap: () async {
-                    final productId = product?.productId;
-                    await notifier.buyProduct(productId ?? "monthly_sponsor");
-                  },
-                  child: buildProductItem(context, product),
+                Center(
+                  child: Padding(
+                    padding: ConfigConstant.layoutPadding,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (product != null)
+                          VTOnTapEffect(
+                            onTap: () async {
+                              final productId = product.productId;
+                              await notifier
+                                  .buyProduct(productId ?? "monthly_sponsor");
+                            },
+                            child: buildProductItem(context, product),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -126,7 +137,7 @@ class SponserScreen extends HookWidget {
       elevation: 4.0,
       borderRadius: ConfigConstant.circlarRadius2,
       child: Container(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -134,7 +145,7 @@ class SponserScreen extends HookWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Monthly",
+                  product?.title ?? "",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.headline6?.copyWith(
@@ -143,7 +154,7 @@ class SponserScreen extends HookWidget {
                       ),
                 ),
                 Text(
-                  "Buy us a coffee\nonce a month",
+                  product?.description ?? "",
                   style: Theme.of(context).textTheme.subtitle2,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
@@ -152,7 +163,7 @@ class SponserScreen extends HookWidget {
             ),
             Expanded(
               child: Text(
-                product?.price ?? "1\$ per month",
+                (product?.price ?? "") + (product?.currency ?? ""),
                 softWrap: true,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.right,
