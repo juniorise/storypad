@@ -90,6 +90,13 @@ class StoryDetailScreen extends HookWidget
     );
 
     final quillNotifier = useProvider(quillControllerProvider(quillController));
+
+    quillController.addListener(() {
+      _notifier.setDraftStory(
+        _notifier.draftStory.copyWith(paragraph: quillNotifier.draftParagraph),
+      );
+    });
+
     final scrollController = useScrollController();
 
     scrollController.addListener(() {
