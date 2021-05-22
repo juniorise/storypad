@@ -158,13 +158,24 @@ class StoryDetailScreen extends HookWidget
               return Opacity(
                 opacity: max(0, 1 - headNotifier.headerPaddingTop * 2),
                 child: ClipPath(
-                  child: Container(
-                    height: height,
-                    transform: Matrix4.identity()..translate(0.0, -top),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: ConfigConstant.margin2,
-                    ),
-                    child: Wrap(children: [_headerText]),
+                  child: ValueListenableBuilder(
+                    valueListenable:
+                        scrollController.position.isScrollingNotifier,
+                    child: Container(
+                        height: height, child: Wrap(children: [_headerText])),
+                    builder: (context, bool? isScrolling, child) {
+                      return AnimatedContainer(
+                        curve: Curves.linearToEaseOut,
+                        duration: isScrolling == true
+                            ? Duration.zero
+                            : ConfigConstant.fadeDuration,
+                        transform: Matrix4.identity()..translate(0.0, -top),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: ConfigConstant.margin2,
+                        ),
+                        child: child,
+                      );
+                    },
                   ),
                 ),
               );
@@ -174,50 +185,59 @@ class StoryDetailScreen extends HookWidget
           Expanded(
             child: Scrollbar(
               showTrackOnHover: true,
-              child: QuillEditor(
-                scrollBottomInset: ConfigConstant.objectHeight1,
-                placeholder: tr("hint_text.story_detail"),
-                maxHeight: null,
-                controller: quillController,
-                scrollController: scrollController,
-                scrollable: true,
-                focusNode: focusNode,
-                autoFocus: true,
-                readOnly: readOnlyModeNotifier.value,
-                showCursor: !readOnlyModeNotifier.value,
-                keyboardAppearance: _theme.colorScheme.brightness,
-                enableInteractiveSelection: true,
-                expands: false,
-                embedBuilder: (BuildContext context, leaf.Embed node) {
-                  return _embedBuilder(
-                    context: context,
-                    node: node,
-                    notifier: _notifier,
-                    screenPadding: screenPadding,
-                    readOnlyModeNotifier: readOnlyModeNotifier,
-                  );
+              child: GestureDetector(
+                onVerticalDragUpdate: (detail) {
+                  final headNotifier = context.read(headerProvider);
+                  if (scrollController.offset == 0 &&
+                      headNotifier.headerPaddingTop != 0) {
+                    headNotifier.headerPaddingTop = 0;
+                  }
                 },
-                textCapitalization: TextCapitalization.sentences,
-                customStyles: DefaultStyles(
-                  placeHolder: DefaultTextBlockStyle(
-                    _theme.textTheme.bodyText1!.copyWith(
-                      color: _theme.colorScheme.onSurface.withOpacity(0.3),
+                child: QuillEditor(
+                  scrollBottomInset: ConfigConstant.objectHeight1,
+                  placeholder: tr("hint_text.story_detail"),
+                  maxHeight: null,
+                  controller: quillController,
+                  scrollController: scrollController,
+                  scrollable: true,
+                  focusNode: focusNode,
+                  autoFocus: true,
+                  readOnly: readOnlyModeNotifier.value,
+                  showCursor: !readOnlyModeNotifier.value,
+                  keyboardAppearance: _theme.colorScheme.brightness,
+                  enableInteractiveSelection: true,
+                  expands: false,
+                  embedBuilder: (BuildContext context, leaf.Embed node) {
+                    return _embedBuilder(
+                      context: context,
+                      node: node,
+                      notifier: _notifier,
+                      screenPadding: screenPadding,
+                      readOnlyModeNotifier: readOnlyModeNotifier,
+                    );
+                  },
+                  textCapitalization: TextCapitalization.sentences,
+                  customStyles: DefaultStyles(
+                    placeHolder: DefaultTextBlockStyle(
+                      _theme.textTheme.bodyText1!.copyWith(
+                        color: _theme.colorScheme.onSurface.withOpacity(0.3),
+                      ),
+                      Tuple2(0.0, 0.0),
+                      Tuple2(0.0, 0.0),
+                      null,
                     ),
-                    Tuple2(0.0, 0.0),
-                    Tuple2(0.0, 0.0),
-                    null,
+                    paragraph: DefaultTextBlockStyle(
+                      _theme.textTheme.bodyText1!,
+                      Tuple2(0.0, 0.0),
+                      Tuple2(0.0, 0.0),
+                      null,
+                    ),
                   ),
-                  paragraph: DefaultTextBlockStyle(
-                    _theme.textTheme.bodyText1!,
-                    Tuple2(0.0, 0.0),
-                    Tuple2(0.0, 0.0),
-                    null,
+                  padding: const EdgeInsets.all(
+                    ConfigConstant.margin2,
+                  ).copyWith(
+                    bottom: kToolbarHeight * 2,
                   ),
-                ),
-                padding: const EdgeInsets.all(
-                  ConfigConstant.margin2,
-                ).copyWith(
-                  bottom: kToolbarHeight * 2,
                 ),
               ),
             ),
@@ -597,11 +617,16 @@ class StoryDetailScreen extends HookWidget
       titleSpacing: 0.0,
       title: VTOnTapEffect(
         onTap: () {
-          scrollController.animateTo(
+          scrollController
+              .animateTo(
             0,
             duration: ConfigConstant.fadeDuration,
             curve: Curves.linearToEaseOut,
-          );
+          )
+              .then((_) {
+            final headNotifier = context.read(headerProvider);
+            headNotifier.headerPaddingTop = 0;
+          });
         },
         child: Consumer(
           builder: (context, watch, child) {
