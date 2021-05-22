@@ -1,3 +1,4 @@
+import 'package:storypad/storages/is_unlocked_storage.dart';
 import 'package:storypad/storages/lock_screen_storage.dart';
 
 class LockService {
@@ -5,6 +6,8 @@ class LockService {
   static final LockService instance = LockService._internal();
 
   LockScreenStorage storage = LockScreenStorage();
+  IsUnlockStorage isUnlockStorage = IsUnlockStorage();
+
   Map<String, String>? storageLockNumberMap;
 
   bool? _enable;
@@ -23,6 +26,7 @@ class LockService {
       this.storageLockNumberMap = null;
       _enable = false;
     }
+    isUnlockStorage.setBool(value: _enable != true);
   }
 
   Future<void> setLock(Map<String, dynamic> map) async {
