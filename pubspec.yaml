@@ -40,6 +40,7 @@ dependencies:
   flutter_speed_dial: ^3.0.5
   flutter_portal: ^0.4.0-nullsafety.0
   community_material_icon: ^5.9.55
+  swipeable_page_route: ^0.2.1
 
   # State management
   flutter_hooks: ^0.16.0

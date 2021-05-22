@@ -160,7 +160,9 @@ class StoryDetailScreen extends HookWidget
                 child: ClipPath(
                   child: ValueListenableBuilder(
                     valueListenable:
-                        scrollController.position.isScrollingNotifier,
+                        headNotifier.inited && scrollController.hasClients
+                            ? scrollController.position.isScrollingNotifier
+                            : readOnlyModeNotifier,
                     child: Container(
                         height: height, child: Wrap(children: [_headerText])),
                     builder: (context, bool? isScrolling, child) {

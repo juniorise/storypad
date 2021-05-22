@@ -18,8 +18,14 @@ class HeaderNotifier extends ChangeNotifier with ChangeNotifierMixin {
   set headerHeight(double value) {
     if (this._headerHeight == value) return;
     this._headerHeight = value;
-    notifyListeners();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      _inited = true;
+      notifyListeners();
+    });
   }
+
+  bool _inited = false;
+  bool get inited => this._inited;
 }
 
 final headerProvider = ChangeNotifierProvider.autoDispose<HeaderNotifier>(

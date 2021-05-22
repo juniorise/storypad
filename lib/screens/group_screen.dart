@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -173,7 +174,7 @@ class GroupScreen extends HookWidget with DialogMixin {
                                       notifier: notifier,
                                       onTap: () {
                                         Navigator.of(context).push(
-                                          MaterialPageRoute(
+                                          CupertinoPageRoute(
                                             fullscreenDialog: true,
                                             builder: (context) {
                                               return StoryDetailScreen(
