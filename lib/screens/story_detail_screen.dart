@@ -58,7 +58,6 @@ class StoryDetailScreen extends HookWidget
   @override
   Widget build(BuildContext context) {
     print("Build StoryDetailScreen");
-    final paddingTop = MediaQuery.of(context).viewPadding.top;
 
     final _notifier = useProvider(storydetailScreenNotifier(story));
     final readOnlyModeNotifier = useState<bool>(!insert);
@@ -146,7 +145,7 @@ class StoryDetailScreen extends HookWidget
               final headNotifier = watch(headerProvider);
               double top = lerpDouble(
                 0,
-                paddingTop,
+                headNotifier.headerHeight,
                 headNotifier.headerPaddingTop,
               )!;
 
@@ -156,14 +155,17 @@ class StoryDetailScreen extends HookWidget
                 headNotifier.headerPaddingTop,
               )!;
 
-              return ClipPath(
-                child: Container(
-                  height: height,
-                  transform: Matrix4.identity()..translate(0.0, -top),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: ConfigConstant.margin2,
+              return Opacity(
+                opacity: max(0, 1 - headNotifier.headerPaddingTop * 2),
+                child: ClipPath(
+                  child: Container(
+                    height: height,
+                    transform: Matrix4.identity()..translate(0.0, -top),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: ConfigConstant.margin2,
+                    ),
+                    child: Wrap(children: [_headerText]),
                   ),
-                  child: Wrap(children: [_headerText]),
                 ),
               );
             },
@@ -606,13 +608,16 @@ class StoryDetailScreen extends HookWidget
             final headNotifier = watch(headerProvider);
             double ox =
                 lerpDouble(kToolbarHeight, 0, headNotifier.headerPaddingTop)!;
-            return Transform.translate(
-              offset: Offset(0.0, ox),
-              child: Text(
-                titleController.text,
-                style: _theme.textTheme.headline6,
-                maxLines: 1,
-                softWrap: true,
+            return Opacity(
+              opacity: headNotifier.headerPaddingTop,
+              child: Transform.translate(
+                offset: Offset(0.0, ox),
+                child: Text(
+                  titleController.text,
+                  style: _theme.textTheme.headline6,
+                  maxLines: 1,
+                  softWrap: true,
+                ),
               ),
             );
           },

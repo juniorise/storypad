@@ -152,7 +152,7 @@ class SponserScreen extends HookWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product?.title ?? "",
+                  "Monthly",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.headline6?.copyWith(
@@ -170,7 +170,7 @@ class SponserScreen extends HookWidget {
             ),
             Expanded(
               child: Text(
-                (product?.price ?? "") + (product?.currency ?? ""),
+                (product?.price ?? "") + " " + (product?.currency ?? ""),
                 softWrap: true,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.right,
