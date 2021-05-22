@@ -99,11 +99,14 @@ class StoryDetailScreen extends HookWidget
     final scrollController = useScrollController();
 
     scrollController.addListener(() {
-      double minValue = scrollController.offset;
-      if (minValue >= kToolbarHeight) minValue = kToolbarHeight;
-      if (minValue <= 0) minValue = 0;
       final headNotifier = context.read(headerProvider);
-      headNotifier.headerPaddingTop = minValue / kToolbarHeight;
+      double minValue = scrollController.offset;
+      double maxHeight = kToolbarHeight > headNotifier.headerHeight
+          ? kToolbarHeight
+          : headNotifier.headerHeight;
+      if (minValue >= maxHeight) minValue = maxHeight;
+      if (minValue <= 0) minValue = 0;
+      headNotifier.headerPaddingTop = minValue / maxHeight;
     });
 
     final titleController =
