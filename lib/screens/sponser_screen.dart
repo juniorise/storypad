@@ -78,15 +78,18 @@ class SponserScreen extends HookWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (product != null)
-                            VTOnTapEffect(
+                          AnimatedOpacity(
+                            duration: ConfigConstant.fadeDuration,
+                            opacity: product != null ? 1 : 0,
+                            child: VTOnTapEffect(
                               onTap: () async {
-                                final productId = product.productId;
+                                final productId = product?.productId;
                                 await notifier
                                     .buyProduct(productId ?? "monthly_sponsor");
                               },
                               child: buildProductItem(context, product),
                             ),
+                          ),
                         ],
                       ),
                     ),
