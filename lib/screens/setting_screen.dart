@@ -14,7 +14,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/mixins/snakbar_mixin.dart';
-import 'package:storypad/models/group_storage_model.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/auth_notifier.dart';
 import 'package:storypad/notifier/check_for_update_notifier.dart';
@@ -25,7 +24,6 @@ import 'package:storypad/screens/font_manager_screen.dart';
 import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/screens/lock_setting_screen.dart';
 import 'package:storypad/screens/story_detail_screen.dart';
-import 'package:storypad/services/group_remote_service.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/services/google_drive_api_service.dart';
 import 'package:storypad/storages/vibrate_toggle_storage.dart';
@@ -88,8 +86,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         return LockSettingScreen();
                       }),
                     );
-                    final notifier =
-                        context.read(lockProvider(LockFlowType.UNLOCK));
+                    final notifier = context.read(lockProvider(LockFlowType.UNLOCK));
                     Future.delayed(ConfigConstant.duration).then((value) async {
                       await notifier.load();
                     });
@@ -103,8 +100,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       titleText: tr("title.vibration"),
                       trailing: Switch(
                         onChanged: (bool value) async {
-                          await VibrateToggleStorage()
-                              .setBool(value: !vibrationNotifier.value);
+                          await VibrateToggleStorage().setBool(value: !vibrationNotifier.value);
                           vibrationNotifier.value = !vibrationNotifier.value;
                           if (vibrationNotifier.value) {
                             onTapVibrate();
@@ -113,8 +109,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         value: vibrationNotifier.value,
                       ),
                       onTap: () async {
-                        await VibrateToggleStorage()
-                            .setBool(value: !vibrationNotifier.value);
+                        await VibrateToggleStorage().setBool(value: !vibrationNotifier.value);
                         vibrationNotifier.value = !vibrationNotifier.value;
                         if (vibrationNotifier.value) {
                           onTapVibrate();
@@ -233,9 +228,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
           final bool isCollapse = scrollOffsetNotifier.value < 200;
           return AnimatedContainer(
             duration: ConfigConstant.fadeDuration ~/ 3,
-            height: updateNotifier.isUpdateAvailable && isCollapse
-                ? kToolbarHeight
-                : 0,
+            height: updateNotifier.isUpdateAvailable && isCollapse ? kToolbarHeight : 0,
           );
         },
       );
@@ -270,8 +263,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                               ListTile(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.vertical(
-                                    top:
-                                        Radius.circular(ConfigConstant.radius1),
+                                    top: Radius.circular(ConfigConstant.radius1),
                                   ),
                                 ),
                                 title: Text(
@@ -283,14 +275,12 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                                   InAppUpdate.startFlexibleUpdate();
                                 },
                               ),
-                            if (notifier.flexibleUpdateAllowed)
-                              const Divider(height: 0),
+                            if (notifier.flexibleUpdateAllowed) const Divider(height: 0),
                             if (notifier.immediateUpdateAllowed)
                               ListTile(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.vertical(
-                                    bottom:
-                                        Radius.circular(ConfigConstant.radius1),
+                                    bottom: Radius.circular(ConfigConstant.radius1),
                                   ),
                                 ),
                                 title: Text(
@@ -316,8 +306,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
 
               return AnimatedContainer(
                 duration: ConfigConstant.fadeDuration,
-                transform: Matrix4.identity()
-                  ..translate(0.0, !isCollapse ? -100.0 : 0.0),
+                transform: Matrix4.identity()..translate(0.0, !isCollapse ? -100.0 : 0.0),
                 child: child,
               );
             },
@@ -377,8 +366,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                     width: double.infinity,
                     child: Text(
                       tr("name.thea"),
-                      style: _textTheme.caption!
-                          .copyWith(fontWeight: FontWeight.w600),
+                      style: _textTheme.caption!.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -400,8 +388,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                   ),
                   Text(
                     tr("name.menglong"),
-                    style: _textTheme.caption!
-                        .copyWith(fontWeight: FontWeight.w600),
+                    style: _textTheme.caption!.copyWith(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -431,8 +418,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                   ),
                   Text(
                     "Email: theacheng.g6@gmail.com",
-                    style: _textTheme.caption!
-                        .copyWith(fontWeight: FontWeight.w600),
+                    style: _textTheme.caption!.copyWith(fontWeight: FontWeight.w600),
                   ),
                   Text(
                     "Phnom Penh, Cambodia",
@@ -496,8 +482,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
         return WListTile(
           iconData: Icons.language,
           titleText: tr("button.language"),
-          subtitleText:
-              context.locale.languageCode == "km" ? "ខ្មែរ" : "English",
+          subtitleText: context.locale.languageCode == "km" ? "ខ្មែរ" : "English",
           onTap: () {
             final dialog = Dialog(
               child: Wrap(
@@ -611,9 +596,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
             WListTile(
               iconData: Icons.list_alt,
               titleText: tr("button.layout"),
-              subtitleText: notifier.isNormalList
-                  ? tr("button.layout.normal")
-                  : tr("button.layout.tab"),
+              subtitleText: notifier.isNormalList ? tr("button.layout.normal") : tr("button.layout.tab"),
               onTap: () {
                 final dialog = Dialog(
                   child: Wrap(
@@ -669,8 +652,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
         final userNotifier = reader(authenticationProvider);
         final dbNotifier = reader(remoteDatabaseProvider);
 
-        final bool imageNotNull = userNotifier.isAccountSignedIn &&
-            userNotifier.user!.photoURL != null;
+        final bool imageNotNull = userNotifier.isAccountSignedIn && userNotifier.user!.photoURL != null;
         // Variable holding the original String portion of the url that will be replaced
         String originalPieceOfUrl = "s96-c";
 
@@ -705,18 +687,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                 ),
                 title: Text(tr("title.google_acc")),
                 subtitle: Text(
-                  userNotifier.isAccountSignedIn
-                      ? "${userNotifier.user?.email}"
-                      : tr("msg.login.info"),
-                  style: TextStyle(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.5)),
+                  userNotifier.isAccountSignedIn ? "${userNotifier.user?.email}" : tr("msg.login.info"),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5)),
                 ),
                 children: [
-                  if (userNotifier.isAccountSignedIn &&
-                      dbNotifier.backup != null)
+                  if (userNotifier.isAccountSignedIn && dbNotifier.backup != null)
                     VTOnTapEffect(
                       onTap: () {},
                       child: WListTile(
@@ -774,9 +749,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                           : userNotifier.isAccountSignedIn
                               ? Icons.logout
                               : Icons.login,
-                      titleText: userNotifier.isAccountSignedIn
-                          ? tr("button.signout")
-                          : tr("button.connect"),
+                      titleText: userNotifier.isAccountSignedIn ? tr("button.signout") : tr("button.connect"),
                       onTap: () async {
                         if (locked) {
                           showSnackBar(
@@ -798,26 +771,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                               title: tr("msg.login.success"),
                             );
                             context.read(remoteDatabaseProvider).load();
-                            final groupRemoteService = GroupRemoteService();
-                            await groupRemoteService.fetchGroupsList();
-                            final communityGroupId =
-                                await groupRemoteService.getCommunityGroupId();
-                            if (communityGroupId == null) return;
-                            bool isJoin = await groupRemoteService.isUserJoin(
-                                groupId: communityGroupId);
-
-                            if (isJoin == false) {
-                              if (userNotifier.user?.email == null) return;
-                              GroupStorageModel? group =
-                                  await groupRemoteService
-                                      .fetchGroup(communityGroupId);
-                              if (group == null) return;
-                              await groupRemoteService.addUserToGroup(
-                                userNotifier.user!.email!,
-                                communityGroupId,
-                                group.groupName ?? "StoryPad",
-                              );
-                            }
                           } else {
                             onTapVibrate();
                             showSnackBar(
@@ -885,16 +838,10 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                   width: double.infinity,
                   curve: Curves.easeOutQuart,
                   height: 72,
-                  margin: EdgeInsets.only(
-                      left: isCollapse ? 0 : this.avatarSize + 16),
+                  margin: EdgeInsets.only(left: isCollapse ? 0 : this.avatarSize + 16),
                   decoration: BoxDecoration(
-                    borderRadius: isCollapse
-                        ? BorderRadius.zero
-                        : ConfigConstant.circlarRadius2,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withOpacity(isCollapse ? 1 : 1),
+                    borderRadius: isCollapse ? BorderRadius.zero : ConfigConstant.circlarRadius2,
+                    color: Theme.of(context).colorScheme.primary.withOpacity(isCollapse ? 1 : 1),
                   ),
                   child: ListTile(
                     title: Text(
@@ -904,9 +851,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       ),
                     ),
                     subtitle: Text(
-                      isCollapse
-                          ? tr("msg.drive.info.long")
-                          : tr("msg.drive.info.short"),
+                      isCollapse ? tr("msg.drive.info.long") : tr("msg.drive.info.short"),
                       maxLines: 1,
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimary,
@@ -927,8 +872,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         return;
                       }
 
-                      final String? id =
-                          await GoogleDriveApiService.getStoryFolderId();
+                      final String? id = await GoogleDriveApiService.getStoryFolderId();
                       if (id != null) {
                         launch(
                           "https://drive.google.com/drive/folders/$id?usp=sharing",

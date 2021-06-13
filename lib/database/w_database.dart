@@ -3,12 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import "package:path/path.dart";
-import 'package:storypad/models/group_sync_model.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/models/user_model.dart';
 import 'dart:convert' as convert;
 import 'package:storypad/services/encrypt_service.dart';
-import 'package:storypad/storages/group_sync_storage.dart';
 
 class WDatabase {
   WDatabase._privateConstructor();
@@ -52,16 +50,14 @@ class WDatabase {
         try {
           await database.rawQuery("SELECT feeling from story;");
         } catch (e) {
-          await database
-              .execute("ALTER TABLE story ADD COLUMN feeling char(50);");
+          await database.execute("ALTER TABLE story ADD COLUMN feeling char(50);");
         }
 
         /// add new is_share column if not existed
         try {
           await database.rawQuery("SELECT is_share from story;");
         } catch (e) {
-          await database
-              .execute("ALTER TABLE story ADD COLUMN is_share INTEGER");
+          await database.execute("ALTER TABLE story ADD COLUMN is_share INTEGER");
         }
 
         final groupSql = '''
@@ -142,9 +138,7 @@ class WDatabase {
       updateOn = DateTime.now();
     }
 
-    final paragraph = story.paragraph != null
-        ? story.paragraph?.replaceAll("'", "$singleQuote")
-        : null;
+    final paragraph = story.paragraph != null ? story.paragraph?.replaceAll("'", "$singleQuote") : null;
 
     String query = '''
     UPDATE story 
@@ -169,9 +163,7 @@ class WDatabase {
   Future<bool> addStory({
     required StoryModel story,
   }) async {
-    final paragraph = story.paragraph != null
-        ? story.paragraph?.replaceAll("'", "$singleQuote")
-        : null;
+    final paragraph = story.paragraph != null ? story.paragraph?.replaceAll("'", "$singleQuote") : null;
 
     String query = '''
     INSERT or REPLACE INTO "story" (
@@ -206,119 +198,6 @@ class WDatabase {
     }
   }
 
-  Future<bool> removeFromGroupSync({
-    required String groupId,
-    required int storyId,
-  }) async {
-    try {
-      final Database? client = await database;
-      await client?.delete(
-        'group_sync',
-        where: '''
-        story_id = $storyId AND group_id = '$groupId'
-        ''',
-      );
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<bool> isStoryIdCheckedByAllGroups(
-    int id,
-  ) async {
-    var client = await database;
-    List<Map<String, dynamic>>? maps;
-    try {
-      maps = await client!.query(
-        "group_sync",
-        columns: [
-          "story_id",
-          "group_id",
-          "group_name",
-        ],
-        where: "story_id = $id",
-      );
-
-      try {
-        final _groups = await GroupsSyncStorage().readList();
-        List<String> availableGroup =
-            _groups?.map((e) => "${e.groupId}").toList() ?? [];
-        maps.forEach((e) async {
-          final groupId = e['group_id'];
-          final storyId = e['story_id'];
-          if (groupId == null && storyId == null) return;
-          if (!availableGroup.contains("$groupId")) {
-            await removeFromGroupSync(groupId: groupId, storyId: storyId);
-          }
-        });
-      } catch (e) {}
-
-      return maps.isNotEmpty;
-    } catch (e) {
-      print("WDatabase#groupSyncsByGroupId $e");
-      return false;
-    }
-  }
-
-  Future<bool> insertToGroupSync({
-    required String groupId,
-    required int storyId,
-    required String groupName,
-  }) async {
-    String query = '''
-      INSERT or REPLACE INTO "group_sync" (
-        group_id,
-        group_name,
-        story_id
-      )
-      VALUES (
-        '$groupId',
-        '$groupName',
-        $storyId
-      )
-    ''';
-    try {
-      final Database? client = await database;
-      await client?.execute(query);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<List<GroupSyncModel>?> groupSyncsByGroupId(String groupId) async {
-    var client = await database;
-    List<Map<String, dynamic>>? maps;
-    try {
-      maps = await client!.query(
-        "group_sync",
-        columns: [
-          "story_id",
-          "group_id",
-          "group_name",
-        ],
-        where: "group_id = '$groupId'",
-      );
-    } catch (e) {
-      print("WDatabase#groupSyncsByGroupId $e");
-      return null;
-    }
-
-    final result = maps.map((json) {
-      return GroupSyncModel.fromJson(json);
-    }).toList();
-    return result;
-  }
-
-  clearAllSync({String? where}) async {
-    String query = "delete from `group_sync`";
-    if (where != null) {
-      query = query + " where " + where;
-    }
-    await _database?.execute(query);
-  }
-
   Future<Map<int, StoryModel>> storyById({String? where}) async {
     var client = await database;
     List<Map<String, dynamic>> maps = await client!.query(
@@ -341,9 +220,7 @@ class WDatabase {
       return int.parse("${e['id']}");
     }, value: (e) {
       final String? _paragraph = e['paragraph'];
-      String? result = _paragraph != null
-          ? _paragraph.replaceAll("$singleQuote", "'")
-          : null;
+      String? result = _paragraph != null ? _paragraph.replaceAll("$singleQuote", "'") : null;
       return StoryModel.fromJson(e).copyWith(paragraph: result);
     });
 

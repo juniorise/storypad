@@ -15,8 +15,7 @@ import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/mixins/snakbar_mixin.dart';
 import 'package:storypad/notifier/home_screen_notifier.dart';
 
-class RemoteDatabaseNotifier
-    with ChangeNotifier, DialogMixin, WSnackBar, ChangeNotifierMixin {
+class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBar, ChangeNotifierMixin {
   RemoteDatabaseService service = RemoteDatabaseService();
   AuthenticationService auth = AuthenticationService();
 
@@ -79,7 +78,6 @@ class RemoteDatabaseNotifier
             onTap: () async {
               hasClick = true;
               await database.clearAllStories();
-              await database.clearAllSync();
               Navigator.of(context).pop();
             },
           ),

@@ -3,19 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:storypad/app_helper/quill_helper.dart';
 import 'package:storypad/constants/config_constant.dart';
-import 'package:storypad/database/w_database.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
-import 'package:storypad/widgets/w_group_sync_dialog.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 
 class WStoryTile extends StatelessWidget with DialogMixin {
   final StoryModel story;
   final void Function() onTap;
   final ValueChanged<DateTime> onSaved;
-  final EdgeInsets margin =
-      const EdgeInsets.only(bottom: ConfigConstant.margin1);
+  final EdgeInsets margin = const EdgeInsets.only(bottom: ConfigConstant.margin1);
   final void Function()? onToggleFavorite;
   final void Function()? onToggleSync;
   final bool readOnly;
@@ -67,13 +64,11 @@ class WStoryTile extends StatelessWidget with DialogMixin {
       child: Text(
         _displayParagraph,
         textAlign: TextAlign.start,
-        style: _theme.textTheme.bodyText2
-            ?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.5)),
+        style: _theme.textTheme.bodyText2?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.5)),
       ),
     );
 
-    final _paragraphWidget =
-        _paragraphText.isNotEmpty ? _paragraphChild : const SizedBox();
+    final _paragraphWidget = _paragraphText.isNotEmpty ? _paragraphChild : const SizedBox();
 
     final _tileEffects = [
       VTOnTapEffectItem(
@@ -87,46 +82,13 @@ class WStoryTile extends StatelessWidget with DialogMixin {
       top: 0,
       child: Row(
         children: [
-          if (!readOnly)
-            Transform(
-              transform: Matrix4.identity()
-                ..translate(
-                  onToggleFavorite != null ? 8.0 : 0.0,
-                  0.0,
-                ),
-              child: FutureBuilder(
-                future:
-                    WDatabase.instance.isStoryIdCheckedByAllGroups(story.id),
-                builder: (context, snapshot) {
-                  return buildFavoriteButton(
-                    story: story,
-                    context: context,
-                    onPressed: () async {
-                      if (readOnly) return;
-                      await showWDialog(
-                        context: context,
-                        child: WGroupSyncDialog(storyId: story.id),
-                      );
-                      if (onToggleSync == null) return;
-                      onToggleSync!();
-                    },
-                    isActive: snapshot.data == true,
-                    iconData: snapshot.data == true
-                        ? Icons.people_alt_sharp
-                        : Icons.people_alt_outlined,
-                  );
-                },
-              ),
-            ),
           if (onToggleFavorite != null)
             buildFavoriteButton(
               story: story,
               context: context,
               onPressed: onToggleFavorite ?? () {},
               isActive: story.isFavorite,
-              iconData: story.isFavorite
-                  ? Icons.favorite
-                  : Icons.favorite_border_rounded,
+              iconData: story.isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
             ),
           const SizedBox(width: 4.0)
         ],
@@ -157,8 +119,7 @@ class WStoryTile extends StatelessWidget with DialogMixin {
                   crossAxisAlignment: WrapCrossAlignment.start,
                   children: [
                     _titleWidget,
-                    if (story.title.isNotEmpty)
-                      const SizedBox(height: ConfigConstant.margin0),
+                    if (story.title.isNotEmpty) const SizedBox(height: ConfigConstant.margin0),
                     _paragraphWidget,
                   ],
                 ),
@@ -193,9 +154,7 @@ class WStoryTile extends StatelessWidget with DialogMixin {
         size: 40,
         iconSize: 20,
         iconData: iconData,
-        iconColor: isActive
-            ? Theme.of(context).colorScheme.error
-            : Theme.of(context).dividerColor,
+        iconColor: isActive ? Theme.of(context).colorScheme.error : Theme.of(context).dividerColor,
       ),
     );
   }

@@ -17,7 +17,6 @@ import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/home_screen_notifier.dart';
 import 'package:storypad/notifier/tab_controller_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
-import 'package:storypad/screens/group_screen.dart';
 import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/screens/story_detail_screen.dart';
 import 'package:storypad/widgets/w_story_tile.dart';
@@ -103,9 +102,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                       transform: Matrix4.identity()
                         ..translate(
                           0.0,
-                          faqNotifier.value &&
-                                  authNotifier.isAccountSignedIn &&
-                                  dbNotifier.backup != null
+                          faqNotifier.value && authNotifier.isAccountSignedIn && dbNotifier.backup != null
                               ? -bottomSyncHeight
                               : 0,
                         ),
@@ -115,34 +112,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                     );
                   },
                 ),
-                if (authNotifier.isAccountSignedIn && dbNotifier.backup != null)
-                  ValueListenableBuilder(
-                    valueListenable: faqNotifier,
-                    builder: (context, value, child) {
-                      return AnimatedOpacity(
-                        opacity: faqNotifier.value ? 1 : 0,
-                        duration: ConfigConstant.fadeDuration,
-                        child: Container(
-                          height: statusBarHeight * 1,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Theme.of(context).colorScheme.surface,
-                                Theme.of(context)
-                                    .colorScheme
-                                    .surface
-                                    .withOpacity(0.5),
-                                Colors.transparent,
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  )
               ],
             ),
           );
@@ -187,10 +156,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
           resizeToAvoidBottomInset: false,
           body: Consumer(
             child: Column(
-              children: [
-                buildNormalList(controller, notifier, context),
-                buildDayList(controller, context, notifier)
-              ],
+              children: [buildNormalList(controller, notifier, context), buildDayList(controller, context, notifier)],
             ),
             builder: (context, watch, column) {
               final themeNotifier = watch(themeProvider);
@@ -284,25 +250,20 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_storyListModel != null &&
-                          _storyListModel.childrenId.isNotEmpty)
+                      if (_storyListModel != null && _storyListModel.childrenId.isNotEmpty)
                         buildDateMonthHeader(context, _storyListModel),
                       Column(
                         children: List.generate(
                           storiesInMonthIds.length,
                           (storyByDayIndex) {
-                            final int storyByIndex =
-                                storiesInMonthIds[storyByDayIndex];
-                            final StoryListModel? storyInMonth =
-                                notifier.storyListByDayId?[storyByIndex];
-                            final List<int> storyInDayIds =
-                                storyInMonth?.childrenId ?? [];
+                            final int storyByIndex = storiesInMonthIds[storyByDayIndex];
+                            final StoryListModel? storyInMonth = notifier.storyListByDayId?[storyByIndex];
+                            final List<int> storyInDayIds = storyInMonth?.childrenId ?? [];
                             return Column(
                               children: List.generate(
                                 storyInDayIds.length,
                                 (index) {
-                                  final StoryModel story = notifier
-                                      .storyById![storyInDayIds[index]]!;
+                                  final StoryModel story = notifier.storyById![storyInDayIds[index]]!;
                                   return buildStoryTile(
                                     context: context,
                                     story: story,
@@ -330,8 +291,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
         : WNoData();
   }
 
-  Column buildDateMonthHeader(
-      BuildContext context, StoryListModel _storyListModel) {
+  Column buildDateMonthHeader(BuildContext context, StoryListModel _storyListModel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -352,8 +312,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                   vertical: ConfigConstant.margin0,
                 ),
                 child: Text(
-                  AppHelper.toFullNameOfMonth(context)
-                      .format(_storyListModel.forDate),
+                  AppHelper.toFullNameOfMonth(context).format(_storyListModel.forDate),
                 ),
               ),
             ),
@@ -378,17 +337,6 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
         builder: (context, value, child) {
           return WMoreFaqButton(
             faqNotifier: faqNotifier,
-            onGroupPressed: () async {
-              closeFaq();
-              await Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return GroupScreen();
-                  },
-                ),
-              );
-              await notifier.load();
-            },
             onSettingPressed: () {
               closeFaq();
               Navigator.of(context).push(
@@ -400,16 +348,14 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
               );
             },
             onAddStoryPressed: () async {
-              final _tabNotifier =
-                  context.read(tabControllerProvider(controller));
+              final _tabNotifier = context.read(tabControllerProvider(controller));
               closeFaq();
               final forDate = DateTime(
                 notifier.currentSelectedYear,
                 _tabNotifier.currentIndex + 1,
                 now.day,
               );
-              final dynamic date =
-                  await Navigator.of(context, rootNavigator: true).push(
+              final dynamic date = await Navigator.of(context, rootNavigator: true).push(
                 MaterialPageRoute(
                   fullscreenDialog: true,
                   builder: (context) {
@@ -469,9 +415,8 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
 
     // fetching data
     List<int>? storiesInMonthIds = [];
-    bool storiesNotNull = storyListByMonthId != null &&
-        storyListByMonthId.containsKey(monthId) &&
-        storyListByMonthId[monthId] != null;
+    bool storiesNotNull =
+        storyListByMonthId != null && storyListByMonthId.containsKey(monthId) && storyListByMonthId[monthId] != null;
 
     if (storiesNotNull) {
       storiesInMonthIds = storyListByMonthId[monthId]?.childrenId;
@@ -480,8 +425,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     // showing if data is empty
     bool noData = storiesInMonthIds == null || (storiesInMonthIds.length == 0);
     if (noData) {
-      final monthName = AppHelper.toNameOfMonth(context, fullName: true)
-          .format(DateTime(DateTime.now().year, monthId));
+      final monthName = AppHelper.toNameOfMonth(context, fullName: true).format(DateTime(DateTime.now().year, monthId));
       return buildFadeInOnInit(
         child: WNoData(monthName: monthName),
         notifier: notifier,
@@ -516,8 +460,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     required ValueChanged<DateTime> onSaved,
   }) {
     // fetching data
-    final Map<int, StoryListModel>? storyListByDayId =
-        notifier.storyListByDayId;
+    final Map<int, StoryListModel>? storyListByDayId = notifier.storyListByDayId;
     final StoryListModel? _storyListByDay = storyListByDayId?[dayId];
 
     if (_storyListByDay == null) return const SizedBox();
@@ -584,9 +527,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                   notifier: notifier,
                   margin: EdgeInsets.only(
                     top: _storyIndex == 0 ? ConfigConstant.margin1 : 0.0,
-                    bottom: _storyIndex != childrenId.length - 1
-                        ? ConfigConstant.margin1
-                        : 0.0,
+                    bottom: _storyIndex != childrenId.length - 1 ? ConfigConstant.margin1 : 0.0,
                   ),
                 );
               },
@@ -603,8 +544,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
   }) {
     /// if locale is km => dayName is ចន្ទ​​ អង្គារ​ ...
     /// if locale is en => dayName is Mon, Tue ...
-    final String dayName =
-        AppHelper.toDay(context).format(storyListByDay.forDate);
+    final String dayName = AppHelper.toDay(context).format(storyListByDay.forDate);
 
     /// get stand color of the week
     final int dayOfWeek = AppHelper.dayOfWeek(context, storyListByDay.forDate);
@@ -629,10 +569,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
               child: Text(
                 dayName,
                 style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onBackground
-                          .withOpacity(0.5),
+                      color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                     ),
               ),
             ),
@@ -757,10 +694,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       String? actionLabel,
       VoidCallback? onActionPressed,
     }) {
-      final style = Theme.of(context)
-          .textTheme
-          .bodyText1!
-          .copyWith(color: Theme.of(context).colorScheme.background);
+      final style = Theme.of(context).textTheme.bodyText1!.copyWith(color: Theme.of(context).colorScheme.background);
 
       final actions = onActionPressed != null
           ? SnackBarAction(
