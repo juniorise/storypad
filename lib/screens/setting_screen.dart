@@ -726,12 +726,10 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         tileColor: Theme.of(context).colorScheme.surface,
                         iconData: locked ? Icons.lock : Icons.restore,
                         titleText: tr("button.backup.import"),
-                        subtitleText: tr(
-                          "msg.backup.import",
-                          namedArgs: {
-                            "DATE": dbNotifier.lastImportDate(context),
-                          },
-                        ),
+                        subtitleText: dbNotifier.backup?.name ??
+                            tr("msg.backup.import", namedArgs: {
+                              "DATE": dbNotifier.lastImportDate(context),
+                            }),
                         onTap: () async {
                           if (locked) {
                             showSnackBar(
@@ -752,7 +750,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                       leading: SizedBox(),
                       title: Container(
                         alignment: Alignment.centerLeft,
-                        child: TextButton(
+                        child: TextButton.icon(
                           onPressed: () async {
                             onTapVibrate();
                             await showSnackBar(
@@ -764,7 +762,11 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                             );
                           },
                           style: buildButtonStyle(context),
-                          child: Text(tr("button.backup.export").toUpperCase()),
+                          label: Text(tr("button.backup.export").toUpperCase()),
+                          icon: Icon(
+                            Icons.add_to_drive,
+                            size: 16,
+                          ),
                         ),
                       ),
                     ),

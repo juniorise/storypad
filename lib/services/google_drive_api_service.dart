@@ -2,9 +2,11 @@ import 'dart:io' as io;
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
+import 'package:storypad/models/db_backup_model.dart';
 import 'package:storypad/services/authentication_service.dart';
 import 'package:storypad/storages/auth_header_storage.dart';
 import 'package:storypad/storages/story_folder_storage.dart';
+import 'package:storypad/storages/user_data_id_storage.dart';
 
 class GoogleAuthClient extends http.BaseClient {
   final Map<String, String> _headers;
@@ -94,6 +96,77 @@ class GoogleDriveApiService {
       } catch (e) {}
     }
     await folderStorage.write(folderId ?? "");
+  }
+
+  static Future<DbBackupModel?> fetchTxtData() async {
+    drive.DriveApi driveApi = await getDriveApi();
+
+    try {
+      await setFolderId(driveApi);
+    } catch (e) {
+      return null;
+    }
+
+    final folderStorage = StoryFolderStorage();
+    final String? folderId = await folderStorage.read();
+
+    if (folderId == null) return null;
+    final folder = await driveApi.files.list();
+    List<drive.File>? list = folder.files?.where((e) => e.mimeType == "application/zip").toList();
+
+    if (list?.isEmpty == true) return null;
+    String? id = list?.first.id;
+
+    if (id == null) return null;
+
+    // delete if there is file exist
+    final userIDStorage = UserDataIdStorage();
+    await userIDStorage.write(id);
+
+    var data = await http.get(Uri.parse('https://drive.google.com/uc?export=download&id=$id'));
+    return DbBackupModel(db: data.body, name: list?.first.name);
+  }
+
+  static Future<String?> uploadAFile(io.File file) async {
+    drive.DriveApi driveApi = await getDriveApi();
+    try {
+      await setFolderId(driveApi);
+    } catch (e) {
+      return null;
+    }
+
+    final folderStorage = StoryFolderStorage();
+    final String? folderId = await folderStorage.read();
+
+    /// config file before upload
+    drive.File fileToUpload = drive.File();
+    fileToUpload.parents = [folderId.toString()];
+    fileToUpload.name = basename(file.path);
+
+    /// try create file
+    drive.File response2;
+    try {
+      response2 = await driveApi.files.create(
+        fileToUpload,
+        uploadMedia: drive.Media(file.openRead(), file.lengthSync()),
+      );
+    } catch (e) {
+      return null;
+    }
+    if (response2.id == null) return null;
+    await file.delete();
+
+    // delete if there is file exist
+    final userIDStorage = UserDataIdStorage();
+    String? id = await userIDStorage.read();
+    if (id != null) {
+      try {
+        await driveApi.files.delete(id);
+      } catch (e) {}
+    }
+
+    await userIDStorage.write(response2.id ?? "");
+    return response2.id;
   }
 
   static Future<String?> upload(io.File image) async {

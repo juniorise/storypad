@@ -39,10 +39,8 @@ class BackupTile extends HookWidget {
         valueListenable: faqNotifier,
         child: Consumer(
           builder: (context, watch, child) {
-            final titleText = tr(
-              "msg.backup.import",
-              namedArgs: {"DATE": date},
-            ).replaceFirst(": ", ":\n");
+            final titleText =
+                backup.name ?? tr("msg.backup.import", namedArgs: {"DATE": date}).replaceFirst(": ", ":\n");
 
             return Column(
               children: [
@@ -52,17 +50,14 @@ class BackupTile extends HookWidget {
                   titleMaxLines: 2,
                   trailing: AnimatedCrossFade(
                     duration: ConfigConstant.fadeDuration,
-                    crossFadeState: loading.value == false
-                        ? CrossFadeState.showFirst
-                        : CrossFadeState.showSecond,
+                    crossFadeState: loading.value == false ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                     secondChild: Stack(
                       alignment: Alignment.center,
                       children: [
                         Opacity(
                           opacity: 0,
                           child: TextButton(
-                            child:
-                                Text(tr("button.backup.export").toUpperCase()),
+                            child: Text(tr("button.backup.export").toUpperCase()),
                             onPressed: () {},
                           ),
                         ),
@@ -72,14 +67,18 @@ class BackupTile extends HookWidget {
                         ),
                       ],
                     ),
-                    firstChild: TextButton(
-                      child: Text(tr("button.backup.export").toUpperCase()),
+                    firstChild: TextButton.icon(
+                      label: Text(tr("button.backup.export").toUpperCase()),
                       onPressed: () async {
                         loading.value = true;
                         await onBackup();
                         loading.value = false;
                       },
                       style: buildButtonStyle(context),
+                      icon: Icon(
+                        Icons.add_to_drive,
+                        size: 16,
+                      ),
                     ),
                   ),
                   titleText: titleText,
@@ -93,8 +92,7 @@ class BackupTile extends HookWidget {
           return AnimatedContainer(
             duration: ConfigConstant.duration,
             curve: Curves.easeOutQuart,
-            decoration:
-                BoxDecoration(color: Theme.of(context).colorScheme.surface),
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
             transform: Matrix4.identity()
               ..translate(
                 0.0,

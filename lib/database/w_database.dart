@@ -15,6 +15,7 @@ class WDatabase {
 
   static Database? _database;
   static String deviceId = "os";
+  static String singleQuote = "▘";
 
   Future<Database?> get database async {
     if (_database != null) return _database;
@@ -59,19 +60,6 @@ class WDatabase {
         } catch (e) {
           await database.execute("ALTER TABLE story ADD COLUMN is_share INTEGER");
         }
-
-        final groupSql = '''
-          CREATE TABLE IF NOT EXISTS group_sync (
-              group_id TEXT NOT NULL,
-              story_id INT,
-              group_name TEXT,
-              UNIQUE(group_id, story_id) ON CONFLICT REPLACE
-          );
-        ''';
-
-        try {
-          await database.execute(groupSql);
-        } catch (e) {}
       },
       version: 3,
     );
@@ -81,7 +69,7 @@ class WDatabase {
     var dbs = await this.database;
 
     List data = [];
-    final List<String> tables = ["user_info", "story", "group_sync"];
+    final List<String> tables = ["user_info", "story"];
     List<Map<String, dynamic>> listMaps = [];
 
     for (var i = 0; i < tables.length; i++) {
@@ -89,15 +77,17 @@ class WDatabase {
       data.add(listMaps);
     }
 
-    List backups = [tables, data];
-    String json = convert.jsonEncode(backups);
+    List<List<dynamic>> backups = [tables, data];
 
     String backup;
     if (isEncrypted) {
+      String json = convert.jsonEncode(backups);
       backup = EncryptService.encryptToString(json);
     } else {
-      backup = json;
+      String csv = convert.jsonEncode(backups);
+      backup = csv;
     }
+
     return backup;
   }
 
@@ -106,9 +96,7 @@ class WDatabase {
       var dbs = await this.database;
       Batch batch = dbs!.batch();
 
-      List json = convert.jsonDecode(
-        isEncrypted ? EncryptService.decryptToString(backup) : backup,
-      );
+      List json = convert.jsonDecode(isEncrypted ? EncryptService.decryptToString(backup) : backup);
 
       for (var i = 0; i < json[0].length; i++) {
         for (var k = 0; k < json[1][i].length; k++) {
@@ -219,7 +207,7 @@ class WDatabase {
       return int.parse("${e['id']}");
     }, value: (e) {
       String? _paragraph = e['paragraph'];
-      _paragraph = _paragraph != null ? HtmlCharacterEntities.decode(_paragraph) : null;
+      _paragraph = _paragraph != null ? HtmlCharacterEntities.decode(_paragraph).replaceAll(singleQuote, "'") : null;
       return StoryModel.fromJson(e).copyWith(paragraph: _paragraph);
     });
 
