@@ -4,6 +4,7 @@ import 'package:flutter_quill/models/documents/document.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
 import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_quil_toolbar.dart';
 
 class WClearFormatButton extends StatefulWidget {
   final IconData icon;
@@ -31,8 +32,7 @@ class _WClearFormatButtonState extends State<WClearFormatButton> {
       icon: Icon(widget.icon, color: iconColor),
       fillColor: fillColor,
       onPressed: () {
-        for (Attribute k
-            in widget.controller.getSelectionStyle().attributes.values) {
+        for (Attribute k in widget.controller.getSelectionStyle().attributes.values) {
           widget.controller.formatSelection(Attribute.clone(k, null));
         }
       },
@@ -65,10 +65,10 @@ class _WMoveCursurButtonState extends State<WMoveCursurButton> {
     return toolbar.QuillIconButton(
       highlightElevation: 0,
       hoverElevation: 0,
-      size: widget.controller.iconSize * 1.77,
+      size: WTOOLBARICONSIZE * 1.77,
       icon: Icon(
         widget.icon,
-        size: widget.controller.iconSize,
+        size: WTOOLBARICONSIZE,
         color: iconColor,
       ),
       fillColor: fillColor,

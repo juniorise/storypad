@@ -9,6 +9,8 @@ import 'package:storypad/widgets/w_clear_format_btn.dart';
 import 'package:storypad/widgets/w_color_button.dart';
 import 'package:storypad/widgets/w_select_header_style_button.dart';
 
+const WTOOLBARICONSIZE = 24.0;
+
 class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
   final List<Widget> children;
 
@@ -36,7 +38,6 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
     bool showHorizontalRule = false,
     toolbar.OnImagePickCallback? onImagePickCallback,
   }) {
-    controller.iconSize = toolbarIconSize;
     final spaceBetween = const SizedBox(width: 4.0);
     final spaceBetween2 = const SizedBox(width: 8.0);
     return WQuillToolbar(
@@ -146,8 +147,9 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               IconData icon,
               Color? fillColor,
               bool? isToggled,
-              VoidCallback? _onPressed,
-            ) {
+              VoidCallback? _onPressed, [
+              double iconSize = 24.0,
+            ]) {
               final _attributes = controller.getSelectionStyle().attributes;
               final bool hasBlockList = _attributes.containsKey("blockquote");
               final onPressed = hasBlockList ? null : _onPressed;
@@ -158,6 +160,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
                 fillColor,
                 isToggled,
                 onPressed,
+                iconSize,
               );
             },
           ),
@@ -174,8 +177,9 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               IconData icon,
               Color? fillColor,
               bool? isToggled,
-              VoidCallback? _onPressed,
-            ) {
+              VoidCallback? _onPressed, [
+              double iconSize = 24.0,
+            ]) {
               final _attributes = controller.getSelectionStyle().attributes;
               final bool hasBlockList = _attributes.containsKey("blockquote");
               final onPressed = hasBlockList ? null : _onPressed;
@@ -186,6 +190,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
                 fillColor,
                 isToggled,
                 onPressed,
+                iconSize,
               );
             },
           ),
@@ -202,8 +207,9 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               IconData icon,
               Color? fillColor,
               bool? isToggled,
-              VoidCallback? _onPressed,
-            ) {
+              VoidCallback? _onPressed, [
+              double iconSize = 24.0,
+            ]) {
               final _attributes = controller.getSelectionStyle().attributes;
               final bool hasBlockList = _attributes.containsKey("blockquote");
               final onPressed = hasBlockList ? null : _onPressed;
@@ -214,6 +220,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
                 fillColor,
                 isToggled,
                 onPressed,
+                iconSize,
               );
             },
           ),
@@ -235,13 +242,13 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               IconData icon,
               Color? fillColor,
               bool? isToggled,
-              VoidCallback? _onPressed,
-            ) {
+              VoidCallback? _onPressed, [
+              double iconSize = 24.0,
+            ]) {
               final _attributes = controller.getSelectionStyle().attributes;
               final bool hasBlockQuote = _attributes.containsKey("blockquote");
               final bool hasBlockList = _attributes.containsKey("list");
-              final onPressed =
-                  hasBlockQuote || hasBlockList ? null : _onPressed;
+              final onPressed = hasBlockQuote || hasBlockList ? null : _onPressed;
               return defaultToggleStyleButtonBuilder(
                 context,
                 attribute,
@@ -249,6 +256,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
                 fillColor,
                 isToggled,
                 onPressed,
+                iconSize,
               );
             },
           ),
@@ -265,8 +273,9 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
               IconData icon,
               Color? fillColor,
               bool? isToggled,
-              VoidCallback? _onPressed,
-            ) {
+              VoidCallback? _onPressed, [
+              double iconSize = 24.0,
+            ]) {
               final _attributes = controller.getSelectionStyle().attributes;
               final bool hasBlockList = _attributes.containsKey("list");
               final onPressed = hasBlockList ? null : _onPressed;
@@ -277,6 +286,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
                 fillColor,
                 isToggled,
                 onPressed,
+                iconSize,
               );
             },
           ),
@@ -345,6 +355,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             controller: controller,
             imageSource: ImageSource.gallery,
             onImagePickCallback: onImagePickCallback,
+            iconSize: WTOOLBARICONSIZE,
           ),
         ),
         spaceBetween,
@@ -355,6 +366,7 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
             controller: controller,
             imageSource: ImageSource.camera,
             onImagePickCallback: onImagePickCallback,
+            iconSize: WTOOLBARICONSIZE,
           ),
         ),
         spaceBetween2,
@@ -368,14 +380,13 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
     IconData icon,
     Color? fillColor,
     bool? isToggled,
-    VoidCallback? onPressed,
-  ) {
+    VoidCallback? onPressed, [
+    double iconSize = WTOOLBARICONSIZE,
+  ]) {
     final theme = Theme.of(context);
     final isEnabled = onPressed != null;
     final iconColor = isEnabled ? theme.iconTheme.color : theme.disabledColor;
-    final fillColor = isToggled == true && onPressed != null
-        ? theme.dividerColor
-        : Colors.transparent;
+    final fillColor = isToggled == true && onPressed != null ? theme.dividerColor : Colors.transparent;
 
     return VTOnTapEffect(
       onTap: onPressed != null ? onPressed : null,

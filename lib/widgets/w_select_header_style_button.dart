@@ -4,16 +4,15 @@ import 'package:flutter_quill/models/documents/attribute.dart';
 import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_quil_toolbar.dart';
 
 class WSelectHeaderStyleButton extends StatefulWidget {
-  const WSelectHeaderStyleButton({required this.controller, Key? key})
-      : super(key: key);
+  const WSelectHeaderStyleButton({required this.controller, Key? key}) : super(key: key);
 
   final QuillController controller;
 
   @override
-  _WSelectHeaderStyleButtonState createState() =>
-      _WSelectHeaderStyleButtonState();
+  _WSelectHeaderStyleButtonState createState() => _WSelectHeaderStyleButtonState();
 }
 
 class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
@@ -23,8 +22,7 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
 
   void _didChangeEditingValue() {
     setState(() {
-      _value =
-          _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
+      _value = _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
     });
   }
 
@@ -36,8 +34,7 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
   void initState() {
     super.initState();
     setState(() {
-      _value =
-          _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
+      _value = _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
     });
     widget.controller.addListener(_didChangeEditingValue);
   }
@@ -48,8 +45,7 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
-      _value =
-          _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
+      _value = _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
     }
   }
 
@@ -65,7 +61,7 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
       context,
       _value,
       _selectAttribute,
-      widget.controller.iconSize,
+      WTOOLBARICONSIZE,
     );
   }
 
@@ -81,11 +77,7 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
       Attribute.h3: 'H3',
     };
 
-    final _valueAttribute = <Attribute>[
-      Attribute.h1,
-      Attribute.h2,
-      Attribute.h3
-    ];
+    final _valueAttribute = <Attribute>[Attribute.h1, Attribute.h2, Attribute.h3];
     final _valueString = <String>['H1', 'H2', 'H3'];
 
     final theme = Theme.of(context);
@@ -130,9 +122,7 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
                   borderRadius: BorderRadius.circular(2),
                 ),
                 fillColor:
-                    _valueToText[value] == _valueString[index] && !disable
-                        ? theme.dividerColor
-                        : theme.canvasColor,
+                    _valueToText[value] == _valueString[index] && !disable ? theme.dividerColor : theme.canvasColor,
                 onPressed: disable
                     ? null
                     : () {
@@ -145,8 +135,7 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
                 child: Text(
                   _valueString[index],
                   style: style.copyWith(
-                    color:
-                        disable ? theme.disabledColor : theme.iconTheme.color,
+                    color: disable ? theme.disabledColor : theme.iconTheme.color,
                   ),
                 ),
               ),

@@ -32,9 +32,7 @@ import 'local_widgets/backup_tile.dart';
 class HomeScreen extends HookWidget with HookController, DialogMixin {
   static final now = DateTime.now();
 
-  final ValueNotifier<bool> faqNotifier = ValueNotifier<bool>(false);
-
-  closeFaq() {
+  closeFaq(ValueNotifier<bool> faqNotifier) {
     if (faqNotifier.value) {
       faqNotifier.value = false;
     }
@@ -44,6 +42,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
   Widget build(BuildContext context) {
     print("Build HomeScreen");
 
+    final faqNotifier = useState<bool>(false);
     final _notifier = useProvider(homeScreenProvider);
 
     final controller = useTabController(
@@ -60,6 +59,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       controller: controller,
       statusBarHeight: statusBarHeight,
       bottomBarHeight: bottomBarHeight,
+      faqNotifier: faqNotifier,
     );
 
     final fadeScaffold = buildFadeInitAnimationBackground(
@@ -126,6 +126,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     required TabController controller,
     required double statusBarHeight,
     required double bottomBarHeight,
+    required ValueNotifier<bool> faqNotifier,
   }) {
     return WillPopScope(
       onWillPop: () async {
@@ -135,7 +136,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
             SystemChannels.platform.invokeMethod('SystemNavigator.pop');
           }
         }
-        return closeFaq();
+        return closeFaq(faqNotifier);
       },
       child: GestureDetector(
         onTap: () {
@@ -143,7 +144,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
             FocusScope.of(context).unfocus();
             TextEditingController().clear();
           }
-          closeFaq();
+          closeFaq(faqNotifier);
         },
         child: Scaffold(
           backgroundColor: Colors.transparent,
@@ -152,11 +153,15 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
             bottomBarHeight,
             notifier,
             controller,
+            faqNotifier,
           ),
           resizeToAvoidBottomInset: false,
           body: Consumer(
             child: Column(
-              children: [buildNormalList(controller, notifier, context), buildDayList(controller, context, notifier)],
+              children: [
+                buildNormalList(controller, notifier, context, faqNotifier),
+                buildDayList(controller, context, notifier, faqNotifier),
+              ],
             ),
             builder: (context, watch, column) {
               final themeNotifier = watch(themeProvider);
@@ -193,6 +198,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     TabController controller,
     BuildContext context,
     HomeScreenNotifier notifier,
+    ValueNotifier<bool> faqNotifier,
   ) {
     return VTTabView(
       controller: controller,
@@ -210,6 +216,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                 controller.animateTo(date.month - 1, curve: Curves.easeInQuart);
               }
             },
+            faqNotifier: faqNotifier,
           );
         },
       ),
@@ -220,6 +227,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     TabController controller,
     HomeScreenNotifier notifier,
     BuildContext context,
+    ValueNotifier<bool> faqNotifier,
   ) {
     return notifier.storyByIdAsList!.length > 0
         ? ListView(
@@ -268,6 +276,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                                     context: context,
                                     story: story,
                                     notifier: notifier,
+                                    faqNotifier: faqNotifier,
                                     onSaved: (DateTime? date) async {
                                       if (date != null) {
                                         await notifier.setCurrentSelectedYear(
@@ -329,6 +338,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     double bottomBarHeight,
     HomeScreenNotifier notifier,
     TabController controller,
+    ValueNotifier<bool> faqNotifier,
   ) {
     return buildFadeInOnInit(
       notifier: notifier,
@@ -338,7 +348,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
           return WMoreFaqButton(
             faqNotifier: faqNotifier,
             onSettingPressed: () {
-              closeFaq();
+              closeFaq(faqNotifier);
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
@@ -349,7 +359,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
             },
             onAddStoryPressed: () async {
               final _tabNotifier = context.read(tabControllerProvider(controller));
-              closeFaq();
+              closeFaq(faqNotifier);
               final forDate = DateTime(
                 notifier.currentSelectedYear,
                 _tabNotifier.currentIndex + 1,
@@ -410,6 +420,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     required BuildContext context,
     required HomeScreenNotifier notifier,
     required ValueChanged<DateTime> onSaved,
+    required ValueNotifier<bool> faqNotifier,
   }) {
     final storyListByMonthId = notifier.storyListByMonthID;
 
@@ -446,6 +457,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
             dayIndex: _dayIndex,
             notifier: notifier,
             onSaved: onSaved,
+            faqNotifier: faqNotifier,
           );
         },
       ),
@@ -458,6 +470,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     required BuildContext context,
     required HomeScreenNotifier notifier,
     required ValueChanged<DateTime> onSaved,
+    required ValueNotifier<bool> faqNotifier,
   }) {
     // fetching data
     final Map<int, StoryListModel>? storyListByDayId = notifier.storyListByDayId;
@@ -475,6 +488,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       storyListByDay: _storyListByDay,
       notifier: notifier,
       onSaved: onSaved,
+      faqNotifier: faqNotifier,
     );
 
     final _sizedBox = const SizedBox(width: 8.0);
@@ -502,6 +516,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     required StoryListModel storyListByDay,
     required HomeScreenNotifier notifier,
     required ValueChanged<DateTime> onSaved,
+    required ValueNotifier<bool> faqNotifier,
   }) {
     final _theme = Theme.of(context);
     return Expanded(
@@ -529,6 +544,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                     top: _storyIndex == 0 ? ConfigConstant.margin1 : 0.0,
                     bottom: _storyIndex != childrenId.length - 1 ? ConfigConstant.margin1 : 0.0,
                   ),
+                  faqNotifier: faqNotifier,
                 );
               },
             ),
@@ -615,13 +631,14 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     required HomeScreenNotifier notifier,
     EdgeInsets margin = const EdgeInsets.only(bottom: ConfigConstant.margin1),
     required ValueChanged<DateTime> onSaved,
+    required ValueNotifier<bool> faqNotifier,
   }) {
     return WStoryTile(
       story: story,
       onSaved: onSaved,
       readOnly: false,
       onTap: () async {
-        closeFaq();
+        closeFaq(faqNotifier);
         final dynamic selected = await Navigator.of(
           context,
           rootNavigator: true,
@@ -636,7 +653,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
         if (selected != null && selected is DateTime) onSaved(selected);
       },
       onToggleFavorite: () async {
-        closeFaq();
+        closeFaq(faqNotifier);
         onTapVibrate();
         await notifier.toggleFavorite(story.id);
       },
