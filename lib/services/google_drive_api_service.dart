@@ -54,8 +54,7 @@ class GoogleDriveApiService {
     return drive.DriveApi(authenticateClient);
   }
 
-  static Future<void> setFolderId(drive.DriveApi driveApi,
-      {bool grentPermission = true}) async {
+  static Future<void> setFolderId(drive.DriveApi driveApi, {bool grentPermission = true}) async {
     String? folderId;
     drive.FileList? folderList;
 
@@ -99,7 +98,12 @@ class GoogleDriveApiService {
 
   static Future<String?> upload(io.File image) async {
     drive.DriveApi driveApi = await getDriveApi();
-    await setFolderId(driveApi);
+
+    try {
+      await setFolderId(driveApi);
+    } catch (e) {
+      return null;
+    }
 
     final folderStorage = StoryFolderStorage();
     final String? folderId = await folderStorage.read();
@@ -137,8 +141,7 @@ class GoogleDriveApiService {
     await image.delete();
 
     /// result
-    final link =
-        'https://drive.google.com/uc?export=download&id=${response2.id}';
+    final link = 'https://drive.google.com/uc?export=download&id=${response2.id}';
     return link;
   }
 }

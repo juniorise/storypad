@@ -52,13 +52,6 @@ class StoryDetailScreenNotifier extends ChangeNotifier with ChangeNotifierMixin,
     this.initStory = this.draftStory;
   }
 
-  final List<String> tmpImagePath = [];
-  void addImagePath(String? path) {
-    if (path != null && !this.tmpImagePath.contains(path)) {
-      this.tmpImagePath.add(path);
-    }
-  }
-
   Future<bool> updateStory(StoryModel story) async {
     final success = await wDatabase.updateStory(story: story);
     if (success) {

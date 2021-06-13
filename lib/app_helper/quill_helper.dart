@@ -3,6 +3,7 @@ import 'package:flutter_quill/models/documents/attribute.dart' as attribute;
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:flutter_quill/models/documents/nodes/block.dart' as block;
 import 'package:flutter_quill/models/documents/nodes/node.dart' as node;
+import 'dart:io';
 
 class QuillHelper {
   static node.Root? getRoot(String paragraph) {
@@ -11,6 +12,26 @@ class QuillHelper {
       final document = Document.fromJson(decode);
       return document.root;
     } catch (e) {}
+  }
+
+  static Future<List<String>> getLocalImages(Document? document) async {
+    List<String> files = [];
+    document?.root.children.forEach((e) async {
+      final list = e.toDelta().toList();
+      list.forEach((k) async {
+        final data = k.data;
+        if (data is Map) {
+          String? path = data['image'];
+          if (path != null) {
+            bool exist = await File(path).exists();
+            if (exist) {
+              files.add(path);
+            }
+          }
+        }
+      });
+    });
+    return files;
   }
 
   static int getImageLength(String paragraph) {
@@ -34,8 +55,7 @@ class QuillHelper {
   static String toPlainText(node.Root root) {
     final plainText = root.children.map((node.Node e) {
       final atts = e.style.attributes;
-      attribute.Attribute? att =
-          atts['list'] ?? atts['blockquote'] ?? atts['code-block'];
+      attribute.Attribute? att = atts['list'] ?? atts['blockquote'] ?? atts['code-block'];
 
       if (e is block.Block) {
         int index = 0;

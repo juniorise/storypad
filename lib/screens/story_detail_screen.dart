@@ -31,9 +31,9 @@ import 'package:storypad/notifier/story_detail/image_load_notifier.dart';
 import 'package:storypad/notifier/quill_controller_notifier.dart';
 import 'package:storypad/notifier/story_detail/story_detail_screen_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
+import 'package:storypad/services/story_detail_service.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/sheets/image_viewer_sheet.dart';
-import 'package:storypad/services/google_drive_api_service.dart';
 import 'package:storypad/services/image_compress_service.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_emoji_picker_button.dart';
@@ -96,7 +96,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
     });
 
     _notifier.addOnPauseCallBack(
-      () => onSave(
+      () => StoryDetailService().onSave(
         notifier: _notifier,
         context: context,
         paragraph: quillNotifier.draftParagraph,
@@ -220,6 +220,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
                       notifier: _notifier,
                       screenPadding: screenPadding,
                       readOnlyModeNotifier: readOnlyModeNotifier,
+                      quillNotifier: quillNotifier,
                     );
                   },
                   textCapitalization: TextCapitalization.sentences,
@@ -278,6 +279,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
     required StoryDetailScreenNotifier notifier,
     required EdgeInsets screenPadding,
     required ValueNotifier readOnlyModeNotifier,
+    required QuillControllerNotifer quillNotifier,
   }) {
     bool isDarkMode = Theme.of(context).colorScheme.brightness == Brightness.dark;
 
@@ -531,9 +533,6 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
             compress: compress == true,
           ).exec();
 
-          if (image?.path.isNotEmpty == true) {
-            notifier.addImagePath(image?.absolute.path);
-          }
           return image?.path ?? "";
         },
       ),
@@ -545,7 +544,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
           context: context,
           notifier: notifier,
           onSavedPressed: () async {
-            await onSave(
+            await StoryDetailService().onSave(
               notifier: notifier,
               context: context,
               paragraph: quillNotifier.draftParagraph,
@@ -823,7 +822,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
                 child: VTOnTapEffect(
                   onTap: () async {
                     Navigator.of(context).pop();
-                    await onSave(
+                    await StoryDetailService().onSave(
                       notifier: notifier,
                       context: context,
                       insert: insert,
@@ -1007,7 +1006,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
           context: context,
           notifier: notifier,
           onSavedPressed: () async {
-            await onSave(
+            await StoryDetailService().onSave(
               notifier: notifier,
               context: context,
               paragraph: quillNotifier.draftParagraph,
@@ -1139,110 +1138,6 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
         }
       },
     );
-  }
-
-  Future<void> onSave({
-    required StoryDetailScreenNotifier notifier,
-    required BuildContext context,
-    required String paragraph,
-    required bool insert,
-    bool showSnack = true,
-  }) async {
-    StoryModel draftStory = notifier.draftStory.copyWith(paragraph: paragraph);
-    final bool titleEmpty = draftStory.title.trim().isEmpty;
-
-    String _paragraph = "";
-    final root = QuillHelper.getRoot(paragraph);
-    if (root != null) {
-      _paragraph = QuillHelper.toPlainText(root).trim();
-    }
-
-    final bool paragraphEmpty = _paragraph.trim().isEmpty;
-    if (titleEmpty && paragraphEmpty) {
-      if (!showSnack) return;
-      await showSnackBar(
-        context: context,
-        title: tr("validate.title"),
-        actionLabel: tr("button.okay"),
-        onActionPressed: () {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        },
-      );
-    } else {
-      List<String> imagesPath = [];
-      notifier.tmpImagePath.forEach((e) {
-        if (paragraph.contains(e)) {
-          imagesPath.add(e);
-        }
-      });
-      final imageLoadNotifier = context.read(imageLoadProvider);
-      imageLoadNotifier.imageLoading = true;
-
-      if (showSnack) {
-        showSnackBar(
-          context: context,
-          title: tr("msg.drive.loading"),
-        );
-      }
-
-      int i = 0;
-      String? _tmpParagraph = paragraph;
-
-      for (var e in imagesPath) {
-        final image = await GoogleDriveApiService.upload(File(e));
-        if (image != null) {
-          i++;
-          _tmpParagraph = _tmpParagraph?.replaceAll("$e", image);
-        }
-      }
-      draftStory = notifier.draftStory.copyWith(paragraph: _tmpParagraph);
-
-      print("i $i & imagesPath ${imagesPath.length}");
-      print("$_tmpParagraph");
-      if (i == imagesPath.length) {
-        if (showSnack) {
-          showSnackBar(
-            context: context,
-            title: tr("msg.drive.uploaded"),
-          );
-        }
-      } else {
-        if (showSnack) {
-          showSnackBar(
-            context: context,
-            title: tr("msg.drive.fail"),
-          );
-        }
-      }
-      imageLoadNotifier.imageLoading = false;
-
-      ///Insert to database
-      bool success;
-      if (insert) {
-        success = await notifier.addStory(draftStory);
-      } else {
-        success = await notifier.updateStory(
-          draftStory.copyWith(updateOn: DateTime.now()),
-        );
-      }
-
-      if (success == true) {
-        if (showSnack) {
-          await showSnackBar(
-            context: context,
-            title: tr("msg.save.success"),
-          );
-        }
-        notifier.updateInitStory();
-      } else {
-        if (showSnack) {
-          await showSnackBar(
-            context: context,
-            title: tr("msg.save.fail"),
-          );
-        }
-      }
-    }
   }
 }
 

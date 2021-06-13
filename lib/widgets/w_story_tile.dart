@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:storypad/app_helper/quill_helper.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/models/story_model.dart';
+import 'package:storypad/widgets/add_to_drive_button.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 
-class WStoryTile extends StatelessWidget with DialogMixin {
+class WStoryTile extends HookWidget with DialogMixin {
   final StoryModel story;
   final void Function() onTap;
   final ValueChanged<DateTime> onSaved;
@@ -45,10 +47,11 @@ class WStoryTile extends StatelessWidget with DialogMixin {
         : const SizedBox();
 
     String? paragraph;
+    Document? document;
 
     try {
       final decode = jsonDecode(story.paragraph!);
-      final document = Document.fromJson(decode);
+      document = Document.fromJson(decode);
       paragraph = QuillHelper.toPlainText(document.root).trim();
     } catch (e) {}
 
@@ -82,8 +85,9 @@ class WStoryTile extends StatelessWidget with DialogMixin {
       top: 0,
       child: Row(
         children: [
+          AddToDriveButton(story: story),
           if (onToggleFavorite != null)
-            buildFavoriteButton(
+            _buildFavoriteButton(
               story: story,
               context: context,
               onPressed: onToggleFavorite ?? () {},
@@ -132,7 +136,7 @@ class WStoryTile extends StatelessWidget with DialogMixin {
     );
   }
 
-  Widget buildFavoriteButton({
+  Widget _buildFavoriteButton({
     required StoryModel story,
     required BuildContext context,
     required void Function() onPressed,
