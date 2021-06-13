@@ -9,6 +9,7 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:share/share.dart';
 import 'package:storypad/screens/sponser_screen.dart';
+import 'package:storypad/storages/auto_save_bool_storage.dart';
 import 'package:storypad/widgets/w_list_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:storypad/constants/config_constant.dart';
@@ -39,6 +40,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
 
   final ValueNotifier<double> scrollOffsetNotifier = ValueNotifier<double>(0);
   final ValueNotifier<bool> vibrationNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> autoSaveNotifier = ValueNotifier<bool>(false);
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +49,10 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
 
     VibrateToggleStorage().getBool().then((value) {
       vibrationNotifier.value = value == true;
+    });
+
+    AutoSaveBoolStorage().getBool().then((value) {
+      autoSaveNotifier.value = value == true;
     });
 
     scrollController.addListener(() {
@@ -114,6 +120,28 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
                         if (vibrationNotifier.value) {
                           onTapVibrate();
                         }
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(height: 8.0),
+                ValueListenableBuilder(
+                  valueListenable: autoSaveNotifier,
+                  builder: (context, value, child) {
+                    return WListTile(
+                      iconData: Icons.save_sharp,
+                      titleText: tr("title.auto_save"),
+                      subtitleText: tr('subtitle.save_on_pause'),
+                      trailing: Switch(
+                        onChanged: (bool value) async {
+                          await AutoSaveBoolStorage().setBool(value: !autoSaveNotifier.value);
+                          autoSaveNotifier.value = !autoSaveNotifier.value;
+                        },
+                        value: autoSaveNotifier.value,
+                      ),
+                      onTap: () async {
+                        await AutoSaveBoolStorage().setBool(value: !autoSaveNotifier.value);
+                        autoSaveNotifier.value = !autoSaveNotifier.value;
                       },
                     );
                   },

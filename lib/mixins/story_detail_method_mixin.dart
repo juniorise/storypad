@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:storypad/app_helper/app_helper.dart';
-import 'package:storypad/notifier/story_detail_screen_notifier.dart';
+import 'package:storypad/notifier/story_detail/story_detail_screen_notifier.dart';
 
 mixin StoryDetailMethodMixin {
   String getDateLabel({
@@ -20,8 +20,7 @@ mixin StoryDetailMethodMixin {
     required StoryDetailScreenNotifier notifier,
     required Future<void> Function()? onSavedPressed,
   }) async {
-    bool isDifferrent = notifier.draftStory.toJson().toString() !=
-        notifier.initStory.toJson().toString();
+    bool isDifferrent = notifier.draftStory.toJson().toString() != notifier.initStory.toJson().toString();
 
     if (onSavedPressed != null && isDifferrent) {
       final dialog = AlertDialog(
@@ -31,8 +30,7 @@ mixin StoryDetailMethodMixin {
             onPressed: () {
               Navigator.of(context).pop();
               ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
-              final draftStoryDate =
-                  notifier.hasChanged ? notifier.draftStory.forDate : null;
+              final draftStoryDate = notifier.hasChanged ? notifier.draftStory.forDate : null;
               Navigator.of(context).pop(draftStoryDate);
             },
             child: Text(tr('button.no')),
@@ -55,8 +53,7 @@ mixin StoryDetailMethodMixin {
     }
 
     ScaffoldMessenger.maybeOf(context)?.removeCurrentSnackBar();
-    final draftStoryDate =
-        notifier.hasChanged ? notifier.draftStory.forDate : null;
+    final draftStoryDate = notifier.hasChanged ? notifier.draftStory.forDate : null;
     Navigator.of(context).pop(draftStoryDate);
   }
 

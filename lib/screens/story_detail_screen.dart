@@ -29,7 +29,7 @@ import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/story_detail/header_notifer.dart';
 import 'package:storypad/notifier/story_detail/image_load_notifier.dart';
 import 'package:storypad/notifier/quill_controller_notifier.dart';
-import 'package:storypad/notifier/story_detail_screen_notifier.dart';
+import 'package:storypad/notifier/story_detail/story_detail_screen_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/sheets/image_viewer_sheet.dart';
@@ -42,8 +42,7 @@ import 'package:storypad/widgets/w_icon_button.dart';
 import 'package:storypad/widgets/w_quil_toolbar.dart';
 import 'package:tuple/tuple.dart';
 
-class StoryDetailScreen extends HookWidget
-    with StoryDetailMethodMixin, HookController, WSnackBar, DialogMixin {
+class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookController, WSnackBar, DialogMixin {
   StoryDetailScreen({
     Key? key,
     required this.story,
@@ -96,21 +95,28 @@ class StoryDetailScreen extends HookWidget
       );
     });
 
+    _notifier.addOnPauseCallBack(
+      () => onSave(
+        notifier: _notifier,
+        context: context,
+        paragraph: quillNotifier.draftParagraph,
+        insert: insert,
+        showSnack: false,
+      ),
+    );
+
     final scrollController = useScrollController();
 
     scrollController.addListener(() {
       final headNotifier = context.read(headerProvider);
       double minValue = scrollController.offset;
-      double maxHeight = kToolbarHeight > headNotifier.headerHeight
-          ? kToolbarHeight
-          : headNotifier.headerHeight;
+      double maxHeight = kToolbarHeight > headNotifier.headerHeight ? kToolbarHeight : headNotifier.headerHeight;
       if (minValue >= maxHeight) minValue = maxHeight;
       if (minValue <= 0) minValue = 0;
       headNotifier.headerPaddingTop = minValue / maxHeight;
     });
 
-    final titleController =
-        useTextEditingController(text: _notifier.draftStory.title);
+    final titleController = useTextEditingController(text: _notifier.draftStory.title);
 
     final _headerText = buildHeaderTextField(
       insert: insert,
@@ -162,18 +168,14 @@ class StoryDetailScreen extends HookWidget
                 opacity: max(0, 1 - headNotifier.headerPaddingTop * 2),
                 child: ClipPath(
                   child: ValueListenableBuilder(
-                    valueListenable:
-                        headNotifier.inited && scrollController.hasClients
-                            ? scrollController.position.isScrollingNotifier
-                            : readOnlyModeNotifier,
-                    child: Container(
-                        height: height, child: Wrap(children: [_headerText])),
+                    valueListenable: headNotifier.inited && scrollController.hasClients
+                        ? scrollController.position.isScrollingNotifier
+                        : readOnlyModeNotifier,
+                    child: Container(height: height, child: Wrap(children: [_headerText])),
                     builder: (context, bool? isScrolling, child) {
                       return AnimatedContainer(
                         curve: Curves.linearToEaseOut,
-                        duration: isScrolling == true
-                            ? Duration.zero
-                            : ConfigConstant.fadeDuration,
+                        duration: isScrolling == true ? Duration.zero : ConfigConstant.fadeDuration,
                         transform: Matrix4.identity()..translate(0.0, -top),
                         padding: const EdgeInsets.symmetric(
                           horizontal: ConfigConstant.margin2,
@@ -193,8 +195,7 @@ class StoryDetailScreen extends HookWidget
               child: GestureDetector(
                 onVerticalDragUpdate: (detail) {
                   final headNotifier = context.read(headerProvider);
-                  if (scrollController.offset == 0 &&
-                      headNotifier.headerPaddingTop != 0) {
+                  if (scrollController.offset == 0 && headNotifier.headerPaddingTop != 0) {
                     headNotifier.headerPaddingTop = 0;
                   }
                 },
@@ -278,8 +279,7 @@ class StoryDetailScreen extends HookWidget
     required EdgeInsets screenPadding,
     required ValueNotifier readOnlyModeNotifier,
   }) {
-    bool isDarkMode =
-        Theme.of(context).colorScheme.brightness == Brightness.dark;
+    bool isDarkMode = Theme.of(context).colorScheme.brightness == Brightness.dark;
 
     assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
     switch (node.value.type) {
@@ -314,8 +314,7 @@ class StoryDetailScreen extends HookWidget
                     TextButton(
                       child: Text("Retry"),
                       onPressed: () async {
-                        final imageLoadNotifier =
-                            context.read(imageLoadProvider);
+                        final imageLoadNotifier = context.read(imageLoadProvider);
                         imageLoadNotifier.imageRetry = true;
                         notifier.setLoadingUrl(imageUrl);
                         await _clearCache(imageUrl);
@@ -330,8 +329,7 @@ class StoryDetailScreen extends HookWidget
             ),
             builder: (context, watch, errorBuilder) {
               final imageLoadNotifier = watch(imageLoadProvider);
-              return imageLoadNotifier.imageRetry &&
-                      notifier.loadingUrl == imageUrl
+              return imageLoadNotifier.imageRetry && notifier.loadingUrl == imageUrl
                   ? errorBuilder ?? const SizedBox()
                   : CachedNetworkImage(
                       key: UniqueKey(),
@@ -366,8 +364,7 @@ class StoryDetailScreen extends HookWidget
           },
         );
       default:
-        throw UnimplementedError(
-            'Embeddable type "${node.value.type}" is not supported by default embed '
+        throw UnimplementedError('Embeddable type "${node.value.type}" is not supported by default embed '
             'builder of QuillEditor. You must pass your own builder function to '
             'embedBuilder property of QuillEditor or QuillField widgets.');
     }
@@ -581,8 +578,7 @@ class StoryDetailScreen extends HookWidget
                 right: 0,
                 child: Builder(
                   builder: (context) {
-                    final bool hide = readOnlyModeNotifier.value ||
-                        !notifier.paragraphIsFocused;
+                    final bool hide = readOnlyModeNotifier.value || !notifier.paragraphIsFocused;
                     return IgnorePointer(
                       ignoring: hide,
                       child: AnimatedOpacity(
@@ -636,8 +632,7 @@ class StoryDetailScreen extends HookWidget
         child: Consumer(
           builder: (context, watch, child) {
             final headNotifier = watch(headerProvider);
-            double ox =
-                lerpDouble(kToolbarHeight, 0, headNotifier.headerPaddingTop)!;
+            double ox = lerpDouble(kToolbarHeight, 0, headNotifier.headerPaddingTop)!;
             return Opacity(
               opacity: headNotifier.headerPaddingTop,
               child: Transform.translate(
@@ -661,8 +656,7 @@ class StoryDetailScreen extends HookWidget
               Consumer(builder: (context, watch, child) {
                 final imageLoadNotifier = watch(imageLoadProvider);
                 return WLineLoading(
-                  loading: imageLoadNotifier.imageLoading ||
-                      imageLoadNotifier.imageRetry,
+                  loading: imageLoadNotifier.imageLoading || imageLoadNotifier.imageRetry,
                 );
               }),
               Consumer(
@@ -726,10 +720,9 @@ class StoryDetailScreen extends HookWidget
               ],
             ),
             secondChild: SizedBox(),
-            crossFadeState:
-                !readOnlyModeNotifier.value && notifier.paragraphIsFocused
-                    ? CrossFadeState.showFirst
-                    : CrossFadeState.showSecond,
+            crossFadeState: !readOnlyModeNotifier.value && notifier.paragraphIsFocused
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
             duration: ConfigConstant.fadeDuration,
           ),
           WIconButton(
@@ -762,8 +755,7 @@ class StoryDetailScreen extends HookWidget
               notifier.setLoadingUrl("");
             },
           ),
-          buildMoreVertButton(context, insert, notifier, quillNotifier,
-              readOnlyModeNotifier, focusNode),
+          buildMoreVertButton(context, insert, notifier, quillNotifier, readOnlyModeNotifier, focusNode),
         ],
       ),
     ];
@@ -948,8 +940,7 @@ class StoryDetailScreen extends HookWidget
                         }
                         Future.delayed(ConfigConstant.duration).then(
                           (value) {
-                            readOnlyModeNotifier.value =
-                                !readOnlyModeNotifier.value;
+                            readOnlyModeNotifier.value = !readOnlyModeNotifier.value;
                           },
                         );
                       },
@@ -957,9 +948,8 @@ class StoryDetailScreen extends HookWidget
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: ConfigConstant.margin1,
                         ),
-                        leading: Icon(!readOnlyModeNotifier.value
-                            ? Icons.chrome_reader_mode_outlined
-                            : Icons.chrome_reader_mode),
+                        leading: Icon(
+                            !readOnlyModeNotifier.value ? Icons.chrome_reader_mode_outlined : Icons.chrome_reader_mode),
                         title: Text(tr("button.read_only")),
                         trailing: Switch(
                           value: readOnlyModeNotifier.value,
@@ -967,11 +957,9 @@ class StoryDetailScreen extends HookWidget
                             if (readOnlyModeNotifier.value) {
                               focusNode.requestFocus();
                               Navigator.of(context).pop();
-                              readOnlyModeNotifier.value =
-                                  !readOnlyModeNotifier.value;
+                              readOnlyModeNotifier.value = !readOnlyModeNotifier.value;
                             } else {
-                              readOnlyModeNotifier.value =
-                                  !readOnlyModeNotifier.value;
+                              readOnlyModeNotifier.value = !readOnlyModeNotifier.value;
                               focusNode.unfocus();
                             }
                           },
@@ -1158,6 +1146,7 @@ class StoryDetailScreen extends HookWidget
     required BuildContext context,
     required String paragraph,
     required bool insert,
+    bool showSnack = true,
   }) async {
     StoryModel draftStory = notifier.draftStory.copyWith(paragraph: paragraph);
     final bool titleEmpty = draftStory.title.trim().isEmpty;
@@ -1170,6 +1159,7 @@ class StoryDetailScreen extends HookWidget
 
     final bool paragraphEmpty = _paragraph.trim().isEmpty;
     if (titleEmpty && paragraphEmpty) {
+      if (!showSnack) return;
       await showSnackBar(
         context: context,
         title: tr("validate.title"),
@@ -1187,10 +1177,13 @@ class StoryDetailScreen extends HookWidget
       });
       final imageLoadNotifier = context.read(imageLoadProvider);
       imageLoadNotifier.imageLoading = true;
-      showSnackBar(
-        context: context,
-        title: tr("msg.drive.loading"),
-      );
+
+      if (showSnack) {
+        showSnackBar(
+          context: context,
+          title: tr("msg.drive.loading"),
+        );
+      }
 
       int i = 0;
       String? _tmpParagraph = paragraph;
@@ -1207,15 +1200,19 @@ class StoryDetailScreen extends HookWidget
       print("i $i & imagesPath ${imagesPath.length}");
       print("$_tmpParagraph");
       if (i == imagesPath.length) {
-        showSnackBar(
-          context: context,
-          title: tr("msg.drive.uploaded"),
-        );
+        if (showSnack) {
+          showSnackBar(
+            context: context,
+            title: tr("msg.drive.uploaded"),
+          );
+        }
       } else {
-        showSnackBar(
-          context: context,
-          title: tr("msg.drive.fail"),
-        );
+        if (showSnack) {
+          showSnackBar(
+            context: context,
+            title: tr("msg.drive.fail"),
+          );
+        }
       }
       imageLoadNotifier.imageLoading = false;
 
@@ -1230,16 +1227,20 @@ class StoryDetailScreen extends HookWidget
       }
 
       if (success == true) {
-        await showSnackBar(
-          context: context,
-          title: tr("msg.save.success"),
-        );
+        if (showSnack) {
+          await showSnackBar(
+            context: context,
+            title: tr("msg.save.success"),
+          );
+        }
         notifier.updateInitStory();
       } else {
-        await showSnackBar(
-          context: context,
-          title: tr("msg.save.fail"),
-        );
+        if (showSnack) {
+          await showSnackBar(
+            context: context,
+            title: tr("msg.save.fail"),
+          );
+        }
       }
     }
   }
@@ -1247,8 +1248,7 @@ class StoryDetailScreen extends HookWidget
 
 /// check if a string is base64 encoded
 bool isBase64(String str) {
-  RegExp _base64 = RegExp(
-      r'^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$');
+  RegExp _base64 = RegExp(r'^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{4})$');
   return _base64.hasMatch(str);
 }
 

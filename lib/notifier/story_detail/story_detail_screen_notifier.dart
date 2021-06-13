@@ -6,9 +6,13 @@ import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/mixins/schedule_mixin.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/services/google_drive_api_service.dart';
+import 'package:storypad/storages/auto_save_bool_storage.dart';
 
-class StoryDetailScreenNotifier extends ChangeNotifier
-    with ChangeNotifierMixin, ScheduleMixin {
+class StoryDetailScreenNotifier extends ChangeNotifier with ChangeNotifierMixin, ScheduleMixin, WidgetsBindingObserver {
+  StoryDetailScreenNotifier(this.draftStory, this.initStory) {
+    WidgetsBinding.instance?.addObserver(this);
+  }
+
   final WDatabase wDatabase = WDatabase.instance;
   StoryModel initStory;
   StoryModel draftStory;
@@ -37,7 +41,6 @@ class StoryDetailScreenNotifier extends ChangeNotifier
   set toolbarHeight(double value) {
     if (value == _toolbarHeight) return;
     _toolbarHeight = value;
-    // notifyListeners();
   }
 
   setLoadingUrl(String imageUrl) {
@@ -45,7 +48,6 @@ class StoryDetailScreenNotifier extends ChangeNotifier
     notifyListeners();
   }
 
-  StoryDetailScreenNotifier(this.draftStory, this.initStory);
   updateInitStory() {
     this.initStory = this.draftStory;
   }
@@ -90,10 +92,31 @@ class StoryDetailScreenNotifier extends ChangeNotifier
     await GoogleDriveApiService.setFolderId(driveApi, grentPermission: false);
     notifyListeners();
   }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.paused) {
+      final bool? autoSave = await AutoSaveBoolStorage().getBool();
+      if (onSave != null && autoSave == true) {
+        this.onSave!();
+      }
+    }
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance?.removeObserver(this);
+    super.dispose();
+  }
+
+  void Function()? onSave;
+  void addOnPauseCallBack(void Function() onSave) {
+    if (this.onSave == null) this.onSave = onSave;
+  }
 }
 
-final storydetailScreenNotifier = ChangeNotifierProvider.family
-    .autoDispose<StoryDetailScreenNotifier, StoryModel>(
+final storydetailScreenNotifier = ChangeNotifierProvider.family.autoDispose<StoryDetailScreenNotifier, StoryModel>(
   (ref, story) {
     return StoryDetailScreenNotifier(story, story);
   },

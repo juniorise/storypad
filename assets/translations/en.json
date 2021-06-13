@@ -125,6 +125,8 @@
   "subtitle.ask_for_name": "What should I call you?",
   "subtitle.backup_restore": "Backup and restore your data via cloud",
   "subtitle.click_to_update": "Click to upgrade",
+  "subtitle.save_on_pause": "Save story when app inactive",
+  "title.auto_save": "Auto Save",
   "title.font_style": "Font Style",
   "title.google_acc": "Google Account",
   "title.group": "Group",
