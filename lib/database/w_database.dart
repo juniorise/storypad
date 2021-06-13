@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:html_character_entities/html_character_entities.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import "package:path/path.dart";
@@ -14,7 +15,6 @@ class WDatabase {
 
   static Database? _database;
   static String deviceId = "os";
-  static String singleQuote = "▘";
 
   Future<Database?> get database async {
     if (_database != null) return _database;
@@ -138,7 +138,7 @@ class WDatabase {
       updateOn = DateTime.now();
     }
 
-    final paragraph = story.paragraph != null ? story.paragraph?.replaceAll("'", "$singleQuote") : null;
+    final paragraph = story.paragraph != null ? HtmlCharacterEntities.encode(story.paragraph ?? "") : null;
 
     String query = '''
     UPDATE story 
@@ -163,8 +163,7 @@ class WDatabase {
   Future<bool> addStory({
     required StoryModel story,
   }) async {
-    final paragraph = story.paragraph != null ? story.paragraph?.replaceAll("'", "$singleQuote") : null;
-
+    final paragraph = story.paragraph != null ? HtmlCharacterEntities.encode(story.paragraph ?? "") : null;
     String query = '''
     INSERT or REPLACE INTO "story" (
       id,
@@ -219,9 +218,9 @@ class WDatabase {
     final map = Map.fromIterable(maps, key: (e) {
       return int.parse("${e['id']}");
     }, value: (e) {
-      final String? _paragraph = e['paragraph'];
-      String? result = _paragraph != null ? _paragraph.replaceAll("$singleQuote", "'") : null;
-      return StoryModel.fromJson(e).copyWith(paragraph: result);
+      String? _paragraph = e['paragraph'];
+      _paragraph = _paragraph != null ? HtmlCharacterEntities.decode(_paragraph) : null;
+      return StoryModel.fromJson(e).copyWith(paragraph: _paragraph);
     });
 
     return map;
