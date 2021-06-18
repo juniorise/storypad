@@ -44,9 +44,7 @@ class WSliverAppBar extends HookWidget with DialogMixin {
       forceElevated: true,
       elevation: isInit ? 0.5 : 0,
       backgroundColor: Theme.of(context).colorScheme.surface,
-      expandedHeight: hasBottom
-          ? kToolbarHeight * 2.8
-          : kToolbarHeight * 2.8 - kToolbarHeight + 32,
+      expandedHeight: hasBottom ? kToolbarHeight * 2.8 : kToolbarHeight * 2.8 - kToolbarHeight + 32,
       centerTitle: false,
       automaticallyImplyLeading: false,
       flexibleSpace: AnimatedContainer(
@@ -81,13 +79,8 @@ class WSliverAppBar extends HookWidget with DialogMixin {
     double offsetX = _inited ? 0.0 : -8.0;
 
     final leftSideWidth = notifier.headlineWidth != 0
-        ? MediaQuery.of(context).size.width -
-            16 * 2 -
-            notifier.headlineWidth -
-            8
+        ? MediaQuery.of(context).size.width - 16 * 2 - notifier.headlineWidth - 8
         : kToolbarHeight * 2;
-
-    final _notifier = context.read(userModelProvider);
 
     final _headerTexts = Container(
       alignment: Alignment.centerLeft,
@@ -103,22 +96,24 @@ class WSliverAppBar extends HookWidget with DialogMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimatedContainer(
-              curve: Curves.easeInOutQuad,
-              transform: Matrix4.identity()..translate(offsetX, 0.0),
-              duration: const Duration(milliseconds: 650),
-              width: leftSideWidth,
-              child: Text(
-                tr(
-                  "title.hello_name",
-                  namedArgs: {"USER_NAME": _notifier.user?.nickname ?? ""},
+            Consumer(builder: (context, reader, child) {
+              final _notifier = reader(userModelProvider);
+              return AnimatedContainer(
+                curve: Curves.easeInOutQuad,
+                transform: Matrix4.identity()..translate(offsetX, 0.0),
+                duration: const Duration(milliseconds: 650),
+                width: leftSideWidth,
+                child: Text(
+                  tr(
+                    "title.hello_name",
+                    namedArgs: {"USER_NAME": _notifier.user?.nickname ?? ""},
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: _headerStyle?.copyWith(color: _theme.colorScheme.primary),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style:
-                    _headerStyle?.copyWith(color: _theme.colorScheme.primary),
-              ),
-            ),
+              );
+            }),
             const SizedBox(height: ConfigConstant.margin0),
             AnimatedOpacity(
               opacity: _inited ? 1 : 0,
@@ -160,8 +155,7 @@ class WSliverAppBar extends HookWidget with DialogMixin {
                 },
                 child: Text(
                   this.backgroundText!,
-                  style: _textTheme.headline2
-                      ?.copyWith(color: _theme.disabledColor),
+                  style: _textTheme.headline2?.copyWith(color: _theme.disabledColor),
                 ),
               ),
             ),
@@ -194,8 +188,7 @@ class WSliverAppBar extends HookWidget with DialogMixin {
                     );
                   },
                 ).then((_) {
-                  ScaffoldMessenger.of(askForNameScaffoldKey.currentContext!)
-                      .removeCurrentSnackBar();
+                  ScaffoldMessenger.of(askForNameScaffoldKey.currentContext!).removeCurrentSnackBar();
                 });
               },
               effects: [
@@ -247,9 +240,7 @@ class WSliverAppBar extends HookWidget with DialogMixin {
                           index == 0 ? ConfigConstant.radius1 : 0,
                         ),
                         bottom: Radius.circular(
-                          index == years.length - 1
-                              ? ConfigConstant.radius1
-                              : 0,
+                          index == years.length - 1 ? ConfigConstant.radius1 : 0,
                         ),
                       ),
                     ),
