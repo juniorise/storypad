@@ -16,7 +16,6 @@ class WStoryTile extends HookWidget with DialogMixin {
   final ValueChanged<DateTime> onSaved;
   final EdgeInsets margin = const EdgeInsets.only(bottom: ConfigConstant.margin1);
   final void Function()? onToggleFavorite;
-  final void Function()? onToggleSync;
   final bool readOnly;
 
   const WStoryTile({
@@ -26,26 +25,139 @@ class WStoryTile extends HookWidget with DialogMixin {
     required this.onTap,
     this.onToggleFavorite,
     this.readOnly = false,
-    this.onToggleSync,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: margin,
+      child: Stack(
+        children: [
+          buildTileContent(context: context),
+          buildActionButtons(context: context),
+        ],
+      ),
+    );
+  }
+
+  Widget buildTileContent({required BuildContext context}) {
+    _Paragraph _paragraph = _Paragraph.getParagraph(story);
     final _theme = Theme.of(context);
+    return WTapEffect(
+      onTap: onTap,
+      child: Material(
+        elevation: 0.2,
+        color: _theme.colorScheme.surface,
+        borderRadius: ConfigConstant.circlarRadius2,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: ConfigConstant.margin2,
+            vertical: ConfigConstant.margin1 + 4,
+          ),
+          width: double.infinity,
+          child: Wrap(
+            direction: Axis.vertical,
+            alignment: WrapAlignment.start,
+            crossAxisAlignment: WrapCrossAlignment.start,
+            children: [
+              titleWidget(context: context),
+              SizedBox(height: story.title.isNotEmpty ? ConfigConstant.margin0 : 0),
+              paragraphWidget(
+                displayParagraph: _paragraph.displayParagraph,
+                context: context,
+                paragraphIsEmpty: !_paragraph.paragraphText.isNotEmpty,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-    /// Title
-    final _titleWidget = story.title.isNotEmpty
-        ? Container(
-            padding: const EdgeInsets.only(right: 60),
-            width: MediaQuery.of(context).size.width - 16 * 7,
-            child: Text(
-              story.title,
-              style: _theme.textTheme.subtitle1,
-              textAlign: TextAlign.start,
-            ),
-          )
-        : const SizedBox();
+  buildActionButtons({required BuildContext context}) {
+    return Positioned(
+      right: 0,
+      top: 0,
+      child: Row(
+        children: [
+          AddToDriveButton(story: story),
+          buildFavoriteButton(
+            story: story,
+            context: context,
+            onPressed: onToggleFavorite ?? () {},
+            isActive: story.isFavorite,
+            iconData: story.isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
+          ),
+          const SizedBox(width: 4.0)
+        ],
+      ),
+    );
+  }
 
+  Widget paragraphWidget({
+    required BuildContext context,
+    required String displayParagraph,
+    required bool paragraphIsEmpty,
+  }) {
+    final _theme = Theme.of(context);
+    if (paragraphIsEmpty) return const SizedBox();
+    return Container(
+      width: MediaQuery.of(context).size.width - 16 * 7,
+      child: Text(
+        displayParagraph,
+        textAlign: TextAlign.start,
+        style: _theme.textTheme.bodyText2?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.5)),
+      ),
+    );
+  }
+
+  /// Title
+  Widget titleWidget({required BuildContext context}) {
+    final _theme = Theme.of(context);
+    if (story.title.isNotEmpty) {
+      return Container(
+        padding: const EdgeInsets.only(right: 60),
+        width: MediaQuery.of(context).size.width - 16 * 7,
+        child: Text(
+          story.title,
+          style: _theme.textTheme.subtitle1,
+          textAlign: TextAlign.start,
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
+  }
+
+  Widget buildFavoriteButton({
+    required StoryModel story,
+    required BuildContext context,
+    required void Function() onPressed,
+    required bool isActive,
+    required IconData iconData,
+  }) {
+    final favoriteButtonEffect = [WTapEffectType.scaleDown];
+    return WTapEffect(
+      onTap: onPressed,
+      effects: favoriteButtonEffect,
+      child: WIconButton(
+        onPressed: onPressed,
+        size: 40,
+        iconSize: 20,
+        iconData: iconData,
+        iconColor: isActive ? Theme.of(context).colorScheme.error : Theme.of(context).dividerColor,
+      ),
+    );
+  }
+}
+
+class _Paragraph {
+  final String displayParagraph;
+  final String paragraphText;
+  _Paragraph(this.displayParagraph, this.paragraphText);
+
+  static _Paragraph getParagraph(StoryModel story) {
     String? paragraph;
     Document? document;
 
@@ -58,102 +170,8 @@ class WStoryTile extends HookWidget with DialogMixin {
     /// Paragraph
     String _paragraphText = paragraph ?? "${story.paragraph}";
     String _displayParagraph = _paragraphText.characters.take(150).toString();
-    if (_paragraphText.length > 150) {
-      _displayParagraph = _displayParagraph + " ...";
-    }
+    if (_paragraphText.length > 150) _displayParagraph = _displayParagraph + " ...";
 
-    final _paragraphChild = Container(
-      width: MediaQuery.of(context).size.width - 16 * 7,
-      child: Text(
-        _displayParagraph,
-        textAlign: TextAlign.start,
-        style: _theme.textTheme.bodyText2?.copyWith(color: _theme.colorScheme.onSurface.withOpacity(0.5)),
-      ),
-    );
-
-    final _paragraphWidget = _paragraphText.isNotEmpty ? _paragraphChild : const SizedBox();
-
-    final _tileEffects = [
-      WTapEffectType.touchableOpacity,
-    ];
-
-    var rightButton = Positioned(
-      right: 0,
-      top: 0,
-      child: Row(
-        children: [
-          AddToDriveButton(story: story),
-          if (onToggleFavorite != null)
-            _buildFavoriteButton(
-              story: story,
-              context: context,
-              onPressed: onToggleFavorite ?? () {},
-              isActive: story.isFavorite,
-              iconData: story.isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
-            ),
-          const SizedBox(width: 4.0)
-        ],
-      ),
-    );
-
-    return WTapEffect(
-      effects: _tileEffects,
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        margin: margin,
-        child: Material(
-          elevation: 0.2,
-          color: _theme.colorScheme.surface,
-          borderRadius: ConfigConstant.circlarRadius2,
-          child: Stack(
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: ConfigConstant.margin2,
-                  vertical: ConfigConstant.margin1 + 4,
-                ),
-                width: double.infinity,
-                child: Wrap(
-                  direction: Axis.vertical,
-                  alignment: WrapAlignment.start,
-                  crossAxisAlignment: WrapCrossAlignment.start,
-                  children: [
-                    _titleWidget,
-                    if (story.title.isNotEmpty) const SizedBox(height: ConfigConstant.margin0),
-                    _paragraphWidget,
-                  ],
-                ),
-              ),
-              rightButton,
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFavoriteButton({
-    required StoryModel story,
-    required BuildContext context,
-    required void Function() onPressed,
-    required bool isActive,
-    required IconData iconData,
-  }) {
-    final favoriteButtonEffect = [
-      WTapEffectType.scaleDown,
-    ];
-
-    return WTapEffect(
-      onTap: onPressed,
-      effects: favoriteButtonEffect,
-      child: WIconButton(
-        onPressed: onPressed,
-        size: 40,
-        iconSize: 20,
-        iconData: iconData,
-        iconColor: isActive ? Theme.of(context).colorScheme.error : Theme.of(context).dividerColor,
-      ),
-    );
+    return _Paragraph(_displayParagraph, _paragraphText);
   }
 }
