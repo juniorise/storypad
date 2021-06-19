@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:html_character_entities/html_character_entities.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import "package:path/path.dart";
-import 'package:storypad/models/story_model.dart';
 import 'package:storypad/models/user_model.dart';
 
 class WDatabase {
@@ -51,121 +49,6 @@ class WDatabase {
     } catch (e) {
       await database.execute("ALTER TABLE story ADD COLUMN feeling char(50);");
     }
-  }
-
-  Future<bool> updateStory({
-    required StoryModel story,
-  }) async {
-    final DateTime? updateOn;
-    if (story.updateOn != null) {
-      updateOn = story.updateOn;
-    } else {
-      updateOn = DateTime.now();
-    }
-
-    final paragraph = story.paragraph != null ? HtmlCharacterEntities.encode(story.paragraph ?? "") : null;
-
-    String query = '''
-    UPDATE story 
-    SET title = '${story.title}', 
-        paragraph = '$paragraph',
-        for_date = ${story.forDate.millisecondsSinceEpoch},
-        update_on = ${updateOn!.millisecondsSinceEpoch},
-        is_favorite = ${story.isFavorite == true ? 1 : 0},
-        is_share = ${story.isShare == true ? 1 : 0},
-        feeling = '${story.feeling}'
-    WHERE id = ${story.id}
-    ''';
-
-    try {
-      await _database!.execute(query);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<bool> addStory({
-    required StoryModel story,
-  }) async {
-    final paragraph = story.paragraph != null ? HtmlCharacterEntities.encode(story.paragraph ?? "") : null;
-    String query = '''
-    INSERT or REPLACE INTO "story" (
-      id,
-      title, 
-      paragraph, 
-      create_on, 
-      for_date,
-      update_on, 
-      is_favorite,
-      is_share,
-      feeling
-    )
-    VALUES (
-        ${story.id},
-        '${story.title}', 
-        '$paragraph', 
-        ${story.createOn.millisecondsSinceEpoch}, 
-        ${story.forDate.millisecondsSinceEpoch}, 
-        ${story.updateOn != null ? story.updateOn?.millisecondsSinceEpoch : story.createOn.millisecondsSinceEpoch}, 
-        ${story.isFavorite ? 1 : 0},
-        ${story.isShare ? 1 : 0},
-        '${story.feeling}'
-    )
-    ''';
-
-    try {
-      await _database!.execute(query);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<Map<int, StoryModel>> storyById({String? where}) async {
-    var client = await database;
-    List<Map<String, dynamic>> maps = await client!.query(
-      "story",
-      columns: [
-        "id",
-        "title",
-        "paragraph",
-        "create_on",
-        "update_on",
-        "is_favorite",
-        "for_date",
-        "feeling",
-        "is_share",
-      ],
-      where: where,
-    );
-
-    final map = Map.fromIterable(maps, key: (e) {
-      return int.parse("${e['id']}");
-    }, value: (e) {
-      String? _paragraph = e['paragraph'];
-      _paragraph = _paragraph != null ? HtmlCharacterEntities.decode(_paragraph).replaceAll(singleQuote, "'") : null;
-      return StoryModel.fromJson(e).copyWith(paragraph: _paragraph);
-    });
-
-    return map;
-  }
-
-  Future<bool> removeStoryById(int id) async {
-    try {
-      await _database!.delete("story", where: "id = $id");
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  clearAllStories({String? where}) async {
-    String query = "delete from story";
-    if (where != null) {
-      query = query + " where " + where;
-    }
-    await _database!.execute(query);
   }
 
   Future<bool> setUserModel(UserModel user) async {

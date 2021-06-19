@@ -1,11 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/services/storages/local_storages/w_database.dart';
+import 'package:storypad/services/storages/local_storages/story_database.dart';
 import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/models/story_list_model.dart';
 import 'package:storypad/models/story_model.dart';
 
 class HomeScreenNotifier extends BaseNotifier {
-  final WDatabase wDatabase = WDatabase.instance;
+  final StoryDatabase db = StoryDatabase();
 
   Map<int, StoryModel>? _storyById;
   Map<int, StoryListModel>? _storyListByDayId;
@@ -43,7 +43,7 @@ class HomeScreenNotifier extends BaseNotifier {
   }
 
   Future<void> load() async {
-    final Map<int, StoryModel>? result = await wDatabase.storyById();
+    final Map<int, StoryModel>? result = await db.storyById();
 
     if (result != null) {
       this._storyById = result;
@@ -191,7 +191,7 @@ class HomeScreenNotifier extends BaseNotifier {
     this._storyById?[storyId] = result;
     notifyListeners();
 
-    await wDatabase.updateStory(story: result);
+    await db.update(record: result);
   }
 
   /// ```

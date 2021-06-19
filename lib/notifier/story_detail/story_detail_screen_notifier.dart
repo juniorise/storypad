@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/mixins/schedule_mixin.dart';
 import 'package:storypad/services/apis/google_drive_api.dart';
-import 'package:storypad/services/storages/local_storages/w_database.dart';
+import 'package:storypad/services/storages/local_storages/story_database.dart';
 import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/services/storages/preference_storages/auto_save_bool_storage.dart';
@@ -13,7 +13,7 @@ class StoryDetailScreenNotifier extends BaseNotifier with ScheduleMixin, Widgets
     WidgetsBinding.instance?.addObserver(this);
   }
 
-  final WDatabase wDatabase = WDatabase.instance;
+  StoryDatabase db = StoryDatabase();
   StoryModel initStory;
   StoryModel draftStory;
   bool hasChanged = false;
@@ -53,19 +53,15 @@ class StoryDetailScreenNotifier extends BaseNotifier with ScheduleMixin, Widgets
   }
 
   Future<bool> updateStory(StoryModel story) async {
-    final success = await wDatabase.updateStory(story: story);
-    if (success) {
-      this.hasChanged = true;
-    }
-    return success;
+    await db.update(record: story);
+    if (db.success == true) this.hasChanged = true;
+    return db.success == true;
   }
 
   Future<bool> addStory(StoryModel story) async {
-    final success = await wDatabase.addStory(story: story);
-    if (success) {
-      this.hasChanged = true;
-    }
-    return success;
+    await db.create(record: story);
+    if (db.success == true) this.hasChanged = true;
+    return db.success == true;
   }
 
   void setDraftStory(StoryModel story) {
@@ -73,11 +69,9 @@ class StoryDetailScreenNotifier extends BaseNotifier with ScheduleMixin, Widgets
   }
 
   Future<bool> removeStoryById(int id) async {
-    final success = await wDatabase.removeStoryById(id);
-    if (success) {
-      this.hasChanged = true;
-    }
-    return success;
+    await db.delete(id: id);
+    if (db.success == true) this.hasChanged = true;
+    return db.success == true;
   }
 
   retryLoadImage() async {

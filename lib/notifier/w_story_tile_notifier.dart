@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/helpers/quill_helper.dart';
-import 'package:storypad/services/storages/local_storages/w_database.dart';
+import 'package:storypad/services/storages/local_storages/story_database.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/services/apis/google_drive_api.dart';
 
@@ -52,14 +52,15 @@ class WStoryTileNotifier extends ChangeNotifier {
     }
 
     if (i > 0) {
-      bool success = await WDatabase.instance.updateStory(
-        story: story.copyWith(
+      StoryDatabase db = StoryDatabase();
+      await db.update(
+        record: story.copyWith(
           updateOn: DateTime.now(),
           paragraph: _tmpParagraph,
         ),
       );
       loading = false;
-      return success;
+      return db.success == true;
     }
 
     loading = false;

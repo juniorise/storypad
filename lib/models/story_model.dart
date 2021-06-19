@@ -1,7 +1,7 @@
-import 'dart:convert';
+import 'package:storypad/helpers/app_helper.dart';
+import 'package:storypad/models/base_model.dart';
 
-class StoryModel {
-  final int id;
+class StoryModel extends BaseModel {
   final String title;
   final String? paragraph;
   final DateTime createOn;
@@ -10,11 +10,7 @@ class StoryModel {
   final bool isFavorite;
   final String? feeling;
 
-  /// this value isn't use anymore
-  final bool isShare;
-
-  const StoryModel({
-    required this.id,
+  StoryModel({
     required this.title,
     required this.paragraph,
     required this.createOn,
@@ -22,8 +18,8 @@ class StoryModel {
     this.feeling,
     this.updateOn,
     this.isFavorite = false,
-    this.isShare = false,
-  });
+    required int id,
+  }) : super(id: id);
 
   static StoryModel get empty {
     return StoryModel(
@@ -44,7 +40,6 @@ class StoryModel {
     DateTime? updateOn,
     DateTime? forDate,
     bool? isFavorite,
-    bool? isShare,
     String? feeling,
   }) {
     return StoryModel(
@@ -55,47 +50,25 @@ class StoryModel {
       forDate: forDate ?? this.forDate,
       updateOn: updateOn ?? this.updateOn,
       isFavorite: isFavorite ?? this.isFavorite,
-      isShare: isShare ?? this.isShare,
       feeling: feeling ?? this.feeling,
     );
   }
 
-  factory StoryModel.fromJson(Map<String, dynamic> json) {
-    final DateTime createOn = DateTime.fromMillisecondsSinceEpoch(
-      json["create_on"],
-    );
-
-    final DateTime forDate = DateTime.fromMillisecondsSinceEpoch(
-      json["for_date"],
-    );
-
-    final DateTime? updateOn =
-        json.containsKey('update_on') && json['update_on'] != null
-            ? DateTime.fromMillisecondsSinceEpoch(
-                json["update_on"],
-              )
-            : null;
-
-    bool isFavorite = false;
-    if (json.containsKey("is_favorite")) {
-      isFavorite = json["is_favorite"] == 1 ? true : false;
-    }
-
-    bool isShare = false;
-    if (json.containsKey("is_share")) {
-      isShare = json["is_share"] == 1 ? true : false;
-    }
+  factory StoryModel.fromJson(Map<dynamic, dynamic> json) {
+    final DateTime? createOn = AppHelper.dateTimeFromIntMap(key: 'create_on', json: json);
+    final DateTime? forDate = AppHelper.dateTimeFromIntMap(key: 'for_date', json: json);
+    final DateTime? updateOn = AppHelper.dateTimeFromIntMap(key: 'update_on', json: json);
+    final bool isFavorite = AppHelper.boolFromIntMap(key: 'is_favorite', json: json);
 
     return StoryModel(
       id: json["id"],
       title: json["title"],
-      paragraph: json["paragraph"],
-      updateOn: updateOn,
-      createOn: createOn,
-      forDate: forDate,
-      isFavorite: isFavorite,
-      isShare: isShare,
       feeling: json["feeling"],
+      paragraph: json["paragraph"],
+      isFavorite: isFavorite,
+      updateOn: updateOn,
+      createOn: createOn ?? DateTime.now(),
+      forDate: forDate ?? DateTime.now(),
     );
   }
 
@@ -103,29 +76,12 @@ class StoryModel {
     return {
       "id": id,
       "title": title,
+      "feeling": feeling,
       "paragraph": paragraph,
       "is_favorite": isFavorite ? 1 : 0,
-      "create_on": createOn.millisecondsSinceEpoch,
-      "for_date": forDate.millisecondsSinceEpoch,
-      "update_on": updateOn != null ? updateOn!.millisecondsSinceEpoch : null,
-      "feeling": feeling,
-      "is_share": isShare ? 1 : 0,
+      "create_on": AppHelper.intFromDateTime(dateTime: createOn),
+      "for_date": AppHelper.intFromDateTime(dateTime: forDate),
+      "update_on": AppHelper.intFromDateTime(dateTime: updateOn),
     };
   }
-}
-
-List<StoryModel> storyModelFromJson(String str) {
-  return List<StoryModel>.from(
-    json.decode(str).map((x) => StoryModel.fromJson(x)),
-  );
-}
-
-String storyModelToJson(List<StoryModel> data) {
-  return json.encode(
-    List<dynamic>.from(
-      data.map(
-        (x) => x.toJson(),
-      ),
-    ),
-  );
 }

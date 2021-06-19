@@ -10,6 +10,7 @@ import 'package:storypad/services/apis/google_drive_api.dart';
 import 'package:storypad/services/authentication/authentication_service.dart';
 import 'package:storypad/services/backups/backup_service.dart';
 import 'package:storypad/helpers/app_helper.dart';
+import 'package:storypad/services/storages/local_storages/story_database.dart';
 import 'package:storypad/services/storages/local_storages/w_database.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
@@ -78,7 +79,6 @@ class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin {
     bool showSnackbar = true,
   }) async {
     if (this.backup == null) return;
-    final database = WDatabase.instance;
     bool? hasClick;
     final dialog = Dialog(
       child: Wrap(
@@ -95,7 +95,8 @@ class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin {
             ),
             onTap: () async {
               hasClick = true;
-              await database.clearAllStories();
+              StoryDatabase db = StoryDatabase();
+              await db.clearAllStories();
               Navigator.of(context).pop();
             },
           ),

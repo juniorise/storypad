@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class AppHelper {
+  AppHelper._internal();
   static const DAY = const ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  static DateFormat toNameOfMonth(BuildContext context,
-      {bool fullName = false}) {
-    final DateFormat format = fullName
-        ? DateFormat.MMMM(context.locale.languageCode)
-        : DateFormat.MMM(context.locale.languageCode);
+  static DateFormat toNameOfMonth(BuildContext context, {bool fullName = false}) {
+    final DateFormat format =
+        fullName ? DateFormat.MMMM(context.locale.languageCode) : DateFormat.MMM(context.locale.languageCode);
     return format;
   }
 
@@ -66,5 +65,48 @@ class AppHelper {
       return false;
     }
     return true;
+  }
+
+  static DateTime? dateTimeFromIntMap({
+    Map<dynamic, dynamic>? json,
+    String? key,
+  }) {
+    if (key == null) return null;
+    if (json == null) return null;
+
+    if (json.containsKey(key) && json[key] is int) {
+      return DateTime.fromMillisecondsSinceEpoch(json[key]);
+    } else {
+      return null;
+    }
+  }
+
+  static int? intFromDateTime({DateTime? dateTime}) {
+    if (dateTime == null) return null;
+    return dateTime.millisecondsSinceEpoch;
+  }
+
+  static bool boolFromIntMap({
+    Map<dynamic, dynamic>? json,
+    String? key,
+  }) {
+    if (key == null) return false;
+    if (json == null) return false;
+
+    if (json.containsKey(key) && json[key] is int) {
+      return json[key] == 1 ? true : false;
+    } else {
+      return false;
+    }
+  }
+
+  static bool? boolFromInt(int? value) {
+    if (value == null) return false;
+    return value == 1 ? true : false;
+  }
+
+  static int? intFromBool(bool? value) {
+    if (value == null) return 0;
+    return value ? 1 : 0;
   }
 }
