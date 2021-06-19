@@ -6,7 +6,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/models/db_backup_model.dart';
-import 'package:storypad/screens/setting_screen.dart';
+import 'package:storypad/notifier/auth_notifier.dart';
+import 'package:storypad/notifier/remote_database_notifier.dart';
+import 'package:storypad/screens/home/local_widgets/backup_button.dart';
 import 'package:storypad/widgets/w_list_tile.dart';
 
 class BackupTile extends HookWidget {
@@ -15,32 +17,34 @@ class BackupTile extends HookWidget {
     required this.bottomBarHeight,
     required this.faqNotifier,
     required this.bottomSyncHeight,
-    required this.backup,
-    required this.date,
-    required this.onBackup,
   }) : super(key: key);
 
   final double bottomBarHeight;
   final ValueNotifier<bool> faqNotifier;
   final double bottomSyncHeight;
-  final DbBackupModel backup;
-  final String date;
-  final Future<void> Function() onBackup;
 
   @override
   Widget build(BuildContext context) {
-    final ValueNotifier<bool> loading = useState(false);
+    final authNotifier = useProvider(authenticationProvider);
+    final dbNotifier = useProvider(remoteDatabaseProvider);
+
+    String date = dbNotifier.lastImportDate(context);
+    DbBackupModel? backup = dbNotifier.backup;
 
     return Positioned(
       bottom: bottomBarHeight,
       left: 0,
       right: 0,
-      child: ValueListenableBuilder(
-        valueListenable: faqNotifier,
+      child: AnimatedContainer(
+        duration: ConfigConstant.duration,
+        curve: Curves.easeOutQuart,
+        decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
+        transform: Matrix4.identity()..translate(0.0, faqNotifier.value == true ? 1 : bottomSyncHeight),
         child: Consumer(
           builder: (context, watch, child) {
-            final titleText =
-                backup.name ?? tr("msg.backup.import", namedArgs: {"DATE": date}).replaceFirst(": ", ":\n");
+            final titleText = !authNotifier.isAccountSignedIn
+                ? "Sign in to backup"
+                : backup?.name ?? tr("msg.backup.import", namedArgs: {"DATE": date}).replaceFirst(": ", ":\n");
 
             return Column(
               children: [
@@ -48,39 +52,7 @@ class BackupTile extends HookWidget {
                 WListTile(
                   iconData: Icons.cloud,
                   titleMaxLines: 2,
-                  trailing: AnimatedCrossFade(
-                    duration: ConfigConstant.fadeDuration,
-                    crossFadeState: loading.value == false ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-                    secondChild: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Opacity(
-                          opacity: 0,
-                          child: TextButton(
-                            child: Text(tr("button.backup.export").toUpperCase()),
-                            onPressed: () {},
-                          ),
-                        ),
-                        Transform.scale(
-                          scale: 0.5,
-                          child: CircularProgressIndicator(),
-                        ),
-                      ],
-                    ),
-                    firstChild: TextButton.icon(
-                      label: Text(tr("button.backup.export").toUpperCase()),
-                      onPressed: () async {
-                        loading.value = true;
-                        await onBackup();
-                        loading.value = false;
-                      },
-                      style: buildButtonStyle(context),
-                      icon: Icon(
-                        Icons.add_to_drive,
-                        size: 16,
-                      ),
-                    ),
-                  ),
+                  trailing: BackupButton(right: 0, isSignedIn: authNotifier.isAccountSignedIn),
                   titleText: titleText,
                   titleStyle: Theme.of(context).textTheme.bodyText2,
                 ),
@@ -88,19 +60,6 @@ class BackupTile extends HookWidget {
             );
           },
         ),
-        builder: (context, watch, child) {
-          return AnimatedContainer(
-            duration: ConfigConstant.duration,
-            curve: Curves.easeOutQuart,
-            decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
-            transform: Matrix4.identity()
-              ..translate(
-                0.0,
-                faqNotifier.value == true ? 1 : bottomSyncHeight,
-              ),
-            child: child,
-          );
-        },
       ),
     );
   }

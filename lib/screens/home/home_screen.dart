@@ -17,15 +17,13 @@ import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/home_screen_notifier.dart';
 import 'package:storypad/notifier/tab_controller_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
+import 'package:storypad/screens/home/local_widgets/faq_button.dart';
 import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/screens/story_detail_screen.dart';
 import 'package:storypad/widgets/w_story_tile.dart';
 import 'package:storypad/widgets/vt_tab_view.dart';
-import 'package:storypad/widgets/w_more_faq_button.dart';
 import 'package:storypad/widgets/w_no_data.dart';
 import 'package:storypad/widgets/w_sliver_appbar.dart';
-import 'package:storypad/notifier/remote_database_notifier.dart';
-import 'package:storypad/notifier/auth_notifier.dart';
 import 'local_widgets/backup_tile.dart';
 
 class HomeScreen extends HookWidget with HookController, DialogMixin {
@@ -70,51 +68,23 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     final bottomSyncHeight = kBottomNavigationBarHeight + bottomBarHeight;
 
     return Scaffold(
-      body: Consumer(
-        child: fadeScaffold,
-        builder: (context, watch, Widget? child) {
-          final authNotifier = watch(authenticationProvider);
-          final dbNotifier = watch(remoteDatabaseProvider);
-          return Material(
-            color: Theme.of(context).colorScheme.surface,
-            child: Stack(
-              children: [
-                if (authNotifier.isAccountSignedIn && dbNotifier.backup != null)
-                  BackupTile(
-                    bottomBarHeight: bottomBarHeight,
-                    faqNotifier: faqNotifier,
-                    bottomSyncHeight: bottomSyncHeight,
-                    date: dbNotifier.lastImportDate(context),
-                    backup: dbNotifier.backup!,
-                    onBackup: () async {
-                      await dbNotifier.backupToCloud(
-                        context: context,
-                        showSnackbar: false,
-                      );
-                    },
-                  ),
-                ValueListenableBuilder(
-                  valueListenable: faqNotifier,
-                  child: fadeScaffold,
-                  builder: (context, watch, child) {
-                    return AnimatedContainer(
-                      transform: Matrix4.identity()
-                        ..translate(
-                          0.0,
-                          faqNotifier.value && authNotifier.isAccountSignedIn && dbNotifier.backup != null
-                              ? -bottomSyncHeight
-                              : 0,
-                        ),
-                      curve: Curves.easeOutQuart,
-                      duration: ConfigConstant.duration,
-                      child: child,
-                    );
-                  },
-                ),
-              ],
+      body: Material(
+        color: Theme.of(context).colorScheme.surface,
+        child: Stack(
+          children: [
+            BackupTile(
+              bottomBarHeight: bottomBarHeight,
+              faqNotifier: faqNotifier,
+              bottomSyncHeight: bottomSyncHeight,
             ),
-          );
-        },
+            AnimatedContainer(
+              transform: Matrix4.identity()..translate(0.0, faqNotifier.value ? -bottomSyncHeight : 0),
+              curve: Curves.easeOutQuart,
+              duration: ConfigConstant.duration,
+              child: fadeScaffold,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -153,6 +123,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
             notifier,
             controller,
             faqNotifier,
+            context,
           ),
           resizeToAvoidBottomInset: false,
           body: Consumer(
@@ -338,49 +309,45 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     HomeScreenNotifier notifier,
     TabController controller,
     ValueNotifier<bool> faqNotifier,
+    BuildContext context,
   ) {
     return buildFadeInOnInit(
       notifier: notifier,
-      child: ValueListenableBuilder(
-        valueListenable: faqNotifier,
-        builder: (context, value, child) {
-          return WMoreFaqButton(
-            faqNotifier: faqNotifier,
-            onSettingPressed: () {
-              closeFaq(faqNotifier);
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return SettingScreen();
-                  },
-                ),
-              );
-            },
-            onAddStoryPressed: () async {
-              final _tabNotifier = context.read(tabControllerProvider(controller));
-              closeFaq(faqNotifier);
-              final forDate = DateTime(
-                notifier.currentSelectedYear,
-                _tabNotifier.currentIndex + 1,
-                now.day,
-              );
-              final dynamic date = await Navigator.of(context, rootNavigator: true).push(
-                MaterialPageRoute(
-                  fullscreenDialog: true,
-                  builder: (context) {
-                    return StoryDetailScreen(
-                      story: StoryModel.empty.copyWith(forDate: forDate),
-                      insert: true,
-                    );
-                  },
-                ),
-              );
-              if (date != null) {
-                notifier.setCurrentSelectedYear(date.year);
-                controller.animateTo(date.month - 1, curve: Curves.easeInQuart);
-              }
-            },
+      child: FaqButton(
+        faqNotifier: faqNotifier,
+        onSettingPressed: () {
+          closeFaq(faqNotifier);
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return SettingScreen();
+              },
+            ),
           );
+        },
+        onAddStoryPressed: () async {
+          final _tabNotifier = context.read(tabControllerProvider(controller));
+          closeFaq(faqNotifier);
+          final forDate = DateTime(
+            notifier.currentSelectedYear,
+            _tabNotifier.currentIndex + 1,
+            now.day,
+          );
+          final dynamic date = await Navigator.of(context, rootNavigator: true).push(
+            MaterialPageRoute(
+              fullscreenDialog: true,
+              builder: (context) {
+                return StoryDetailScreen(
+                  story: StoryModel.empty.copyWith(forDate: forDate),
+                  insert: true,
+                );
+              },
+            ),
+          );
+          if (date != null) {
+            notifier.setCurrentSelectedYear(date.year);
+            controller.animateTo(date.month - 1, curve: Curves.easeInQuart);
+          }
         },
       ),
     );

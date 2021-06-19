@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:storypad/widgets/w_tap_effect.dart';
 
-class WMoreFaqButton extends StatelessWidget {
-  const WMoreFaqButton({
+class FaqButton extends StatelessWidget {
+  const FaqButton({
     Key? key,
     required this.onAddStoryPressed,
     required this.onSettingPressed,

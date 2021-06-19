@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:share/share.dart';
+import 'package:storypad/screens/home/local_widgets/backup_button.dart';
 import 'package:storypad/screens/sponser_screen.dart';
 import 'package:storypad/services/storages/preference_storages//auto_save_bool_storage.dart';
 import 'package:storypad/widgets/w_list_tile.dart';
@@ -707,26 +708,10 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                     ),
                   if (userNotifier.isAccountSignedIn)
                     ListTile(
-                      leading: SizedBox(),
-                      title: Container(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton.icon(
-                          onPressed: () async {
-                            await showSnackBar(
-                              context: context,
-                              title: tr("msg.backup.export.warning"),
-                              onActionPressed: () async {
-                                dbNotifier.backupToCloud(context: context);
-                              },
-                            );
-                          },
-                          style: buildButtonStyle(context),
-                          label: Text(tr("button.backup.export").toUpperCase()),
-                          icon: Icon(
-                            Icons.add_to_drive,
-                            size: 16,
-                          ),
-                        ),
+                      leading: const SizedBox(),
+                      title: BackupButton(
+                        left: 0.0,
+                        isSignedIn: userNotifier.isAccountSignedIn,
                       ),
                     ),
                   WTapEffect(
@@ -879,34 +864,4 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
       },
     );
   }
-}
-
-ButtonStyle buildButtonStyle(BuildContext context) {
-  final colorScheme = Theme.of(context).colorScheme;
-  return ButtonStyle(
-    backgroundColor: MaterialStateProperty.resolveWith(
-      (states) {
-        if (states.contains(MaterialState.pressed) ||
-            states.contains(MaterialState.focused) ||
-            states.contains(MaterialState.hovered) ||
-            states.contains(MaterialState.selected)) {
-          return colorScheme.secondaryVariant;
-        } else {
-          return colorScheme.secondary;
-        }
-      },
-    ),
-    foregroundColor: MaterialStateProperty.resolveWith(
-      (states) {
-        if (states.contains(MaterialState.pressed) ||
-            states.contains(MaterialState.focused) ||
-            states.contains(MaterialState.hovered) ||
-            states.contains(MaterialState.selected)) {
-          return colorScheme.onPrimary;
-        } else {
-          return colorScheme.onSecondary;
-        }
-      },
-    ),
-  );
 }
