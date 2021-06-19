@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_snack_bar_action.dart' as w;
 
 mixin WSnackBarMixin {
@@ -48,7 +47,6 @@ mixin WSnackBarMixin {
         warning: warning,
       );
 
-      onTapVibrate();
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(snack).closed.then(
         (value) {
           ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();

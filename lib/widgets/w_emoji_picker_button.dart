@@ -8,7 +8,7 @@ import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/hook_controller.dart';
 import 'package:storypad/models/feeling_emoji_model.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_behavior.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 import 'package:storypad/widgets/w_overlay_entry_button.dart';
@@ -42,8 +42,7 @@ class EmojiPickerButton extends HookWidget with HookController {
               color: Theme.of(context).colorScheme.background,
               borderRadius: ConfigConstant.circlarRadius2,
               border: Border.all(
-                color:
-                    Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
+                color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
                 width: 1,
               ),
             ),
@@ -73,10 +72,9 @@ class EmojiPickerButton extends HookWidget with HookController {
                                 final FeelingEmojiModel? emoji;
                                 emoji = _emojies[childIndex[r]];
 
-                                final isSelected =
-                                    currentFeelingModel?.type == emoji.type;
+                                final isSelected = currentFeelingModel?.type == emoji.type;
 
-                                return VTOnTapEffect(
+                                return WTapEffect(
                                   onTap: () {
                                     callback();
 
@@ -89,18 +87,14 @@ class EmojiPickerButton extends HookWidget with HookController {
                                   },
                                   child: Container(
                                     width: kToolbarHeight * 1.8,
-                                    color: isSelected
-                                        ? Theme.of(context).colorScheme.surface
-                                        : Colors.transparent,
+                                    color: isSelected ? Theme.of(context).colorScheme.surface : Colors.transparent,
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 16.0,
                                     ),
                                     alignment: Alignment.center,
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Image.asset(
                                           emoji.localPath!,
@@ -140,12 +134,8 @@ class EmojiPickerButton extends HookWidget with HookController {
             key: key,
             size: 32,
             iconSize: 16 + 4,
-            iconImage: currentFeelingModel?.localPath != null
-                ? currentFeelingModel?.localPath
-                : null,
-            iconData: currentFeelingModel?.localPath != null
-                ? null
-                : Icons.tag_faces_sharp,
+            iconImage: currentFeelingModel?.localPath != null ? currentFeelingModel?.localPath : null,
+            iconData: currentFeelingModel?.localPath != null ? null : Icons.tag_faces_sharp,
             onPressed: () {
               /// find column index to scroll to
               int index = 0;

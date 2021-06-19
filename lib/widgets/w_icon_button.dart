@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 
 class WIconButton extends StatelessWidget {
   const WIconButton({
@@ -15,8 +15,7 @@ class WIconButton extends StatelessWidget {
   })  : assert(elevation >= 0),
         assert(size >= 0),
         assert(
-          iconData != null && iconImage == null ||
-              iconData == null && iconImage != null,
+          iconData != null && iconImage == null || iconData == null && iconImage != null,
         ),
         super(key: key);
 
@@ -44,17 +43,13 @@ class WIconButton extends StatelessWidget {
             shape: BoxShape.circle,
             color: filledColor,
           ),
-          child: VTOnTapEffect(
+          child: WTapEffect(
             onTap: onPressed,
             effects: [
-              VTOnTapEffectItem(
-                effectType: VTOnTapEffectType.scaleDown,
-                active: 0.9,
-              ),
+              WTapEffectType.scaleDown,
             ],
             child: InkWell(
-              highlightColor:
-                  Theme.of(context).colorScheme.primary.withOpacity(0.05),
+              highlightColor: Theme.of(context).colorScheme.primary.withOpacity(0.05),
               borderRadius: BorderRadius.circular(size),
               onTap: onPressed,
               child: iconImage == null

@@ -3,7 +3,6 @@ import 'package:flutter_quill/models/documents/attribute.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
-import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_quil_toolbar.dart';
 
 class WClearFormatButton extends StatefulWidget {
@@ -73,7 +72,6 @@ class _WMoveCursurButtonState extends State<WMoveCursurButton> {
       ),
       fillColor: fillColor,
       onPressed: () {
-        onTapVibrate();
         moveCursor(1);
       },
     );

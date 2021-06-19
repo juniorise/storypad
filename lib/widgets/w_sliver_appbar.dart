@@ -11,7 +11,7 @@ import 'package:storypad/notifier/appbar_notifier.dart';
 import 'package:storypad/notifier/home_screen_notifier.dart';
 import 'package:storypad/notifier/user_model_notifier.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_tabbar.dart';
 
 class WSliverAppBar extends HookWidget with DialogMixin {
@@ -173,7 +173,7 @@ class WSliverAppBar extends HookWidget with DialogMixin {
         child: Stack(
           alignment: Alignment.centerLeft,
           children: [
-            VTOnTapEffect(
+            WTapEffect(
               onTap: () async {
                 showModalBottomSheet(
                   isDismissible: true,
@@ -192,14 +192,11 @@ class WSliverAppBar extends HookWidget with DialogMixin {
                 });
               },
               effects: [
-                VTOnTapEffectItem(
-                  effectType: VTOnTapEffectType.touchableOpacity,
-                  active: 0.5,
-                )
+                WTapEffectType.touchableOpacity,
               ],
               child: _headerTexts,
             ),
-            VTOnTapEffect(
+            WTapEffect(
               onTap: () async {
                 final homeNotifier = context.read(homeScreenProvider);
                 final years = homeNotifier.availableYears..sort();
@@ -209,10 +206,7 @@ class WSliverAppBar extends HookWidget with DialogMixin {
                 );
               },
               effects: [
-                VTOnTapEffectItem(
-                  effectType: VTOnTapEffectType.touchableOpacity,
-                  active: 0.5,
-                )
+                WTapEffectType.touchableOpacity,
               ],
               child: _yearText,
             ),
@@ -250,7 +244,6 @@ class WSliverAppBar extends HookWidget with DialogMixin {
                     ),
                     selected: selected,
                     onTap: () async {
-                      onTapVibrate();
                       notifier.setCurrentSelectedYear(years[index]);
                       Navigator.of(context).pop();
                     },

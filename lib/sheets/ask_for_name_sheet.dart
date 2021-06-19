@@ -9,10 +9,9 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/models/user_model.dart';
 import 'package:storypad/notifier/user_model_notifier.dart';
 import 'package:storypad/screens/home/home_screen.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 
-final GlobalKey<ScaffoldState> askForNameScaffoldKey =
-    GlobalKey<ScaffoldState>();
+final GlobalKey<ScaffoldState> askForNameScaffoldKey = GlobalKey<ScaffoldState>();
 
 class AskForNameSheet extends HookWidget {
   const AskForNameSheet({
@@ -32,8 +31,7 @@ class AskForNameSheet extends HookWidget {
     final context = askForNameScaffoldKey.currentContext ?? buildContext;
     final notifier = useProvider(userModelProvider);
 
-    final nameNotEmpty =
-        notifier.nickname != null && notifier.nickname?.isNotEmpty == true;
+    final nameNotEmpty = notifier.nickname != null && notifier.nickname?.isNotEmpty == true;
 
     bool canContinue = nameNotEmpty;
     canContinue = nameNotEmpty && notifier.user?.nickname != notifier.nickname;
@@ -79,14 +77,10 @@ class AskForNameSheet extends HookWidget {
         body: LayoutBuilder(
           builder: (context, constrant) {
             bool tablet = constrant.maxWidth > constrant.maxHeight;
-            final lottieHeight =
-                tablet ? constrant.maxHeight / 2 : constrant.maxWidth / 2;
+            final lottieHeight = tablet ? constrant.maxHeight / 2 : constrant.maxWidth / 2;
 
-            double initHeight = (constrant.maxHeight -
-                    lottieHeight -
-                    statusBarHeight -
-                    kToolbarHeight) /
-                constrant.maxHeight;
+            double initHeight =
+                (constrant.maxHeight - lottieHeight - statusBarHeight - kToolbarHeight) / constrant.maxHeight;
 
             final body = Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,8 +94,7 @@ class AskForNameSheet extends HookWidget {
                 _buildTextField(
                   context: context,
                   hintText: tr("hint_text.nickname"),
-                  initialValue:
-                      notifier.user != null ? notifier.user?.nickname : null,
+                  initialValue: notifier.user != null ? notifier.user?.nickname : null,
                   onChanged: (String value) {
                     notifier.setNickname(value);
                   },
@@ -119,8 +112,7 @@ class AskForNameSheet extends HookWidget {
                 ),
                 DraggableScrollableSheet(
                   initialChildSize: initHeight >= 1 ? 1 : initHeight,
-                  maxChildSize:
-                      1 - statusBarHeight / MediaQuery.of(context).size.height,
+                  maxChildSize: 1 - statusBarHeight / MediaQuery.of(context).size.height,
                   minChildSize: initHeight - 0.05 > 0 ? initHeight - 0.1 : 0,
                   builder: (context, controller) {
                     return Container(
@@ -219,8 +211,7 @@ class WLineLoading extends StatelessWidget {
         child: Container(
           height: 4,
           child: LinearProgressIndicator(
-            backgroundColor:
-                Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+            backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
             valueColor: AlwaysStoppedAnimation<Color>(
               Theme.of(context).colorScheme.secondary,
             ),
@@ -238,8 +229,7 @@ Widget _buildHeaderText({
 }) {
   final _theme = Theme.of(context);
   final _textTheme = _theme.textTheme;
-  final _style =
-      _theme.textTheme.headline6?.copyWith(color: _theme.colorScheme.primary);
+  final _style = _theme.textTheme.headline6?.copyWith(color: _theme.colorScheme.primary);
 
   return Container(
     width: double.infinity,
@@ -263,11 +253,8 @@ Widget _buildHeaderText({
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.left,
-                style: _textTheme.bodyText1?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onBackground
-                        .withOpacity(0.5)),
+                style:
+                    _textTheme.bodyText1?.copyWith(color: Theme.of(context).colorScheme.onBackground.withOpacity(0.5)),
               ),
             ],
           ),
@@ -286,22 +273,17 @@ Widget _buildContinueButton({
   final _theme = Theme.of(context);
 
   final _effects = [
-    VTOnTapEffectItem(
-      effectType: VTOnTapEffectType.touchableOpacity,
-      active: 0.5,
-    ),
+    WTapEffectType.touchableOpacity,
   ];
 
   final _decoration = BoxDecoration(
     borderRadius: ConfigConstant.circlarRadius2,
-    color: nameNotEmpty
-        ? _theme.colorScheme.primary
-        : _theme.colorScheme.background,
+    color: nameNotEmpty ? _theme.colorScheme.primary : _theme.colorScheme.background,
   );
 
   return IgnorePointer(
     ignoring: !nameNotEmpty,
-    child: VTOnTapEffect(
+    child: WTapEffect(
       onTap: onTap,
       effects: _effects,
       child: AnimatedContainer(
@@ -312,9 +294,7 @@ Widget _buildContinueButton({
         child: Text(
           title,
           style: _theme.textTheme.bodyText1?.copyWith(
-            color: nameNotEmpty
-                ? _theme.colorScheme.onPrimary
-                : _theme.disabledColor,
+            color: nameNotEmpty ? _theme.colorScheme.onPrimary : _theme.disabledColor,
           ),
         ),
       ),

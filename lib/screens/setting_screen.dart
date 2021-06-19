@@ -27,8 +27,7 @@ import 'package:storypad/screens/lock_setting_screen.dart';
 import 'package:storypad/screens/story_detail_screen.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/services/google_drive_api_service.dart';
-import 'package:storypad/services/storages/preference_storages//vibrate_toggle_storage.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_about_dialog.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -46,10 +45,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
   Widget build(BuildContext context) {
     print("Build SettingScreen");
     final scrollController = useScrollController();
-
-    VibrateToggleStorage().getBool().then((value) {
-      vibrationNotifier.value = value == true;
-    });
 
     AutoSaveBoolStorage().getBool().then((value) {
       autoSaveNotifier.value = value == true;
@@ -96,32 +91,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                     Future.delayed(ConfigConstant.duration).then((value) async {
                       await notifier.load();
                     });
-                  },
-                ),
-                ValueListenableBuilder(
-                  valueListenable: vibrationNotifier,
-                  builder: (context, value, child) {
-                    return WListTile(
-                      iconData: Icons.vibration,
-                      titleText: tr("title.vibration"),
-                      trailing: Switch(
-                        onChanged: (bool value) async {
-                          await VibrateToggleStorage().setBool(value: !vibrationNotifier.value);
-                          vibrationNotifier.value = !vibrationNotifier.value;
-                          if (vibrationNotifier.value) {
-                            onTapVibrate();
-                          }
-                        },
-                        value: vibrationNotifier.value,
-                      ),
-                      onTap: () async {
-                        await VibrateToggleStorage().setBool(value: !vibrationNotifier.value);
-                        vibrationNotifier.value = !vibrationNotifier.value;
-                        if (vibrationNotifier.value) {
-                          onTapVibrate();
-                        }
-                      },
-                    );
                   },
                 ),
                 const SizedBox(height: 8.0),
@@ -374,7 +343,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
           applicationVersion: "v$_version+$_code",
           children: [
             const SizedBox(height: 24.0),
-            VTOnTapEffect(
+            WTapEffect(
               onTap: () {
                 launch("http://www.theachoem.com");
               },
@@ -401,7 +370,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
               ),
             ),
             const Divider(),
-            VTOnTapEffect(
+            WTapEffect(
               onTap: () {
                 launch("https://facebook.com/100004853777908");
               },
@@ -422,7 +391,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
               ),
             ),
             const Divider(),
-            VTOnTapEffect(
+            WTapEffect(
               onTap: () async {
                 final Uri params = Uri(
                   scheme: 'mailto',
@@ -485,7 +454,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
       iconData: Icons.rate_review,
       titleText: tr("button.rate"),
       onTap: () async {
-        onTapVibrate();
         await LaunchReview.launch();
       },
     );
@@ -496,7 +464,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
       iconData: Icons.share,
       titleText: tr("button.share"),
       onTap: () async {
-        onTapVibrate();
         await Share.share(
           "StoryPad - Write Your Story, Note, Diary. Download now on Play Store: https://play.google.com/store/apps/details?id=com.tc.writestory",
         );
@@ -523,7 +490,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                     ),
                     title: Text("ខ្មែរ", textAlign: TextAlign.center),
                     onTap: () {
-                      onTapVibrate();
                       Navigator.of(context).pop();
                       context.setLocale(Locale("km"));
                     },
@@ -537,7 +503,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                     ),
                     title: Text("English", textAlign: TextAlign.center),
                     onTap: () {
-                      onTapVibrate();
                       Navigator.of(context).pop();
                       context.setLocale(Locale("en"));
                     },
@@ -581,7 +546,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                           textAlign: TextAlign.center,
                         ),
                         onTap: () {
-                          onTapVibrate();
                           Navigator.of(context).pop();
                           notifier.setDarkMode(true);
                         },
@@ -593,7 +557,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                           textAlign: TextAlign.center,
                         ),
                         onTap: () {
-                          onTapVibrate();
                           Navigator.of(context).pop();
                           notifier.setDarkMode(false);
                         },
@@ -610,7 +573,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                           textAlign: TextAlign.center,
                         ),
                         onTap: () {
-                          onTapVibrate();
                           Navigator.of(context).pop();
                           notifier.setDarkMode(null);
                         },
@@ -640,7 +602,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                           tr("button.layout.normal.info"),
                         ),
                         onTap: () {
-                          onTapVibrate();
                           Navigator.of(context).pop();
                           notifier.setListLayout(true);
                         },
@@ -657,7 +618,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                           tr("button.layout.tab.info"),
                         ),
                         onTap: () {
-                          onTapVibrate();
                           Navigator.of(context).pop();
                           notifier.setListLayout(false);
                         },
@@ -720,7 +680,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                 ),
                 children: [
                   if (userNotifier.isAccountSignedIn && dbNotifier.backup != null)
-                    VTOnTapEffect(
+                    WTapEffect(
                       onTap: () {},
                       child: WListTile(
                         tileColor: Theme.of(context).colorScheme.surface,
@@ -752,7 +712,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                         alignment: Alignment.centerLeft,
                         child: TextButton.icon(
                           onPressed: () async {
-                            onTapVibrate();
                             await showSnackBar(
                               context: context,
                               title: tr("msg.backup.export.warning"),
@@ -770,7 +729,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                         ),
                       ),
                     ),
-                  VTOnTapEffect(
+                  WTapEffect(
                     onTap: () {},
                     child: WListTile(
                       tileColor: Theme.of(context).colorScheme.surface,
@@ -788,21 +747,19 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                           );
                           return;
                         }
-                        onTapVibrate();
+
                         if (userNotifier.isAccountSignedIn) {
                           await userNotifier.signOut();
                           context.read(remoteDatabaseProvider).reset();
                         } else {
                           bool success = await userNotifier.logAccount();
                           if (success == true) {
-                            onTapVibrate();
                             showSnackBar(
                               context: context,
                               title: tr("msg.login.success"),
                             );
                             context.read(remoteDatabaseProvider).load();
                           } else {
-                            onTapVibrate();
                             showSnackBar(
                               context: context,
                               title: userNotifier.service?.errorMessage != null
@@ -896,7 +853,6 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                       ),
                     ),
                     onTap: () async {
-                      onTapVibrate();
                       if (locked) {
                         showSnackBar(context: context, title: tr("msg.locked"));
                         return;

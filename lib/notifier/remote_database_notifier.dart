@@ -3,7 +3,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:storypad/models/db_backup_model.dart';
 import 'package:storypad/models/user_model.dart';
 import 'package:storypad/services/authentication_service.dart';
@@ -14,7 +13,6 @@ import 'package:storypad/helpers/app_helper.dart';
 import 'package:storypad/services/storages/local_storages/w_database.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/notifier/home_screen_notifier.dart';
 import 'dart:io' as io;
@@ -128,14 +126,12 @@ class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin {
     final bool success = await BackupService.restoreBackup(this.backup!.db!, dbs: dbs!);
     if (showSnackbar == false) return;
     if (success) {
-      onTapVibrate();
       await context.read(homeScreenProvider).load();
       showSnackBar(
         context: context,
         title: tr("msg.backup.import.success"),
       );
     } else {
-      onTapVibrate();
       showSnackBar(
         context: context,
         title: tr("msg.backup.import.fail"),
@@ -171,13 +167,11 @@ class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin {
     final bool success = await this.replace(backupModel);
     if (showSnackbar == false) return;
     if (success) {
-      onTapVibrate();
       showSnackBar(
         context: context,
         title: tr("msg.backup.export.success"),
       );
     } else {
-      onTapVibrate();
       showSnackBar(
         context: context,
         title: tr("msg.backup.export.fail"),

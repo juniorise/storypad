@@ -35,7 +35,7 @@ import 'package:storypad/services/story_detail_service.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/sheets/image_viewer_sheet.dart';
 import 'package:storypad/services/image_compress_service.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_emoji_picker_button.dart';
 import 'package:storypad/widgets/w_history_button.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
@@ -348,7 +348,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
         } else {
           imageChild = Image.file(File(imageUrl));
         }
-        return VTOnTapEffect(
+        return WTapEffect(
           child: ClipRRect(
             borderRadius: ConfigConstant.circlarRadius1,
             child: imageChild,
@@ -389,7 +389,6 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
           screenPadding: screenPadding,
           onShareImage: imageUrl != null
               ? () async {
-                  onTapVibrate();
                   final file = await _findPath(imageUrl);
                   await Share.shareFiles([file.path]);
                 }
@@ -615,7 +614,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
       centerTitle: false,
       elevation: 0.0,
       titleSpacing: 0.0,
-      title: VTOnTapEffect(
+      title: WTapEffect(
         onTap: () {
           scrollController
               .animateTo(
@@ -794,7 +793,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
           items: [
             if (showDelete)
               PopupMenuItem(
-                child: VTOnTapEffect(
+                child: WTapEffect(
                   onTap: () async {
                     Navigator.of(context).pop();
                     onDelete(
@@ -819,7 +818,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
               ),
             if (showSave)
               PopupMenuItem(
-                child: VTOnTapEffect(
+                child: WTapEffect(
                   onTap: () async {
                     Navigator.of(context).pop();
                     await StoryDetailService().onSave(
@@ -839,7 +838,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
               ),
             if (showInfo)
               PopupMenuItem(
-                child: VTOnTapEffect(
+                child: WTapEffect(
                   onTap: () async {
                     Navigator.of(context).pop();
                     final dialog = Dialog(
@@ -867,7 +866,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
               ),
             if (showShare)
               PopupMenuItem(
-                child: VTOnTapEffect(
+                child: WTapEffect(
                   onTap: () async {
                     Navigator.of(context).pop();
                     final title = notifier.draftStory.title;
@@ -889,12 +888,11 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
                 child: Consumer(
                   builder: (context, watch, child) {
                     final notifier = watch(themeProvider);
-                    return VTOnTapEffect(
+                    return WTapEffect(
                       onTap: () {
                         Navigator.of(context).pop();
                         Future.delayed(ConfigConstant.duration).then(
                           (value) {
-                            onTapVibrate();
                             notifier.toggleTheme();
                           },
                         );
@@ -912,7 +910,6 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
                               Navigator.of(context).pop();
                               Future.delayed(ConfigConstant.duration).then(
                                 (value) {
-                                  onTapVibrate();
                                   notifier.toggleTheme();
                                 },
                               );
@@ -929,7 +926,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
                 child: ValueListenableBuilder(
                   valueListenable: readOnlyModeNotifier,
                   builder: (context, value, child) {
-                    return VTOnTapEffect(
+                    return WTapEffect(
                       onTap: () {
                         if (readOnlyModeNotifier.value) {
                           focusNode.requestFocus();

@@ -6,7 +6,6 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/models/font_model.dart';
 import 'package:storypad/notifier/font_manager_notifier.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 import 'package:storypad/widgets/w_list_tile.dart';
 
@@ -67,7 +66,6 @@ class FontManagerScreen extends HookWidget with WSnackBarMixin {
                           subtitleText: FontModel.localeExamples[font.locale],
                           subtitleMaxLines: 1,
                           onTap: () async {
-                            onTapVibrate();
                             ScaffoldMessenger.maybeOf(context)!.removeCurrentSnackBar();
                             if (!notifier.fontFamilyFallback.contains(font.familyName)) {
                               await notifier

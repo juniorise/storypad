@@ -7,7 +7,7 @@ import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
 import 'package:storypad/helpers/measure_size.dart';
 import 'package:storypad/constants/config_constant.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_color_picker.dart';
 
 /// Controls color styles.
@@ -162,17 +162,11 @@ class _WColorButtonState extends State<WColorButton> with SingleTickerProviderSt
       );
     };
 
-    return VTOnTapEffect(
+    return WTapEffect(
       onTap: onPressed != null ? onPressed : () {},
       effects: [
-        VTOnTapEffectItem(
-          effectType: VTOnTapEffectType.scaleDown,
-          active: 0.95,
-        ),
-        VTOnTapEffectItem(
-          effectType: VTOnTapEffectType.touchableOpacity,
-          active: 0.5,
-        ),
+        WTapEffectType.scaleDown,
+        WTapEffectType.touchableOpacity,
       ],
       child: toolbar.QuillIconButton(
         key: floatingKey,

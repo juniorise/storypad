@@ -5,8 +5,7 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/services/lock_service.dart';
-import 'package:storypad/services/storages/preference_storages//lock_screen_storage.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/services/storages/preference_storages/lock_screen_storage.dart';
 
 class LockDetail {
   bool? fromLaunch;
@@ -81,7 +80,7 @@ class LockNotifier extends BaseNotifier {
           notifyListeners();
         });
       }
-      onTapVibrate();
+
       ignoring = false;
     } else {
       this._lockNumberMap = lockNumberMap;

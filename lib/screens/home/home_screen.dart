@@ -20,7 +20,6 @@ import 'package:storypad/notifier/theme_notifier.dart';
 import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/screens/story_detail_screen.dart';
 import 'package:storypad/widgets/w_story_tile.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/vt_tab_view.dart';
 import 'package:storypad/widgets/w_more_faq_button.dart';
 import 'package:storypad/widgets/w_no_data.dart';
@@ -654,7 +653,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       },
       onToggleFavorite: () async {
         closeFaq(faqNotifier);
-        onTapVibrate();
+
         await notifier.toggleFavorite(story.id);
       },
     );

@@ -11,7 +11,7 @@ import 'package:storypad/notifier/lock_notifier.dart';
 import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/services/storages/preference_storages//is_unlocked_storage.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 
 enum LockFlowType {
@@ -170,9 +170,8 @@ class LockScreenWrapper extends HookWidget {
                                 notifier.setLockNumberMap(null);
                               }
                             : null,
-                        child: VTOnTapEffect(
+                        child: WTapEffect(
                           onTap: () async {
-                            onTapVibrate();
                             if (value == null) return;
                             Map<String, String?> newMap = notifier.lockNumberMap;
                             if (value == 10) {

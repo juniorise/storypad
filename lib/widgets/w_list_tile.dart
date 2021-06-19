@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 
 class WListTile extends StatelessWidget {
   const WListTile({
@@ -40,7 +40,7 @@ class WListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
-      child: VTOnTapEffect(
+      child: WTapEffect(
         onTap: onTap,
         child: ListTile(
           trailing: trailing,
@@ -66,15 +66,12 @@ class WListTile extends StatelessWidget {
                   : null,
             ),
           ),
-          shape: borderRadius != null
-              ? RoundedRectangleBorder(borderRadius: borderRadius!)
-              : null,
+          shape: borderRadius != null ? RoundedRectangleBorder(borderRadius: borderRadius!) : null,
           title: Text(
             titleText,
             maxLines: titleMaxLines,
             overflow: TextOverflow.ellipsis,
-            style: titleStyle ??
-                TextStyle(color: forgroundColor, fontFamily: titleFontFamily),
+            style: titleStyle ?? TextStyle(color: forgroundColor, fontFamily: titleFontFamily),
           ),
           subtitle: subtitleText != null
               ? Text(
@@ -82,11 +79,7 @@ class WListTile extends StatelessWidget {
                   maxLines: subtitleMaxLines,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: forgroundColor ??
-                        Theme.of(context)
-                            .colorScheme
-                            .onBackground
-                            .withOpacity(0.5),
+                    color: forgroundColor ?? Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
                   ),
                 )
               : null,

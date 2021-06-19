@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 
 class WMoreFaqButton extends StatelessWidget {
   const WMoreFaqButton({
@@ -23,13 +23,10 @@ class WMoreFaqButton extends StatelessWidget {
 
     final labelStyle = Theme.of(context).textTheme.bodyText1?.copyWith(color: Theme.of(context).colorScheme.onSurface);
 
-    return VTOnTapEffect(
+    return WTapEffect(
       onTap: () {},
       effects: [
-        VTOnTapEffectItem(
-          effectType: VTOnTapEffectType.touchableOpacity,
-          active: 0.5,
-        ),
+        WTapEffectType.touchableOpacity,
       ],
       child: ValueListenableBuilder(
         valueListenable: faqNotifier,
@@ -54,11 +51,9 @@ class WMoreFaqButton extends StatelessWidget {
             elevation: faqNotifier.value ? 6.0 : 0,
             shape: CircleBorder(),
             onClose: () {
-              onTapVibrate();
               faqNotifier.value = false;
             },
             onOpen: () {
-              onTapVibrate();
               faqNotifier.value = true;
             },
             children: [
@@ -74,7 +69,6 @@ class WMoreFaqButton extends StatelessWidget {
                   onSettingPressed();
                 },
                 onLongPress: () {
-                  onTapVibrate();
                   onSettingPressed();
                 },
               ),
@@ -90,7 +84,6 @@ class WMoreFaqButton extends StatelessWidget {
                   onAddStoryPressed();
                 },
                 onLongPress: () {
-                  onTapVibrate();
                   onAddStoryPressed();
                 },
               ),

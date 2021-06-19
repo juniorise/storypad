@@ -4,7 +4,7 @@ import 'package:flutter_inapp_purchase/modules.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/sponser_notifier.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -81,11 +81,10 @@ class SponserScreen extends HookWidget {
                           AnimatedOpacity(
                             duration: ConfigConstant.fadeDuration,
                             opacity: product != null ? 1 : 0,
-                            child: VTOnTapEffect(
+                            child: WTapEffect(
                               onTap: () async {
                                 final productId = product?.productId;
-                                await notifier
-                                    .buyProduct(productId ?? "monthly_sponsor");
+                                await notifier.buyProduct(productId ?? "monthly_sponsor");
                               },
                               child: buildProductItem(context, product),
                             ),
@@ -110,15 +109,13 @@ class SponserScreen extends HookWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     AnimatedCrossFade(
-                      crossFadeState: notifier.error != null
-                          ? CrossFadeState.showFirst
-                          : CrossFadeState.showSecond,
+                      crossFadeState: notifier.error != null ? CrossFadeState.showFirst : CrossFadeState.showSecond,
                       duration: ConfigConstant.fadeDuration,
                       firstChild: Text(
                         notifier.error ?? "",
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.caption?.copyWith(
-                            color: Theme.of(context).colorScheme.error),
+                        style:
+                            Theme.of(context).textTheme.caption?.copyWith(color: Theme.of(context).colorScheme.error),
                       ),
                       secondChild: const SizedBox(),
                     ),
@@ -177,10 +174,7 @@ class SponserScreen extends HookWidget {
                 softWrap: true,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.right,
-                style: Theme.of(context)
-                    .textTheme
-                    .headline6
-                    ?.copyWith(fontWeight: FontWeight.w600),
+                style: Theme.of(context).textTheme.headline6?.copyWith(fontWeight: FontWeight.w600),
               ),
             )
           ],

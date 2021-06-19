@@ -7,7 +7,7 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/widgets/add_to_drive_button.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 
 class WStoryTile extends HookWidget with DialogMixin {
@@ -74,10 +74,7 @@ class WStoryTile extends HookWidget with DialogMixin {
     final _paragraphWidget = _paragraphText.isNotEmpty ? _paragraphChild : const SizedBox();
 
     final _tileEffects = [
-      VTOnTapEffectItem(
-        effectType: VTOnTapEffectType.touchableOpacity,
-        active: 0.3,
-      ),
+      WTapEffectType.touchableOpacity,
     ];
 
     var rightButton = Positioned(
@@ -99,7 +96,7 @@ class WStoryTile extends HookWidget with DialogMixin {
       ),
     );
 
-    return VTOnTapEffect(
+    return WTapEffect(
       effects: _tileEffects,
       onTap: onTap,
       child: Container(
@@ -144,13 +141,10 @@ class WStoryTile extends HookWidget with DialogMixin {
     required IconData iconData,
   }) {
     final favoriteButtonEffect = [
-      VTOnTapEffectItem(
-        effectType: VTOnTapEffectType.scaleDown,
-        active: 0.9,
-      )
+      WTapEffectType.scaleDown,
     ];
 
-    return VTOnTapEffect(
+    return WTapEffect(
       onTap: onPressed,
       effects: favoriteButtonEffect,
       child: WIconButton(

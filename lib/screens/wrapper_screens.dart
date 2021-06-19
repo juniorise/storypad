@@ -6,7 +6,6 @@ import 'package:page_transition/page_transition.dart';
 import 'package:storypad/notifier/user_model_notifier.dart';
 import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
-import 'package:storypad/services/storages/preference_storages//vibrate_toggle_storage.dart';
 
 class WrapperScreens extends HookWidget {
   static const routeName = '/unlocked';
@@ -86,7 +85,6 @@ class WrapperScreens extends HookWidget {
                   );
                 },
               ).then((_) async {
-                VibrateToggleStorage().setBool(value: false);
                 ScaffoldMessenger.of(
                   askForNameScaffoldKey.currentContext ?? context,
                 ).removeCurrentSnackBar();

@@ -4,7 +4,7 @@ import 'package:flutter_quill/models/documents/attribute.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
 import 'package:image_picker/image_picker.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_clear_format_btn.dart';
 import 'package:storypad/widgets/w_color_button.dart';
 import 'package:storypad/widgets/w_select_header_style_button.dart';
@@ -388,17 +388,11 @@ class WQuillToolbar extends StatefulWidget implements PreferredSizeWidget {
     final iconColor = isEnabled ? theme.iconTheme.color : theme.disabledColor;
     final fillColor = isToggled == true && onPressed != null ? theme.dividerColor : Colors.transparent;
 
-    return VTOnTapEffect(
+    return WTapEffect(
       onTap: onPressed != null ? onPressed : null,
       effects: [
-        VTOnTapEffectItem(
-          effectType: VTOnTapEffectType.scaleDown,
-          active: 0.95,
-        ),
-        VTOnTapEffectItem(
-          effectType: VTOnTapEffectType.touchableOpacity,
-          active: 0.5,
-        ),
+        WTapEffectType.scaleDown,
+        WTapEffectType.touchableOpacity,
       ],
       child: toolbar.QuillIconButton(
         highlightElevation: 1,

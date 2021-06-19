@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/models/documents/attribute.dart';
 import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter_quill/widgets/controller.dart';
-import 'package:storypad/widgets/vt_ontap_effect.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_quil_toolbar.dart';
 
 class WSelectHeaderStyleButton extends StatefulWidget {
@@ -101,17 +101,11 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
               width: iconSize * 1.77,
               height: iconSize * 1.77,
             ),
-            child: VTOnTapEffect(
+            child: WTapEffect(
               onTap: disable ? null : () {},
               effects: [
-                VTOnTapEffectItem(
-                  effectType: VTOnTapEffectType.scaleDown,
-                  active: 0.95,
-                ),
-                VTOnTapEffectItem(
-                  effectType: VTOnTapEffectType.touchableOpacity,
-                  active: 0.5,
-                ),
+                WTapEffectType.scaleDown,
+                WTapEffectType.touchableOpacity,
               ],
               child: RawMaterialButton(
                 hoverElevation: 0,
