@@ -7,10 +7,11 @@ import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/models/db_backup_model.dart';
 import 'package:storypad/models/user_model.dart';
 import 'package:storypad/services/authentication_service.dart';
+import 'package:storypad/services/backup_service.dart';
 import 'package:storypad/services/google_drive_api_service.dart';
 import 'package:storypad/services/remote_database_service.dart';
-import 'package:storypad/app_helper/app_helper.dart';
-import 'package:storypad/database/w_database.dart';
+import 'package:storypad/helpers/app_helper.dart';
+import 'package:storypad/services/storages/local_storages/w_database.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
@@ -123,7 +124,8 @@ class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBar, Change
     await showWDialog(context: context, child: dialog);
     if (hasClick == null) return;
 
-    final bool success = await database.restoreBackup(this.backup!.db!);
+    final dbs = await WDatabase.instance.database;
+    final bool success = await BackupService.restoreBackup(this.backup!.db!, dbs: dbs!);
     if (showSnackbar == false) return;
     if (success) {
       onTapVibrate();
@@ -160,8 +162,8 @@ class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBar, Change
       }
     }
 
-    final database = WDatabase.instance;
-    String backup = await database.generateBackup();
+    final dbs = await WDatabase.instance.database;
+    String backup = await BackupService.generateBackup(dbs: dbs!);
     final backupModel = DbBackupModel(
       createOn: Timestamp.now(),
       db: backup,

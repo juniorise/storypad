@@ -6,7 +6,7 @@ import 'package:storypad/app.dart';
 import 'package:storypad/notifier/lock_notifier.dart';
 import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/services/lock_service.dart';
-import 'package:storypad/storages/is_unlocked_storage.dart';
+import 'package:storypad/services/storages/preference_storages//is_unlocked_storage.dart';
 
 class LockStateNotifier extends ChangeNotifier with WidgetsBindingObserver {
   Timer? _backgroundLockLatencyTimer;

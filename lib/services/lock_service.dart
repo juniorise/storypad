@@ -1,5 +1,5 @@
-import 'package:storypad/storages/is_unlocked_storage.dart';
-import 'package:storypad/storages/lock_screen_storage.dart';
+import 'package:storypad/services/storages/preference_storages//is_unlocked_storage.dart';
+import 'package:storypad/services/storages/preference_storages//lock_screen_storage.dart';
 
 class LockService {
   LockService._internal();

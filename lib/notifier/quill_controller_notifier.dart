@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/app_helper/quill_helper.dart';
+import 'package:storypad/helpers/quill_helper.dart';
 import 'package:storypad/mixins/change_notifier_mixin.dart';
 
 class QuillControllerNotifer extends ChangeNotifier with ChangeNotifierMixin {

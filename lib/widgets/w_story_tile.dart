@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/models/documents/document.dart';
-import 'package:storypad/app_helper/quill_helper.dart';
+import 'package:storypad/helpers/quill_helper.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/models/story_model.dart';

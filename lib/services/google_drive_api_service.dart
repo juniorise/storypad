@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:storypad/models/db_backup_model.dart';
 import 'package:storypad/services/authentication_service.dart';
-import 'package:storypad/storages/auth_header_storage.dart';
-import 'package:storypad/storages/story_folder_storage.dart';
-import 'package:storypad/storages/user_data_id_storage.dart';
+import 'package:storypad/services/storages/preference_storages//auth_header_storage.dart';
+import 'package:storypad/services/storages/preference_storages//story_folder_storage.dart';
+import 'package:storypad/services/storages/preference_storages//user_data_id_storage.dart';
 
 class GoogleAuthClient extends http.BaseClient {
   final Map<String, String> _headers;

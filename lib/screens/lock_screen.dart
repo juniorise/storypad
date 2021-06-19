@@ -10,7 +10,7 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/lock_notifier.dart';
 import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/screens/setting_screen.dart';
-import 'package:storypad/storages/is_unlocked_storage.dart';
+import 'package:storypad/services/storages/preference_storages//is_unlocked_storage.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 
@@ -45,9 +45,8 @@ class LockScreenWrapper extends HookWidget {
       _headerText = tr("msg.passcode.unlock");
     }
     if (type == LockFlowType.SET) {
-      _headerText = notifier.firstStepLockNumberMap != null
-          ? tr("msg.passcode.set.step2")
-          : tr("msg.passcode.set.step1");
+      _headerText =
+          notifier.firstStepLockNumberMap != null ? tr("msg.passcode.set.step2") : tr("msg.passcode.set.step1");
     }
     if (type == LockFlowType.REPLACE) {
       _headerText = tr("msg.passcode.replace");
@@ -115,9 +114,7 @@ class LockScreenWrapper extends HookWidget {
               child: Text(
                 _headerText ?? "",
                 style: Theme.of(context).textTheme.headline6?.copyWith(
-                      color: notifier.errorMessage != null
-                          ? Theme.of(context).colorScheme.error
-                          : null,
+                      color: notifier.errorMessage != null ? Theme.of(context).colorScheme.error : null,
                     ),
               ),
             ),
@@ -136,20 +133,14 @@ class LockScreenWrapper extends HookWidget {
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.horizontal(
-                        left: index == 0
-                            ? Radius.circular(ConfigConstant.radius2)
-                            : Radius.zero,
-                        right: index == 3
-                            ? Radius.circular(ConfigConstant.radius2)
-                            : Radius.zero,
+                        left: index == 0 ? Radius.circular(ConfigConstant.radius2) : Radius.zero,
+                        right: index == 3 ? Radius.circular(ConfigConstant.radius2) : Radius.zero,
                       ),
                     ),
                     child: AnimatedContainer(
                       duration: Duration(milliseconds: 80),
-                      height:
-                          notifier.lockNumberMap["$index"] != null ? 12.0 : 0,
-                      width:
-                          notifier.lockNumberMap["$index"] != null ? 12.0 : 0,
+                      height: notifier.lockNumberMap["$index"] != null ? 12.0 : 0,
+                      width: notifier.lockNumberMap["$index"] != null ? 12.0 : 0,
                       decoration: BoxDecoration(
                         color: notifier.lockNumberMap["$index"] != null
                             ? Theme.of(context).colorScheme.onSurface
@@ -183,8 +174,7 @@ class LockScreenWrapper extends HookWidget {
                           onTap: () async {
                             onTapVibrate();
                             if (value == null) return;
-                            Map<String, String?> newMap =
-                                notifier.lockNumberMap;
+                            Map<String, String?> newMap = notifier.lockNumberMap;
                             if (value == 10) {
                               int index = 0;
                               for (int i = 0; i < newMap.length; i++) {
@@ -215,16 +205,13 @@ class LockScreenWrapper extends HookWidget {
 
                             if (type == LockFlowType.UNLOCK) {
                               if (notifier.isMax) {
-                                if ("${notifier.storageLockNumberMap}" ==
-                                    "${notifier.lockNumberMap}") {
+                                if ("${notifier.storageLockNumberMap}" == "${notifier.lockNumberMap}") {
                                   /// duration here need to be bigger than
                                   /// animatedContainer duration above
                                   /// to make it smoother
-                                  Future.delayed(Duration(milliseconds: 100))
-                                      .then(
+                                  Future.delayed(Duration(milliseconds: 100)).then(
                                     (value) {
-                                      if (lockDetail != null &&
-                                          lockDetail?.fromLaunch == false) {
+                                      if (lockDetail != null && lockDetail?.fromLaunch == false) {
                                         Navigator.of(context).pop();
                                       } else {
                                         Navigator.of(context).pushReplacement(
@@ -239,8 +226,7 @@ class LockScreenWrapper extends HookWidget {
                                     },
                                   );
                                 } else {
-                                  await notifier.setLockNumberMap(null,
-                                      fadeLock: true);
+                                  await notifier.setLockNumberMap(null, fadeLock: true);
                                   notifier.setErrorMessage(
                                     tr("msg.passcode.incorrect"),
                                   );
@@ -252,27 +238,22 @@ class LockScreenWrapper extends HookWidget {
 
                             if (type == LockFlowType.SET) {
                               if (notifier.isMax) {
-                                bool completeStep1 =
-                                    notifier.firstStepLockNumberMap != null;
+                                bool completeStep1 = notifier.firstStepLockNumberMap != null;
                                 if (completeStep1) {
-                                  bool match =
-                                      "${notifier.firstStepLockNumberMap}" ==
-                                          "${notifier.lockNumberMap}";
+                                  bool match = "${notifier.firstStepLockNumberMap}" == "${notifier.lockNumberMap}";
 
                                   if (match) {
                                     var map2 = notifier.lockNumberMap;
                                     await notifier.service.setLock(map2);
                                     Navigator.of(context)..pop()..pop();
                                   } else {
-                                    await notifier.setLockNumberMap(null,
-                                        fadeLock: true);
+                                    await notifier.setLockNumberMap(null, fadeLock: true);
                                     notifier.setErrorMessage(
                                       tr("msg.passcode.confirm_incorrect"),
                                     );
                                   }
                                 } else {
-                                  notifier.setfirstStepLockNumberMap(
-                                      Map.fromIterable(
+                                  notifier.setfirstStepLockNumberMap(Map.fromIterable(
                                     notifier.lockNumberMap.entries,
                                     key: (e) => "${e.key}",
                                     value: (e) => "${e.value}",
@@ -287,9 +268,7 @@ class LockScreenWrapper extends HookWidget {
 
                             if (type == LockFlowType.REPLACE) {
                               if (notifier.isMax) {
-                                bool match =
-                                    "${notifier.storageLockNumberMap}" ==
-                                        "${notifier.lockNumberMap}";
+                                bool match = "${notifier.storageLockNumberMap}" == "${notifier.lockNumberMap}";
                                 if (match) {
                                   notifier.setFlowType(
                                     LockFlowType.SET,
@@ -313,17 +292,13 @@ class LockScreenWrapper extends HookWidget {
 
                             if (type == LockFlowType.RESET) {
                               if (notifier.isMax) {
-                                bool match =
-                                    "${notifier.storageLockNumberMap}" ==
-                                        "${notifier.lockNumberMap}";
+                                bool match = "${notifier.storageLockNumberMap}" == "${notifier.lockNumberMap}";
                                 if (match) {
                                   await notifier.service.clearLock();
                                   Navigator.of(context)..pop()..pop();
                                 } else {
-                                  await notifier.setLockNumberMap(null,
-                                      fadeLock: true);
-                                  notifier.setErrorMessage(
-                                      tr("msg.passcode.incorrect"));
+                                  await notifier.setLockNumberMap(null, fadeLock: true);
+                                  notifier.setErrorMessage(tr("msg.passcode.incorrect"));
                                 }
                               } else {
                                 notifier.setErrorMessage(null);
@@ -338,18 +313,10 @@ class LockScreenWrapper extends HookWidget {
                             decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.surface,
                               borderRadius: BorderRadius.only(
-                                topLeft: value == 1
-                                    ? Radius.circular(ConfigConstant.radius2)
-                                    : Radius.zero,
-                                topRight: value == 3
-                                    ? Radius.circular(ConfigConstant.radius2)
-                                    : Radius.zero,
-                                bottomLeft: value == null
-                                    ? Radius.circular(ConfigConstant.radius2)
-                                    : Radius.zero,
-                                bottomRight: value == 10
-                                    ? Radius.circular(ConfigConstant.radius2)
-                                    : Radius.zero,
+                                topLeft: value == 1 ? Radius.circular(ConfigConstant.radius2) : Radius.zero,
+                                topRight: value == 3 ? Radius.circular(ConfigConstant.radius2) : Radius.zero,
+                                bottomLeft: value == null ? Radius.circular(ConfigConstant.radius2) : Radius.zero,
+                                bottomRight: value == 10 ? Radius.circular(ConfigConstant.radius2) : Radius.zero,
                               ),
                             ),
                             child: value != null
@@ -357,9 +324,7 @@ class LockScreenWrapper extends HookWidget {
                                     ? Icon(Icons.arrow_back)
                                     : Text(
                                         "$value",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headline5,
+                                        style: Theme.of(context).textTheme.headline5,
                                       )
                                 : null,
                           ),

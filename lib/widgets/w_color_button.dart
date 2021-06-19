@@ -5,7 +5,7 @@ import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter_quill/utils/color.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
-import 'package:storypad/app_helper/measure_size.dart';
+import 'package:storypad/helpers/measure_size.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_color_picker.dart';
@@ -30,8 +30,7 @@ class WColorButton extends StatefulWidget {
   _WColorButtonState createState() => _WColorButtonState();
 }
 
-class _WColorButtonState extends State<WColorButton>
-    with SingleTickerProviderStateMixin {
+class _WColorButtonState extends State<WColorButton> with SingleTickerProviderStateMixin {
   GlobalKey floatingKey = LabeledGlobalKey("Floating");
   bool isFloatingOpen = false;
   OverlayEntry? floating;
@@ -46,10 +45,8 @@ class _WColorButtonState extends State<WColorButton>
 
   void _didChangeEditingValue() {
     setState(() {
-      _isToggledColor =
-          _getIsToggledColor(widget.controller.getSelectionStyle().attributes);
-      _isToggledBackground = _getIsToggledBackground(
-          widget.controller.getSelectionStyle().attributes);
+      _isToggledColor = _getIsToggledColor(widget.controller.getSelectionStyle().attributes);
+      _isToggledBackground = _getIsToggledBackground(widget.controller.getSelectionStyle().attributes);
     });
   }
 
@@ -80,8 +77,7 @@ class _WColorButtonState extends State<WColorButton>
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
       _isToggledColor = _getIsToggledColor(_selectionStyle.attributes);
-      _isToggledBackground =
-          _getIsToggledBackground(_selectionStyle.attributes);
+      _isToggledBackground = _getIsToggledBackground(_selectionStyle.attributes);
     }
   }
 
@@ -94,8 +90,7 @@ class _WColorButtonState extends State<WColorButton>
   }
 
   Color _textColorForBackground(Color backgroundColor) {
-    if (ThemeData.estimateBrightnessForColor(backgroundColor) ==
-        Brightness.dark) {
+    if (ThemeData.estimateBrightnessForColor(backgroundColor) == Brightness.dark) {
       return Colors.white;
     }
     return Colors.black;
@@ -186,8 +181,7 @@ class _WColorButtonState extends State<WColorButton>
         fillColor: widget.background ? fillColorBackground : fillColor,
         icon: Icon(
           widget.icon,
-          color:
-              widget.background ? displayiconColorBackground : displayIconColor,
+          color: widget.background ? displayiconColorBackground : displayIconColor,
         ),
         onPressed: onPressed,
       ),
@@ -224,15 +218,12 @@ class _WColorButtonState extends State<WColorButton>
 
   OverlayEntry? createFloating({Color? currentColor}) {
     if (floatingKey.currentContext == null) return null;
-    RenderBox renderBox =
-        floatingKey.currentContext?.findRenderObject() as RenderBox;
+    RenderBox renderBox = floatingKey.currentContext?.findRenderObject() as RenderBox;
     Offset offset = renderBox.localToGlobal(Offset.zero);
 
     double _width = MediaQuery.of(context).size.width;
-    double _tmpColorPickerWidth =
-        30.0 * 5 + ConfigConstant.margin1 * 4 + ConfigConstant.margin2 * 2;
-    double _colorPickerWidth =
-        (this._colorPickerSize?.width ?? _tmpColorPickerWidth) - 36;
+    double _tmpColorPickerWidth = 30.0 * 5 + ConfigConstant.margin1 * 4 + ConfigConstant.margin2 * 2;
+    double _colorPickerWidth = (this._colorPickerSize?.width ?? _tmpColorPickerWidth) - 36;
 
     double _left = offset.dx - _colorPickerWidth / 2;
     double? left = _left < 10 ? 10 : _left;
@@ -274,8 +265,7 @@ class _WColorButtonState extends State<WColorButton>
                     child: AnimatedClipReveal(
                       revealFirstChild: true,
                       duration: Duration(
-                        milliseconds:
-                            ConfigConstant.fadeDuration.inMilliseconds - 50,
+                        milliseconds: ConfigConstant.fadeDuration.inMilliseconds - 50,
                       ),
                       pathBuilder: PathBuilders.circleOut,
                       child: WColorPicker(
@@ -287,14 +277,9 @@ class _WColorButtonState extends State<WColorButton>
                             if (currentColor != color) {
                               _changeColor(color);
                             } else {
-                              for (Attribute k in widget.controller
-                                  .getSelectionStyle()
-                                  .attributes
-                                  .values) {
-                                bool isBackground =
-                                    widget.background && k.key == "background";
-                                bool isColor =
-                                    !widget.background && k.key == "color";
+                              for (Attribute k in widget.controller.getSelectionStyle().attributes.values) {
+                                bool isBackground = widget.background && k.key == "background";
+                                bool isColor = !widget.background && k.key == "color";
                                 if (isBackground || isColor) {
                                   widget.controller.formatSelection(
                                     Attribute.clone(k, null),

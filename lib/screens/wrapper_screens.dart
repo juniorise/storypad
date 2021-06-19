@@ -6,7 +6,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:storypad/notifier/user_model_notifier.dart';
 import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
-import 'package:storypad/storages/vibrate_toggle_storage.dart';
+import 'package:storypad/services/storages/preference_storages//vibrate_toggle_storage.dart';
 
 class WrapperScreens extends HookWidget {
   static const routeName = '/unlocked';
@@ -36,13 +36,10 @@ class WrapperScreens extends HookWidget {
         builder: (context, constrant) {
           bool tablet = constrant.maxWidth > constrant.maxHeight;
 
-          final lottieHeight =
-              tablet ? constrant.maxHeight / 2 : constrant.maxWidth / 2;
+          final lottieHeight = tablet ? constrant.maxHeight / 2 : constrant.maxWidth / 2;
 
           var _margin = EdgeInsets.only(
-            top: notifier.firstTime == false
-                ? statusBarHeight
-                : constrant.maxHeight / 2.5 - statusBarHeight,
+            top: notifier.firstTime == false ? statusBarHeight : constrant.maxHeight / 2.5 - statusBarHeight,
           );
 
           return AnimatedContainer(
@@ -63,8 +60,7 @@ class WrapperScreens extends HookWidget {
       WidgetsBinding.instance?.addPostFrameCallback(
         (_) {
           print("alreadyHasUser ${notifier.alreadyHasUser}");
-          if (notifier.alreadyHasUser == true &&
-              notifier.user?.nickname != null) {
+          if (notifier.alreadyHasUser == true && notifier.user?.nickname != null) {
             Navigator.of(context).pushReplacement(
               PageTransition(
                 child: HomeScreen(),

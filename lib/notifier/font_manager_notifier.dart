@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/main.dart';
 import 'package:storypad/mixins/change_notifier_mixin.dart';
-import 'package:storypad/storages/font_manager_storage.dart';
+import 'package:storypad/services/storages/preference_storages//font_manager_storage.dart';
 
 const Map<String, String> fontFamilyFallbackDefault = {
   "en": "Quicksand",
@@ -62,13 +62,11 @@ class FontManagerNotifier extends ChangeNotifier with ChangeNotifierMixin {
     } else {
       _fontFamilyFallback?.removeWhere((e) => e == null);
     }
-    return _fontFamilyFallback?.map((e) => "$e").toList() ??
-        ["Quicksand", "Kantumruy"];
+    return _fontFamilyFallback?.map((e) => "$e").toList() ?? ["Quicksand", "Kantumruy"];
   }
 }
 
-final fontManagerProvider =
-    ChangeNotifierProvider.autoDispose<FontManagerNotifier>(
+final fontManagerProvider = ChangeNotifierProvider.autoDispose<FontManagerNotifier>(
   (ref) {
     return FontManagerNotifier()..load();
   },

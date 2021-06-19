@@ -6,8 +6,6 @@ import 'package:sqflite/sqflite.dart';
 import "package:path/path.dart";
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/models/user_model.dart';
-import 'dart:convert' as convert;
-import 'package:storypad/services/encrypt_service.dart';
 
 class WDatabase {
   WDatabase._privateConstructor();
@@ -26,93 +24,32 @@ class WDatabase {
   Future<Database> _init() async {
     Directory applicationDirectory = await getApplicationDocumentsDirectory();
     String dbPath = join(applicationDirectory.path, "write_story.db");
-
     bool dbExists = await File(dbPath).exists();
+    if (!dbExists) _onDbExist(dbPath);
+    return await openDatabase(dbPath, onOpen: _onOpen, version: 3);
+  }
 
-    if (!dbExists) {
-      // copy from asset
-      ByteData data = await rootBundle.load(
-        join("assets/database", "write_story.db"),
-      );
-
-      List<int> bytes = data.buffer.asUint8List(
-        data.offsetInBytes,
-        data.lengthInBytes,
-      );
-
-      // write and flush the bytes written
-      await File(dbPath).writeAsBytes(bytes, flush: true);
-    }
-
-    return await openDatabase(
-      dbPath,
-      onOpen: (database) async {
-        /// add new feeling column if not existed
-        try {
-          await database.rawQuery("SELECT feeling from story;");
-        } catch (e) {
-          await database.execute("ALTER TABLE story ADD COLUMN feeling char(50);");
-        }
-
-        /// add new is_share column if not existed
-        try {
-          await database.rawQuery("SELECT is_share from story;");
-        } catch (e) {
-          await database.execute("ALTER TABLE story ADD COLUMN is_share INTEGER");
-        }
-      },
-      version: 3,
+  _onDbExist(String dbPath) async {
+    // copy from asset
+    ByteData data = await rootBundle.load(
+      join("assets/database", "write_story.db"),
     );
+
+    List<int> bytes = data.buffer.asUint8List(
+      data.offsetInBytes,
+      data.lengthInBytes,
+    );
+
+    // write and flush the bytes written
+    await File(dbPath).writeAsBytes(bytes, flush: true);
   }
 
-  Future<String> generateBackup({bool isEncrypted = true}) async {
-    var dbs = await this.database;
-
-    List data = [];
-    final List<String> tables = ["user_info", "story"];
-    List<Map<String, dynamic>> listMaps = [];
-
-    for (var i = 0; i < tables.length; i++) {
-      listMaps = await dbs!.query(tables[i]);
-      data.add(listMaps);
-    }
-
-    List<List<dynamic>> backups = [tables, data];
-
-    String backup;
-    if (isEncrypted) {
-      String json = convert.jsonEncode(backups);
-      backup = EncryptService.encryptToString(json);
-    } else {
-      String csv = convert.jsonEncode(backups);
-      backup = csv;
-    }
-
-    return backup;
-  }
-
-  Future<bool> restoreBackup(String backup, {bool isEncrypted = true}) async {
+  _onOpen(database) async {
+    /// add new feeling column if not existed
     try {
-      var dbs = await this.database;
-      Batch batch = dbs!.batch();
-
-      List json = convert.jsonDecode(isEncrypted ? EncryptService.decryptToString(backup) : backup);
-
-      for (var i = 0; i < json[0].length; i++) {
-        for (var k = 0; k < json[1][i].length; k++) {
-          batch.insert(
-            json[0][i],
-            json[1][i][k],
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
-        }
-      }
-
-      await batch.commit(continueOnError: false, noResult: true);
-      print('RESTORE BACKUP');
-      return true;
+      await database.rawQuery("SELECT feeling from story;");
     } catch (e) {
-      return false;
+      await database.execute("ALTER TABLE story ADD COLUMN feeling char(50);");
     }
   }
 

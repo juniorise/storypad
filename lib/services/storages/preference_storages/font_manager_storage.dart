@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:storypad/storages/share_preference_storage.dart';
+import 'package:storypad/services/storages/preference_storages//share_preference_storage.dart';
 
 /// structured data should be
 /// ```

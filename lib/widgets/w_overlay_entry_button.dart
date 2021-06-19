@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/app_helper/measure_size.dart';
+import 'package:storypad/helpers/measure_size.dart';
 import 'package:storypad/constants/config_constant.dart';
 
 enum WOverlayFloatingType {
@@ -71,8 +71,7 @@ class WOverlayEntryButton extends HookWidget {
     required WOverlayEntryButtonNotifier notifier,
   }) {
     if (floatingKey.currentContext == null) return null;
-    RenderBox renderBox =
-        floatingKey.currentContext?.findRenderObject() as RenderBox;
+    RenderBox renderBox = floatingKey.currentContext?.findRenderObject() as RenderBox;
     Offset offset = renderBox.localToGlobal(Offset.zero);
 
     double _width = MediaQuery.of(context).size.width;
@@ -190,7 +189,7 @@ class WOverlayEntryButtonNotifier extends ChangeNotifier {
   Size get floatingChildSize => this._floatingChildSize ?? const Size(0, 0);
 }
 
-final wOverlayEntryButtonProvider = ChangeNotifierProvider.autoDispose
-    .family<WOverlayEntryButtonNotifier, AnimationController>((_, controller) {
+final wOverlayEntryButtonProvider =
+    ChangeNotifierProvider.autoDispose.family<WOverlayEntryButtonNotifier, AnimationController>((_, controller) {
   return WOverlayEntryButtonNotifier(controller);
 });

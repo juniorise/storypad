@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:storypad/storages/auth_header_storage.dart';
+import 'package:storypad/services/storages/preference_storages//auth_header_storage.dart';
 
 class AuthenticationService {
   GoogleSignIn googleSignIn = GoogleSignIn.standard(
@@ -69,8 +69,7 @@ class AuthenticationService {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'account-exists-with-different-credential') {
-        this._errorMessage =
-            tr("msg.login.account_exists_with_different_credential");
+        this._errorMessage = tr("msg.login.account_exists_with_different_credential");
         return false;
       } else if (e.code == 'invalid-credential') {
         this._errorMessage = tr("msg.login.invalid_credential");

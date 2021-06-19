@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 // import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/app_helper/quill_helper.dart';
+import 'package:storypad/helpers/quill_helper.dart';
 import 'package:storypad/mixins/snakbar_mixin.dart';
 import 'package:storypad/models/story_model.dart';
 // import 'package:storypad/notifier/story_detail/image_load_notifier.dart';

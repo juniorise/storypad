@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:storypad/colors/colors.dart';
+import 'package:storypad/constants/colors.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 
@@ -37,10 +37,8 @@ Map<int, List<int>> listToTreeMap(List<dynamic> _list, {int rowLength = 5}) {
 }
 
 /// value 2 at end is border width `all(1)`
-const double onPickingSwatchHeight =
-    34 * 4 + ConfigConstant.margin2 * 2 + ConfigConstant.margin1 * 4 + 2;
-const double onPickingColorHeight =
-    34 * 2 + ConfigConstant.margin2 * 2 + ConfigConstant.margin1 * 2 - 4 + 2;
+const double onPickingSwatchHeight = 34 * 4 + ConfigConstant.margin2 * 2 + ConfigConstant.margin1 * 4 + 2;
+const double onPickingColorHeight = 34 * 2 + ConfigConstant.margin2 * 2 + ConfigConstant.margin1 * 2 - 4 + 2;
 
 class WColorPicker extends StatefulWidget {
   const WColorPicker({
@@ -110,8 +108,7 @@ class _WColorPickerState extends State<WColorPicker> {
       child: AnimatedContainer(
         duration: ConfigConstant.fadeDuration,
         curve: Curves.easeInSine,
-        padding: const EdgeInsets.all(ConfigConstant.margin2)
-            .copyWith(bottom: ConfigConstant.margin2 - 8),
+        padding: const EdgeInsets.all(ConfigConstant.margin2).copyWith(bottom: ConfigConstant.margin2 - 8),
         height: !isColorChildPicking
             ? onPickingSwatchHeight
             : this._colorsMap!.length == 1
@@ -141,15 +138,11 @@ class _WColorPickerState extends State<WColorPicker> {
             this._colorsMap![c]!.length,
             (i) {
               final int index = childrenIndex![i];
-              final double right =
-                  i != (childrenIndex.length) - 1 ? ConfigConstant.margin1 : 0;
+              final double right = i != (childrenIndex.length) - 1 ? ConfigConstant.margin1 : 0;
               final dynamic? color;
-              color = isColorChildPicking
-                  ? _colorNormal[index]
-                  : _colorsSwatch[index];
+              color = isColorChildPicking ? _colorNormal[index] : _colorsSwatch[index];
 
-              final bool isSelected = currentSelectedColor == color ||
-                  currentSelectedColorsSwatch == color;
+              final bool isSelected = currentSelectedColor == color || currentSelectedColorsSwatch == color;
               return AnimatedContainer(
                 duration: ConfigConstant.fadeDuration,
                 margin: EdgeInsets.only(right: right, bottom: 0, top: 0),
@@ -157,10 +150,7 @@ class _WColorPickerState extends State<WColorPicker> {
                   shape: BoxShape.circle,
                   border: Border.all(
                     width: 2.0,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(isSelected ? 1 : 0),
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(isSelected ? 1 : 0),
                   ),
                 ),
                 child: Padding(
@@ -177,10 +167,8 @@ class _WColorPickerState extends State<WColorPicker> {
                           _colorNormal = _getMaterialColorShades(color!);
                           _colorsMap = listToTreeMap(_colorNormal);
                         });
-                        Future.delayed(Duration(milliseconds: 100))
-                            .then((value) {
-                          if (widget.currentColor != null &&
-                              _colorNormal.contains(widget.currentColor)) {
+                        Future.delayed(Duration(milliseconds: 100)).then((value) {
+                          if (widget.currentColor != null && _colorNormal.contains(widget.currentColor)) {
                             setState(() {
                               currentSelectedColor = widget.currentColor;
                             });
@@ -196,8 +184,7 @@ class _WColorPickerState extends State<WColorPicker> {
             },
           );
 
-          final double bottom =
-              this._colorsMap!.length - 1 == c ? 0 : ConfigConstant.margin1;
+          final double bottom = this._colorsMap!.length - 1 == c ? 0 : ConfigConstant.margin1;
           return Container(
             margin: EdgeInsets.only(bottom: bottom),
             child: Row(children: children),

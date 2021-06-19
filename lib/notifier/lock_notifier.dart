@@ -5,7 +5,7 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/services/lock_service.dart';
-import 'package:storypad/storages/lock_screen_storage.dart';
+import 'package:storypad/services/storages/preference_storages//lock_screen_storage.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 
 class LockDetail {
@@ -16,8 +16,7 @@ class LockDetail {
 class LockNotifier extends ChangeNotifier with ChangeNotifierMixin {
   Map<String, String>? _storageLockNumberMap;
   Map<String, String>? _firstStepLockNumberMap;
-  Map<String, String>? get firstStepLockNumberMap =>
-      this._firstStepLockNumberMap;
+  Map<String, String>? get firstStepLockNumberMap => this._firstStepLockNumberMap;
 
   LockFlowType? _type;
   LockFlowType? get type => this._type;
@@ -121,8 +120,7 @@ class LockNotifier extends ChangeNotifier with ChangeNotifierMixin {
   }
 }
 
-final lockProvider =
-    ChangeNotifierProvider.autoDispose.family<LockNotifier, LockFlowType>(
+final lockProvider = ChangeNotifierProvider.autoDispose.family<LockNotifier, LockFlowType>(
   (ref, LockFlowType type) {
     return LockNotifier()
       ..setFlowType(type, false)

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:storypad/app_helper/app_helper.dart';
+import 'package:storypad/helpers/app_helper.dart';
 import 'package:storypad/notifier/story_detail/story_detail_screen_notifier.dart';
 
 mixin StoryDetailMethodMixin {

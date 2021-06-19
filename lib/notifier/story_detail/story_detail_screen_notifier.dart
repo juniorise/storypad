@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/database/w_database.dart';
+import 'package:storypad/services/storages/local_storages/w_database.dart';
 import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/mixins/schedule_mixin.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/services/google_drive_api_service.dart';
-import 'package:storypad/storages/auto_save_bool_storage.dart';
+import 'package:storypad/services/storages/preference_storages//auto_save_bool_storage.dart';
 
 class StoryDetailScreenNotifier extends ChangeNotifier with ChangeNotifierMixin, ScheduleMixin, WidgetsBindingObserver {
   StoryDetailScreenNotifier(this.draftStory, this.initStory) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/database/w_database.dart';
+import 'package:storypad/services/storages/local_storages/w_database.dart';
 import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/models/user_model.dart';
 import 'package:storypad/services/authentication_service.dart';
