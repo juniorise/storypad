@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+import 'package:storypad/notifier/base_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
 
-class HeaderNotifier extends ChangeNotifier with ChangeNotifierMixin {
+class HeaderNotifier extends BaseNotifier {
   double _headerPaddingTop = 0;
   double get headerPaddingTop => this._headerPaddingTop;
   set headerPaddingTop(double value) {

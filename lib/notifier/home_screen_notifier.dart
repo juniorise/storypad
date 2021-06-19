@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/services/storages/local_storages/w_database.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
+import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/models/story_list_model.dart';
 import 'package:storypad/models/story_model.dart';
 
-class HomeScreenNotifier extends ChangeNotifier with ChangeNotifierMixin {
+class HomeScreenNotifier extends BaseNotifier {
   final WDatabase wDatabase = WDatabase.instance;
 
   Map<int, StoryModel>? _storyById;

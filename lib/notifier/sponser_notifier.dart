@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:storypad/notifier/base_notifier.dart';
 import 'package:flutter_inapp_purchase/modules.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/services/payment_service.dart';
 
-class SponserNotifier extends ChangeNotifier with ChangeNotifierMixin {
+class SponserNotifier extends BaseNotifier {
   PaymentService instance = PaymentService.instance;
 
   List<IAPItem>? _products;
@@ -53,7 +52,6 @@ class SponserNotifier extends ChangeNotifier with ChangeNotifierMixin {
   }
 }
 
-final sponserProvider =
-    ChangeNotifierProvider.autoDispose<SponserNotifier>((ref) {
+final sponserProvider = ChangeNotifierProvider.autoDispose<SponserNotifier>((ref) {
   return SponserNotifier()..load();
 });

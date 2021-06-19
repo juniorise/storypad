@@ -1,14 +1,11 @@
 import 'dart:io';
-
-import 'package:flutter/material.dart';
+import 'package:storypad/notifier/base_notifier.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:in_app_update/in_app_update.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
 
-class CheckForUpdateNotifier extends ChangeNotifier with ChangeNotifierMixin {
+class CheckForUpdateNotifier extends BaseNotifier {
   CheckForUpdateNotifier();
-  bool get isUpdateAvailable =>
-      this.immediateUpdateAllowed || this.flexibleUpdateAllowed;
+  bool get isUpdateAvailable => this.immediateUpdateAllowed || this.flexibleUpdateAllowed;
 
   bool immediateUpdateAllowed = false;
   bool flexibleUpdateAllowed = false;
@@ -28,7 +25,6 @@ class CheckForUpdateNotifier extends ChangeNotifier with ChangeNotifierMixin {
   }
 }
 
-final checkForUpdateProvider =
-    ChangeNotifierProvider<CheckForUpdateNotifier>((ref) {
+final checkForUpdateProvider = ChangeNotifierProvider<CheckForUpdateNotifier>((ref) {
   return CheckForUpdateNotifier()..load();
 });

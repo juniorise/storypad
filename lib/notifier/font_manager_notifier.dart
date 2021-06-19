@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/app_constant.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
+import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/services/storages/preference_storages//font_manager_storage.dart';
 
-class FontManagerNotifier extends ChangeNotifier with ChangeNotifierMixin {
+class FontManagerNotifier extends BaseNotifier {
   FontManagerStorage storage = FontManagerStorage();
 
   List<String?>? _fontFamilyFallback;

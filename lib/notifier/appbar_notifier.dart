@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
+import 'package:storypad/notifier/base_notifier.dart';
 
-class AppBarNotifier extends ChangeNotifier with ChangeNotifierMixin {
+class AppBarNotifier extends BaseNotifier {
   double headlineWidth = 0;
   double headerHeight = 0;
 

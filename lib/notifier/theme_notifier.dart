@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
+import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/services/storages/preference_storages//list_layout_storage.dart';
 import 'package:storypad/services/storages/preference_storages//theme_mode_storage.dart';
 
-class ThemeNotifier extends ChangeNotifier with ChangeNotifierMixin {
+class ThemeNotifier extends BaseNotifier {
   ThemeModeStorage storage = ThemeModeStorage();
   ListLayoutStorage layoutStorage = ListLayoutStorage();
   bool? _isDarkMode;

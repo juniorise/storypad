@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/config_constant.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
+import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/screens/lock_screen.dart';
 import 'package:storypad/services/lock_service.dart';
 import 'package:storypad/services/storages/preference_storages//lock_screen_storage.dart';
@@ -13,7 +13,7 @@ class LockDetail {
   LockDetail({this.fromLaunch});
 }
 
-class LockNotifier extends ChangeNotifier with ChangeNotifierMixin {
+class LockNotifier extends BaseNotifier {
   Map<String, String>? _storageLockNumberMap;
   Map<String, String>? _firstStepLockNumberMap;
   Map<String, String>? get firstStepLockNumberMap => this._firstStepLockNumberMap;

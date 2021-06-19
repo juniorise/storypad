@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
+
 import 'package:storypad/models/db_backup_model.dart';
 import 'package:storypad/models/user_model.dart';
 import 'package:storypad/services/authentication_service.dart';
@@ -19,7 +19,7 @@ import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/notifier/home_screen_notifier.dart';
 import 'dart:io' as io;
 
-class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin, ChangeNotifierMixin {
+class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin {
   RemoteDatabaseService service = RemoteDatabaseService();
   AuthenticationService auth = AuthenticationService();
 

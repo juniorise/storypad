@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/mixins/change_notifier_mixin.dart';
+import 'package:storypad/notifier/base_notifier.dart';
 
-class TabControllerNotifier extends ChangeNotifier with ChangeNotifierMixin {
+class TabControllerNotifier extends BaseNotifier {
   final TabController controller;
   int _currentIndex = 0;
 
@@ -19,8 +19,7 @@ class TabControllerNotifier extends ChangeNotifier with ChangeNotifierMixin {
   int get currentIndex => this._currentIndex;
 }
 
-final tabControllerProvider =
-    ChangeNotifierProvider.family<TabControllerNotifier, TabController>(
+final tabControllerProvider = ChangeNotifierProvider.family<TabControllerNotifier, TabController>(
   (ref, controller) {
     return TabControllerNotifier(controller);
   },
