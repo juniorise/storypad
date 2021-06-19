@@ -17,7 +17,7 @@ class ThemeConstant {
       accentColor: darkScheme.onSurface,
       toggleableActiveColor: darkScheme.primary,
       canvasColor: darkScheme.background,
-      appBarTheme: AppBarTheme(titleSpacing: 0.0, brightness: Brightness.dark),
+      appBarTheme: AppBarTheme(titleSpacing: 0.0),
       textButtonTheme: textButtonThemeData(isDarkMode: false),
       textTheme: textTheme.apply(
         bodyColor: darkScheme.onSurface,
@@ -38,7 +38,7 @@ class ThemeConstant {
       iconTheme: IconThemeData(color: lightScheme.onSurface),
       accentColor: lightScheme.onSurface,
       canvasColor: lightScheme.background,
-      appBarTheme: const AppBarTheme(titleSpacing: 0.0, brightness: Brightness.dark),
+      appBarTheme: const AppBarTheme(titleSpacing: 0.0),
       textButtonTheme: textButtonThemeData(isDarkMode: false),
       textTheme: textTheme.apply(
         bodyColor: lightScheme.onSurface,
