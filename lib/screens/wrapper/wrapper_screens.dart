@@ -42,9 +42,7 @@ class WrapperScreens extends HookWidget {
           );
 
           return AnimatedContainer(
-            duration: Duration(
-              milliseconds: 350,
-            ),
+            duration: Duration(milliseconds: 350),
             margin: _margin,
             width: double.infinity,
             child: buildLottie(context, lottieHeight, controller),

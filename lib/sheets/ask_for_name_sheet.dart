@@ -47,7 +47,6 @@ class AskForNameSheet extends HookWidget {
             createOn: DateTime.now(),
           ),
         );
-
         if (success) {
           Navigator.of(context).pop();
           if (init) {

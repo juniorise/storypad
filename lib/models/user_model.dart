@@ -1,15 +1,20 @@
-class UserModel {
+import 'package:storypad/helpers/app_helper.dart';
+import 'package:storypad/models/base_model.dart';
+
+class UserModel extends BaseModel {
   final String nickname;
   final DateTime? dob;
   final DateTime createOn;
   final DateTime? updateOn;
+
+  String get deviceId => "os";
 
   UserModel({
     required this.nickname,
     required this.createOn,
     this.dob,
     this.updateOn,
-  });
+  }) : super(id: 1);
 
   copyWith({
     String? nickname,
@@ -25,27 +30,16 @@ class UserModel {
     );
   }
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    final DateTime? dob = json.containsKey('dob') && json['dob'] != null
-        ? DateTime.fromMillisecondsSinceEpoch(json["dob"])
-        : null;
-
-    final DateTime createOn = DateTime.fromMillisecondsSinceEpoch(
-      json["create_on"],
-    );
-
-    final DateTime? updateOn =
-        json.containsKey('update_on') && json['update_on'] != null
-            ? DateTime.fromMillisecondsSinceEpoch(
-                json["update_on"],
-              )
-            : null;
+  factory UserModel.fromJson(Map<dynamic, dynamic> json) {
+    final DateTime? dob = AppHelper.dateTimeFromIntMap(json: json, key: 'dob');
+    final DateTime? createOn = AppHelper.dateTimeFromIntMap(json: json, key: 'create_on');
+    final DateTime? updateOn = AppHelper.dateTimeFromIntMap(json: json, key: 'update_on');
 
     return UserModel(
       nickname: json['nickname'],
       dob: dob,
-      createOn: createOn,
       updateOn: updateOn,
+      createOn: createOn ?? DateTime.now(),
     );
   }
 
@@ -53,8 +47,9 @@ class UserModel {
     return {
       "nickname": this.nickname,
       "dob": this.dob?.millisecondsSinceEpoch,
-      "create_on": createOn.millisecondsSinceEpoch,
-      "update_on": updateOn?.millisecondsSinceEpoch,
+      "create_on": AppHelper.intFromDateTime(dateTime: createOn),
+      "update_on": AppHelper.intFromDateTime(dateTime: updateOn),
+      "device_id": deviceId,
     };
   }
 }

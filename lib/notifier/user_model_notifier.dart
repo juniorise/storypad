@@ -1,11 +1,11 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/services/local_storages/databases/w_database.dart';
+import 'package:storypad/services/local_storages/databases/user_database.dart';
 import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/models/user_model.dart';
 import 'package:storypad/services/authentication/authentication_service.dart';
 
 class UserModelNotifier extends BaseNotifier {
-  final WDatabase wDatabase = WDatabase.instance;
+  UserDatabase db = UserDatabase();
   bool? alreadyHasUser;
 
   UserModel? user;
@@ -13,8 +13,6 @@ class UserModelNotifier extends BaseNotifier {
   DateTime? dob;
 
   bool isInit = false;
-  bool loading = true;
-
   bool firstTime = true;
 
   setInit() {
@@ -22,8 +20,8 @@ class UserModelNotifier extends BaseNotifier {
     notifyListeners();
   }
 
-  Future<void> load() async {
-    final result = await wDatabase.userModel();
+  Future<void> load({bool inited = true}) async {
+    final result = await db.fetchOne();
 
     if (result != null && result is UserModel) {
       this.user = result;
@@ -34,29 +32,26 @@ class UserModelNotifier extends BaseNotifier {
       alreadyHasUser = false;
     }
 
-    final auth = AuthenticationService();
-    try {
-      if (await auth.googleSignIn.isSignedIn()) {
-        auth.signInSilently();
-      }
-    } catch (e) {}
-    loading = false;
+    if (!inited) {
+      final auth = AuthenticationService();
+      if (await auth.googleSignIn.isSignedIn()) auth.signInSilently();
+    }
+
     notifyListeners();
   }
 
   Future<bool> setUser(UserModel user) async {
-    final bool success = await wDatabase.setUserModel(user);
-
-    if (success) {
-      this.user = user;
-      alreadyHasUser = true;
-      notifyListeners();
-      return true;
+    if (this.alreadyHasUser == true) {
+      await db.update(
+        record: user,
+        where: "device_id = '${user.deviceId}'",
+      );
     } else {
-      alreadyHasUser = true;
-      notifyListeners();
-      return false;
+      await db.create(record: user);
     }
+
+    if (db.success == true) await load();
+    return db.success == true;
   }
 
   setNickname(String nickname) async {
@@ -71,5 +66,5 @@ class UserModelNotifier extends BaseNotifier {
 }
 
 final userModelProvider = ChangeNotifierProvider<UserModelNotifier>((ref) {
-  return UserModelNotifier()..load();
+  return UserModelNotifier()..load(inited: false);
 });

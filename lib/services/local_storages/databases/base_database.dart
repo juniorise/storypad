@@ -20,9 +20,10 @@ abstract class BaseDatabase {
     }
   }
 
-  Future<BaseModel?> fetchOne({required int id}) async {
-    return _beforeExec((database) async {
-      List<Map<dynamic, dynamic>>? result = await database?.query(table(), where: "id = $id");
+  Future<BaseModel?> fetchOne({int? id, String? where}) async {
+    return await _beforeExec((database) async {
+      final _where = where ?? (id != null ? "id = $id" : null);
+      List<Map<dynamic, dynamic>>? result = await database?.query(table(), where: _where);
       if (result == null) return null;
       if (result.isEmpty) return null;
       return objectTransformer(result.first);
@@ -47,22 +48,23 @@ abstract class BaseDatabase {
     });
   }
 
-  Future<void> update({required BaseModel record}) async {
+  Future<void> update({required BaseModel record, String? where}) async {
     _beforeExec((database) async {
+      final _where = where ?? "id = ${record.id}";
       count = await database?.update(
         table(),
         record.toJson(),
-        where: "id = ${record.id}",
+        where: _where,
       );
     });
   }
 
-  Future<void> delete({int? id}) async {
+  Future<void> delete({int? id, String? where}) async {
     _beforeExec((database) async {
-      final where = id != null ? "id = $id" : null;
+      final _where = where ?? (id != null ? "id = $id" : null);
       count = await database?.delete(
         table(),
-        where: where,
+        where: _where,
       );
     });
   }
