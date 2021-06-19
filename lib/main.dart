@@ -5,14 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/app.dart';
+import 'package:storypad/constants/app_constant.dart';
 import 'package:storypad/services/storages/local_storages/w_database.dart';
 import 'package:storypad/services/lock_service.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-
-const initSupportedLocales = [
-  Locale('en'),
-  Locale('km'),
-];
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +39,7 @@ class AppLocalization extends StatelessWidget {
   Widget build(BuildContext context) {
     return EasyLocalization(
       startLocale: Locale("en"),
-      supportedLocales: initSupportedLocales,
+      supportedLocales: AppConstant.initSupportedLocales,
       path: "assets/translations",
       useOnlyLangCode: true,
       fallbackLocale: Locale('en'),

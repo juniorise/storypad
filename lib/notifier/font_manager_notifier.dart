@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/main.dart';
+import 'package:storypad/constants/app_constant.dart';
 import 'package:storypad/mixins/change_notifier_mixin.dart';
 import 'package:storypad/services/storages/preference_storages//font_manager_storage.dart';
-
-const Map<String, String> fontFamilyFallbackDefault = {
-  "en": "Quicksand",
-  "km": "Kantumruy",
-};
 
 class FontManagerNotifier extends ChangeNotifier with ChangeNotifierMixin {
   FontManagerStorage storage = FontManagerStorage();
@@ -15,8 +10,8 @@ class FontManagerNotifier extends ChangeNotifier with ChangeNotifierMixin {
   List<String?>? _fontFamilyFallback;
 
   load() async {
-    final result = await storage.readAsMap() ?? fontFamilyFallbackDefault;
-    final families = initSupportedLocales.map((locale) {
+    final result = await storage.readAsMap() ?? AppConstant.fontFamilyFallbackDefault;
+    final families = AppConstant.initSupportedLocales.map((locale) {
       final code = locale.languageCode;
       return result[code];
     }).toList();
@@ -32,7 +27,7 @@ class FontManagerNotifier extends ChangeNotifier with ChangeNotifierMixin {
       final storage = FontManagerStorage();
       Map<String, dynamic>? result = await storage.readAsMap();
       if (result == null) {
-        result = fontFamilyFallbackDefault;
+        result = AppConstant.fontFamilyFallbackDefault;
       }
 
       final code = locale.languageCode;
