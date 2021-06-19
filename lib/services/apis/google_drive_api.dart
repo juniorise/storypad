@@ -5,9 +5,9 @@ import 'package:path/path.dart';
 import 'package:storypad/models/db_backup_model.dart';
 import 'package:storypad/services/authentication/authentication_service.dart';
 import 'package:storypad/services/authentication/google_auth_client.dart';
-import 'package:storypad/services/storages/preference_storages//auth_header_storage.dart';
-import 'package:storypad/services/storages/preference_storages//story_folder_storage.dart';
-import 'package:storypad/services/storages/preference_storages//user_data_id_storage.dart';
+import 'package:storypad/services/local_storages/preferences/user_data_id_storage.dart';
+import 'package:storypad/services/local_storages/preferences/auth_header_storage.dart';
+import 'package:storypad/services/local_storages/preferences/story_folder_storage.dart';
 
 class GoogleDriveApi {
   static Future<void> setAuthHeader() async {

@@ -1,4 +1,4 @@
-import 'package:storypad/services/storages/preference_storages//bool_preference_storage.dart';
+import 'package:storypad/services/local_storages/preferences/bool_preference_storage.dart';
 
 class ThemeModeStorage extends BoolPreferenceStorage {
   @override

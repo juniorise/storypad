@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/notifier/base_notifier.dart';
-import 'package:storypad/services/storages/preference_storages//list_layout_storage.dart';
-import 'package:storypad/services/storages/preference_storages//theme_mode_storage.dart';
+import 'package:storypad/services/local_storages/preferences/list_layout_storage.dart';
+import 'package:storypad/services/local_storages/preferences/theme_mode_storage.dart';
 
 class ThemeNotifier extends BaseNotifier {
   ThemeModeStorage storage = ThemeModeStorage();

@@ -10,7 +10,7 @@ import 'package:launch_review/launch_review.dart';
 import 'package:share/share.dart';
 import 'package:storypad/screens/home/local_widgets/backup_button.dart';
 import 'package:storypad/screens/sponser/sponser_screen.dart';
-import 'package:storypad/services/storages/preference_storages//auto_save_bool_storage.dart';
+import 'package:storypad/services/local_storages/preferences//auto_save_bool_storage.dart';
 import 'package:storypad/widgets/w_list_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:storypad/constants/config_constant.dart';

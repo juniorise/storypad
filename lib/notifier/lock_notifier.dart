@@ -4,8 +4,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/screens/lock/lock_screen.dart';
+import 'package:storypad/services/local_storages/preferences/lock_screen_storage.dart';
 import 'package:storypad/services/views/lock_service.dart';
-import 'package:storypad/services/storages/preference_storages/lock_screen_storage.dart';
 
 class LockDetail {
   bool? fromLaunch;

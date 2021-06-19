@@ -10,13 +10,14 @@ import 'package:storypad/services/apis/google_drive_api.dart';
 import 'package:storypad/services/authentication/authentication_service.dart';
 import 'package:storypad/services/backups/backup_service.dart';
 import 'package:storypad/helpers/app_helper.dart';
-import 'package:storypad/services/storages/local_storages/story_database.dart';
-import 'package:storypad/services/storages/local_storages/w_database.dart';
+import 'package:storypad/services/local_storages/databases/story_database.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/notifier/home_screen_notifier.dart';
 import 'dart:io' as io;
+
+import 'package:storypad/services/local_storages/databases/w_database.dart';
 
 class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin {
   AuthenticationService auth = AuthenticationService();

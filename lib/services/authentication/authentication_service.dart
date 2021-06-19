@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:storypad/services/storages/preference_storages//auth_header_storage.dart';
+import 'package:storypad/services/local_storages/preferences/auth_header_storage.dart';
 
 class AuthenticationService {
   GoogleSignIn googleSignIn = GoogleSignIn.standard(

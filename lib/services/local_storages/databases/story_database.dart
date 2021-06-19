@@ -1,7 +1,7 @@
 import 'package:html_character_entities/html_character_entities.dart';
 import 'package:storypad/models/base_model.dart';
 import 'package:storypad/models/story_model.dart';
-import 'package:storypad/services/storages/local_storages/base_database.dart';
+import 'package:storypad/services/local_storages/databases/base_database.dart';
 
 class StoryDatabase extends BaseDatabase {
   String singleQuote = "▘";

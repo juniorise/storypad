@@ -10,7 +10,7 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/lock_notifier.dart';
 import 'package:storypad/screens/home/home_screen.dart';
 import 'package:storypad/screens/setting/setting_screen.dart';
-import 'package:storypad/services/storages/preference_storages//is_unlocked_storage.dart';
+import 'package:storypad/services/local_storages/preferences/is_unlocked_storage.dart';
 import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 

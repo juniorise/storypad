@@ -1,8 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/services/storages/local_storages/story_database.dart';
 import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/models/story_list_model.dart';
 import 'package:storypad/models/story_model.dart';
+import 'package:storypad/services/local_storages/databases/story_database.dart';
 
 class HomeScreenNotifier extends BaseNotifier {
   final StoryDatabase db = StoryDatabase();

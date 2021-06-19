@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/app_constant.dart';
 import 'package:storypad/notifier/base_notifier.dart';
-import 'package:storypad/services/storages/preference_storages//font_manager_storage.dart';
+import 'package:storypad/services/local_storages/preferences/font_manager_storage.dart';
 
 class FontManagerNotifier extends BaseNotifier {
   FontManagerStorage storage = FontManagerStorage();

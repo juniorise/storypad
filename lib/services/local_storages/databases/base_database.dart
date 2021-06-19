@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:storypad/models/base_model.dart';
-import 'package:storypad/services/storages/local_storages/w_database.dart';
+import 'package:storypad/services/local_storages/databases/w_database.dart';
 
 abstract class BaseDatabase {
   bool? success;

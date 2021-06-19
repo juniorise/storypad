@@ -1,5 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/services/storages/local_storages/w_database.dart';
+import 'package:storypad/services/local_storages/databases/w_database.dart';
 import 'package:storypad/notifier/base_notifier.dart';
 import 'package:storypad/models/user_model.dart';
 import 'package:storypad/services/authentication/authentication_service.dart';

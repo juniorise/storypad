@@ -1,6 +1,5 @@
 import 'dart:convert';
-
-import 'package:storypad/services/storages/preference_storages//secure_preference_storage.dart';
+import 'package:storypad/services/local_storages/preferences/secure_preference_storage.dart';
 
 class LockScreenStorage extends SecurePreferenceStorage {
   @override

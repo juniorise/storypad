@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/helpers/quill_helper.dart';
-import 'package:storypad/services/storages/local_storages/story_database.dart';
+import 'package:storypad/services/local_storages/databases/story_database.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/services/apis/google_drive_api.dart';
 
