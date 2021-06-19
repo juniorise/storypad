@@ -21,7 +21,7 @@ import 'package:storypad/screens/home/local_widgets/faq_button.dart';
 import 'package:storypad/screens/setting_screen.dart';
 import 'package:storypad/screens/story_detail_screen.dart';
 import 'package:storypad/widgets/w_story_tile.dart';
-import 'package:storypad/widgets/vt_tab_view.dart';
+import 'package:storypad/widgets/w_tab_view.dart';
 import 'package:storypad/widgets/w_no_data.dart';
 import 'package:storypad/widgets/w_sliver_appbar.dart';
 import 'local_widgets/backup_tile.dart';
@@ -164,13 +164,13 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     );
   }
 
-  VTTabView buildDayList(
+  WTabView buildDayList(
     TabController controller,
     BuildContext context,
     HomeScreenNotifier notifier,
     ValueNotifier<bool> faqNotifier,
   ) {
-    return VTTabView(
+    return WTabView(
       controller: controller,
       children: List.generate(
         controller.length,

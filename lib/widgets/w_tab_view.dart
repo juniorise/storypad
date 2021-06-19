@@ -2,8 +2,8 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-class VTTabView extends StatelessWidget {
-  const VTTabView({
+class WTabView extends StatelessWidget {
+  const WTabView({
     Key? key,
     this.children = const [],
     this.controller,
@@ -21,8 +21,7 @@ class VTTabView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tabController = controller ?? DefaultTabController.of(context)!;
-    final List<Widget> children =
-        buildChildren(context: context, controller: tabController);
+    final List<Widget> children = buildChildren(context: context, controller: tabController);
 
     return TabBarView(
       key: key,
@@ -73,8 +72,7 @@ class VTTabView extends StatelessWidget {
             /// But, we still check to make sure it is valid value.
 
             if (dragToRight) {
-              bool inScope =
-                  itemIndex <= currentIndex + 1 && itemIndex >= currentIndex;
+              bool inScope = itemIndex <= currentIndex + 1 && itemIndex >= currentIndex;
 
               if (inScope) {
                 if (isCurrentChild) {
@@ -88,8 +86,7 @@ class VTTabView extends StatelessWidget {
                 }
               }
             } else {
-              bool inScope =
-                  itemIndex <= currentIndex && itemIndex >= currentIndex - 1;
+              bool inScope = itemIndex <= currentIndex && itemIndex >= currentIndex - 1;
 
               if (inScope) {
                 if (isCurrentChild) {
@@ -108,9 +105,7 @@ class VTTabView extends StatelessWidget {
             if (opacity > 1) opacity = 1;
 
             return Transform(
-              transform: Matrix4.identity()
-                ..translate(translateX1)
-                ..translate(translateX2),
+              transform: Matrix4.identity()..translate(translateX1)..translate(translateX2),
               child: Opacity(
                 opacity: opacity,
                 child: AnimatedOpacity(
