@@ -28,12 +28,8 @@ class App extends HookWidget {
       supportedLocales: context.supportedLocales,
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      home: lockNotifier.enable
-          ? LockScreenWrapper(LockFlowType.UNLOCK)
-          : WrapperScreens(),
-      theme: !notifier.isDarkMode
-          ? ThemeConfig(fontNotifier.fontFamilyFallback).light
-          : ThemeConfig(fontNotifier.fontFamilyFallback).dark,
+      home: lockNotifier.enable ? LockScreenWrapper(LockFlowType.UNLOCK) : WrapperScreens(),
+      theme: ThemeConfig(fontNotifier.fontFamilyFallback).get(isDarkMode: notifier.isDarkMode),
     );
   }
 }
@@ -79,10 +75,7 @@ class WErrorWidget extends StatelessWidget {
                     "Exit app".toUpperCase(),
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontFamilyFallback: Theme.of(context)
-                          .textTheme
-                          .bodyText1
-                          ?.fontFamilyFallback,
+                      fontFamilyFallback: Theme.of(context).textTheme.bodyText1?.fontFamilyFallback,
                     ),
                   ),
                   onPressed: () async {
@@ -95,8 +88,7 @@ class WErrorWidget extends StatelessWidget {
                       ),
                     ),
                     overlayColor: MaterialStateProperty.all(Colors.transparent),
-                    foregroundColor: MaterialStateProperty.all(
-                        Theme.of(context).colorScheme.error),
+                    foregroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.error),
                     backgroundColor: MaterialStateProperty.resolveWith(
                       (states) {
                         if (states.contains(MaterialState.pressed) ||
@@ -105,10 +97,7 @@ class WErrorWidget extends StatelessWidget {
                             states.contains(MaterialState.selected)) {
                           return Theme.of(context).colorScheme.surface;
                         } else {
-                          return Theme.of(context)
-                              .colorScheme
-                              .error
-                              .withOpacity(0.05);
+                          return Theme.of(context).colorScheme.error.withOpacity(0.05);
                         }
                       },
                     ),

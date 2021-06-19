@@ -1,7 +1,7 @@
 // A button for a [SnackBar], known as an "action".
 import 'package:flutter/material.dart';
-import 'package:storypad/configs/theme_config.dart';
 import 'package:storypad/constants/config_constant.dart';
+import 'package:storypad/constants/theme_constant.dart';
 
 ///
 /// Snack bar actions are always enabled. If you want to disable a snack bar
@@ -55,14 +55,12 @@ class _WSnackBarActionState extends State<WSnackBarAction> {
       _haveTriggeredAction = true;
     });
     widget.onPressed();
-    ScaffoldMessenger.of(context)
-        .hideCurrentSnackBar(reason: SnackBarClosedReason.action);
+    ScaffoldMessenger.of(context).hideCurrentSnackBar(reason: SnackBarClosedReason.action);
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode =
-        Theme.of(context).colorScheme.brightness == Brightness.dark;
+    final isDarkMode = Theme.of(context).colorScheme.brightness == Brightness.dark;
     return TextButton(
       onPressed: _haveTriggeredAction ? null : _handlePressed,
       style: ButtonStyle(
@@ -78,17 +76,12 @@ class _WSnackBarActionState extends State<WSnackBarAction> {
                 states.contains(MaterialState.focused) ||
                 states.contains(MaterialState.hovered) ||
                 states.contains(MaterialState.selected)) {
-              final normalColor = isDarkMode
-                  ? ThemeConfig.darkScheme.onSecondary
-                  : ThemeConfig.lightScheme.onSecondary;
-              final warningColor = isDarkMode
-                  ? ThemeConfig.darkScheme.onError
-                  : ThemeConfig.lightScheme.onError;
+              final normalColor =
+                  isDarkMode ? ThemeConstant.darkScheme.onSecondary : ThemeConstant.lightScheme.onSecondary;
+              final warningColor = isDarkMode ? ThemeConstant.darkScheme.onError : ThemeConstant.lightScheme.onError;
               return widget.warning ? warningColor : normalColor;
             } else {
-              return isDarkMode
-                  ? ThemeConfig.darkScheme.secondary
-                  : ThemeConfig.lightScheme.secondary;
+              return isDarkMode ? ThemeConstant.darkScheme.secondary : ThemeConstant.lightScheme.secondary;
             }
           },
         ),
@@ -98,12 +91,8 @@ class _WSnackBarActionState extends State<WSnackBarAction> {
                 states.contains(MaterialState.focused) ||
                 states.contains(MaterialState.hovered) ||
                 states.contains(MaterialState.selected)) {
-              final normalColor = isDarkMode
-                  ? ThemeConfig.darkScheme.secondary
-                  : ThemeConfig.lightScheme.secondary;
-              final warningColor = isDarkMode
-                  ? ThemeConfig.darkScheme.error
-                  : ThemeConfig.lightScheme.error;
+              final normalColor = isDarkMode ? ThemeConstant.darkScheme.secondary : ThemeConstant.lightScheme.secondary;
+              final warningColor = isDarkMode ? ThemeConstant.darkScheme.error : ThemeConstant.lightScheme.error;
               return widget.warning ? warningColor : normalColor;
             } else {
               return Colors.transparent;
