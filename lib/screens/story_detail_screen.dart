@@ -22,7 +22,7 @@ import 'package:storypad/helpers/quill_helper.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/mixins/hook_controller.dart';
-import 'package:storypad/mixins/snakbar_mixin.dart';
+import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/mixins/story_detail_method_mixin.dart';
 import 'package:storypad/models/feeling_emoji_model.dart';
 import 'package:storypad/models/story_model.dart';
@@ -42,7 +42,7 @@ import 'package:storypad/widgets/w_icon_button.dart';
 import 'package:storypad/widgets/w_quil_toolbar.dart';
 import 'package:tuple/tuple.dart';
 
-class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookController, WSnackBar, DialogMixin {
+class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookController, WSnackBarMixin, DialogMixin {
   StoryDetailScreen({
     Key? key,
     required this.story,

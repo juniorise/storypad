@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/config_constant.dart';
-import 'package:storypad/mixins/snakbar_mixin.dart';
+import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/home_screen_notifier.dart';
 import 'package:storypad/notifier/w_story_tile_notifier.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 
-class AddToDriveButton extends HookWidget with WSnackBar {
+class AddToDriveButton extends HookWidget with WSnackBarMixin {
   const AddToDriveButton({Key? key, required this.story}) : super(key: key);
   final StoryModel story;
 

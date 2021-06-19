@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
-import 'package:storypad/mixins/snakbar_mixin.dart';
+import 'package:storypad/mixins/w_snakbar_mixin.dart';
 
-class PaymentService with WSnackBar {
+class PaymentService with WSnackBarMixin {
   /// We want singelton object of ``PaymentService`` so create private constructor
   ///
   /// Use PaymentService as ``PaymentService.instance``
@@ -37,8 +37,7 @@ class PaymentService with WSnackBar {
   ObserverList<Function> _proStatusChangedListeners = ObserverList<Function>();
 
   /// view of the app will subscribe to this to get errors of the purchase
-  ObserverList<Function(String)> _errorListeners =
-      ObserverList<Function(String)>();
+  ObserverList<Function(String)> _errorListeners = ObserverList<Function(String)>();
 
   /// logged in user's premium status
   bool _isProUser = false;
@@ -61,14 +60,11 @@ class PaymentService with WSnackBar {
 
   Future<void> initConnection() async {
     await FlutterInappPurchase.instance.initConnection;
-    _connectionSubscription =
-        FlutterInappPurchase.connectionUpdated.listen((connected) {});
+    _connectionSubscription = FlutterInappPurchase.connectionUpdated.listen((connected) {});
 
-    _purchaseUpdatedSubscription =
-        FlutterInappPurchase.purchaseUpdated.listen(_handlePurchaseUpdate);
+    _purchaseUpdatedSubscription = FlutterInappPurchase.purchaseUpdated.listen(_handlePurchaseUpdate);
 
-    _purchaseErrorSubscription =
-        FlutterInappPurchase.purchaseError.listen(_handlePurchaseError);
+    _purchaseErrorSubscription = FlutterInappPurchase.purchaseError.listen(_handlePurchaseError);
 
     await _getItems();
     await _getPastPurchases();
@@ -82,8 +78,7 @@ class PaymentService with WSnackBar {
   }
 
   Future<void> _getItems() async {
-    List<IAPItem> items =
-        await FlutterInappPurchase.instance.getSubscriptions(_productIds);
+    List<IAPItem> items = await FlutterInappPurchase.instance.getSubscriptions(_productIds);
     _products = [];
     for (var item in items) {
       this._products?.add(item);
@@ -94,8 +89,7 @@ class PaymentService with WSnackBar {
     // remove this if you want to restore past purchases in iOS
     if (Platform.isIOS) return;
 
-    List<PurchasedItem>? purchasedItems =
-        await FlutterInappPurchase.instance.getAvailablePurchases();
+    List<PurchasedItem>? purchasedItems = await FlutterInappPurchase.instance.getAvailablePurchases();
 
     if (purchasedItems == null) return;
     for (var purchasedItem in purchasedItems) {

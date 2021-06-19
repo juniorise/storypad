@@ -2,11 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:storypad/helpers/quill_helper.dart';
-import 'package:storypad/mixins/snakbar_mixin.dart';
+import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/story_detail/story_detail_screen_notifier.dart';
 
-class StoryDetailService with WSnackBar {
+class StoryDetailService with WSnackBarMixin {
   Future<void> onSave({
     required StoryDetailScreenNotifier notifier,
     required BuildContext context,

@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/config_constant.dart';
-import 'package:storypad/mixins/snakbar_mixin.dart';
+import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/models/font_model.dart';
 import 'package:storypad/notifier/font_manager_notifier.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 import 'package:storypad/widgets/w_list_tile.dart';
 
-class FontManagerScreen extends HookWidget with WSnackBar {
+class FontManagerScreen extends HookWidget with WSnackBarMixin {
   @override
   Widget build(BuildContext context) {
     print("Build FontManagerScreen");
@@ -53,16 +53,13 @@ class FontManagerScreen extends HookWidget with WSnackBar {
                     (index) {
                       final font = e.value[index];
                       final _theme = Theme.of(context);
-                      final String? _font =
-                          _theme.textTheme.bodyText1?.fontFamilyFallback?[0];
+                      final String? _font = _theme.textTheme.bodyText1?.fontFamilyFallback?[0];
                       return Theme(
                         data: _theme.copyWith(
-                          textTheme: _theme.textTheme
-                              .apply(fontFamily: font.familyName),
+                          textTheme: _theme.textTheme.apply(fontFamily: font.familyName),
                         ),
                         child: WListTile(
-                          iconData: notifier.fontFamilyFallback
-                                  .contains(font.familyName)
+                          iconData: notifier.fontFamilyFallback.contains(font.familyName)
                               ? Icons.font_download
                               : Icons.font_download_outlined,
                           titleText: font.familyName,
@@ -71,10 +68,8 @@ class FontManagerScreen extends HookWidget with WSnackBar {
                           subtitleMaxLines: 1,
                           onTap: () async {
                             onTapVibrate();
-                            ScaffoldMessenger.maybeOf(context)!
-                                .removeCurrentSnackBar();
-                            if (!notifier.fontFamilyFallback
-                                .contains(font.familyName)) {
+                            ScaffoldMessenger.maybeOf(context)!.removeCurrentSnackBar();
+                            if (!notifier.fontFamilyFallback.contains(font.familyName)) {
                               await notifier
                                   .replaceFontInMap(
                                 font.familyName,
@@ -82,8 +77,7 @@ class FontManagerScreen extends HookWidget with WSnackBar {
                               )
                                   .then(
                                 (success) {
-                                  Future.delayed(ConfigConstant.fadeDuration)
-                                      .then(
+                                  Future.delayed(ConfigConstant.fadeDuration).then(
                                     (value) {
                                       showSnackBar(
                                         context: context,

@@ -15,11 +15,11 @@ import 'package:storypad/services/storages/local_storages/w_database.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
-import 'package:storypad/mixins/snakbar_mixin.dart';
+import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/notifier/home_screen_notifier.dart';
 import 'dart:io' as io;
 
-class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBar, ChangeNotifierMixin {
+class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin, ChangeNotifierMixin {
   RemoteDatabaseService service = RemoteDatabaseService();
   AuthenticationService auth = AuthenticationService();
 

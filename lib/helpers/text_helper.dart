@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:storypad/configs/theme_config.dart';
 import 'package:easy_localization/easy_localization.dart' as easy;
+import 'package:storypad/constants/app_constant.dart';
 
 class TextHelper {
-  static final List<String> fontFamilyFallback = ["Quicksand", "Kantumruy"];
-
   static double getMaxHeight(BuildContext context) {
     /// get text max height
     final TextStyle? body1 = Theme.of(context).textTheme.bodyText1;
     List<double> heights = [];
-    for (var i = 0; i < fontFamilyFallback.length; i++) {
+    for (var i = 0; i < AppConstant.fontFamilyFallbackDefault.length; i++) {
       final String example = ThemeConfig.fontFamilyFallbackExample[i];
       heights.add(TextHelper.calculateTextHeight(
         example,
@@ -34,7 +33,7 @@ class TextHelper {
     int maxLines,
     Locale locale,
   ) {
-    final fontFamilyFallback = ["Quicksand", "Kantumruy"];
+    final fontFamilyFallback = AppConstant.fontFamilyFallbackDefault.entries.map((e) => e.value).toList();
     TextPainter painter = TextPainter(
       ///AUTO: If the locale is not specified for Huawei mobile phones, the text height calculated by this method is smaller than the system calculation.
       locale: locale,

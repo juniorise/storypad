@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:storypad/mixins/snakbar_mixin.dart';
+import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 
-class ImageViewer extends HookWidget with WSnackBar {
+class ImageViewer extends HookWidget with WSnackBarMixin {
   const ImageViewer({
     Key? key,
     required this.imageChild,
@@ -62,8 +62,7 @@ class ImageViewer extends HookWidget with WSnackBar {
                 onTap: () => Navigator.of(context).pop(),
                 behavior: HitTestBehavior.opaque,
                 child: PhotoView.customChild(
-                  backgroundDecoration:
-                      BoxDecoration(color: Colors.transparent),
+                  backgroundDecoration: BoxDecoration(color: Colors.transparent),
                   minScale: 0.99,
                   child: Container(
                     height: MediaQuery.of(context).size.height,

@@ -14,7 +14,7 @@ import 'package:storypad/widgets/w_list_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/dialog_mixin.dart';
-import 'package:storypad/mixins/snakbar_mixin.dart';
+import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:storypad/models/story_model.dart';
 import 'package:storypad/notifier/auth_notifier.dart';
 import 'package:storypad/notifier/check_for_update_notifier.dart';
@@ -33,7 +33,7 @@ import 'package:storypad/widgets/w_about_dialog.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-class SettingScreen extends HookWidget with DialogMixin, WSnackBar {
+class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
   final double avatarSize = 72;
   final bool locked;
   SettingScreen({this.locked = false});

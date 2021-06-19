@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:storypad/widgets/vt_ontap_effect.dart';
 import 'package:storypad/widgets/w_snack_bar_action.dart' as w;
 
-mixin WSnackBar {
+mixin WSnackBarMixin {
   SnackBar buildSnackBar({
     required String title,
     required BuildContext context,
@@ -11,10 +11,7 @@ mixin WSnackBar {
     VoidCallback? onActionPressed,
     bool warning = false,
   }) {
-    final style = Theme.of(context)
-        .textTheme
-        .bodyText1!
-        .copyWith(color: Theme.of(context).colorScheme.onSecondary);
+    final style = Theme.of(context).textTheme.bodyText1!.copyWith(color: Theme.of(context).colorScheme.onSecondary);
 
     final actions = onActionPressed != null
         ? w.WSnackBarAction(
