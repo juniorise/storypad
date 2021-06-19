@@ -1,11 +1,8 @@
-import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/configs/theme_config.dart';
-import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/font_manager_notifier.dart';
 import 'package:storypad/notifier/lock_state_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
@@ -30,84 +27,6 @@ class App extends HookWidget {
       navigatorKey: navigatorKey,
       home: lockNotifier.enable ? LockScreenWrapper(LockFlowType.UNLOCK) : WrapperScreens(),
       theme: ThemeConfig(fontNotifier.fontFamilyFallback).get(isDarkMode: notifier.isDarkMode),
-    );
-  }
-}
-
-class WErrorWidget extends StatelessWidget {
-  const WErrorWidget({
-    Key? key,
-    required this.errorDetails,
-  }) : super(key: key);
-
-  final FlutterErrorDetails? errorDetails;
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 48.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "assets/illustrations/error-cloud.png",
-                  height: 100,
-                ),
-                const SizedBox(height: 16),
-                if (errorDetails != null)
-                  Text(
-                    errorDetails!.summary.toDescription().toString(),
-                    style: Theme.of(context).textTheme.headline6,
-                    textAlign: TextAlign.center,
-                  ),
-                const SizedBox(height: 16),
-                Text(
-                  "Try restart the app or clear app cache and data",
-                  style: Theme.of(context).textTheme.bodyText1,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  child: Text(
-                    "Exit app".toUpperCase(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamilyFallback: Theme.of(context).textTheme.bodyText1?.fontFamilyFallback,
-                    ),
-                  ),
-                  onPressed: () async {
-                    exit(1);
-                  },
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: ConfigConstant.circlarRadius1,
-                      ),
-                    ),
-                    overlayColor: MaterialStateProperty.all(Colors.transparent),
-                    foregroundColor: MaterialStateProperty.all(Theme.of(context).colorScheme.error),
-                    backgroundColor: MaterialStateProperty.resolveWith(
-                      (states) {
-                        if (states.contains(MaterialState.pressed) ||
-                            states.contains(MaterialState.focused) ||
-                            states.contains(MaterialState.hovered) ||
-                            states.contains(MaterialState.selected)) {
-                          return Theme.of(context).colorScheme.surface;
-                        } else {
-                          return Theme.of(context).colorScheme.error.withOpacity(0.05);
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
