@@ -4,7 +4,7 @@ import 'package:flutter_quill/models/documents/attribute.dart';
 import 'package:flutter_quill/models/documents/style.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:storypad/widgets/w_tap_effect.dart';
-import 'package:storypad/widgets/w_quil_toolbar.dart';
+import 'package:storypad/screens/story_detail/local_widgets/w_quil_toolbar.dart';
 
 class WSelectHeaderStyleButton extends StatefulWidget {
   const WSelectHeaderStyleButton({required this.controller, Key? key}) : super(key: key);

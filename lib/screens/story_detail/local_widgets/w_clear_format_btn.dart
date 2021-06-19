@@ -3,7 +3,7 @@ import 'package:flutter_quill/models/documents/attribute.dart';
 import 'package:flutter_quill/models/documents/document.dart';
 import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
-import 'package:storypad/widgets/w_quil_toolbar.dart';
+import 'package:storypad/screens/story_detail/local_widgets/w_quil_toolbar.dart';
 
 class WClearFormatButton extends StatefulWidget {
   final IconData icon;

@@ -6,7 +6,7 @@ import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/mixins/w_snakbar_mixin.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/notifier/remote_database_notifier.dart';
-import 'package:storypad/screens/setting_screen.dart';
+import 'package:storypad/screens/setting/setting_screen.dart';
 
 class BackupButton extends HookWidget with WSnackBarMixin {
   const BackupButton({

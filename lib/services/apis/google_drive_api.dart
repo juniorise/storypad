@@ -3,21 +3,13 @@ import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:storypad/models/db_backup_model.dart';
-import 'package:storypad/services/authentication_service.dart';
+import 'package:storypad/services/authentication/authentication_service.dart';
+import 'package:storypad/services/authentication/google_auth_client.dart';
 import 'package:storypad/services/storages/preference_storages//auth_header_storage.dart';
 import 'package:storypad/services/storages/preference_storages//story_folder_storage.dart';
 import 'package:storypad/services/storages/preference_storages//user_data_id_storage.dart';
 
-class GoogleAuthClient extends http.BaseClient {
-  final Map<String, String> _headers;
-  final http.Client _client = new http.Client();
-  GoogleAuthClient(this._headers);
-  Future<http.StreamedResponse> send(http.BaseRequest request) {
-    return _client.send(request..headers.addAll(_headers));
-  }
-}
-
-class GoogleDriveApiService {
+class GoogleDriveApi {
   static Future<void> setAuthHeader() async {
     /// if no user is logged in,
     /// then log in

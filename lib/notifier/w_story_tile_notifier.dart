@@ -6,7 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/helpers/quill_helper.dart';
 import 'package:storypad/services/storages/local_storages/w_database.dart';
 import 'package:storypad/models/story_model.dart';
-import 'package:storypad/services/google_drive_api_service.dart';
+import 'package:storypad/services/apis/google_drive_api.dart';
 
 class WStoryTileNotifier extends ChangeNotifier {
   StoryModel story;
@@ -43,7 +43,7 @@ class WStoryTileNotifier extends ChangeNotifier {
     for (var path in files ?? []) {
       bool exist = await File(path).exists();
       if (exist) {
-        final image = await GoogleDriveApiService.upload(File(path));
+        final image = await GoogleDriveApi.upload(File(path));
         if (image != null) {
           _tmpParagraph = _tmpParagraph?.replaceAll(path, image);
           i++;

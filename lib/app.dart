@@ -6,8 +6,8 @@ import 'package:storypad/configs/theme_config.dart';
 import 'package:storypad/notifier/font_manager_notifier.dart';
 import 'package:storypad/notifier/lock_state_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
-import 'package:storypad/screens/lock_screen.dart';
-import 'package:storypad/screens/wrapper_screens.dart';
+import 'package:storypad/screens/lock/lock_screen.dart';
+import 'package:storypad/screens/wrapper/wrapper_screens.dart';
 
 class App extends HookWidget {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey();

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/app.dart';
 import 'package:storypad/notifier/lock_notifier.dart';
-import 'package:storypad/screens/lock_screen.dart';
-import 'package:storypad/services/lock_service.dart';
+import 'package:storypad/screens/lock/lock_screen.dart';
+import 'package:storypad/services/views/lock_service.dart';
 import 'package:storypad/services/storages/preference_storages//is_unlocked_storage.dart';
 
 class LockStateNotifier extends ChangeNotifier with WidgetsBindingObserver {

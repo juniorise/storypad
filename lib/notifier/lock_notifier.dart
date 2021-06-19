@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/notifier/base_notifier.dart';
-import 'package:storypad/screens/lock_screen.dart';
-import 'package:storypad/services/lock_service.dart';
+import 'package:storypad/screens/lock/lock_screen.dart';
+import 'package:storypad/services/views/lock_service.dart';
 import 'package:storypad/services/storages/preference_storages/lock_screen_storage.dart';
 
 class LockDetail {

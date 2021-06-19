@@ -5,10 +5,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:storypad/models/db_backup_model.dart';
 import 'package:storypad/models/user_model.dart';
-import 'package:storypad/services/authentication_service.dart';
-import 'package:storypad/services/backup_service.dart';
-import 'package:storypad/services/google_drive_api_service.dart';
-import 'package:storypad/services/remote_database_service.dart';
+import 'package:storypad/services/apis/firebase_api.dart';
+import 'package:storypad/services/apis/google_drive_api.dart';
+import 'package:storypad/services/authentication/authentication_service.dart';
+import 'package:storypad/services/backups/backup_service.dart';
 import 'package:storypad/helpers/app_helper.dart';
 import 'package:storypad/services/storages/local_storages/w_database.dart';
 import 'package:storypad/constants/config_constant.dart';
@@ -18,8 +18,8 @@ import 'package:storypad/notifier/home_screen_notifier.dart';
 import 'dart:io' as io;
 
 class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin {
-  RemoteDatabaseService service = RemoteDatabaseService();
   AuthenticationService auth = AuthenticationService();
+  FirebaseApi service = FirebaseApi();
 
   DbBackupModel? _backup;
   UserModel? user;
@@ -34,7 +34,7 @@ class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin {
 
   load() async {
     if (auth.user != null) {
-      DbBackupModel? result = await GoogleDriveApiService.fetchTxtData();
+      DbBackupModel? result = await GoogleDriveApi.fetchTxtData();
       if (result == null) {
         result = await service.backup(auth.user!.uid);
         useCsv = false;
@@ -59,7 +59,7 @@ class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin {
     io.File file = io.File(dir);
     file = await file.writeAsString(model.db ?? "");
 
-    String? id = await GoogleDriveApiService.uploadAFile(file);
+    String? id = await GoogleDriveApi.uploadAFile(file);
     if (id != null) {
       await load();
       notifyListeners();

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:storypad/models/db_backup_model.dart';
 
-class RemoteDatabaseService {
+class FirebaseApi {
   static FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static CollectionReference _users = _firestore.collection("users");
 

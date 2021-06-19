@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/app.dart';
 import 'package:storypad/constants/app_constant.dart';
 import 'package:storypad/services/storages/local_storages/w_database.dart';
-import 'package:storypad/services/lock_service.dart';
+import 'package:storypad/services/views/lock_service.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 
 void main() async {

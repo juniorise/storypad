@@ -9,7 +9,7 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:share/share.dart';
 import 'package:storypad/screens/home/local_widgets/backup_button.dart';
-import 'package:storypad/screens/sponser_screen.dart';
+import 'package:storypad/screens/sponser/sponser_screen.dart';
 import 'package:storypad/services/storages/preference_storages//auto_save_bool_storage.dart';
 import 'package:storypad/widgets/w_list_tile.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,12 +22,12 @@ import 'package:storypad/notifier/check_for_update_notifier.dart';
 import 'package:storypad/notifier/lock_notifier.dart';
 import 'package:storypad/notifier/remote_database_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
-import 'package:storypad/screens/font_manager_screen.dart';
-import 'package:storypad/screens/lock_screen.dart';
-import 'package:storypad/screens/lock_setting_screen.dart';
-import 'package:storypad/screens/story_detail_screen.dart';
+import 'package:storypad/screens/font_manager/font_manager_screen.dart';
+import 'package:storypad/screens/lock/lock_screen.dart';
+import 'package:storypad/screens/lock_setting/lock_setting_screen.dart';
+import 'package:storypad/screens/story_detail/story_detail_screen.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
-import 'package:storypad/services/google_drive_api_service.dart';
+import 'package:storypad/services/apis/google_drive_api.dart';
 import 'package:storypad/widgets/w_tap_effect.dart';
 import 'package:storypad/widgets/w_about_dialog.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
@@ -843,7 +843,7 @@ class SettingScreen extends HookWidget with DialogMixin, WSnackBarMixin {
                         return;
                       }
 
-                      final String? id = await GoogleDriveApiService.getStoryFolderId();
+                      final String? id = await GoogleDriveApi.getStoryFolderId();
                       if (id != null) {
                         launch(
                           "https://drive.google.com/drive/folders/$id?usp=sharing",

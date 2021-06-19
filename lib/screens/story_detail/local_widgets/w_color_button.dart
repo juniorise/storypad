@@ -8,7 +8,7 @@ import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
 import 'package:storypad/helpers/measure_size.dart';
 import 'package:storypad/constants/config_constant.dart';
 import 'package:storypad/widgets/w_tap_effect.dart';
-import 'package:storypad/widgets/w_color_picker.dart';
+import 'package:storypad/screens/story_detail/local_widgets/w_color_picker.dart';
 
 /// Controls color styles.
 ///

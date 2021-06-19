@@ -5,9 +5,9 @@ import 'package:flutter_quill/widgets/controller.dart';
 import 'package:flutter_quill/widgets/toolbar.dart' as toolbar;
 import 'package:image_picker/image_picker.dart';
 import 'package:storypad/widgets/w_tap_effect.dart';
-import 'package:storypad/widgets/w_clear_format_btn.dart';
-import 'package:storypad/widgets/w_color_button.dart';
-import 'package:storypad/widgets/w_select_header_style_button.dart';
+import 'package:storypad/screens/story_detail/local_widgets/w_clear_format_btn.dart';
+import 'package:storypad/screens/story_detail/local_widgets/w_color_button.dart';
+import 'package:storypad/screens/story_detail/local_widgets/w_select_header_style_button.dart';
 
 const WTOOLBARICONSIZE = 24.0;
 

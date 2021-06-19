@@ -31,15 +31,15 @@ import 'package:storypad/notifier/story_detail/image_load_notifier.dart';
 import 'package:storypad/notifier/quill_controller_notifier.dart';
 import 'package:storypad/notifier/story_detail/story_detail_screen_notifier.dart';
 import 'package:storypad/notifier/theme_notifier.dart';
-import 'package:storypad/services/story_detail_service.dart';
+import 'package:storypad/services/views/story_detail_service.dart';
 import 'package:storypad/sheets/ask_for_name_sheet.dart';
 import 'package:storypad/sheets/image_viewer_sheet.dart';
-import 'package:storypad/services/image_compress_service.dart';
+import 'package:storypad/services/images/image_compress_service.dart';
 import 'package:storypad/widgets/w_tap_effect.dart';
-import 'package:storypad/widgets/w_emoji_picker_button.dart';
-import 'package:storypad/widgets/w_history_button.dart';
+import 'package:storypad/screens/story_detail/local_widgets/w_emoji_picker_button.dart';
+import 'package:storypad/screens/story_detail/local_widgets/w_history_button.dart';
+import 'package:storypad/screens/story_detail/local_widgets/w_quil_toolbar.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
-import 'package:storypad/widgets/w_quil_toolbar.dart';
 import 'package:tuple/tuple.dart';
 
 class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookController, WSnackBarMixin, DialogMixin {

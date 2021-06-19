@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/notifier/base_notifier.dart';
-import 'package:storypad/services/authentication_service.dart';
+import 'package:storypad/services/authentication/authentication_service.dart';
 
 class AuthenticatoinNotifier extends BaseNotifier {
   AuthenticationService? service = AuthenticationService();

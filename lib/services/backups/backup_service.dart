@@ -1,6 +1,6 @@
 import 'dart:convert' as convert;
 import 'package:sqflite/sqlite_api.dart';
-import 'package:storypad/services/encrypt_service.dart';
+import 'package:storypad/services/encrypt/encrypt_service.dart';
 
 class BackupService {
   BackupService._internal();

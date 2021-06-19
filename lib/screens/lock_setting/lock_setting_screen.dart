@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:storypad/notifier/lock_notifier.dart';
-import 'package:storypad/screens/lock_screen.dart';
+import 'package:storypad/screens/lock/lock_screen.dart';
 import 'package:storypad/widgets/w_icon_button.dart';
 import 'package:storypad/widgets/w_list_tile.dart';
 
@@ -44,18 +44,15 @@ class LockSettingScreen extends HookWidget {
             SizedBox(height: 8.0),
             WListTile(
               iconData: Icons.lock,
-              titleText: notifier.storageLockNumberMap == null
-                  ? tr("button.passcode.set")
-                  : tr("button.passcode.change"),
+              titleText:
+                  notifier.storageLockNumberMap == null ? tr("button.passcode.set") : tr("button.passcode.change"),
               onTap: () {
                 if (notifier.ignoring) return;
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
                       return LockScreenWrapper(
-                        notifier.storageLockNumberMap == null
-                            ? LockFlowType.SET
-                            : LockFlowType.REPLACE,
+                        notifier.storageLockNumberMap == null ? LockFlowType.SET : LockFlowType.REPLACE,
                       );
                     },
                   ),

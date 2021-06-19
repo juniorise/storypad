@@ -1,7 +1,7 @@
 import 'package:storypad/notifier/base_notifier.dart';
 import 'package:flutter_inapp_purchase/modules.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:storypad/services/payment_service.dart';
+import 'package:storypad/services/payment/payment_service.dart';
 
 class SponserNotifier extends BaseNotifier {
   PaymentService instance = PaymentService.instance;
