@@ -7,7 +7,6 @@ import "package:path/path.dart";
 class WDatabase {
   WDatabase._privateConstructor();
   static final WDatabase instance = WDatabase._privateConstructor();
-
   static Database? _database;
 
   Future<Database?> get database async {
@@ -16,15 +15,31 @@ class WDatabase {
     return _database;
   }
 
-  Future<Database> _init() async {
+  Future<String> dbPath() async {
     Directory applicationDirectory = await getApplicationDocumentsDirectory();
     String dbPath = join(applicationDirectory.path, "write_story.db");
-    bool dbExists = await File(dbPath).exists();
-    if (!dbExists) _onDbExist(dbPath);
-    return await openDatabase(dbPath, onOpen: _onOpen, version: 3);
+    return dbPath;
   }
 
-  _onDbExist(String dbPath) async {
+  Future<Database> _init() async {
+    String _dbPath = await dbPath();
+    bool dbExists = await File(_dbPath).exists();
+
+    if (dbExists) {
+      try {
+        final db = await openDatabase(_dbPath, onOpen: _onOpen, version: 3);
+        return db;
+      } catch (e) {
+        await createAppDb(_dbPath);
+      }
+    } else {
+      await createAppDb(_dbPath);
+    }
+
+    return await openDatabase(_dbPath, onOpen: _onOpen, version: 3);
+  }
+
+  Future<void> createAppDb(String dbPath) async {
     // copy from asset
     ByteData data = await rootBundle.load(
       join("assets/database", "write_story.db"),
@@ -39,7 +54,7 @@ class WDatabase {
     await File(dbPath).writeAsBytes(bytes, flush: true);
   }
 
-  _onOpen(database) async {
+  Future<void> _onOpen(database) async {
     /// add new feeling column if not existed
     try {
       await database.rawQuery("SELECT feeling from story;");

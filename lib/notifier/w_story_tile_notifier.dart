@@ -43,7 +43,7 @@ class WStoryTileNotifier extends ChangeNotifier {
     for (var path in files ?? []) {
       bool exist = await File(path).exists();
       if (exist) {
-        final image = await GoogleDriveApi.upload(File(path));
+        final image = await GoogleDriveApi.uploadAnImage(File(path));
         if (image != null) {
           _tmpParagraph = _tmpParagraph?.replaceAll(path, image);
           i++;

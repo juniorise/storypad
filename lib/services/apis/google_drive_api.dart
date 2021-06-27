@@ -161,7 +161,7 @@ class GoogleDriveApi {
     return response2.id;
   }
 
-  static Future<String?> upload(io.File image) async {
+  static Future<String?> uploadAnImage(io.File image) async {
     drive.DriveApi driveApi = await getDriveApi();
 
     try {
