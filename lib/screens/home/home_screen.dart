@@ -24,6 +24,8 @@ import 'package:storypad/widgets/w_story_tile.dart';
 import 'package:storypad/widgets/w_tab_view.dart';
 import 'package:storypad/widgets/w_no_data.dart';
 import 'package:storypad/widgets/w_sliver_appbar.dart';
+import 'package:storypad/widgets/w_tap_effect.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'local_widgets/backup_tile.dart';
 
 class HomeScreen extends HookWidget with HookController, DialogMixin {
@@ -40,6 +42,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     print("Build HomeScreen");
 
     final faqNotifier = useState<bool>(false);
+    final alertNotifier = useState<bool>(true);
     final _notifier = useProvider(homeScreenProvider);
 
     final controller = useTabController(
@@ -57,6 +60,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
       statusBarHeight: statusBarHeight,
       bottomBarHeight: bottomBarHeight,
       faqNotifier: faqNotifier,
+      alertNotifier: alertNotifier,
     );
 
     final fadeScaffold = buildFadeInitAnimationBackground(
@@ -96,6 +100,7 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
     required double statusBarHeight,
     required double bottomBarHeight,
     required ValueNotifier<bool> faqNotifier,
+    required ValueNotifier<bool> alertNotifier,
   }) {
     return WillPopScope(
       onWillPop: () async {
@@ -145,6 +150,65 @@ class HomeScreen extends HookWidget with HookController, DialogMixin {
                     notifier: notifier,
                     bottomBarHeight: bottomBarHeight,
                     themeNotifier: themeNotifier,
+                  ),
+                  SliverToBoxAdapter(
+                    child: AnimatedCrossFade(
+                      crossFadeState: alertNotifier.value ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                      duration: ConfigConstant.fadeDuration,
+                      sizeCurve: Curves.ease,
+                      firstChild: SizedBox(width: double.infinity),
+                      secondChild: Container(
+                        padding: EdgeInsets.all(ConfigConstant.margin0),
+                        color: Theme.of(context).colorScheme.error,
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              child: RichText(
+                                textAlign: TextAlign.center,
+                                text: TextSpan(
+                                  text: "StoryPad is going to be ending its service. ",
+                                  style: Theme.of(context).textTheme.caption?.copyWith(
+                                        color: Theme.of(context).colorScheme.onError,
+                                      ),
+                                  children: [
+                                    WidgetSpan(
+                                      child: WTapEffect(
+                                        child: Text(
+                                          "Learn more",
+                                          style: Theme.of(context).textTheme.caption?.copyWith(
+                                                color: Theme.of(context).colorScheme.onError,
+                                                decoration: TextDecoration.underline,
+                                                decorationColor: Theme.of(context).colorScheme.onError,
+                                              ),
+                                        ),
+                                        onTap: () {
+                                          launch(
+                                              'https://docs.google.com/document/d/13c1x8H94_FtiGRG3BUutwfHMPprwBcBsywz4CUMIbv4');
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              right: 0,
+                              child: WTapEffect(
+                                onTap: () {
+                                  alertNotifier.value = !alertNotifier.value;
+                                },
+                                child: Icon(
+                                  Icons.clear,
+                                  color: Theme.of(context).colorScheme.onError,
+                                  size: ConfigConstant.iconSize1,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
                   )
                 ],
                 body: Builder(
