@@ -35,7 +35,8 @@ abstract class BaseDatabase {
       List<Map<dynamic, dynamic>>? result = await database?.query(table());
       if (result == null) return null;
       if (result.isEmpty) return null;
-      return itemsTransformer(result);
+      var rt = itemsTransformer(result);
+      return rt;
     });
   }
 
@@ -74,8 +75,11 @@ abstract class BaseDatabase {
     List<BaseModel?> items = list.map((json) {
       return objectTransformer(json);
     }).toList();
-    items.removeWhere((element) => element == null);
-    return items as List<BaseModel>?;
+    List<BaseModel> result = [];
+    items.forEach((e) {
+      if (e is BaseModel) result.add(e);
+    });
+    return result;
   }
 
   BaseModel? objectTransformer(Map<dynamic, dynamic>? json);

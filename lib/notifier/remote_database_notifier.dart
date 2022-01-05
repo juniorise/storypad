@@ -36,15 +36,16 @@ class RemoteDatabaseNotifier with ChangeNotifier, DialogMixin, WSnackBarMixin {
 
   load() async {
     if (auth.user != null) {
-      // DbBackupModel? result = await GoogleDriveApi.fetchTxtData();
-      DbBackupModel? result = await service.backup(auth.user!.uid);
-      useCsv = false;
-      // if (result == null) {
-      //   result = await service.backup(auth.user!.uid);
-      //   useCsv = false;
-      // } else {
-      //   useCsv = true;
-      // }
+      DbBackupModel? result = await GoogleDriveApi.fetchTxtData();
+
+      if (result == null) {
+        result = await service.backup(auth.user!.uid);
+        useCsv = false;
+      } else {
+        useCsv = true;
+      }
+
+      print(result?.db);
 
       if (result != null && result.db != null) {
         this._backup = result;

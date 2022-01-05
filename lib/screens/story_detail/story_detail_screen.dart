@@ -213,7 +213,7 @@ class StoryDetailScreen extends HookWidget with StoryDetailMethodMixin, HookCont
                   keyboardAppearance: _theme.colorScheme.brightness,
                   enableInteractiveSelection: true,
                   expands: false,
-                  embedBuilder: (BuildContext context, leaf.Embed node) {
+                  embedBuilder: (BuildContext context, leaf.Embed node, bool readOnly) {
                     return _embedBuilder(
                       context: context,
                       node: node,

@@ -14,6 +14,7 @@ class StoryDatabase extends BaseDatabase {
 
   Future<Map<int, StoryModel>> storyById({String? where}) async {
     final list = await super.fetchAll();
+
     Map<int, StoryModel> map = {};
     list?.forEach((e) {
       if (e is StoryModel) {
@@ -21,6 +22,7 @@ class StoryDatabase extends BaseDatabase {
         map[e.id] = e.copyWith(paragraph: _paragraph?.replaceAll(this.singleQuote, "'"));
       }
     });
+
     return map;
   }
 

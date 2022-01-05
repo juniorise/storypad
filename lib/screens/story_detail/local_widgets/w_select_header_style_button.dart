@@ -95,7 +95,7 @@ class _WSelectHeaderStyleButtonState extends State<WSelectHeaderStyleButton> {
       mainAxisSize: MainAxisSize.min,
       children: List.generate(3, (index) {
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: !kIsWeb ? 1.0 : 5.0),
+          padding: EdgeInsets.symmetric(horizontal: !kIsWeb ? 1.0 : 5.0),
           child: ConstrainedBox(
             constraints: BoxConstraints.tightFor(
               width: iconSize * 1.77,

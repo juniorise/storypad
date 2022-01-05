@@ -58,8 +58,10 @@ class WDatabase {
     /// add new feeling column if not existed
     try {
       await database.rawQuery("SELECT feeling from story;");
+      await database.rawQuery("SELECT is_share from story");
     } catch (e) {
       await database.execute("ALTER TABLE story ADD COLUMN feeling char(50);");
+      await database.execute("ALTER TABLE story ADD COLUMN is_share INTEGER");
     }
   }
 }
