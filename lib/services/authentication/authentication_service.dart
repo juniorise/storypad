@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:storypad/services/local_storages/preferences/auth_header_storage.dart';
@@ -30,10 +31,30 @@ class AuthenticationService {
   Future<bool> signInWithGoogle() async {
     this._errorMessage = null;
 
-    if (await this.googleSignIn.isSignedIn()) await googleSignIn.signOut();
+    if (await this.googleSignIn.isSignedIn()) {
+      try {
+        await googleSignIn.signOut();
+      } catch (e) {
+        this._errorMessage = e.toString();
+
+        if (e is PlatformException) {
+          this._errorMessage = e.code + ": " + (e.message ?? "");
+        }
+        return false;
+      }
+    }
     GoogleSignInAccount? googleUser;
 
-    googleUser = await googleSignIn.signIn();
+    try {
+      googleUser = await googleSignIn.signIn();
+    } catch (e) {
+      this._errorMessage = e.toString();
+
+      if (e is PlatformException) {
+        this._errorMessage = e.code + ": " + (e.message ?? "");
+      }
+      return false;
+    }
 
     if (googleUser == null) {
       this._errorMessage = tr("msg.login.cancel");
